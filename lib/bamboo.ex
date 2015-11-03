@@ -1,0 +1,2 @@
+defmodule Bamboo do
+end
