@@ -5,8 +5,10 @@ defmodule Bamboo.Mixfile do
     [app: :bamboo,
      version: "0.0.1",
      elixir: "~> 1.1",
+     description: "Makes emails awesome",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     package: package,
      deps: deps]
   end
 
@@ -15,6 +17,13 @@ defmodule Bamboo.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger]]
+  end
+
+  defp package do
+    [
+      maintainers: ["Paul Smith"],
+      licenses: ["MIT"]
+    ]
   end
 
   # Dependencies can be Hex packages:
