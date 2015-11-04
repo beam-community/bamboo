@@ -56,8 +56,8 @@ defmodule MyApp.Emails do
 
   def welcome_email do
     base_email
-    # A way to bulk update email attributes. Still figuring out
-    |> update_attrs(bcc: "someone@bar.com", from: "other_person@foo.com")
+    # Bulk update the email
+    |> struct(bcc: "someone@bar.com", from: "other_person@foo.com")
     |> to("foo@bar.com", ["John Smith": "john@foo.com"])
     |> cc(author) # You can set up a custom protocol that handles different types of structs.
     |> subject("Welcome!!!")
