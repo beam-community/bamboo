@@ -2,7 +2,7 @@
 
 A library for handling emails. Makes testing easy as well.
 
-*This code in the README is just a proof of concept.* Once I like how it looks I
+**This code in the README is just a proof of concept.** Once I like how it looks I
 will actually write the code. Don't be surprised that there is no code here yet.
 
 ## Usage
