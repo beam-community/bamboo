@@ -22,7 +22,7 @@ defmodule MyApp.Mailer do
 end
 
 defmodule MyApp.Emails do
-  use Bamboo.Email
+  import Bamboo.Email
 
   def welcome_email do
     mail(
@@ -56,9 +56,9 @@ defmodule MyApp.Emails do
 
   def welcome_email do
     base_email
-    # Bulk update the email
-    |> struct(bcc: "someone@bar.com", from: "other_person@foo.com")
-    |> to("foo@bar.com", ["John Smith": "john@foo.com"])
+    # A way to bulk update email attributes. Still figuring out
+    |> update_attrs(bcc: "someone@bar.com", from: "other_person@foo.com")
+    |> to("foo@bar.com", %{name: "John Smith", email:"john@foo.com"})
     |> cc(author) # You can set up a custom protocol that handles different types of structs.
     |> subject("Welcome!!!")
     |> tag("welcome-email") # Imported by Bamboo.MandrillEmails
@@ -79,8 +79,9 @@ end
 
 defimpl Bamboo.Formatter, for: User do
   # Used by `to`, `bcc`, `cc` and `from`
-  def extract_email(%User{email: email, name: name}) do
-    [name => email]
+  def extract_email(user) do
+    fullname = "#{user.first_name} #{user.last_name}"
+    %{name: fullname, email: email}
   end
 end
 ```
