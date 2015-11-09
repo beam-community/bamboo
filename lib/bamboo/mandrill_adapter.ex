@@ -5,7 +5,7 @@ defmodule Bamboo.MandrillAdapter do
   def deliver(email, config) do
     api_key = Keyword.fetch!(config, :api_key)
     params = email |> convert_to_mandrill_params(api_key) |> Poison.encode!
-    HTTPoison.post("#{base_uri}/#{@send_message_path}", params, headers)
+    request(@send_message_path, params)
   end
 
   defp convert_to_mandrill_params(email, api_key) do
@@ -43,6 +43,10 @@ defmodule Bamboo.MandrillAdapter do
 
   defp headers do
     %{"content-type" => "application/json"}
+  end
+
+  defp request(path, params) do
+    HTTPoison.post("#{base_uri}/#{path}", params, headers)
   end
 
   defp base_uri do
