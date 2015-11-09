@@ -9,7 +9,6 @@ defmodule Bamboo.MandrillAdapterTest do
 
   Application.put_env(:bamboo, __MODULE__.Mailer, adapter: MandrillAdapter, api_key: @api_key)
 
-
   defmodule Mailer do
     use Bamboo.Mailer, otp_app: :bamboo
   end
@@ -27,6 +26,7 @@ defmodule Bamboo.MandrillAdapterTest do
     def start_server(parent) do
       Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
       Agent.update(__MODULE__, &HashDict.put(&1, :parent, parent))
+      Application.put_env(:bamboo, :mandrill_base_uri, "http://localhost:4001")
       Plug.Adapters.Cowboy.http __MODULE__, [], port: 4001
     end
 
