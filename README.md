@@ -125,7 +125,7 @@ defmodule MyApp.MailerTest do
 
     email = TestMailbox.deliveries |> List.first
     # or use TestMailbox.one which will raise if there is anything but one email
-delivered
+    # delivered
     assert email.to == "someone@foo.com"
     assert email.subject == "This is your welcome email"
     assert email.html_body =~ "Welcome to the app!"

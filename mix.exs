@@ -21,7 +21,10 @@ defmodule Bamboo.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :cowboy, :httpoison, :poison]]
+    [
+      applications: [:logger, :cowboy, :httpoison, :poison],
+      mod: {Bamboo, []}
+    ]
   end
 
   defp package do
