@@ -9,6 +9,12 @@ defmodule Bamboo.Mailer do
       def deliver(email) do
         Bamboo.Mailer.deliver(@adapter, email, @config)
       end
+
+      def deliver_async(email) do
+        Task.async(fn ->
+          deliver(email)
+        end)
+      end
     end
   end
 

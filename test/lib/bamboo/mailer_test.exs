@@ -5,7 +5,7 @@ defmodule Bamboo.MailerTest do
 
   defmodule FooAdapter do
     def deliver(email, config) do
-      send self, {:deliver, email, config}
+      send :test, {:deliver, email, config}
     end
   end
 
@@ -15,6 +15,11 @@ defmodule Bamboo.MailerTest do
 
   defmodule FooMailer do
     use Bamboo.Mailer, otp_app: :bamboo
+  end
+
+  setup do
+    Process.register(self, :test)
+    :ok
   end
 
   test "deliver/1 calls the adapter with the email and config" do
@@ -30,6 +35,25 @@ defmodule Bamboo.MailerTest do
 
     assert_received {:deliver, delivered_email, _}
     assert delivered_email.from == %{name: nil, address: nil}
+  end
+
+  test "deliver_async/1 calls the regular deliver method asynchronously" do
+    email = new_email
+
+    FooMailer.deliver_async(email)
+
+    assert_receive {:deliver, delivered_email, _}
+    assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
+  end
+
+  test "deliver_async/1 returns a Task that can be awaited on" do
+    email = new_email
+
+    task = FooMailer.deliver_async(email)
+
+    Task.await(task)
+    assert_received {:deliver, delivered_email, _}
+    assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
   end
 
   test "deliver/1 wraps the recipients in a list" do
