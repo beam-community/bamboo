@@ -92,4 +92,16 @@ defmodule Bamboo.MandrillAdapterTest do
       %{"name" => "BCC", "email" => "bcc@bar.com", "type" => "bcc"}
     ]
   end
+
+  test "deliver/2 adds extra params to the message " do
+    email = new_email
+    |> Email.put_private("important", true)
+    |> Email.put_private("merge_language", "handlebars")
+
+    email |> Mailer.deliver
+
+    assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
+    assert message["important"] == true
+    assert message["merge_language"] == "handlebars"
+  end
 end

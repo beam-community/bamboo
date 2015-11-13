@@ -44,4 +44,10 @@ defmodule Bamboo.EmailTest do
     assert email.subject == "Flexible Emails"
     assert email.headers["Reply-To"] == "reply@foo.com"
   end
+
+  test "put_private/3 puts a key and value in the private attribute" do
+    email = new_email |> put_private("foo", "bar")
+
+    assert email.private["foo"] == "bar"
+  end
 end

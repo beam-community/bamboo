@@ -6,7 +6,10 @@ defmodule Bamboo.Email do
       subject: nil,
       html_body: nil,
       text_body: nil,
-      headers: %{}
+      headers: %{},
+      private: %{}
+
+  alias Bamboo.Email
 
   @attribute_pipe_functions [:from, :to, :cc, :bcc, :subject]
 
@@ -22,5 +25,9 @@ defmodule Bamboo.Email do
 
   def put_header(%__MODULE__{headers: headers} = email, header_name, value) do
     %{email | headers: Map.put(headers, header_name, value)}
+  end
+
+  def put_private(%Email{private: private} = email, key, value) do
+    %{email | private: Map.put(private, key, value)}
   end
 end
