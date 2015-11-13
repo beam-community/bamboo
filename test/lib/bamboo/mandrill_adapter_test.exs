@@ -2,6 +2,7 @@ defmodule Bamboo.MandrillAdapterTest do
   use ExUnit.Case
 
   alias Bamboo.Email
+  alias Bamboo.MandrillEmail
   import Bamboo.Email, only: [new_email: 1, new_email: 0]
   alias Bamboo.MandrillAdapter
 
@@ -94,14 +95,11 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 adds extra params to the message " do
-    email = new_email
-    |> Email.put_private("important", true)
-    |> Email.put_private("merge_language", "handlebars")
+    email = new_email |> MandrillEmail.put_message_param("important", true)
 
     email |> Mailer.deliver
 
     assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
     assert message["important"] == true
-    assert message["merge_language"] == "handlebars"
   end
 end
