@@ -22,7 +22,15 @@ defmodule Bamboo.MandrillAdapter do
       html: email.html_body,
       headers: email.headers
     }
+    |> add_message_params(email)
   end
+
+  defp add_message_params(mandrill_message, %{private: %{message_params: message_params}}) do
+    Enum.reduce(message_params, mandrill_message, fn({key, value}, mandrill_message) ->
+      Map.put(mandrill_message, key, value)
+    end)
+  end
+  defp add_message_params(mandrill_message, _), do: mandrill_message
 
   defp recipients(email) do
     []
