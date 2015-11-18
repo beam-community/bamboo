@@ -10,4 +10,8 @@ defmodule Bamboo.MandrillEmail do
   def put_message_param(email, key, value) do
     email |> Email.put_private(:message_params, %{}) |> put_message_param(key, value)
   end
+
+  def tag(email, tags) do
+    put_message_param(email, "tags", List.wrap(tags))
+  end
 end

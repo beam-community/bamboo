@@ -9,4 +9,12 @@ defmodule Bamboo.MandrillEmailTest do
 
     assert email.private.message_params == %{"track_links" => true}
   end
+
+  test "adds tags to mandrill emails" do
+    email = new_email |> MandrillEmail.tag("welcome-email")
+    assert email.private.message_params == %{"tags" => ["welcome-email"]}
+
+    email = new_email |> MandrillEmail.tag(["welcome-email", "awesome"])
+    assert email.private.message_params == %{"tags" => ["welcome-email", "awesome"]}
+  end
 end
