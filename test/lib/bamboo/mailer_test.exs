@@ -82,8 +82,40 @@ defmodule Bamboo.MailerTest do
     assert delivered_email.bcc == [converted_address]
   end
 
-  test "raises an error if an address is not in a correct format" do
+  defmodule User do
+    defstruct first_name: "", email: ""
+  end
+
+  defimpl Bamboo.Formatter, for: User do
+    def format_recipient(user) do
+      %{name: user.first_name, address: user.email}
+    end
+  end
+
+  test "converts structs with custom protocols" do
+    user = %User{first_name: "Paul", email: "foo@bar.com"}
+    email = new_email(from: user, to: user, cc: user, bcc: user)
+
+    FooMailer.deliver(email)
+
+    converted_address = %{name: user.first_name, address: user.email}
+    assert_received {:deliver, delivered_email, _}
+    assert delivered_email.from == converted_address
+    assert delivered_email.to == [converted_address]
+    assert delivered_email.cc == [converted_address]
+    assert delivered_email.bcc == [converted_address]
+  end
+
+  test "raises an error if an address does not have a protocol implemented" do
     email = new_email(from: [foo: :bar])
+
+    assert_raise Protocol.UndefinedError, fn ->
+      FooMailer.deliver(email)
+    end
+  end
+
+  test "raises an error if the map is not in the right format" do
+    email = new_email(from: %{foo: :bar})
 
     assert_raise ArgumentError, fn ->
       FooMailer.deliver(email)
