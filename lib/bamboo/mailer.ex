@@ -35,11 +35,10 @@ defmodule Bamboo.Mailer do
     }
   end
 
-  defp normalize(emails) when is_list(emails) do
-    emails |> Enum.map(&normalize/1)
-  end
   defp normalize(nil), do: %{name: nil, address: nil}
-  defp normalize(record), do: Formatter.format_recipient(record)
+  defp normalize(record) do
+    Formatter.format_recipient(record)
+  end
 
   def parse_opts(mailer, opts) do
     otp_app = Keyword.fetch!(opts, :otp_app)

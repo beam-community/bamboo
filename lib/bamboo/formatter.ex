@@ -2,6 +2,12 @@ defprotocol Bamboo.Formatter do
   def format_recipient(email)
 end
 
+defimpl Bamboo.Formatter, for: List do
+  def format_recipient(email_addresses) do
+    email_addresses |> Enum.map(&Bamboo.Formatter.format_recipient/1)
+  end
+end
+
 defimpl Bamboo.Formatter, for: BitString do
   def format_recipient(email_address) do
     %{name: nil, address: email_address}
