@@ -7,6 +7,10 @@ defmodule Bamboo.MailerTest do
     def deliver(email, config) do
       send :test, {:deliver, email, config}
     end
+
+    def deliver_async(email, config) do
+      send :test, {:deliver_async, email, config}
+    end
   end
 
   @mailer_config adapter: FooAdapter, foo: :bar
@@ -37,22 +41,13 @@ defmodule Bamboo.MailerTest do
     assert delivered_email.from == %{name: nil, address: nil}
   end
 
-  test "deliver_async/1 calls the regular deliver method asynchronously" do
+  test "deliver_async/1 calls deliver_async on the adapter" do
     email = new_email
 
     FooMailer.deliver_async(email)
 
-    assert_receive {:deliver, delivered_email, _}
-    assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
-  end
-
-  test "deliver_async/1 returns a Task that can be awaited on" do
-    email = new_email
-
-    task = FooMailer.deliver_async(email)
-
-    Task.await(task)
-    assert_received {:deliver, delivered_email, _}
+    assert_receive {:deliver_async, delivered_email, config}
+    assert config == @mailer_config
     assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
   end
 

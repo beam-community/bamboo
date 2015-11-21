@@ -13,9 +13,7 @@ defmodule Bamboo.Mailer do
       end
 
       def deliver_async(email) do
-        Task.async(fn ->
-          deliver(email)
-        end)
+        Bamboo.Mailer.deliver_async(@adapter, email, @config)
       end
     end
   end
@@ -24,6 +22,12 @@ defmodule Bamboo.Mailer do
     email = email |> Bamboo.Mailer.normalize_addresses
 
     adapter.deliver(email, config)
+  end
+
+  def deliver_async(adapter, email, config) do
+    email = email |> Bamboo.Mailer.normalize_addresses
+
+    adapter.deliver_async(email, config)
   end
 
   def normalize_addresses(email) do

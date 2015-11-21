@@ -8,6 +8,12 @@ defmodule Bamboo.MandrillAdapter do
     request(@send_message_path, params)
   end
 
+  def deliver_async(email, config) do
+    Task.async(fn ->
+      deliver(email, config)
+    end)
+  end
+
   defp convert_to_mandrill_params(email, api_key) do
     %{api_key: api_key, message: message_params(email)}
   end

@@ -77,6 +77,29 @@ defmodule Bamboo.MandrillAdapterTest do
     assert message["headers"] == email.headers
   end
 
+  test "deliver_async sends asynchronously and can be awaited upon" do
+    email = new_email(
+      from: %{name: "From", address: "from@foo.com"},
+      subject: "My Subject",
+      text_body: "TEXT BODY",
+      html_body: "HTML BODY",
+    )
+    |> Email.put_header("Reply-To", "reply@foo.com")
+
+    task = email |> Mailer.deliver_async
+
+    Task.await(task)
+    assert_receive {:fake_mandrill, %{params: params}}
+    assert params["api_key"] == @api_key
+    message = params["message"]
+    assert message["from_email"] == email.from.address
+    assert message["from_name"] == email.from.name
+    assert message["subject"] == email.subject
+    assert message["text"] == email.text_body
+    assert message["html"] == email.html_body
+    assert message["headers"] == email.headers
+  end
+
   test "deliver/2 correctly formats recipients" do
     email = new_email(
       to: [%{name: "To", address: "to@bar.com"}],
