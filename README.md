@@ -105,12 +105,12 @@ localhost:4000/email_previews
 
 ## Testing
 
-You can use the `Bamboo.TestAdapter` to make testing your emails a piece of cake.
+You can use the `Bamboo.LocalAdapter` to make testing your emails a piece of cake.
 
 ```elixir
-# Use the Bamboo.TestAdapter in your config/test.exs file
+# Use the Bamboo.LocalAdapter in your config/test.exs file
 config :my_app, MyApp.Mailer,
-  adapter: Bamboo.TestAdapter
+  adapter: Bamboo.LocalAdapter
 
 # In your test
 defmodule MyApp.MailerTest do
@@ -123,8 +123,8 @@ defmodule MyApp.MailerTest do
   test "sends a welcome email" do
     Emails.welcome_email |> Mailer.deliver
 
-    email = TestMailbox.deliveries |> List.first
-    # or use TestMailbox.one which will raise if there is anything but one email
+    email = SentEmail.deliveries |> List.first
+    # or use SentEmail.one which will raise if there is anything but one email
     # delivered
     assert email.to == "someone@foo.com"
     assert email.subject == "This is your welcome email"

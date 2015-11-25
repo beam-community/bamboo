@@ -1,53 +1,53 @@
-defmodule Bamboo.TestMailboxTest do
+defmodule Bamboo.SentEmailTest do
   use ExUnit.Case
 
   import Bamboo.Email
-  alias Bamboo.TestMailbox
+  alias Bamboo.SentEmail
 
   setup do
-    TestMailbox.reset
+    SentEmail.reset
   end
 
   test "deliveries is empty if no emails have been sent" do
-    assert TestMailbox.deliveries == []
+    assert SentEmail.deliveries == []
   end
 
   test "one/0 returns an email if there is one email in the mailbox" do
     email = new_email(subject: "Something")
 
-    TestMailbox.push(email)
+    SentEmail.push(email)
 
-    assert TestMailbox.one == email
+    assert SentEmail.one == email
   end
 
   test "one/0 raises if there are no emails in the mailbox" do
-    assert_raise TestMailbox.NoDeliveriesError, fn ->
-      TestMailbox.one
+    assert_raise SentEmail.NoDeliveriesError, fn ->
+      SentEmail.one
     end
   end
 
   test "one/0 raises if there are 2 or more emails in the mailbox" do
-    TestMailbox.push(new_email)
-    TestMailbox.push(new_email)
+    SentEmail.push(new_email)
+    SentEmail.push(new_email)
 
-    assert_raise TestMailbox.DeliveriesError, fn ->
-      TestMailbox.one
+    assert_raise SentEmail.DeliveriesError, fn ->
+      SentEmail.one
     end
   end
 
   test "push/1 adds emails to deliveries" do
     email = new_email(subject: "Something")
 
-    TestMailbox.push(email)
+    SentEmail.push(email)
 
-    assert TestMailbox.deliveries == [email]
+    assert SentEmail.deliveries == [email]
   end
 
   test "reset/0 removes all emails from the mailbox" do
-    TestMailbox.push(new_email)
+    SentEmail.push(new_email)
 
-    TestMailbox.reset
+    SentEmail.reset
 
-    assert TestMailbox.deliveries == []
+    assert SentEmail.deliveries == []
   end
 end

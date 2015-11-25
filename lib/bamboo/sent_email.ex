@@ -1,18 +1,18 @@
-defmodule Bamboo.TestMailbox do
+defmodule Bamboo.SentEmail do
   defmodule DeliveriesError do
     defexception [:message]
 
     def exception(emails) do
       message = """
-      TestMailbox.one/1 expected to find one email, got #{Enum.count(emails)}:
+      SentEmail.one/1 expected to find one email, got #{Enum.count(emails)}:
 
       #{email_list(emails)}
 
       This function is used when you expect only one email to have been sent. If
       you meant to send more than one email, you can call
-      TestMailbox.deliveries/0 to get all sent emails.
+      SentEmail.deliveries/0 to get all sent emails.
 
-      For example: TestMailbox.deliveries |> List.first
+      For example: SentEmail.deliveries |> List.first
       """
       %DeliveriesError{message: message}
     end
@@ -28,7 +28,7 @@ defmodule Bamboo.TestMailbox do
     defexception [:message]
 
     def exception(_) do
-      message = "TestMailbox.one/1 expected to find one email, but got none."
+      message = "SentEmail.one/1 expected to find one email, but got none."
       %NoDeliveriesError{message: message}
     end
   end

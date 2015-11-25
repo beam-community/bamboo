@@ -1,8 +1,8 @@
-defmodule Bamboo.TestAdapter do
-  alias Bamboo.TestMailbox
+defmodule Bamboo.LocalAdapter do
+  alias Bamboo.SentEmail
 
   def deliver(email, _config) do
-    TestMailbox.push(email)
+    SentEmail.push(email)
   end
 
   def deliver_async(email, _config) do

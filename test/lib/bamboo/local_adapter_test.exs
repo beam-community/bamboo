@@ -1,10 +1,10 @@
-defmodule Bamboo.TestAdapterTest do
+defmodule Bamboo.LocalAdapterTest do
   use ExUnit.Case
 
   import Bamboo.Email, only: [new_email: 0, new_email: 1]
-  alias Bamboo.TestMailbox
+  alias Bamboo.SentEmail
 
-  @mailer_config adapter: Bamboo.TestAdapter
+  @mailer_config adapter: Bamboo.LocalAdapter
 
   Application.put_env(:bamboo, __MODULE__.TestMailer, @mailer_config)
 
@@ -13,7 +13,7 @@ defmodule Bamboo.TestAdapterTest do
   end
 
   setup do
-    TestMailbox.reset
+    SentEmail.reset
   end
 
   test "deliveries has emails that have been delivered synchronously" do
@@ -21,7 +21,7 @@ defmodule Bamboo.TestAdapterTest do
 
     email |> TestMailer.deliver
 
-    assert TestMailbox.deliveries == [email]
+    assert SentEmail.deliveries == [email]
   end
 
   test "deliver_async puts email in the mailbox immediately" do
@@ -29,7 +29,7 @@ defmodule Bamboo.TestAdapterTest do
 
     email |> TestMailer.deliver_async
 
-    assert TestMailbox.deliveries == [email]
+    assert SentEmail.deliveries == [email]
   end
 
   test "deliver_async returns a task that can be awaited upon" do
@@ -38,7 +38,7 @@ defmodule Bamboo.TestAdapterTest do
     task = email |> TestMailer.deliver_async
 
     Task.await(task)
-    assert TestMailbox.deliveries == [email]
+    assert SentEmail.deliveries == [email]
   end
 
   defp new_normalized_email(attrs) do
