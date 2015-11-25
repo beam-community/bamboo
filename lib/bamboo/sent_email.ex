@@ -10,9 +10,9 @@ defmodule Bamboo.SentEmail do
 
       This function is used when you expect only one email to have been sent. If
       you meant to send more than one email, you can call
-      SentEmail.deliveries/0 to get all sent emails.
+      SentEmail.all/0 to get all sent emails.
 
-      For example: SentEmail.deliveries |> List.first
+      For example: SentEmail.all |> List.first
       """
       %DeliveriesError{message: message}
     end
@@ -37,7 +37,7 @@ defmodule Bamboo.SentEmail do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
-  def deliveries do
+  def all do
     Agent.get(__MODULE__, fn(emails) -> emails end)
   end
 
@@ -48,7 +48,7 @@ defmodule Bamboo.SentEmail do
   end
 
   def one do
-    case deliveries do
+    case all do
       [email] -> email
       [] -> raise NoDeliveriesError
       emails -> raise DeliveriesError, emails

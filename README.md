@@ -123,7 +123,7 @@ defmodule MyApp.MailerTest do
   test "sends a welcome email" do
     Emails.welcome_email |> Mailer.deliver
 
-    email = SentEmail.deliveries |> List.first
+    email = SentEmail.all |> List.first
     # or use SentEmail.one which will raise if there is anything but one email
     # delivered
     assert email.to == "someone@foo.com"

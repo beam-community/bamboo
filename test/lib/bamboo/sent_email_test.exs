@@ -8,8 +8,8 @@ defmodule Bamboo.SentEmailTest do
     SentEmail.reset
   end
 
-  test "deliveries is empty if no emails have been sent" do
-    assert SentEmail.deliveries == []
+  test "all/0 is empty if no emails have been sent" do
+    assert SentEmail.all == []
   end
 
   test "one/0 returns an email if there is one email in the mailbox" do
@@ -35,12 +35,12 @@ defmodule Bamboo.SentEmailTest do
     end
   end
 
-  test "push/1 adds emails to deliveries" do
+  test "push/1 adds emails to all" do
     email = new_email(subject: "Something")
 
     SentEmail.push(email)
 
-    assert SentEmail.deliveries == [email]
+    assert SentEmail.all == [email]
   end
 
   test "reset/0 removes all emails from the mailbox" do
@@ -48,6 +48,6 @@ defmodule Bamboo.SentEmailTest do
 
     SentEmail.reset
 
-    assert SentEmail.deliveries == []
+    assert SentEmail.all == []
   end
 end
