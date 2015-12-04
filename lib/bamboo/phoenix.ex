@@ -9,7 +9,7 @@ defmodule Bamboo.Phoenix do
       end
 
       defp email_view do
-        unquote(__MODULE__)
+        __MODULE__
         |> to_string
         |> Module.split
         |> List.first
