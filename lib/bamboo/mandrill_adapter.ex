@@ -15,7 +15,7 @@ defmodule Bamboo.MandrillAdapter do
   end
 
   defp convert_to_mandrill_params(email, api_key) do
-    %{api_key: api_key, message: message_params(email)}
+    %{key: api_key, message: message_params(email)}
   end
 
   defp message_params(email) do

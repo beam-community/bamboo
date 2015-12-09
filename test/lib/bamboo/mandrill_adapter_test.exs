@@ -67,7 +67,7 @@ defmodule Bamboo.MandrillAdapterTest do
     email |> Mailer.deliver
 
     assert_receive {:fake_mandrill, %{params: params}}
-    assert params["api_key"] == @api_key
+    assert params["key"] == @api_key
     message = params["message"]
     assert message["from_email"] == email.from.address
     assert message["from_name"] == email.from.name
@@ -90,7 +90,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
     Task.await(task)
     assert_receive {:fake_mandrill, %{params: params}}
-    assert params["api_key"] == @api_key
+    assert params["key"] == @api_key
     message = params["message"]
     assert message["from_email"] == email.from.address
     assert message["from_name"] == email.from.name
