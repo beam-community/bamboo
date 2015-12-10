@@ -32,7 +32,10 @@ defmodule Bamboo.MandrillAdapterTest do
     end
 
     post "/api/1.0/messages/send.json" do
-      conn |> send_resp(200, "SENT") |> send_to_parent
+      case get_in(conn.params, ["message", "from_email"]) do
+        "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!") |> send_to_parent
+        _ -> conn |> send_resp(200, "SENT") |> send_to_parent
+      end
     end
 
     defp send_to_parent(conn) do
@@ -124,5 +127,13 @@ defmodule Bamboo.MandrillAdapterTest do
 
     assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
     assert message["important"] == true
+  end
+
+  test "raises if the response is not a success" do
+    email = new_email(from: "INVALID_EMAIL")
+
+    assert_raise Bamboo.MandrillAdapter.ApiError, fn ->
+      email |> Mailer.deliver
+    end
   end
 end
