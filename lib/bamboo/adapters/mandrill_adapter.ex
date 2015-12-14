@@ -1,6 +1,4 @@
 defmodule Bamboo.MandrillAdapter do
-  require Logger
-
   @default_base_uri "https://mandrillapp.com/"
   @send_message_path "api/1.0/messages/send.json"
 
@@ -25,18 +23,6 @@ defmodule Bamboo.MandrillAdapter do
   end
 
   def deliver(email, config) do
-    Logger.debug """
-    Sending email with Bamboo
-
-    * Config
-
-    #{inspect config}
-
-    * Email
-
-    #{inspect email}
-    """
-
     api_key = Keyword.fetch!(config, :api_key)
     params = email |> convert_to_mandrill_params(api_key) |> Poison.encode!
     case request!(@send_message_path, params) do

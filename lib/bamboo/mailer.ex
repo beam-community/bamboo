@@ -1,4 +1,6 @@
 defmodule Bamboo.Mailer do
+  require Logger
+
   alias Bamboo.Formatter
 
   defmacro __using__(opts) do
@@ -21,13 +23,23 @@ defmodule Bamboo.Mailer do
   def deliver(adapter, email, config) do
     email = email |> Bamboo.Mailer.normalize_addresses
 
+    debug(email, config)
     adapter.deliver(email, config)
   end
 
   def deliver_async(adapter, email, config) do
     email = email |> Bamboo.Mailer.normalize_addresses
 
+    debug(email, config)
     adapter.deliver_async(email, config)
+  end
+
+  defp debug(email, config) do
+    Logger.debug """
+    Sending email with Bamboo:
+
+    #{inspect email, limit: :infinity}
+    """
   end
 
   def normalize_addresses(email) do
