@@ -23,18 +23,18 @@ defmodule Bamboo.Mailer do
   def deliver(adapter, email, config) do
     email = email |> Bamboo.Mailer.normalize_addresses
 
-    debug(email, config)
+    debug(email)
     adapter.deliver(email, config)
   end
 
   def deliver_async(adapter, email, config) do
     email = email |> Bamboo.Mailer.normalize_addresses
 
-    debug(email, config)
+    debug(email)
     adapter.deliver_async(email, config)
   end
 
-  defp debug(email, config) do
+  defp debug(email) do
     Logger.debug """
     Sending email with Bamboo:
 
