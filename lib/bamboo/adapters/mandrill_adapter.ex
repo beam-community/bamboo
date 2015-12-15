@@ -23,7 +23,7 @@ defmodule Bamboo.MandrillAdapter do
   end
 
   def deliver(email, config) do
-    api_key = Keyword.fetch!(config, :api_key)
+    api_key = get_key(config)
     params = email |> convert_to_mandrill_params(api_key) |> Poison.encode!
     case request!(@send_message_path, params) do
       %{status_code: status} = response when status > 299 ->
@@ -36,6 +36,23 @@ defmodule Bamboo.MandrillAdapter do
     Task.async(fn ->
       deliver(email, config)
     end)
+  end
+
+  defp get_key(config) do
+    case Keyword.get(config, :api_key) do
+      nil -> raise_api_key_error(config)
+      key -> key
+    end
+  end
+
+  defp raise_api_key_error(config) do
+    raise ArgumentError, """
+    There was no API key set for the Mandrill adapter.
+
+    * Here are the config options that were passed in:
+
+    #{inspect config}
+    """
   end
 
   defp convert_to_mandrill_params(email, api_key) do

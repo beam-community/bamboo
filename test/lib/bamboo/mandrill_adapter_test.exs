@@ -8,6 +8,12 @@ defmodule Bamboo.MandrillAdapterTest do
 
   @api_key "123_abc"
 
+  Application.put_env(:bamboo, __MODULE__.MailerWithBadKey, adapter: MandrillAdapter, api_key: nil)
+
+  defmodule MailerWithBadKey do
+    use Bamboo.Mailer, otp_app: :bamboo
+  end
+
   Application.put_env(:bamboo, __MODULE__.Mailer, adapter: MandrillAdapter, api_key: @api_key)
 
   defmodule Mailer do
@@ -48,6 +54,12 @@ defmodule Bamboo.MandrillAdapterTest do
   setup do
     FakeMandrill.start_server(self)
     {:ok, %{}}
+  end
+
+  test "raises if the api key is nil" do
+    assert_raise ArgumentError, ~r/no API key set/, fn ->
+      new_email |> MailerWithBadKey.deliver
+    end
   end
 
   test "deliver/2 sends the to the right url" do
