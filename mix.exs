@@ -3,7 +3,7 @@ defmodule Bamboo.Mixfile do
 
   def project do
     [app: :bamboo,
-     version: "0.1.1",
+     version: "0.2.0-dev",
      elixir: "~> 1.1",
      compilers: compilers(Mix.env),
      elixirc_paths: elixirc_paths(Mix.env),
