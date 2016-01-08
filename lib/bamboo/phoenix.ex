@@ -1,19 +1,12 @@
 defmodule Bamboo.Phoenix do
-  defmacro __using__(_opts) do
+  defmacro __using__(view: view_module) do
     verify_phoenix_dep
     quote do
       import Bamboo.Email
+      @email_view_module unquote(view_module)
 
       def render(email, template, assigns \\ []) do
-        Bamboo.Phoenix.render_templates(email_view, email, template, assigns)
-      end
-
-      defp email_view do
-        __MODULE__
-        |> to_string
-        |> Module.split
-        |> List.first
-        |> Module.concat("EmailView")
+        Bamboo.Phoenix.render_templates(@email_view_module, email, template, assigns)
       end
     end
   end

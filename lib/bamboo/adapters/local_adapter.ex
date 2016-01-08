@@ -7,6 +7,6 @@ defmodule Bamboo.LocalAdapter do
 
   def deliver_async(email, _config) do
     deliver(email, nil)
-    Task.async(fn -> end)
+    Task.async(fn -> :ok end)
   end
 end

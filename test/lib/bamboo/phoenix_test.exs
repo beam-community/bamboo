@@ -2,7 +2,7 @@ defmodule Bamboo.PhoenixTest do
   use ExUnit.Case
 
   defmodule Emails do
-    use Bamboo.Phoenix
+    use Bamboo.Phoenix, view: Bamboo.EmailView
 
     def text_and_html_email do
       new_email()
