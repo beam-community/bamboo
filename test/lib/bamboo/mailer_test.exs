@@ -77,18 +77,8 @@ defmodule Bamboo.MailerTest do
     assert delivered_email.bcc == [converted_address]
   end
 
-  defmodule User do
-    defstruct first_name: "", email: ""
-  end
-
-  defimpl Bamboo.Formatter, for: User do
-    def format_recipient(user) do
-      %{name: user.first_name, address: user.email}
-    end
-  end
-
   test "converts structs with custom protocols" do
-    user = %User{first_name: "Paul", email: "foo@bar.com"}
+    user = %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
     email = new_email(from: user, to: user, cc: user, bcc: user)
 
     FooMailer.deliver(email)
