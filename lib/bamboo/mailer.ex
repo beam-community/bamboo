@@ -3,6 +3,26 @@ defmodule Bamboo.Mailer do
 
   alias Bamboo.Formatter
 
+  defmodule NoRecipientError do
+    defexception [:message]
+
+    def exception(email) do
+      message = """
+      There was a recipient accidentally set to nil. If you meant to set the
+      to, cc or bcc fields to send to no one, set it to an empty list [] instead.
+
+      Recipients:
+
+      To - #{inspect email.to}
+      Cc - #{inspect email.cc}
+      Bcc - #{inspect email.bcc}
+
+      Full email - #{inspect email, limit: :infinity}
+      """
+      %NoRecipientError{message: message}
+    end
+  end
+
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
       %{adapter: adapter, config: config} = Bamboo.Mailer.parse_opts(__MODULE__, opts)
@@ -21,18 +41,23 @@ defmodule Bamboo.Mailer do
   end
 
   def deliver(adapter, email, config) do
-    email = email |> Bamboo.Mailer.normalize_addresses
-
-    debug(email)
-    adapter.deliver(email, config)
+    email |> validate_and_normalize |> adapter.deliver(config)
   end
 
   def deliver_async(adapter, email, config) do
-    email = email |> Bamboo.Mailer.normalize_addresses
-
-    debug(email)
-    adapter.deliver_async(email, config)
+    email |> validate_and_normalize |> adapter.deliver_async(config)
   end
+
+  defp validate_and_normalize(email) do
+    email = email |> validate_recipients |> normalize_addresses
+    debug(email)
+    email
+  end
+
+  defp validate_recipients(%{to: to, cc: cc, bcc: bcc} = email) when is_nil(to) or is_nil(cc) or is_nil(bcc) do
+    raise NoRecipientError, email
+  end
+  defp validate_recipients(email), do: email
 
   defp debug(email) do
     Logger.debug """

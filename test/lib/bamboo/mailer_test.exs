@@ -26,6 +26,23 @@ defmodule Bamboo.MailerTest do
     :ok
   end
 
+  test "deliver/1 raises if any of the recipients are nil" do
+    assert_raise Bamboo.Mailer.NoRecipientError, fn ->
+      refute_receive {:deliver, _, _}
+      new_email(to: nil) |> FooMailer.deliver
+    end
+
+    assert_raise Bamboo.Mailer.NoRecipientError, fn ->
+      refute_receive {:deliver, _, _}
+      new_email(bcc: nil) |> FooMailer.deliver
+    end
+
+    assert_raise Bamboo.Mailer.NoRecipientError, fn ->
+      refute_receive {:deliver, _, _}
+      new_email(cc: nil) |> FooMailer.deliver
+    end
+  end
+
   test "deliver/1 calls the adapter with the email and config" do
     FooMailer.deliver(new_email)
 
