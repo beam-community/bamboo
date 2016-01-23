@@ -6,7 +6,7 @@ defmodule Bamboo.Phoenix do
       @email_view_module unquote(view_module)
 
       def render(email, template, assigns \\ []) do
-        Bamboo.Phoenix.render_templates(@email_view_module, email, template, assigns)
+        Bamboo.Phoenix.render_email(@email_view_module, email, template, assigns)
       end
     end
   end
@@ -18,15 +18,31 @@ defmodule Bamboo.Phoenix do
     end
   end
 
-  def render_templates(view, email, template, assigns) do
+  def render_email(view, email, template, assigns) when is_atom(template) do
+    template = Atom.to_string(template)
+
     email
     |> Map.put(:html_body, render_email(view, template <> ".html", assigns))
     |> Map.put(:text_body, render_email(view, template <> ".text", assigns))
-    |> raise_if_nothing_rendered
+  end
+
+  def render_email(view, email, template, assigns) when is_binary(template) do
+    cond do
+      String.ends_with?(template, ".html") ->
+        email |> Map.put(:html_body, render_email(view, template, assigns))
+      String.ends_with?(template, ".text") ->
+        email |> Map.put(:text_body, render_email(view, template, assigns))
+      true -> raise ArgumentError, """
+        Template name must end in either ".html" or ".text". Template name was #{inspect template}
+
+        If you would like to render both and html and text template,
+        use an atom without an extension instead.
+        """
+    end
   end
 
   defp render_email(view, template, assigns) do
-    Phoenix.View.render_existing(view, template, assigns)
+    Phoenix.View.render(view, template, assigns)
     |> encode(template)
   end
 
@@ -38,14 +54,4 @@ defmodule Bamboo.Phoenix do
       content
     end
   end
-
-  defp raise_if_nothing_rendered(%{html_body: "", text_body: ""} = email) do
-    raise ArgumentError, """
-    Expected email to have at least an html_body or a text_body, instead got:
-    #{inspect email}
-
-    Be sure to create either a text or html template.
-    """
-  end
-  defp raise_if_nothing_rendered(email), do: email
 end
