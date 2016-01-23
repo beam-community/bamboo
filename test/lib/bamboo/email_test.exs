@@ -6,9 +6,9 @@ defmodule Bamboo.EmailTest do
   test "new_email/1 returns an Email struct" do
     assert new_email == %Bamboo.Email{
       from: nil,
-      to: nil,
-      cc: nil,
-      bcc: nil,
+      to: [],
+      cc: [],
+      bcc: [],
       subject: nil,
       html_body: nil,
       text_body: nil,

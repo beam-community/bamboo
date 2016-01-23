@@ -1,8 +1,8 @@
 defmodule Bamboo.Email do
   defstruct from: nil,
-      to: nil,
-      cc: nil,
-      bcc: nil,
+      to: [],
+      cc: [],
+      bcc: [],
       subject: nil,
       html_body: nil,
       text_body: nil,
