@@ -11,24 +11,22 @@ defmodule Bamboo.MandrillAdapter do
 
       Here is the response:
 
-      #{inspect response}
+      #{inspect response, limit: :infinity}
 
 
-      Here are the params we sent:
+      Here are the params that were sent:
 
-      #{inspect Poison.decode!(params)}
+      #{inspect Poison.decode!(params), limit: :infinity}
       """
       %ApiError{message: message}
     end
   end
 
   def deliver(email, config) do
-    api_key = get_key(config)
-    params = email |> convert_to_mandrill_params(api_key) |> Poison.encode!
-    case request!(@send_message_path, params) do
-      %{status_code: status} = response when status > 299 ->
-        raise(ApiError, %{params: params, response: response})
-      response -> response
+    if email.to == [] and email.cc == [] and email.bcc == [] do
+      {:no_recipients, email}
+    else
+      send_email(email, config)
     end
   end
 
@@ -36,6 +34,16 @@ defmodule Bamboo.MandrillAdapter do
     Task.async(fn ->
       deliver(email, config)
     end)
+  end
+
+  defp send_email(email, config) do
+    api_key = get_key(config)
+    params = email |> convert_to_mandrill_params(api_key) |> Poison.encode!
+    case request!(@send_message_path, params) do
+      %{status_code: status} = response when status > 299 ->
+        raise(ApiError, %{params: params, response: response})
+      response -> response
+    end
   end
 
   defp get_key(config) do

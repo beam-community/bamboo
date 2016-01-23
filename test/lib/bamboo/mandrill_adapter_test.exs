@@ -58,12 +58,21 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "raises if the api key is nil" do
     assert_raise ArgumentError, ~r/no API key set/, fn ->
-      new_email |> MailerWithBadKey.deliver
+      base_email |> MailerWithBadKey.deliver
     end
   end
 
+  test "does not send the email if there are no recipients" do
+    {:no_recipients, _} = new_email(to: [], cc: [], bcc: []) |> Mailer.deliver
+    refute_received {:fake_mandrill, _}
+
+    email_task = new_email(to: [], cc: [], bcc: []) |> Mailer.deliver_async
+    {:no_recipients, _} = Task.await(email_task)
+    refute_received {:fake_mandrill, _}
+  end
+
   test "deliver/2 sends the to the right url" do
-    new_email |> Mailer.deliver
+    base_email |> Mailer.deliver
 
     assert_receive {:fake_mandrill, %{request_path: request_path}}
 
@@ -71,7 +80,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 sends from, html and text body, subject, and headers" do
-    email = new_email(
+    email = base_email(
       from: %{name: "From", address: "from@foo.com"},
       subject: "My Subject",
       text_body: "TEXT BODY",
@@ -93,7 +102,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver_async sends asynchronously and can be awaited upon" do
-    email = new_email(
+    email = base_email(
       from: %{name: "From", address: "from@foo.com"},
       subject: "My Subject",
       text_body: "TEXT BODY",
@@ -133,7 +142,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 adds extra params to the message " do
-    email = new_email |> MandrillEmail.put_message_param("important", true)
+    email = base_email |> MandrillEmail.put_message_param("important", true)
 
     email |> Mailer.deliver
 
@@ -142,10 +151,14 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "raises if the response is not a success" do
-    email = new_email(from: "INVALID_EMAIL")
+    email = base_email(from: "INVALID_EMAIL")
 
     assert_raise Bamboo.MandrillAdapter.ApiError, fn ->
       email |> Mailer.deliver
     end
+  end
+
+  def base_email(attrs \\ []) do
+    new_email(to: "foo@bar.com") |> struct(attrs)
   end
 end
