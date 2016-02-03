@@ -83,12 +83,15 @@ defmodule Bamboo.MailerTest do
 
     FooMailer.deliver(email)
 
-    converted_address = %EmailAddress{name: user.first_name, address: user.email}
+    converted_recipient = %EmailAddress{name: user.first_name, address: user.email}
     assert_received {:deliver, delivered_email, _}
-    assert delivered_email.from == converted_address
-    assert delivered_email.to == [converted_address]
-    assert delivered_email.cc == [converted_address]
-    assert delivered_email.bcc == [converted_address]
+    assert delivered_email.from == %EmailAddress{
+      name: "#{user.first_name} (MyApp)",
+      address: user.email
+    }
+    assert delivered_email.to == [converted_recipient]
+    assert delivered_email.cc == [converted_recipient]
+    assert delivered_email.bcc == [converted_recipient]
   end
 
   test "raises an error if an address does not have a protocol implemented" do
@@ -99,7 +102,7 @@ defmodule Bamboo.MailerTest do
     end
   end
 
-  test "raises an error if the map is not in the right format" do
+  test "raises an error if a map is passed in an not a Bamboo.EmailAddress" do
     email = new_email(from: %{foo: :bar})
 
     assert_raise ArgumentError, fn ->

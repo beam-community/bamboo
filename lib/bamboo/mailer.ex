@@ -44,19 +44,19 @@ defmodule Bamboo.Mailer do
 
   def normalize_addresses(email) do
     %{email |
-      from: normalize(email.from),
-      to: normalize(List.wrap(email.to)),
-      cc: normalize(List.wrap(email.cc)),
-      bcc: normalize(List.wrap(email.bcc))
+      from: normalize(email.from, :from),
+      to: normalize(List.wrap(email.to), :to),
+      cc: normalize(List.wrap(email.cc), :cc),
+      bcc: normalize(List.wrap(email.bcc), :bcc)
     }
   end
 
-  defp normalize(nil) do
+  defp normalize(nil, :from) do
     raise Bamboo.EmptyFromAddressError, nil
   end
 
-  defp normalize(record) do
-    Formatter.format_email_address(record)
+  defp normalize(record, type) do
+    Formatter.format_email_address(record, %{type: type})
   end
 
   def parse_opts(mailer, opts) do
