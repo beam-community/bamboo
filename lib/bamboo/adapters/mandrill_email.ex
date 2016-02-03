@@ -3,7 +3,7 @@ defmodule Bamboo.MandrillEmail do
 
   defmacro __using__(_opts) do
     quote do
-      import Bamboo.Email
+      use Bamboo.Email
       alias Bamboo.MandrillEmail
     end
   end

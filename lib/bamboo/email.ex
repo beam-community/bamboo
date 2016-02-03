@@ -11,6 +11,13 @@ defmodule Bamboo.Email do
 
   alias Bamboo.Email
 
+  defmacro __using__(_opts) do
+    quote do
+      import Bamboo.Email
+      alias Bamboo.EmailAddress
+    end
+  end
+
   @attribute_pipe_functions [:from, :to, :cc, :bcc, :subject]
 
   def new_email(attrs \\ []) do
