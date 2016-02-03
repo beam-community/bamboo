@@ -1,6 +1,8 @@
 defmodule Bamboo.LocalAdapter do
   alias Bamboo.SentEmail
 
+  @behaviour Bamboo.Adapter
+
   def deliver(email, _config) do
     SentEmail.push(email)
   end

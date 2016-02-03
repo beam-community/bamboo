@@ -1,4 +1,6 @@
 defmodule Bamboo.TestAdapter do
+  @behaviour Bamboo.Adapter
+
   def deliver(email, _config) do
     send self(), {:delivered_email, email}
   end

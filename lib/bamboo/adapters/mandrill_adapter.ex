@@ -1,6 +1,7 @@
 defmodule Bamboo.MandrillAdapter do
   @default_base_uri "https://mandrillapp.com/"
   @send_message_path "api/1.0/messages/send.json"
+  @behaviour Bamboo.Adapter
 
   defmodule ApiError do
     defexception [:message]
