@@ -1,7 +1,6 @@
 defmodule Bamboo.MandrillEmailTest do
   use ExUnit.Case
-
-  import Bamboo.Email
+  use Bamboo.MandrillEmail
   alias Bamboo.MandrillEmail
 
   test "put_message_param/3 puts a map in private.message_params" do
