@@ -133,7 +133,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 adds extra params to the message " do
-    email = new_email |> MandrillEmail.put_message_param("important", true)
+    email = new_email |> MandrillEmail.put_param("important", true)
 
     email |> Mailer.deliver
 

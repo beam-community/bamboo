@@ -3,8 +3,8 @@ defmodule Bamboo.MandrillEmailTest do
   use Bamboo.MandrillEmail
   alias Bamboo.MandrillEmail
 
-  test "put_message_param/3 puts a map in private.message_params" do
-    email = new_email |> MandrillEmail.put_message_param("track_links", true)
+  test "put_param/3 puts a map in private.message_params" do
+    email = new_email |> MandrillEmail.put_param("track_links", true)
 
     assert email.private.message_params == %{"track_links" => true}
   end
