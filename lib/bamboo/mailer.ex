@@ -51,9 +51,12 @@ defmodule Bamboo.Mailer do
     }
   end
 
-  defp normalize(nil), do: %{name: nil, address: nil}
+  defp normalize(nil) do
+    raise Bamboo.EmptyFromAddressError, nil
+  end
+
   defp normalize(record) do
-    Formatter.format_recipient(record)
+    Formatter.format_email_address(record)
   end
 
   def parse_opts(mailer, opts) do

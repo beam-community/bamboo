@@ -1,7 +1,8 @@
 defmodule Bamboo.MailerTest do
   use ExUnit.Case
 
-  import Bamboo.Email, only: [new_email: 0, new_email: 1]
+  alias Bamboo.Email
+  alias Bamboo.EmailAddress
 
   defmodule FooAdapter do
     def deliver(email, config) do
@@ -32,13 +33,12 @@ defmodule Bamboo.MailerTest do
     assert_received {:deliver, %Bamboo.Email{}, @mailer_config}
   end
 
-  test "deliver/1 a nil `from` is still converted" do
+  test "deliver/1 with no from address" do
     email = new_email(from: nil)
 
-    FooMailer.deliver(email)
-
-    assert_received {:deliver, delivered_email, _}
-    assert delivered_email.from == %{name: nil, address: nil}
+    assert_raise Bamboo.EmptyFromAddressError, fn ->
+      FooMailer.deliver(email)
+    end
   end
 
   test "deliver_async/1 calls deliver_async on the adapter" do
@@ -52,7 +52,7 @@ defmodule Bamboo.MailerTest do
   end
 
   test "deliver/1 wraps the recipients in a list" do
-    address = %{name: "Someone", address: "foo@bar.com"}
+    address = %EmailAddress{name: "Someone", address: "foo@bar.com"}
     email = new_email(to: address, cc: address, bcc: address)
 
     FooMailer.deliver(email)
@@ -69,7 +69,7 @@ defmodule Bamboo.MailerTest do
 
     FooMailer.deliver(email)
 
-    converted_address = %{name: nil, address: address}
+    converted_address = %EmailAddress{name: nil, address: address}
     assert_received {:deliver, delivered_email, _}
     assert delivered_email.from == converted_address
     assert delivered_email.to == [converted_address]
@@ -83,7 +83,7 @@ defmodule Bamboo.MailerTest do
 
     FooMailer.deliver(email)
 
-    converted_address = %{name: user.first_name, address: user.email}
+    converted_address = %EmailAddress{name: user.first_name, address: user.email}
     assert_received {:deliver, delivered_email, _}
     assert delivered_email.from == converted_address
     assert delivered_email.to == [converted_address]
@@ -105,5 +105,10 @@ defmodule Bamboo.MailerTest do
     assert_raise ArgumentError, fn ->
       FooMailer.deliver(email)
     end
+  end
+
+  defp new_email(attrs \\ []) do
+    attrs = Keyword.merge([from: "foo@bar.com"], attrs)
+    Email.new_email(attrs)
   end
 end

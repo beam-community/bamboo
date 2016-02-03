@@ -2,8 +2,8 @@ defmodule Bamboo.MandrillAdapterTest do
   use ExUnit.Case
 
   alias Bamboo.Email
+  alias Bamboo.EmailAddress
   alias Bamboo.MandrillEmail
-  import Bamboo.Email, only: [new_email: 1, new_email: 0]
   alias Bamboo.MandrillAdapter
 
   @api_key "123_abc"
@@ -58,7 +58,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "raises if the api key is nil" do
     assert_raise ArgumentError, ~r/no API key set/, fn ->
-      new_email |> MailerWithBadKey.deliver
+      new_email(from: "foo@bar.com") |> MailerWithBadKey.deliver
     end
   end
 
@@ -72,7 +72,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "deliver/2 sends from, html and text body, subject, and headers" do
     email = new_email(
-      from: %{name: "From", address: "from@foo.com"},
+      from: %EmailAddress{name: "From", address: "from@foo.com"},
       subject: "My Subject",
       text_body: "TEXT BODY",
       html_body: "HTML BODY",
@@ -94,7 +94,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "deliver_async sends asynchronously and can be awaited upon" do
     email = new_email(
-      from: %{name: "From", address: "from@foo.com"},
+      from: %EmailAddress{name: "From", address: "from@foo.com"},
       subject: "My Subject",
       text_body: "TEXT BODY",
       html_body: "HTML BODY",
@@ -117,9 +117,9 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "deliver/2 correctly formats recipients" do
     email = new_email(
-      to: [%{name: "To", address: "to@bar.com"}],
-      cc: [%{name: "CC", address: "cc@bar.com"}],
-      bcc: [%{name: "BCC", address: "bcc@bar.com"}],
+      to: [%EmailAddress{name: "To", address: "to@bar.com"}],
+      cc: [%EmailAddress{name: "CC", address: "cc@bar.com"}],
+      bcc: [%EmailAddress{name: "BCC", address: "bcc@bar.com"}],
     )
 
     email |> Mailer.deliver
@@ -147,5 +147,10 @@ defmodule Bamboo.MandrillAdapterTest do
     assert_raise Bamboo.MandrillAdapter.ApiError, fn ->
       email |> Mailer.deliver
     end
+  end
+
+  defp new_email(attrs \\ []) do
+    attrs = Keyword.merge([from: "foo@bar.com"], attrs)
+    Email.new_email(attrs)
   end
 end
