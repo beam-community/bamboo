@@ -1,7 +1,6 @@
 defmodule Bamboo.LocalAdapterTest do
   use ExUnit.Case
-  use Bamboo.Test
-
+  alias Bamboo.SentEmail
   import Bamboo.Email, only: [new_email: 0, new_email: 1]
 
   @mailer_config adapter: Bamboo.LocalAdapter
@@ -10,6 +9,11 @@ defmodule Bamboo.LocalAdapterTest do
 
   defmodule TestMailer do
     use Bamboo.Mailer, otp_app: :bamboo
+  end
+
+  setup do
+    SentEmail.reset
+    :ok
   end
 
   test "sent emails has emails that were delivered synchronously" do

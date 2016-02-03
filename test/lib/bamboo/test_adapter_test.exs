@@ -13,7 +13,7 @@ defmodule Bamboo.TestAdapterTest do
   end
 
   test "deliver/2 sends a message to the process" do
-    email = new_normalized_email(subject: "This is my email")
+    email = new_normalized_email()
 
     email |> TestMailer.deliver
 
@@ -21,7 +21,7 @@ defmodule Bamboo.TestAdapterTest do
   end
 
   test "deliver_async/2 sends a message to the process and returns a Task" do
-    email = new_normalized_email(subject: "This is my email")
+    email = new_normalized_email()
 
     task = email |> TestMailer.deliver_async
 
@@ -29,8 +29,30 @@ defmodule Bamboo.TestAdapterTest do
     assert_received {:delivered_email, ^email}
   end
 
-  defp new_normalized_email(attrs) do
-    attrs = attrs |> Keyword.put(:from, "foo@bar.com")
-    new_email(attrs) |> Bamboo.Mailer.normalize_addresses
+  test "assertion helpers" do
+    sent_email = new_email(from: "foo@bar.com")
+    unsent_email = new_email(from: "foo@bar.com")
+
+    sent_email |> TestMailer.deliver
+
+    assert_delivered_email sent_email
+    refute_delivered_email unsent_email
+  end
+
+  test "assertion helpers format email addresses" do
+    user_that_needs_to_be_formatted =
+      %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
+    sent_email = new_email(from: user_that_needs_to_be_formatted)
+
+    sent_email |> TestMailer.deliver
+
+    assert_delivered_email sent_email
+  end
+
+  defp new_normalized_email(attrs \\ []) do
+    [from: "foo@bar.com"]
+    |> Keyword.merge(attrs)
+    |> new_email
+    |> Bamboo.Mailer.normalize_addresses
   end
 end

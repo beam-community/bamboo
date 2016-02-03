@@ -1,8 +1,13 @@
 defmodule Bamboo.SentEmailTest do
   use ExUnit.Case
-  use Bamboo.Test
+  alias Bamboo.SentEmail
 
   import Bamboo.Email
+
+  setup do
+    Bamboo.SentEmail.reset
+    :ok
+  end
 
   test "all/0 is empty if no emails have been sent" do
     assert SentEmail.all == []
