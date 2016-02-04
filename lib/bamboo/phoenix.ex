@@ -42,16 +42,6 @@ defmodule Bamboo.Phoenix do
   end
 
   defp render_email(view, template, assigns) do
-    Phoenix.View.render(view, template, assigns)
-    |> encode(template)
-  end
-
-  defp encode(nil, _), do: ""
-  defp encode(content, template) do
-    if encoder = Phoenix.Template.format_encoder(template) do
-      encoder.encode_to_iodata!(content) |> IO.iodata_to_binary
-    else
-      content
-    end
+    Phoenix.View.render_to_string(view, template, assigns)
   end
 end
