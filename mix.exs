@@ -42,7 +42,7 @@ defmodule Bamboo.Mixfile do
     [
       {:plug, "~> 1.0", only: [:test]},
       {:cowboy, "~> 1.0", only: [:test]},
-      {:phoenix, "~> 1.0", only: [:test]},
+      {:phoenix, "~> 1.1", only: [:test]},
       {:phoenix_html, "~> 2.2", only: [:test]},
       {:httpoison, "~> 0.7.4"},
       {:poison, "~> 1.5"}

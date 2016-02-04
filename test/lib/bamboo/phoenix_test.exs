@@ -1,8 +1,23 @@
 defmodule Bamboo.PhoenixTest do
   use ExUnit.Case
 
+  defmodule LayoutView do
+    use Phoenix.View, root: "test/support/templates", namespace: Bamboo.LayoutView
+  end
+
+  defmodule EmailView do
+    use Phoenix.View, root: "test/support/templates", namespace: Bamboo.EmailView
+  end
+
   defmodule Emails do
-    use Bamboo.Phoenix, view: Bamboo.EmailView
+    use Bamboo.Phoenix, view: EmailView
+
+    def text_and_html_email_with_layout do
+      new_email()
+      |> put_html_layout({LayoutView, "app.html"})
+      |> put_text_layout({LayoutView, "app.text"})
+      |> render(:text_and_html_email)
+    end
 
     def text_and_html_email do
       new_email()
@@ -12,6 +27,12 @@ defmodule Bamboo.PhoenixTest do
     def email_with_assigns(user) do
       new_email()
       |> render(:email_with_assigns, user: user)
+    end
+
+    def email_with_already_assigned_user(user) do
+      new_email()
+      |> assign(:user, user)
+      |> render(:email_with_assigns)
     end
 
     def html_email do
@@ -35,6 +56,15 @@ defmodule Bamboo.PhoenixTest do
     end
   end
 
+  test "render/2 allows setting a custom layout" do
+    email = Emails.text_and_html_email_with_layout
+
+    assert email.html_body =~ "HTML layout"
+    assert email.html_body =~ "HTML body"
+    assert email.text_body =~ "TEXT layout"
+    assert email.text_body =~ "TEXT body"
+  end
+
   test "render/2 renders html and text emails" do
     email = Emails.text_and_html_email
 
@@ -45,7 +75,11 @@ defmodule Bamboo.PhoenixTest do
   test "render/2 renders html and text emails with assigns" do
     name = "Paul"
     email = Emails.email_with_assigns(%{name: name})
+    assert email.html_body =~ "<strong>#{name}</strong>"
+    assert email.text_body =~ name
 
+    name = "Paul"
+    email = Emails.email_with_already_assigned_user(%{name: name})
     assert email.html_body =~ "<strong>#{name}</strong>"
     assert email.text_body =~ name
   end

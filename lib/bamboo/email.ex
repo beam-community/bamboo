@@ -7,6 +7,7 @@ defmodule Bamboo.Email do
       html_body: nil,
       text_body: nil,
       headers: %{},
+      assigns: %{},
       private: %{}
 
   alias Bamboo.Email
