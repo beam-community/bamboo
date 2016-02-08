@@ -112,13 +112,14 @@ config :my_app, MyApp.Mailer,
   adapter: Bamboo.LocalAdapter
 
 # In your test
-defmodule MyApp.MailerTest do
+defmodule MyApp.EmailsTest do
   use ExUnit.Case
 
   alias MyApp.Emails
 
-  test "welcome emails" do
-    email = Emails.welcome_email
+  test "welcome email" do
+    user = %User{...}
+    email = Emails.welcome_email(user)
 
     assert email.to == "someone@foo.com"
     assert email.subject == "This is your welcome email"
