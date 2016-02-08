@@ -13,7 +13,7 @@ begin, let's create a mailer that uses Mandrill as the backend.
 ```elixir
 # In your config/config.exs file
 config :my_app, MyApp.Mailer,
-  adapter: Bamboo.Mandrill,
+  adapter: Bamboo.MandrillAdapter,
   api_key: "my_api_key"
 
 # In your application code
@@ -25,7 +25,7 @@ defmodule MyApp.Emails do
   import Bamboo.Email
 
   def welcome_email do
-    mail(
+    new_mail(
       to: "foo@example.com",
       from: "me@example.com",
       subject: "Welcome!!!",
@@ -51,21 +51,21 @@ end
 
 ```elixir
 defmodule MyApp.Emails do
-  use Bamboo.Phoenix, render_with: MyApp.EmailView
+  # Adds a `render` function for rending emails with Phoenix views
+  use Bamboo.Phoenix, view: MyApp.EmailView
   import Bamboo.MandrillEmails
 
   def welcome_email do
     base_email
-    # A way to bulk update email attributes. Still figuring out
-    |> update_attrs(bcc: "someone@bar.com", from: "other_person@foo.com")
-    |> to("foo@bar.com", %{name: "John Smith", email:"john@foo.com"})
+    |> to("foo@bar.com", %Bamboo.EmailAddress{name: "John Smith", address:"john@foo.com"})
     |> cc(author) # You can set up a custom protocol that handles different types of structs.
     |> subject("Welcome!!!")
     |> tag("welcome-email") # Imported by Bamboo.MandrillEmails
     |> put_header("Reply-To", "somewhere@example.com")
-    # Uses the view from `render_with` to render the `welcome_email.html.eex`
+    # Uses the view from `view` to render the `welcome_email.html.eex`
     # and `welcome_email.text.eex` templates with the passed in assigns
-    |> render("welcome_email", author: author)
+    # Use string to render a specific template, e.g. `welcome_email.html.eex`
+    |> render(:welcome_email, author: author)
   end
 
   defp author do
@@ -79,14 +79,14 @@ end
 
 defimpl Bamboo.Formatter, for: User do
   # Used by `to`, `bcc`, `cc` and `from`
-  def extract_email(user) do
+  def format_email_address(user) do
     fullname = "#{user.first_name} #{user.last_name}"
-    %{name: fullname, email: email}
+    %Bamboo.EmailAddress{name: fullname, email: email}
   end
 end
 ```
 
-## In development
+## In development (not started yet)
 
 You can see the sent emails by forwarding a route to the `Bamboo.Preview`
 module. You can see all the emails sent. It will live update with new emails
@@ -105,7 +105,7 @@ localhost:4000/email_previews
 
 ## Testing
 
-You can use the `Bamboo.LocalAdapter` to make testing your emails a piece of cake.
+You can use the `Bamboo.TestAdapter` to make testing your emails a piece of cake.
 
 ```elixir
 # Use the Bamboo.LocalAdapter in your config/test.exs file
@@ -117,20 +117,32 @@ defmodule MyApp.MailerTest do
   use ExUnit.Case
 
   alias MyApp.Emails
-  alias MyApp.Mailer
-  alias Bamboo.Mailbox
 
-  test "sends a welcome email" do
-    Emails.welcome_email |> Mailer.deliver
+  test "welcome emails" do
+    email = Emails.welcome_email
 
-    email = SentEmail.all |> List.first
-    # or use SentEmail.one which will raise if there is anything but one email
-    # delivered
     assert email.to == "someone@foo.com"
     assert email.subject == "This is your welcome email"
     assert email.html_body =~ "Welcome to the app!"
   end
 end
+
+# integration tests
+
+defmodule MyApp.RegistrationControllerTest do
+  use ExUnit.Case
+
+  use Bamboo.Test
+  alias MyApp.Emails
+
+  test "registers user and sends welcome email" do
+    ...post to registration controller
+
+    newly_created_user = Repo.first(User)
+    assert_delivered_email Emails.welcome_email(newly_created_user)
+  end
+end
+
 ```
 
 ## Installation
