@@ -34,8 +34,8 @@ defmodule MyApp.Emails do
       to: "foo@example.com",
       from: "me@example.com",
       subject: "Welcome!!!",
-      html_body: "<strong>WELCOME</strong>",
-      text_body: "WELCOME"
+      html_body: "<strong>Welcome</strong>",
+      text_body: "welcome"
     )
   end
 end
@@ -65,14 +65,19 @@ defmodule MyApp.Emails do
 
   def welcome_email do
     base_email
-    |> to("foo@bar.com", %Bamboo.EmailAddress{name: "John Smith", address:"john@foo.com"})
-    |> cc(author) # You can set up a custom protocol that handles different types of structs.
+    # Emails addresses can be a string
+    |> to("foo@bar.com")
+    # or a Bamboo.EmailAddress struct
+    |> bcc(%Bamboo.EmailAddress{name: "John Smith", address:"john@foo.com"})
+    # or you can set up a custom protocol that handles different types of structs.
+    |> cc(author())
     |> subject("Welcome!!!")
-    |> tag("welcome-email") # Imported by Bamboo.MandrillEmails
+    # Imported by Bamboo.MandrillEmails
+    |> tag("welcome-email")
     |> put_header("Reply-To", "somewhere@example.com")
-    # Uses the view from `view` to render the `welcome_email.html.eex`
-    # and `welcome_email.text.eex` templates with the passed in assigns
-    # Use string to render a specific template, e.g. `welcome_email.html.eex`
+    # Uses the view from `use Bamboo.Phoenix, view: View` to render the `welcome_email.html.eex`
+    # and `welcome_email.text.eex` templates with the passed in assigns.
+    # Use a string to render a specific template, e.g. `welcome_email.html.eex`
     |> render(:welcome_email, author: author)
   end
 
@@ -81,12 +86,13 @@ defmodule MyApp.Emails do
   end
 
   defp base_email do
+    # Set a default from, a default headers, etc.
     mail(from: "myapp@example.com")
   end
 end
 
 defimpl Bamboo.Formatter, for: User do
-  # Used by `to`, `bcc`, `cc` and `from`
+  # Used by to, bcc, cc and from
   def format_email_address(user, _opts) do
     fullname = "#{user.first_name} #{user.last_name}"
     %Bamboo.EmailAddress{name: fullname, email: email}
@@ -102,18 +108,16 @@ sent.
 
 ```elixir
 # In your Phoenix router
-forward "/delivered_emails", Bamboo.Mailbox
-
-# If you want to see the latest email, add this to your socket
-channel "/latest_email", Bamboo.LatestEmailChannel
+forward "/delivered_emails", Bamboo.SentEmailController
 
 # In your browser
-localhost:4000/email_previews
+localhost:4000/delivered_emails
 ```
 
 ## Testing
 
 You can use the `Bamboo.TestAdapter` to make testing your emails a piece of cake.
+See documentation for `Bamboo.Test` for more examples.
 
 ```elixir
 # Use the Bamboo.LocalAdapter in your config/test.exs file
