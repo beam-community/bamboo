@@ -1,5 +1,60 @@
 defprotocol Bamboo.Formatter do
-  def format_email_address(email, opts)
+  @moduledoc ~S"""
+  Converts data to a Bamboo.EmailAddress struct or a string
+
+  The passed in options is currently a map with the key `:type` and a value of
+  `:from`, `:to`, `:cc` or `:bcc`. This makes it so that you can pattern match
+  and return a different address depending on if the address is being used in
+  the from, to, cc or bcc.
+
+  ## Simple example
+
+  Let's say you have a user struct like this.
+
+      defmodule MyApp.User do
+        defstruct first_name: nil, last_name: nil, email: nil
+      end
+
+  Bamboo can automatically format this struct if you implement the Bamboo.Formatter
+  protocol.
+
+      defimpl Bamboo.Formatter, for: MyApp.User do
+        # Used by `to`, `bcc`, `cc` and `from`
+        def format_email_address(user, _opts) do
+          fullname = "#{user.first_name} #{user.last_name}"
+          %Bamboo.EmailAddress{name: fullname, email: email}
+        end
+      end
+
+  Now you can create emails like this, and the user will be formatted correctly
+
+      user = %User{first_name: "John", last_name: "Doe", email: "me@example.com"}
+      Bamboo.Email.new_email(from: user)
+  """
+
+  @doc ~S"""
+  Receives data and opts and should return a string or Bamboo.EmailAddress struct
+
+  opts is currently a map with the key `:type` and a value of
+  `:from`, `:to`, `:cc` or `:bcc`. You can pattern match on this to customize
+  the address depending on what it's use for. For example, you could add the
+  app name to the user's name if it is used for a from address
+
+      defimpl Bamboo.Formatter, for: MyApp.User do
+        # Include the app name when used in a from address
+        def format_email_address(user, %{type: :from}) do
+          fullname = "#{user.first_name} #{user.last_name} (Send from MyApp)"
+          %Bamboo.EmailAddress{name: fullname, email: email}
+        end
+
+        # Just use the name for all other types
+        def format_email_address(user, _opts) do
+          fullname = "#{user.first_name} #{user.last_name}"
+          %Bamboo.EmailAddress{name: fullname, email: email}
+        end
+      end
+  """
+  def format_email_address(data, opts)
 end
 
 defimpl Bamboo.Formatter, for: List do

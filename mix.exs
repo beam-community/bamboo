@@ -11,6 +11,7 @@ defmodule Bamboo.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      package: package,
+     docs: [main: "README", extras: ["README.md"]],
      deps: deps]
   end
 
@@ -44,6 +45,8 @@ defmodule Bamboo.Mixfile do
       {:cowboy, "~> 1.0", only: [:test]},
       {:phoenix, "~> 1.1", only: [:test]},
       {:phoenix_html, "~> 2.2", only: [:test]},
+      {:ex_doc, "~> 0.9", only: :dev},
+      {:earmark, ">= 0.0.0", only: :dev},
       {:httpoison, "~> 0.7.4"},
       {:poison, "~> 1.5"}
     ]

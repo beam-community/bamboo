@@ -1,4 +1,24 @@
 defmodule Bamboo.MandrillAdapter do
+  @moduledoc """
+  Sends email using Mandrill's JSON API.
+
+  Use this adapter to send emails through Mandrill's API. Requires that an API
+  key is set in the config. See [Bamboo.MandrillEmail](Bamboo.MandrillEmail.html)
+  extra functions that can be used by the MandrillAdapter (tagging, merge vars, etc.)
+
+  ## Example config
+
+      # In config/config.exs, or config/prod.exs, etc.
+      config :my_app, MyApp.Mailer,
+        adapter: Bamboo.MandrillAdapter,
+        api_key: "my_api_key"
+
+      # Define a Mailer. Maybe in lib/my_app/mailer.ex
+      defmodule MyApp.Mailer do
+        use Bamboo.Mailer, otp_app: :my_app
+      end
+  """
+
   @default_base_uri "https://mandrillapp.com/"
   @send_message_path "api/1.0/messages/send.json"
   @behaviour Bamboo.Adapter

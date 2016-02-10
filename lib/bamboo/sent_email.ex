@@ -1,4 +1,13 @@
 defmodule Bamboo.SentEmail do
+  @moduledoc """
+  Used for storing and retrieving sent emails when used with Bamboo.LocalAdapter
+
+  When emails are sent with the Bamboo.LocalAdapter, they are stored in
+  Bamboo.SentEmail. Use the following function to store and retrieve the emails.
+  Remember to start the Bamboo app by adding it to the app list in mix.exs or
+  starting it with Application.ensure_all_started(:bamboo)
+  """
+
   defmodule DeliveriesError do
     defexception [:message]
 
@@ -33,20 +42,29 @@ defmodule Bamboo.SentEmail do
     end
   end
 
+  @doc "Starts the SentEmail Agent"
   def start_link do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
+  @doc "Returns a list of all sent emails"
   def all do
     Agent.get(__MODULE__, fn(emails) -> emails end)
   end
 
+  @doc "Adds an email to the list of sent emails"
   def push(email) do
     Agent.update(__MODULE__, fn(emails) ->
       emails ++ [email]
     end)
   end
 
+  @doc """
+  Returns exactly one sent email
+
+  Raises `NoDeliveriesError` if there are no emails. Raises `DeliveriesError` if
+  there are 2 or more emails.
+  """
   def one do
     case all do
       [email] -> email
@@ -55,6 +73,7 @@ defmodule Bamboo.SentEmail do
     end
   end
 
+  @doc "Clears all sent emails"
   def reset do
     Agent.update(__MODULE__, fn(_) ->
       []

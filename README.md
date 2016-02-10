@@ -1,13 +1,19 @@
 # Bamboo
 
-A library for handling emails. Makes testing easy as well.
+Bamboo was built with a few goals in mind
 
-**This code in the README may be out of date.** See the tests directory for example of how to use Bamboo
+* Easy to format recipients, so you can do `new_email(to: Repo.one(User))` and Bamboo can format the user automatically.
+* Works with Phoenix views and layouts to make rendering easy.
+* Adapter based so it can be used with Mandrill, SMTP, or whatever else you want.
+* Very composable. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
+* Make it super easy to unit test. No special functions needed.
+* Easy to test delivery in integration tests. As little repeated code as possible.
+
+See the [API Reference](api-reference.html) for the most up to date information.
 
 ## Usage
 
-Bamboo breaks email creation and email sending in to two separate modules. To
-begin, let's create a mailer that uses Mandrill as the backend.
+Bamboo breaks email creation and email sending in to two separate modules.
 
 ```elixir
 # In your config/config.exs file
@@ -41,6 +47,9 @@ defmodule MyApp.Foo do
 
   def register_user do
     # Create a user and whatever else is needed
+
+    # Emails are not delivered until you explicitly deliver them. This makes
+    # them very composable and easy to unit test
     Emails.welcome_email |> Mailer.deliver
   end
 end
@@ -50,7 +59,7 @@ end
 
 ```elixir
 defmodule MyApp.Emails do
-  # Adds a `render` function for rending emails with Phoenix views
+  # Adds a `render` function for rending emails with a Phoenix view
   use Bamboo.Phoenix, view: MyApp.EmailView
   import Bamboo.MandrillEmails
 
@@ -78,14 +87,14 @@ end
 
 defimpl Bamboo.Formatter, for: User do
   # Used by `to`, `bcc`, `cc` and `from`
-  def format_email_address(user) do
+  def format_email_address(user, _opts) do
     fullname = "#{user.first_name} #{user.last_name}"
     %Bamboo.EmailAddress{name: fullname, email: email}
   end
 end
 ```
 
-## In development (not started yet)
+## In development (coming soonish)
 
 You can see the sent emails by forwarding a route to the `Bamboo.Preview`
 module. You can see all the emails sent. It will live update with new emails
@@ -111,7 +120,7 @@ You can use the `Bamboo.TestAdapter` to make testing your emails a piece of cake
 config :my_app, MyApp.Mailer,
   adapter: Bamboo.LocalAdapter
 
-# In your test
+# Unit testing requires no special functions
 defmodule MyApp.EmailsTest do
   use ExUnit.Case
 
@@ -127,7 +136,7 @@ defmodule MyApp.EmailsTest do
   end
 end
 
-# integration tests
+# Integration tests
 
 defmodule MyApp.RegistrationControllerTest do
   use ExUnit.Case
@@ -152,7 +161,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
   1. Add bamboo to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:bamboo, "~> 0.0.1"}]
+          [{:bamboo, "~> 0.0.5"}]
         end
 
   2. Ensure bamboo is started before your application:

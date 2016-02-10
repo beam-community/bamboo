@@ -1,4 +1,6 @@
 defmodule Bamboo do
+  @moduledoc false
+
   use Application
 
   defmodule EmptyFromAddressError do

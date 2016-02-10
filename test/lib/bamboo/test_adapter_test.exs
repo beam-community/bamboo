@@ -39,6 +39,10 @@ defmodule Bamboo.TestAdapterTest do
     refute_delivered_email unsent_email
   end
 
+  test "assert_no_emails_sent" do
+    assert_no_emails_sent
+  end
+
   test "assertion helpers format email addresses" do
     user_that_needs_to_be_formatted =
       %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
