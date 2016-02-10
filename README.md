@@ -118,7 +118,7 @@ You can use the `Bamboo.TestAdapter` to make testing your emails a piece of cake
 ```elixir
 # Use the Bamboo.LocalAdapter in your config/test.exs file
 config :my_app, MyApp.Mailer,
-  adapter: Bamboo.LocalAdapter
+  adapter: Bamboo.TestAdapter
 
 # Unit testing requires no special functions
 defmodule MyApp.EmailsTest do
