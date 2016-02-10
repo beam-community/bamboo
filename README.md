@@ -156,12 +156,12 @@ end
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+To use the latest from master.
 
   1. Add bamboo to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:bamboo, "~> 0.0.5"}]
+          [{:bamboo, github: "paulcsmith/bamboo"}]
         end
 
   2. Ensure bamboo is started before your application:
