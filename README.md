@@ -9,7 +9,7 @@ Bamboo was built with a few goals in mind
 * Make it super easy to unit test. No special functions needed.
 * Easy to test delivery in integration tests. As little repeated code as possible.
 
-See the [API Reference](api-reference.html) for the most up to date information.
+See the module docs for the most up to date information.
 
 ## Usage
 
