@@ -1,12 +1,12 @@
 # Bamboo
 
-Bamboo was built with a few goals in mind
+Flexible and easy to use email for Elixir.
 
-* Easy to format recipients, so you can do `new_email(to: Repo.one(User))` and Bamboo can format the user automatically.
-* Works with Phoenix views and layouts to make rendering easy.
-* Adapter based so it can be used with Mandrill, SMTP, or whatever else you want.
+* Adapter based so it can be used with Mandrill, SMTP, or whatever else you want. Comes with a Mandrill adapter out of the box.
+* Easy to format recipients. You can do `new_email(to: Repo.one(User))` and Bamboo can format the user automatically.
+* Works out of the box with Phoenix. Use views and layouts to make rendering email easy.
 * Very composable. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
-* Make it super easy to unit test. No special functions needed.
+* Easy to unit test. Because deliver is separated from email creation, no special functions needed, just assert against fields on the email.
 * Easy to test delivery in integration tests. As little repeated code as possible.
 
 See the module docs for the most up to date information.
@@ -21,11 +21,12 @@ config :my_app, MyApp.Mailer,
   adapter: Bamboo.MandrillAdapter,
   api_key: "my_api_key"
 
-# In your application code
+# Somewhere in your application
 defmodule MyApp.Mailer do
   use Bamboo.Mailer, otp_app: :my_app
 end
 
+# Define your emails
 defmodule MyApp.Emails do
   import Bamboo.Email
 
@@ -48,14 +49,13 @@ defmodule MyApp.Foo do
   def register_user do
     # Create a user and whatever else is needed
 
-    # Emails are not delivered until you explicitly deliver them. This makes
-    # them very composable and easy to unit test
+    # Emails are not delivered until you explicitly deliver them.
     Emails.welcome_email |> Mailer.deliver
   end
 end
 ```
 
-## More options
+## Composable. Use for default from address, default layouts, etc.
 
 ```elixir
 defmodule MyApp.Emails do
@@ -120,7 +120,7 @@ You can use the `Bamboo.TestAdapter` to make testing your emails a piece of cake
 See documentation for `Bamboo.Test` for more examples.
 
 ```elixir
-# Use the Bamboo.LocalAdapter in your config/test.exs file
+# Use the Bamboo.TestAdapter in your config/test.exs file
 config :my_app, MyApp.Mailer,
   adapter: Bamboo.TestAdapter
 
