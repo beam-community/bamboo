@@ -27,6 +27,8 @@ defmodule Bamboo.MandrillAdapter do
     defexception [:message]
 
     def exception(%{params: params, response: response}) do
+      filtered_params = params |> Poison.decode! |> Map.put("key", "[FILTERED]")
+
       message = """
       There was a problem sending the email through the Mandrill API.
 
@@ -37,7 +39,7 @@ defmodule Bamboo.MandrillAdapter do
 
       Here are the params we sent:
 
-      #{inspect Poison.decode!(params), limit: :infinity}
+      #{inspect filtered_params, limit: :infinity}
       """
       %ApiError{message: message}
     end

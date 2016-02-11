@@ -138,6 +138,14 @@ defmodule Bamboo.MandrillAdapterTest do
     end
   end
 
+  test "removes api key from error output" do
+    email = new_email(from: "INVALID_EMAIL")
+
+    assert_raise Bamboo.MandrillAdapter.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
+      email |> MandrillAdapter.deliver(@config)
+    end
+  end
+
   defp new_email(attrs \\ []) do
     attrs = Keyword.merge([from: "foo@bar.com", to: []], attrs)
     Email.new_email(attrs) |> Bamboo.Mailer.normalize_addresses
