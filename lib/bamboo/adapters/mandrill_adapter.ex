@@ -32,12 +32,12 @@ defmodule Bamboo.MandrillAdapter do
 
       Here is the response:
 
-      #{inspect response}
+      #{inspect response, limit: :infinity}
 
 
       Here are the params we sent:
 
-      #{inspect Poison.decode!(params)}
+      #{inspect Poison.decode!(params), limit: :infinity}
       """
       %ApiError{message: message}
     end
