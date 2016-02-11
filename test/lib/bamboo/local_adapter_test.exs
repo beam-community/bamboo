@@ -24,18 +24,18 @@ defmodule Bamboo.LocalAdapterTest do
     assert SentEmail.all == [email]
   end
 
-  test "deliver_async puts email in the mailbox immediately" do
+  test "deliver_later puts email in the mailbox immediately" do
     email = new_normalized_email(subject: "This is my email")
 
-    email |> TestMailer.deliver_async
+    email |> TestMailer.deliver_later
 
     assert SentEmail.all == [email]
   end
 
-  test "deliver_async returns a task that can be awaited upon" do
+  test "deliver_later returns a task that can be awaited upon" do
     email = new_normalized_email(subject: "This is my email")
 
-    task = email |> TestMailer.deliver_async
+    task = email |> TestMailer.deliver_later
 
     Task.await(task)
     assert SentEmail.all == [email]

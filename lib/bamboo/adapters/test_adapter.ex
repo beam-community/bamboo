@@ -25,7 +25,7 @@ defmodule Bamboo.TestAdapter do
   end
 
   @doc false
-  def deliver_async(email, _config) do
+  def deliver_later(email, _config) do
     deliver(email, nil)
     Task.async(fn -> :ok end)
   end

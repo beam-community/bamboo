@@ -29,7 +29,7 @@ defmodule Bamboo.LocalAdapter do
   end
 
   @doc "Adds email to Bamboo.SentEmail. Returns a Task that can be awaited on"
-  def deliver_async(email, _config) do
+  def deliver_later(email, _config) do
     deliver(email, nil)
     Task.async(fn -> :ok end)
   end

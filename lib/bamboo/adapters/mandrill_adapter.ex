@@ -53,7 +53,7 @@ defmodule Bamboo.MandrillAdapter do
     end
   end
 
-  def deliver_async(email, config) do
+  def deliver_later(email, config) do
     Task.async(fn ->
       deliver(email, config)
     end)

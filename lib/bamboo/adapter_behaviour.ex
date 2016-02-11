@@ -13,7 +13,7 @@ defmodule Bamboo.Adapter do
           deliver_the_email_somehow(email)
         end
 
-        def deliver_async(email, config) do
+        def deliver_later(email, config) do
           # You could also add the email to a GenServer or ExQ for delivery.
           Task.async fn ->
             Bamboo.CustomAdapter.deliver(email, config)
@@ -23,5 +23,5 @@ defmodule Bamboo.Adapter do
   """
 
   @callback deliver(%Bamboo.Email{}, %{}) :: any
-  @callback deliver_async(%Bamboo.Email{}, %{}) :: Task.t
+  @callback deliver_later(%Bamboo.Email{}, %{}) :: Task.t
 end

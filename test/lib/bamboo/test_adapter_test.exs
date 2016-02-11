@@ -20,10 +20,10 @@ defmodule Bamboo.TestAdapterTest do
     assert_received {:delivered_email, ^email}
   end
 
-  test "deliver_async/2 sends a message to the process and returns a Task" do
+  test "deliver_later/2 sends a message to the process and returns a Task" do
     email = new_normalized_email()
 
-    task = email |> TestMailer.deliver_async
+    task = email |> TestMailer.deliver_later
 
     Task.await(task)
     assert_received {:delivered_email, ^email}

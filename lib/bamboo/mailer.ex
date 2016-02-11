@@ -2,7 +2,7 @@ defmodule Bamboo.Mailer do
   @moduledoc """
   Sets up mailers that make it easy to configure and swap adapters.
 
-  Adds deliver/1 and deliver_async/1 functions to the mailer module it is used by.
+  Adds deliver/1 and deliver_later/1 functions to the mailer module it is used by.
   Bamboo ships with [Bamboo.MandrillAdapter](Bamboo.MandrillAdapter.html),
   [Bamboo.LocalAdapter](Bamboo.LocalAdapter) and
   [Bamboo.TestAdapter](Bamboo.TestAdapter.html).
@@ -18,7 +18,7 @@ defmodule Bamboo.Mailer do
 
       # Somewhere in your application. Maybe lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
-        # Adds deliver/1 and deliver_async/1
+        # Adds deliver/1 and deliver_later/1
         use Bamboo.Mailer, otp_app: :my_app
       end
 
@@ -44,7 +44,7 @@ defmodule Bamboo.Mailer do
 
         def register_user do
           # Create a user and whatever else is needed
-          # Could also have called Mailer.deliver_async
+          # Could also have called Mailer.deliver_later
           Email.welcome_email |> Mailer.deliver
         end
       end
@@ -64,8 +64,8 @@ defmodule Bamboo.Mailer do
         Bamboo.Mailer.deliver(@adapter, email, @config)
       end
 
-      def deliver_async(email) do
-        Bamboo.Mailer.deliver_async(@adapter, email, @config)
+      def deliver_later(email) do
+        Bamboo.Mailer.deliver_later(@adapter, email, @config)
       end
     end
   end
@@ -79,11 +79,11 @@ defmodule Bamboo.Mailer do
   end
 
   @doc false
-  def deliver_async(adapter, email, config) do
+  def deliver_later(adapter, email, config) do
     email = email |> Bamboo.Mailer.normalize_addresses
 
     debug(email)
-    adapter.deliver_async(email, config)
+    adapter.deliver_later(email, config)
   end
 
   defp debug(email) do

@@ -34,7 +34,7 @@ defmodule Bamboo.Test do
 
           email |> MyApp.Mailer.deliver
 
-          # Also works with MyApp.Mailer.deliver_async
+          # Also works with MyApp.Mailer.deliver_later
           assert_delivered_email Emails.welcome_email(user)
         end
       end

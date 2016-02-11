@@ -9,8 +9,8 @@ defmodule Bamboo.MailerTest do
       send :test, {:deliver, email, config}
     end
 
-    def deliver_async(email, config) do
-      send :test, {:deliver_async, email, config}
+    def deliver_later(email, config) do
+      send :test, {:deliver_later, email, config}
     end
   end
 
@@ -41,12 +41,12 @@ defmodule Bamboo.MailerTest do
     end
   end
 
-  test "deliver_async/1 calls deliver_async on the adapter" do
+  test "deliver_later/1 calls deliver_later on the adapter" do
     email = new_email
 
-    FooMailer.deliver_async(email)
+    FooMailer.deliver_later(email)
 
-    assert_receive {:deliver_async, delivered_email, config}
+    assert_receive {:deliver_later, delivered_email, config}
     assert config == @mailer_config
     assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
   end
