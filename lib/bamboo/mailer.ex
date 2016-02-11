@@ -85,7 +85,6 @@ defmodule Bamboo.Mailer do
   def deliver_later(adapter, email, config) do
     email = email |> validate_and_normalize
 
-    debug(email)
     adapter.deliver_later(email, config)
   end
 
