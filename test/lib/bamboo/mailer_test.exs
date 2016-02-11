@@ -32,7 +32,7 @@ defmodule Bamboo.MailerTest do
 
     returned_email = FooMailer.deliver(email)
 
-    assert returned_email == email
+    assert returned_email == Bamboo.Mailer.normalize_addresses(email)
     assert_received {:deliver, %Bamboo.Email{}, @mailer_config}
   end
 
@@ -45,7 +45,7 @@ defmodule Bamboo.MailerTest do
   end
 
   test "deliver/1 with empty lists for recipients does not deliver email" do
-    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver(nil_recipients: :allowed)
+    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver
     refute_received {:deliver, _, @mailer_config}
 
     new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver
