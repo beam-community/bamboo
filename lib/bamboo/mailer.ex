@@ -74,8 +74,10 @@ defmodule Bamboo.Mailer do
   def deliver(adapter, email, config) do
     email = email |> validate_and_normalize
 
-    unless email.to == [] && email.cc == [] && email.bcc == [] do
-      debug(email)
+    if email.to == [] && email.cc == [] && email.bcc == [] do
+      debug_unsent(email)
+    else
+      debug_sent(email, adapter)
       adapter.deliver(email, config)
     end
     email
@@ -88,11 +90,19 @@ defmodule Bamboo.Mailer do
     adapter.deliver_later(email, config)
   end
 
-  defp debug(email) do
+  defp debug_sent(email, adapter) do
     Logger.debug """
-    Sending email with Bamboo:
+    Sending email with #{inspect adapter}:
 
     #{inspect email, limit: :infinity}
+    """
+  end
+
+  defp debug_unsent(email) do
+    Logger.debug """
+    Email was not sent because recipients are empty.
+
+    Full email - #{inspect email, limit: :infinity}
     """
   end
 
