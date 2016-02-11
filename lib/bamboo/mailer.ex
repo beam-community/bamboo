@@ -72,15 +72,18 @@ defmodule Bamboo.Mailer do
 
   @doc false
   def deliver(adapter, email, config) do
-    email = email |> Bamboo.Mailer.normalize_addresses
+    email = email |> validate_and_normalize
 
-    debug(email)
-    adapter.deliver(email, config)
+    unless email.to == [] && email.cc == [] && email.bcc == [] do
+      debug(email)
+      adapter.deliver(email, config)
+    end
+    email
   end
 
   @doc false
   def deliver_later(adapter, email, config) do
-    email = email |> Bamboo.Mailer.normalize_addresses
+    email = email |> validate_and_normalize
 
     debug(email)
     adapter.deliver_later(email, config)
@@ -92,6 +95,18 @@ defmodule Bamboo.Mailer do
 
     #{inspect email, limit: :infinity}
     """
+  end
+
+  defp validate_and_normalize(email) do
+    email |> validate_recipients |> normalize_addresses
+  end
+
+  defp validate_recipients(email) do
+    if email.to == nil && email.cc == nil && email.bcc == nil do
+      raise Bamboo.NilRecipientsError, email
+    else
+      email
+    end
   end
 
   @doc """

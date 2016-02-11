@@ -16,5 +16,18 @@ defmodule Bamboo do
     end
   end
 
+  defmodule NilRecipientsError do
+    defexception [:message]
+
+    def exception(email) do
+      message = """
+      All recipients were set to nil. Must specify at least one recipient.
+
+      Full email - #{inspect email, limit: :infinity}
+      """
+      %NilRecipientsError{message: message}
+    end
+  end
+
   def start(_type, _args), do: Bamboo.SentEmail.start_link
 end

@@ -150,7 +150,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   defp new_email(attrs \\ []) do
-    attrs = Keyword.merge([from: "foo@bar.com"], attrs)
+    attrs = Keyword.merge([from: "foo@bar.com", to: []], attrs)
     Email.new_email(attrs)
   end
 end

@@ -28,8 +28,11 @@ defmodule Bamboo.MailerTest do
   end
 
   test "deliver/1 calls the adapter with the email and config" do
-    FooMailer.deliver(new_email)
+    email = new_email(to: "foo@bar.com")
 
+    returned_email = FooMailer.deliver(email)
+
+    assert returned_email == email
     assert_received {:deliver, %Bamboo.Email{}, @mailer_config}
   end
 
@@ -39,6 +42,34 @@ defmodule Bamboo.MailerTest do
     assert_raise Bamboo.EmptyFromAddressError, fn ->
       FooMailer.deliver(email)
     end
+  end
+
+  test "deliver/1 with empty lists for recipients does not deliver email" do
+    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver(nil_recipients: :allowed)
+    refute_received {:deliver, _, @mailer_config}
+
+    new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver
+    refute_received {:deliver, _, @mailer_config}
+
+    new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver
+    refute_received {:deliver, _, @mailer_config}
+
+    new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver
+    refute_received {:deliver, _, @mailer_config}
+  end
+
+  test "deliver_later/1 with empty lists for recipients does not deliver email" do
+    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver_later
+    refute_received {:deliver, _, @mailer_config}
+
+    new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver_later
+    refute_received {:deliver, _, @mailer_config}
+
+    new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver_later
+    refute_received {:deliver, _, @mailer_config}
+
+    new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver_later
+    refute_received {:deliver, _, @mailer_config}
   end
 
   test "deliver_later/1 calls deliver_later on the adapter" do
@@ -102,7 +133,13 @@ defmodule Bamboo.MailerTest do
     end
   end
 
-  test "raises an error if a map is passed in an not a Bamboo.EmailAddress" do
+  test "raises if all receipients are nil" do
+    assert_raise Bamboo.NilRecipientsError, fn ->
+      new_email(to: nil, cc: nil, bcc: nil) |> FooMailer.deliver
+    end
+  end
+
+  test "raises if a map is passed in instead of a Bamboo.EmailAddress" do
     email = new_email(from: %{foo: :bar})
 
     assert_raise ArgumentError, fn ->
@@ -111,7 +148,7 @@ defmodule Bamboo.MailerTest do
   end
 
   defp new_email(attrs \\ []) do
-    attrs = Keyword.merge([from: "foo@bar.com"], attrs)
+    attrs = Keyword.merge([from: "foo@bar.com", to: "foo@bar.com"], attrs)
     Email.new_email(attrs)
   end
 end

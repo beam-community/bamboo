@@ -54,7 +54,7 @@ defmodule Bamboo.TestAdapterTest do
   end
 
   defp new_normalized_email(attrs \\ []) do
-    [from: "foo@bar.com"]
+    [from: "foo@bar.com", to: ["foo@bar.com"]]
     |> Keyword.merge(attrs)
     |> new_email
     |> Bamboo.Mailer.normalize_addresses

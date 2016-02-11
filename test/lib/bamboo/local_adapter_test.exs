@@ -42,7 +42,7 @@ defmodule Bamboo.LocalAdapterTest do
   end
 
   defp new_normalized_email(attrs) do
-    attrs = attrs |> Keyword.put(:from, "foo@bar.com")
+    attrs = Keyword.merge([from: "foo@bar.com", to: "foo@bar.com"], attrs)
     new_email(attrs) |> Bamboo.Mailer.normalize_addresses
   end
 end
