@@ -72,7 +72,8 @@ defmodule Bamboo.Test do
   @doc """
   Checks whether an email was delivered.
 
-  Must be used with the Bamboo.TestAdapter or this will never pass.
+  Must be used with the Bamboo.TestAdapter or this will never pass. The
+  assertion will only pass if all fields in the email match exactly.
 
   ## Examples
 
