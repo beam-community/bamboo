@@ -101,7 +101,7 @@ defmodule Bamboo.Email do
       new_email(from: "support@myapp.com")
   """
   def new_email(attrs \\ []) do
-    struct(%__MODULE__{}, attrs)
+    struct!(%__MODULE__{}, attrs)
   end
 
   for function_name <- @attribute_pipe_functions do

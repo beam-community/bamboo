@@ -4,7 +4,7 @@ defmodule Bamboo.Mixfile do
   def project do
     [app: :bamboo,
      version: "0.2.0",
-     elixir: "~> 1.1",
+     elixir: "~> 1.2",
      compilers: compilers(Mix.env),
      elixirc_paths: elixirc_paths(Mix.env),
      description: "Composable, testable, adapter based emails.",
