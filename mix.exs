@@ -47,7 +47,7 @@ defmodule Bamboo.Mixfile do
       {:phoenix_html, "~> 2.2", only: [:test]},
       {:ex_doc, "~> 0.9", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:httpoison, "~> 0.7.4"},
+      {:httpoison, "~> 0.8"},
       {:poison, "~> 1.5"}
     ]
   end
