@@ -6,7 +6,7 @@ Flexible and easy to use email for Elixir.
 * Easy to format recipients. You can do `new_email(to: Repo.one(User))` and Bamboo can format the user automatically.
 * Works out of the box with Phoenix. Use views and layouts to make rendering email easy.
 * Very composable. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
-* Easy to unit test. Because deliver is separated from email creation, no special functions needed, just assert against fields on the email.
+* Easy to unit test. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
 * Easy to test delivery in integration tests. As little repeated code as possible.
 
 See the module docs for the most up to date information.
@@ -55,7 +55,7 @@ defmodule MyApp.Foo do
 end
 ```
 
-## Composable. Use for default from address, default layouts, etc.
+## Composing with pipes. Use for default from address, default layouts, etc.
 
 ```elixir
 defmodule MyApp.Emails do
@@ -86,7 +86,7 @@ defmodule MyApp.Emails do
   end
 
   defp base_email do
-    # Set a default from, a default headers, etc.
+    # Set a default from, default headers, etc.
     mail(from: "myapp@example.com")
   end
 end
