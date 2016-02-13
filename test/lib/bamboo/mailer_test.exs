@@ -27,13 +27,14 @@ defmodule Bamboo.MailerTest do
     :ok
   end
 
-  test "deliver/1 calls the adapter with the email and config" do
+  test "deliver/1 calls the adapter with the email and config as a map" do
     email = new_email(to: "foo@bar.com")
 
     returned_email = FooMailer.deliver(email)
 
     assert returned_email == Bamboo.Mailer.normalize_addresses(email)
-    assert_received {:deliver, %Bamboo.Email{}, @mailer_config}
+    assert_received {:deliver, %Bamboo.Email{}, config}
+    assert config == Enum.into(@mailer_config, %{})
   end
 
   test "deliver/1 with no from address" do
@@ -78,7 +79,7 @@ defmodule Bamboo.MailerTest do
     FooMailer.deliver_later(email)
 
     assert_receive {:deliver_later, delivered_email, config}
-    assert config == @mailer_config
+    assert config == Enum.into(@mailer_config, %{})
     assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
   end
 

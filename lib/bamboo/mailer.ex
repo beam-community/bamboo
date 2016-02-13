@@ -55,9 +55,9 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      %{adapter: adapter, config: config} = Bamboo.Mailer.parse_opts(__MODULE__, opts)
+      config = Bamboo.Mailer.parse_opts(__MODULE__, opts)
 
-      @adapter adapter
+      @adapter config.adapter
       @config config
 
       def deliver(email) do
@@ -143,9 +143,6 @@ defmodule Bamboo.Mailer do
   @doc false
   def parse_opts(mailer, opts) do
     otp_app = Keyword.fetch!(opts, :otp_app)
-    config = Application.get_env(otp_app, mailer)
-    adapter = Keyword.fetch!(config, :adapter)
-
-    %{adapter: adapter, config: config}
+    Application.get_env(otp_app, mailer) |> Enum.into(%{})
   end
 end
