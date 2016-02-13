@@ -26,6 +26,10 @@ defmodule Bamboo.MandrillAdapterTest do
       Plug.Adapters.Cowboy.http __MODULE__, [], port: 4001
     end
 
+    def shutdown do
+      Plug.Adapters.Cowboy.shutdown __MODULE__
+    end
+
     post "/api/1.0/messages/send.json" do
       case get_in(conn.params, ["message", "from_email"]) do
         "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!") |> send_to_parent
@@ -42,6 +46,11 @@ defmodule Bamboo.MandrillAdapterTest do
 
   setup do
     FakeMandrill.start_server(self)
+
+    on_exit fn ->
+      FakeMandrill.shutdown
+    end
+
     {:ok, %{}}
   end
 
