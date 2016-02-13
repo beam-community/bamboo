@@ -125,14 +125,14 @@ defmodule Bamboo.Mailer do
   """
   def normalize_addresses(email) do
     %{email |
-      from: normalize(email.from, :from),
-      to: normalize(List.wrap(email.to), :to),
-      cc: normalize(List.wrap(email.cc), :cc),
-      bcc: normalize(List.wrap(email.bcc), :bcc)
+      from: format(email.from, :from),
+      to: format(List.wrap(email.to), :to),
+      cc: format(List.wrap(email.cc), :cc),
+      bcc: format(List.wrap(email.bcc), :bcc)
     }
   end
 
-  defp normalize(record, type) do
+  defp format(record, type) do
     Formatter.format_email_address(record, %{type: type})
   end
 
