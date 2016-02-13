@@ -107,16 +107,16 @@ defmodule Bamboo.Mailer do
   end
 
   defp validate_and_normalize(email) do
-    email |> validate_recipients |> normalize_addresses
+    email |> validate |> normalize_addresses
   end
 
-  defp validate_recipients(email) do
-    if email.to == nil && email.cc == nil && email.bcc == nil do
-      raise Bamboo.NilRecipientsError, email
-    else
-      email
-    end
+  defp validate(%{from: nil}) do
+    raise Bamboo.EmptyFromAddressError, nil
   end
+  defp validate(%{to: nil, cc: nil, bcc: nil} = email) do
+    raise Bamboo.NilRecipientsError, email
+  end
+  defp validate(email), do: email
 
   @doc """
   Wraps to, cc and bcc addresses in a list and normalizes email addresses.
@@ -130,10 +130,6 @@ defmodule Bamboo.Mailer do
       cc: normalize(List.wrap(email.cc), :cc),
       bcc: normalize(List.wrap(email.bcc), :bcc)
     }
-  end
-
-  defp normalize(nil, :from) do
-    raise Bamboo.EmptyFromAddressError, nil
   end
 
   defp normalize(record, type) do
