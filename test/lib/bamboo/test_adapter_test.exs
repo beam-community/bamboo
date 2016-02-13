@@ -4,7 +4,7 @@ defmodule Bamboo.TestAdapterTest do
   import Bamboo.Email, only: [new_email: 0, new_email: 1]
   alias Bamboo.TestAdapter
 
-  @config []
+  @config %{}
 
   Application.put_env(
     :bamboo,
@@ -16,20 +16,23 @@ defmodule Bamboo.TestAdapterTest do
     use Bamboo.Mailer, otp_app: :bamboo
   end
 
+  test "handle_config makes sure that the DeliverImmediatelyStrategy is used" do
+    new_config = TestAdapter.handle_config(%{})
+    assert new_config.deliver_later_strategy == Bamboo.DeliverImmediatelyStrategy
+
+    new_config = TestAdapter.handle_config(%{deliver_later_strategy: nil})
+    assert new_config.deliver_later_strategy == Bamboo.DeliverImmediatelyStrategy
+
+    assert_raise ArgumentError, ~r/deliver_later_strategy/, fn ->
+      TestAdapter.handle_config(%{deliver_later_strategy: FooStrategy})
+    end
+  end
+
   test "deliver/2 sends a message to the process" do
     email = new_email()
 
     email |> TestAdapter.deliver(@config)
 
-    assert_received {:delivered_email, ^email}
-  end
-
-  test "deliver_later/2 sends a message to the process and returns a Task" do
-    email = new_email()
-
-    task = email |> TestAdapter.deliver_later(@config)
-
-    Task.await(task)
     assert_received {:delivered_email, ^email}
   end
 

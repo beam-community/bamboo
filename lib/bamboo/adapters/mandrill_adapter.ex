@@ -4,7 +4,7 @@ defmodule Bamboo.MandrillAdapter do
 
   Use this adapter to send emails through Mandrill's API. Requires that an API
   key is set in the config. See [Bamboo.MandrillEmail](Bamboo.MandrillEmail.html)
-  extra functions that can be used by the MandrillAdapter (tagging, merge vars, etc.)
+  for extra functions that can be used by the MandrillAdapter (tagging, merge vars, etc.)
 
   ## Example config
 
@@ -55,14 +55,17 @@ defmodule Bamboo.MandrillAdapter do
     end
   end
 
-  def deliver_later(email, config) do
-    Task.async(fn ->
-      deliver(email, config)
-    end)
+  @doc false
+  def handle_config(config) do
+    if config[:api_key] in [nil, ""] do
+      raise_api_key_error(config)
+    else
+      config
+    end
   end
 
   defp get_key(config) do
-    case Keyword.get(config, :api_key) do
+    case Map.get(config, :api_key) do
       nil -> raise_api_key_error(config)
       key -> key
     end

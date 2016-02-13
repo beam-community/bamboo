@@ -6,12 +6,28 @@ defmodule Bamboo.MailerTest do
 
   defmodule FooAdapter do
     def deliver(email, config) do
-      send :test, {:deliver, email, config}
+      send :mailer_test, {:deliver, email, config}
     end
 
-    def deliver_later(email, config) do
-      send :test, {:deliver_later, email, config}
+    def handle_config(config), do: config
+  end
+
+  defmodule CustomConfigAdapter do
+    def deliver(email, config) do
+      send :mailer_test, {:deliver, email, config}
     end
+
+    def handle_config(config) do
+      config |> Map.put(:custom_key, "Set by the adapter")
+    end
+  end
+
+  @custom_config adapter: CustomConfigAdapter, foo: :bar
+
+  Application.put_env(:bamboo, __MODULE__.CustomConfigMailer, @custom_config)
+
+  defmodule CustomConfigMailer do
+    use Bamboo.Mailer, otp_app: :bamboo
   end
 
   @mailer_config adapter: FooAdapter, foo: :bar
@@ -23,8 +39,26 @@ defmodule Bamboo.MailerTest do
   end
 
   setup do
-    Process.register(self, :test)
+    Process.register(self, :mailer_test)
     :ok
+  end
+
+  test "uses adapter's handle_config/1 to customize or validate the config" do
+    email = new_email(to: "foo@bar.com")
+
+    CustomConfigMailer.deliver(email)
+
+    assert_received {:deliver, _email, config}
+    assert config.custom_key == "Set by the adapter"
+  end
+
+  test "sets a default deliver_later_strategy if none is set" do
+    email = new_email(to: "foo@bar.com")
+
+    FooMailer.deliver(email)
+
+    assert_received {:deliver, _email, config}
+    assert config.deliver_later_strategy == Bamboo.TaskSupervisorStrategy
   end
 
   test "deliver/1 calls the adapter with the email and config as a map" do
@@ -34,7 +68,9 @@ defmodule Bamboo.MailerTest do
 
     assert returned_email == Bamboo.Mailer.normalize_addresses(email)
     assert_received {:deliver, %Bamboo.Email{}, config}
-    assert config == Enum.into(@mailer_config, %{})
+    config_with_default_strategy = Enum.into(@mailer_config, %{})
+      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+    assert config == config_with_default_strategy
   end
 
   test "deliver/1 with no from address" do
@@ -73,13 +109,12 @@ defmodule Bamboo.MailerTest do
     refute_received {:deliver, _, @mailer_config}
   end
 
-  test "deliver_later/1 calls deliver_later on the adapter" do
+  test "deliver_later/1 calls deliver on the adapter" do
     email = new_email
 
     FooMailer.deliver_later(email)
 
-    assert_receive {:deliver_later, delivered_email, config}
-    assert config == Enum.into(@mailer_config, %{})
+    assert_receive {:deliver, delivered_email, _config}
     assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
   end
 

@@ -1,8 +1,6 @@
 defmodule Bamboo.Adapter do
-  @moduledoc """
+  @moduledoc ~S"""
   Use this behaviour when creating adapters to be used by Bamboo.
-
-  Accepts an email, and the config that was set for the mailer.
 
   ## Example
 
@@ -13,15 +11,20 @@ defmodule Bamboo.Adapter do
           deliver_the_email_somehow(email)
         end
 
-        def deliver_later(email, config) do
-          # You could also add the email to a GenServer or ExQ for delivery.
-          Task.async fn ->
-            Bamboo.CustomAdapter.deliver(email, config)
+        def handle_config(config) do
+          # Return the config if nothing special is required
+          config
+
+          # Or you could require certain config options
+          if Map.get(config, :smtp_username) do
+            config
+          else
+            raise "smpt_username is required in config, got #{inspect config}"
           end
         end
       end
   """
 
   @callback deliver(%Bamboo.Email{}, %{}) :: any
-  @callback deliver_later(%Bamboo.Email{}, %{}) :: Task.t
+  @callback handle_config(map) :: map
 end

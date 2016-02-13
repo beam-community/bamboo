@@ -6,8 +6,8 @@ defmodule Bamboo.MandrillAdapterTest do
   alias Bamboo.MandrillEmail
   alias Bamboo.MandrillAdapter
 
-  @config [adapter: MandrillAdapter, api_key: "123_abc"]
-  @config_with_bad_key [adapter: MandrillAdapter, api_key: nil]
+  @config %{adapter: MandrillAdapter, api_key: "123_abc"}
+  @config_with_bad_key %{adapter: MandrillAdapter, api_key: nil}
 
   defmodule FakeMandrill do
     use Plug.Router
@@ -51,12 +51,16 @@ defmodule Bamboo.MandrillAdapterTest do
       FakeMandrill.shutdown
     end
 
-    {:ok, %{}}
+    :ok
   end
 
   test "raises if the api key is nil" do
     assert_raise ArgumentError, ~r/no API key set/, fn ->
       new_email(from: "foo@bar.com") |> MandrillAdapter.deliver(@config_with_bad_key)
+    end
+
+    assert_raise ArgumentError, ~r/no API key set/, fn ->
+      MandrillAdapter.handle_config(%{})
     end
   end
 
@@ -79,29 +83,6 @@ defmodule Bamboo.MandrillAdapterTest do
 
     email |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: params}}
-    assert params["key"] == @config[:api_key]
-    message = params["message"]
-    assert message["from_email"] == email.from.address
-    assert message["from_name"] == email.from.name
-    assert message["subject"] == email.subject
-    assert message["text"] == email.text_body
-    assert message["html"] == email.html_body
-    assert message["headers"] == email.headers
-  end
-
-  test "deliver_later sends asynchronously and can be awaited upon" do
-    email = new_email(
-      from: %EmailAddress{name: "From", address: "from@foo.com"},
-      subject: "My Subject",
-      text_body: "TEXT BODY",
-      html_body: "HTML BODY",
-    )
-    |> Email.put_header("Reply-To", "reply@foo.com")
-
-    task = email |> MandrillAdapter.deliver_later(@config)
-
-    Task.await(task)
     assert_receive {:fake_mandrill, %{params: params}}
     assert params["key"] == @config[:api_key]
     message = params["message"]

@@ -29,5 +29,13 @@ defmodule Bamboo do
     end
   end
 
-  def start(_type, _args), do: Bamboo.SentEmail.start_link
+  def start(_type, _args) do
+    import Supervisor.Spec
+
+    children = [
+      worker(Bamboo.SentEmail, []),
+    ]
+    opts = [strategy: :one_for_one, name: Bamboo.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
 end

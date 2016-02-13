@@ -4,7 +4,7 @@ defmodule Bamboo.LocalAdapterTest do
   alias Bamboo.LocalAdapter
   import Bamboo.Email, only: [new_email: 0, new_email: 1]
 
-  @config []
+  @config %{}
 
   setup do
     SentEmail.reset
@@ -19,20 +19,15 @@ defmodule Bamboo.LocalAdapterTest do
     assert SentEmail.all == [email]
   end
 
-  test "deliver_later puts email in the mailbox immediately" do
-    email = new_email(subject: "This is my email")
+  test "handle_config makes sure that the DeliverImmediatelyStrategy is used" do
+    new_config = LocalAdapter.handle_config(%{})
+    assert new_config.deliver_later_strategy == Bamboo.DeliverImmediatelyStrategy
 
-    email |> LocalAdapter.deliver_later(@config)
+    new_config = LocalAdapter.handle_config(%{deliver_later_strategy: nil})
+    assert new_config.deliver_later_strategy == Bamboo.DeliverImmediatelyStrategy
 
-    assert SentEmail.all == [email]
-  end
-
-  test "deliver_later returns a task that can be awaited upon" do
-    email = new_email(subject: "This is my email")
-
-    task = email |> LocalAdapter.deliver_later(@config)
-
-    Task.await(task)
-    assert SentEmail.all == [email]
+    assert_raise ArgumentError, ~r/deliver_later_strategy/, fn ->
+      LocalAdapter.handle_config(%{deliver_later_strategy: FooStrategy})
+    end
   end
 end
