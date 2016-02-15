@@ -72,21 +72,30 @@ defmodule Bamboo.Test do
   @doc """
   Checks whether an email was delivered.
 
-  Must be used with the Bamboo.TestAdapter or this will never pass. The
-  assertion will only pass if all fields in the email match exactly.
+  Must be used with the Bamboo.TestAdapter or this will never pass. If a
+  Bamboo.Email struct is passed in, it will check that all fields are matching.
+
+  You can also pass a keyword list and it will check just the fields you pass in.
 
   ## Examples
 
       email = Bamboo.Email.new_email(subject: "something")
       email |> MyApp.Mailer.deliver
       assert_delivered_email(email) # Will pass
+      assert_delivered_email(subject: "something") # Would also pass
 
       unsent_email = Bamboo.Email.new_email(subject: "something else")
       assert_delivered_email(unsent_email) # Will fail
   """
-  def assert_delivered_email(email) do
+  def assert_delivered_email(%Bamboo.Email{} = email) do
     import ExUnit.Assertions
     email = Bamboo.Mailer.normalize_addresses(email)
+    assert_received {:delivered_email, ^email}
+  end
+  def assert_delivered_email(email_options) when is_list(email_options) do
+    import ExUnit.Assertions
+    email = Bamboo.Email.new_email(email_options)
+      |> Bamboo.Mailer.normalize_addresses
     assert_received {:delivered_email, ^email}
   end
 
@@ -100,10 +109,18 @@ defmodule Bamboo.Test do
 
   @doc """
   Ensures a particular email was not sent
+
+  Same as assert_delivered_email, except it checks that an email was not sent.
   """
-  def refute_delivered_email(email) do
+  def refute_delivered_email(%Bamboo.Email{} = email) do
     import ExUnit.Assertions
     email = Bamboo.Mailer.normalize_addresses(email)
+    refute_received {:delivered_email, ^email}
+  end
+  def refute_delivered_email(email_options) when is_list(email_options) do
+    import ExUnit.Assertions
+    email = Bamboo.Email.new_email(email_options)
+      |> Bamboo.Mailer.normalize_addresses
     refute_received {:delivered_email, ^email}
   end
 end

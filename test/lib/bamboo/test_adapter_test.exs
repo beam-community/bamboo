@@ -33,7 +33,7 @@ defmodule Bamboo.TestAdapterTest do
     assert_received {:delivered_email, ^email}
   end
 
-  test "assertion helpers" do
+  test "helpers for testing whole emails" do
     sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
     unsent_email = new_email(from: "foo@bar.com")
 
@@ -41,6 +41,16 @@ defmodule Bamboo.TestAdapterTest do
 
     assert_delivered_email sent_email
     refute_delivered_email unsent_email
+  end
+
+  test "helpers for testing against parts of an email" do
+    recipient = %Bamboo.EmailAddress{address: "foo@bar.com"}
+    sent_email = new_email(from: "foo@bar.com", to: [recipient])
+
+    sent_email |> TestMailer.deliver
+
+    refute_delivered_email(from: "someoneelse@bar.com")
+    assert_delivered_email(from: "foo@bar.com", to: "foo@bar.com")
   end
 
   test "assert_no_emails_sent" do
