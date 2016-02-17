@@ -28,22 +28,5 @@ defmodule Bamboo.LocalAdapter do
     SentEmail.push(email)
   end
 
-  def handle_config(config) do
-    case config[:deliver_later_strategy] do
-      nil ->
-        Map.put(config, :deliver_later_strategy, Bamboo.DeliverImmediatelyStrategy)
-      Bamboo.DeliverImmediatelyStrategy ->
-        config
-      _ ->
-        raise ArgumentError, """
-        Bamboo.LocalAdapter requires that the deliver_later_strategy is
-        Bamboo.DeliverImmediatelyStrategy
-
-        Instead it got: #{inspect config[:deliver_later_strategy]}
-
-        Please remove the deliver_later_strategy from your config options, or
-        set it to Bamboo.DeliverImmediatelyStrategy.
-        """
-    end
-  end
+  def handle_config(config), do: config
 end

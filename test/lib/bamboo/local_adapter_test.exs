@@ -18,16 +18,4 @@ defmodule Bamboo.LocalAdapterTest do
 
     assert SentEmail.all == [email]
   end
-
-  test "handle_config makes sure that the DeliverImmediatelyStrategy is used" do
-    new_config = LocalAdapter.handle_config(%{})
-    assert new_config.deliver_later_strategy == Bamboo.DeliverImmediatelyStrategy
-
-    new_config = LocalAdapter.handle_config(%{deliver_later_strategy: nil})
-    assert new_config.deliver_later_strategy == Bamboo.DeliverImmediatelyStrategy
-
-    assert_raise ArgumentError, ~r/deliver_later_strategy/, fn ->
-      LocalAdapter.handle_config(%{deliver_later_strategy: FooStrategy})
-    end
-  end
 end
