@@ -27,18 +27,18 @@ defmodule Bamboo.TestAdapter do
   def handle_config(config) do
     case config[:deliver_later_strategy] do
       nil ->
-        Map.put(config, :deliver_later_strategy, Bamboo.DeliverImmediatelyStrategy)
-      Bamboo.DeliverImmediatelyStrategy ->
+	Map.put(config, :deliver_later_strategy, Bamboo.ImmediateDeliveryStrategy)
+      Bamboo.ImmediateDeliveryStrategy ->
         config
       _ ->
         raise ArgumentError, """
         Bamboo.TestAdapter requires that the deliver_later_strategy is
-        Bamboo.DeliverImmediatelyStrategy
+	Bamboo.ImmediateDeliveryStrategy
 
         Instead it got: #{inspect config[:deliver_later_strategy]}
 
         Please remove the deliver_later_strategy from your config options, or
-        set it to Bamboo.DeliverImmediatelyStrategy.
+	set it to Bamboo.ImmediateDeliveryStrategy.
         """
     end
   end

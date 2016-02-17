@@ -16,12 +16,12 @@ defmodule Bamboo.TestAdapterTest do
     use Bamboo.Mailer, otp_app: :bamboo
   end
 
-  test "handle_config makes sure that the DeliverImmediatelyStrategy is used" do
+  test "handle_config makes sure that the ImmediateDeliveryStrategy is used" do
     new_config = TestAdapter.handle_config(%{})
-    assert new_config.deliver_later_strategy == Bamboo.DeliverImmediatelyStrategy
+    assert new_config.deliver_later_strategy == Bamboo.ImmediateDeliveryStrategy
 
     new_config = TestAdapter.handle_config(%{deliver_later_strategy: nil})
-    assert new_config.deliver_later_strategy == Bamboo.DeliverImmediatelyStrategy
+    assert new_config.deliver_later_strategy == Bamboo.ImmediateDeliveryStrategy
 
     assert_raise ArgumentError, ~r/deliver_later_strategy/, fn ->
       TestAdapter.handle_config(%{deliver_later_strategy: FooStrategy})

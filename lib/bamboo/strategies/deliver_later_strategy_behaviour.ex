@@ -6,7 +6,7 @@ defmodule Bamboo.DeliverLaterStrategy do
   strategy using a GenServer, a backgrund job library or whatever else you
   decide. Bamboo ships with two strategies:
   [Bamboo.TaskSupervisorStrategy](Bamboo.TaskSupervisorStrategy.html) and
-  [Bamboo.DeliverImmediatelyStrategy](Bamboo.DeliverImmediatelyStrategy)
+  [Bamboo.ImmediateDeliveryStrategy](Bamboo.ImmediateDeliveryStrategy)
 
   ## Example of setting custom strategies
 

@@ -1,4 +1,4 @@
-defmodule Bamboo.DeliverImmediatelyStrategy do
+defmodule Bamboo.ImmediateDeliveryStrategy do
   @moduledoc """
   Strategy that sends the email immediately. Useful for testing.
 
