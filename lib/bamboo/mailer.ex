@@ -24,7 +24,7 @@ defmodule Bamboo.Mailer do
 
       # Set up your emails
       defmodule MyApp.Email do
-        use Bamboo.Email
+        import Bamboo.Email
 
         def welcome_email do
           new_mail(

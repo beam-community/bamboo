@@ -2,6 +2,10 @@ defmodule Bamboo.Adapter do
   @moduledoc ~S"""
   Use this behaviour when creating adapters to be used by Bamboo.
 
+  All recipients in the Bamboo.Email struct will be normalized to a 2 item tuple
+  of {name, address}. For example, `email.from |> elem(0)` would return the name
+  and `email.from |> elem(1)` would return the email address.
+
   ## Example
 
       defmodule Bamboo.CustomAdapter do

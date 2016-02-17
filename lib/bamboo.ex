@@ -9,8 +9,8 @@ defmodule Bamboo do
     def exception(_) do
       %EmptyFromAddressError{
         message: """
-        The from address was empty. Set an address as a string, a Bamboo.EmailAddress
-        struct, or with a struct that implements the Bamboo.Formatter protocol.
+        The from address was empty. Set an address as a string, a 2 item tuple
+        {name, address}, or something that implements the Bamboo.Formatter protocol.
         """
       }
     end

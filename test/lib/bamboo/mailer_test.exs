@@ -1,8 +1,6 @@
 defmodule Bamboo.MailerTest do
   use ExUnit.Case
-
   alias Bamboo.Email
-  alias Bamboo.EmailAddress
 
   defmodule FooAdapter do
     def deliver(email, config) do
@@ -119,7 +117,7 @@ defmodule Bamboo.MailerTest do
   end
 
   test "deliver/1 wraps the recipients in a list" do
-    address = %EmailAddress{name: "Someone", address: "foo@bar.com"}
+    address = {"Someone", "foo@bar.com"}
     email = new_email(to: address, cc: address, bcc: address)
 
     FooMailer.deliver(email)
@@ -136,7 +134,7 @@ defmodule Bamboo.MailerTest do
 
     FooMailer.deliver(email)
 
-    converted_address = %EmailAddress{name: nil, address: address}
+    converted_address = {nil, address}
     assert_received {:deliver, delivered_email, _}
     assert delivered_email.from == converted_address
     assert delivered_email.to == [converted_address]
@@ -150,19 +148,16 @@ defmodule Bamboo.MailerTest do
 
     FooMailer.deliver(email)
 
-    converted_recipient = %EmailAddress{name: user.first_name, address: user.email}
+    converted_recipient = {user.first_name, user.email}
     assert_received {:deliver, delivered_email, _}
-    assert delivered_email.from == %EmailAddress{
-      name: "#{user.first_name} (MyApp)",
-      address: user.email
-    }
+    assert delivered_email.from == {"#{user.first_name} (MyApp)", user.email}
     assert delivered_email.to == [converted_recipient]
     assert delivered_email.cc == [converted_recipient]
     assert delivered_email.bcc == [converted_recipient]
   end
 
   test "raises an error if an address does not have a protocol implemented" do
-    email = new_email(from: [foo: :bar])
+    email = new_email(from: 1)
 
     assert_raise Protocol.UndefinedError, fn ->
       FooMailer.deliver(email)
@@ -175,7 +170,7 @@ defmodule Bamboo.MailerTest do
     end
   end
 
-  test "raises if a map is passed in instead of a Bamboo.EmailAddress" do
+  test "raises if a map is passed in" do
     email = new_email(from: %{foo: :bar})
 
     assert_raise ArgumentError, fn ->

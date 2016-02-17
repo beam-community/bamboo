@@ -10,7 +10,6 @@ defmodule Bamboo.Phoenix do
   ## Examples
 
       defmodule Email do
-        # Imports Bamboo.Email, Bamboo.EmailAddress and Bamboo.Phoenix
         use Bamboo.Phoenix, view: MyApp.EmailView
 
         def text_and_html_email_with_layout do

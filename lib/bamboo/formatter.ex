@@ -1,6 +1,6 @@
 defprotocol Bamboo.Formatter do
   @moduledoc ~S"""
-  Converts data to a Bamboo.EmailAddress struct or a string
+  Converts data to email addresses.
 
   The passed in options is currently a map with the key `:type` and a value of
   `:from`, `:to`, `:cc` or `:bcc`. This makes it so that you can pattern match
@@ -22,7 +22,7 @@ defprotocol Bamboo.Formatter do
         # Used by `to`, `bcc`, `cc` and `from`
         def format_email_address(user, _opts) do
           fullname = "#{user.first_name} #{user.last_name}"
-          %Bamboo.EmailAddress{name: fullname, email: email}
+          {fullname, user.email}
         end
       end
 
@@ -33,7 +33,7 @@ defprotocol Bamboo.Formatter do
   """
 
   @doc ~S"""
-  Receives data and opts and should return a string or Bamboo.EmailAddress struct
+  Receives data and opts and should return a string or a 2 item tuple {name, address}
 
   opts is currently a map with the key `:type` and a value of
   `:from`, `:to`, `:cc` or `:bcc`. You can pattern match on this to customize
@@ -43,14 +43,14 @@ defprotocol Bamboo.Formatter do
       defimpl Bamboo.Formatter, for: MyApp.User do
         # Include the app name when used in a from address
         def format_email_address(user, %{type: :from}) do
-          fullname = "#{user.first_name} #{user.last_name} (Send from MyApp)"
-          %Bamboo.EmailAddress{name: fullname, email: email}
+          fullname = "#{user.first_name} #{user.last_name}"
+          {fullname <> " (Sent from MyApp)", user.email}
         end
 
         # Just use the name for all other types
         def format_email_address(user, _opts) do
           fullname = "#{user.first_name} #{user.last_name}"
-          %Bamboo.EmailAddress{name: fullname, email: email}
+          {fullname, user.email}
         end
       end
   """
@@ -65,11 +65,11 @@ end
 
 defimpl Bamboo.Formatter, for: BitString do
   def format_email_address(email_address, _opts) do
-    %Bamboo.EmailAddress{name: nil, address: email_address}
+    {nil, email_address}
   end
 end
 
-defimpl Bamboo.Formatter, for: Bamboo.EmailAddress do
+defimpl Bamboo.Formatter, for: Tuple do
   def format_email_address(already_formatted_email, _opts) do
     already_formatted_email
   end
@@ -79,15 +79,15 @@ defimpl Bamboo.Formatter, for: Map do
   def format_email_address(invalid_address, _opts) do
     raise ArgumentError, """
     The format of the address was invalid. Got #{inspect invalid_address}.
-    Expected a string, e.g. "foo@bar.com", or a Bamboo.EmailAddress struct.
 
-    You can also implement a custom protocol for structs.
+    Expected a string, e.g. "foo@bar.com", or a 2 item tuple {name, address}.
+    You can also implement a custom protocol.
 
     Example:
 
     defimpl Bamboo.Formatter, for: MyApp.User do
       def format_email_address(user, _opts) do
-        %Bamboo.EmailAddress{name: user.name, address: user.email}
+        {user.name, user.email}
       end
     end
     """

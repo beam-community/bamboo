@@ -67,10 +67,10 @@ defmodule MyApp.Emails do
     base_email
     # Emails addresses can be a string
     |> to("foo@bar.com")
-    # or a Bamboo.EmailAddress struct
-    |> bcc(%Bamboo.EmailAddress{name: "John Smith", address:"john@foo.com"})
+    # or a 2 item tuple
+    |> bcc({"John Smith", "john@gmail.com"})
     # or you can set up a custom protocol that handles different types of structs.
-    |> cc(author())
+    |> cc(author_from_db())
     |> subject("Welcome!!!")
     # Imported by Bamboo.MandrillEmails
     |> tag("welcome-email")
@@ -81,7 +81,7 @@ defmodule MyApp.Emails do
     |> render(:welcome_email, author: author)
   end
 
-  defp author do
+  defp author_from_db do
     User |> Repo.one
   end
 
@@ -95,7 +95,7 @@ defimpl Bamboo.Formatter, for: User do
   # Used by to, bcc, cc and from
   def format_email_address(user, _opts) do
     fullname = "#{user.first_name} #{user.last_name}"
-    %Bamboo.EmailAddress{name: fullname, email: email}
+    {fullname, user.email}
   end
 end
 ```

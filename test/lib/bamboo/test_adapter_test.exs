@@ -47,7 +47,7 @@ defmodule Bamboo.TestAdapterTest do
   end
 
   test "helpers for testing against parts of an email" do
-    recipient = %Bamboo.EmailAddress{address: "foo@bar.com"}
+    recipient = {nil, "foo@bar.com"}
     sent_email = new_email(from: "foo@bar.com", to: [recipient])
 
     sent_email |> TestMailer.deliver

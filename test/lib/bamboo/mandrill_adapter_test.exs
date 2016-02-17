@@ -1,8 +1,6 @@
 defmodule Bamboo.MandrillAdapterTest do
   use ExUnit.Case
-
   alias Bamboo.Email
-  alias Bamboo.EmailAddress
   alias Bamboo.MandrillEmail
   alias Bamboo.MandrillAdapter
 
@@ -74,7 +72,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "deliver/2 sends from, html and text body, subject, and headers" do
     email = new_email(
-      from: %EmailAddress{name: "From", address: "from@foo.com"},
+      from: {"From", "from@foo.com"},
       subject: "My Subject",
       text_body: "TEXT BODY",
       html_body: "HTML BODY",
@@ -86,8 +84,8 @@ defmodule Bamboo.MandrillAdapterTest do
     assert_receive {:fake_mandrill, %{params: params}}
     assert params["key"] == @config[:api_key]
     message = params["message"]
-    assert message["from_email"] == email.from.address
-    assert message["from_name"] == email.from.name
+    assert message["from_name"] == email.from |> elem(0)
+    assert message["from_email"] == email.from |> elem(1)
     assert message["subject"] == email.subject
     assert message["text"] == email.text_body
     assert message["html"] == email.html_body
@@ -96,9 +94,9 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "deliver/2 correctly formats recipients" do
     email = new_email(
-      to: [%EmailAddress{name: "To", address: "to@bar.com"}],
-      cc: [%EmailAddress{name: "CC", address: "cc@bar.com"}],
-      bcc: [%EmailAddress{name: "BCC", address: "bcc@bar.com"}],
+      to: [{"To", "to@bar.com"}],
+      cc: [{"CC", "cc@bar.com"}],
+      bcc: [{"BCC", "bcc@bar.com"}],
     )
 
     email |> MandrillAdapter.deliver(@config)

@@ -7,10 +7,10 @@ defmodule Bamboo.Email do
   address easy to do. This module is for creating emails. To actually send them,
   use [Bamboo.Mailer](Bamboo.Mailer.html).
 
-  The from, to, cc and bcc addresses accept a string, a Bamboo.EmailAddress
-  struct, or anything else that you create that implements the
+  The from, to, cc and bcc addresses accept a string, a 2 item tuple
+  {name, address}, or anything else that you create that implements the
   Bamboo.Formatter protocol. The to, cc and bcc fields can also accepts a list
-  of any combination of strings, Bamboo.EmailAddress structs or structs that
+  of any combination of strings, 2 item tuples or anything that
   implement the Bamboo.Formatter protocol. See
   [Bamboo.Formatter](Bamboo.Formatter.html) for more info.
 
@@ -18,8 +18,7 @@ defmodule Bamboo.Email do
 
   ```
   defmodule MyApp.Email do
-    # This imports Bamboo.Email and aliases Bamboo.EmailAddress
-    use Bamboo.Email
+    import Bamboo.Email
 
     def welcome_email(user) do
       new_email(
@@ -40,7 +39,7 @@ defmodule Bamboo.Email do
 
   ```
   defmodule MyApp.Email do
-    use Bamboo.Email
+    import Bamboo.Email
 
     def welcome_email(user) do
       struct!(base_email,
@@ -78,13 +77,6 @@ defmodule Bamboo.Email do
       private: %{}
 
   alias Bamboo.Email
-
-  defmacro __using__(_opts) do
-    quote do
-      import Bamboo.Email
-      alias Bamboo.EmailAddress
-    end
-  end
 
   @attribute_pipe_functions ~w(from to cc bcc subject text_body html_body)a
 

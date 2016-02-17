@@ -9,7 +9,7 @@ defmodule Bamboo.Test do
   ## Testing email delivery
 
       defmodule MyApp.Email do
-        use Bamboo.Email
+        import Bamboo.Email
 
         def welcome_email(user) do
           new_email(

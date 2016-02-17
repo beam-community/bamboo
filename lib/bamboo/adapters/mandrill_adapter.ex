@@ -87,8 +87,8 @@ defmodule Bamboo.MandrillAdapter do
 
   defp message_params(email) do
     %{
-      from_email: email.from.address,
-      from_name: email.from.name,
+      from_name: email.from |> elem(0),
+      from_email: email.from |> elem(1),
       to: recipients(email),
       subject: email.subject,
       text: email.text_body,
@@ -115,8 +115,8 @@ defmodule Bamboo.MandrillAdapter do
   defp add_recipients(recipients, new_recipients, type: recipient_type) do
     Enum.reduce(new_recipients, recipients, fn(recipient, recipients) ->
       recipients ++ [%{
-        name: recipient.name,
-        email: recipient.address,
+        name: recipient |> elem(0),
+        email: recipient |> elem(1),
         type: recipient_type
       }]
     end)
