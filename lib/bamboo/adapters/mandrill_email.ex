@@ -5,13 +5,6 @@ defmodule Bamboo.MandrillEmail do
 
   alias Bamboo.Email
 
-  defmacro __using__(_opts) do
-    quote do
-      use Bamboo.Email
-      alias Bamboo.MandrillEmail
-    end
-  end
-
   @doc """
   Put extra message parameters that are used by Mandrill
 
@@ -35,11 +28,8 @@ defmodule Bamboo.MandrillEmail do
         }
       ])
   """
-  def put_param(%Email{private: %{message_params: params}} = email, key, value) do
-    message_params = params |> Map.put(key, value)
-    private = email.private
-    private = %{private | message_params: message_params}
-    %{email | private: private}
+  def put_param(%Email{private: %{message_params: _}} = email, key, value) do
+    put_in(email.private[:message_params][key], value)
   end
   def put_param(email, key, value) do
     email |> Email.put_private(:message_params, %{}) |> put_param(key, value)
