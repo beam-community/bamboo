@@ -66,6 +66,13 @@ defmodule Bamboo.Phoenix do
       end
     end
   end
+  defmacro __using__(opts) do
+    raise ArgumentError, """
+    expected Bamboo.Phoenix to have a view set, instead got: #{inspect opts}.
+
+    Please set a view e.g. use Bamboo.Phoenix, view: MyApp.MyView
+    """
+  end
 
   defp verify_phoenix_dep do
     unless Code.ensure_loaded?(Phoenix) do
