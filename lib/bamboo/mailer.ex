@@ -87,7 +87,13 @@ defmodule Bamboo.Mailer do
   def deliver_later(adapter, email, config) do
     email = email |> validate_and_normalize
 
-    config.deliver_later_strategy.deliver_later(adapter, email, config)
+    if email.to == [] && email.cc == [] && email.bcc == [] do
+      debug_unsent(email)
+    else
+      debug_sent(email, adapter)
+      config.deliver_later_strategy.deliver_later(adapter, email, config)
+    end
+    email
   end
 
   defp debug_sent(email, adapter) do

@@ -81,30 +81,30 @@ defmodule Bamboo.MailerTest do
 
   test "deliver/1 with empty lists for recipients does not deliver email" do
     new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver
-    refute_received {:deliver, _, @mailer_config}
+    refute_received {:deliver, _, _}
 
     new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver
-    refute_received {:deliver, _, @mailer_config}
+    refute_received {:deliver, _, _}
 
     new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver
-    refute_received {:deliver, _, @mailer_config}
+    refute_received {:deliver, _, _}
 
     new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver
-    refute_received {:deliver, _, @mailer_config}
+    refute_received {:deliver, _, _}
   end
 
   test "deliver_later/1 with empty lists for recipients does not deliver email" do
     new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver_later
-    refute_received {:deliver, _, @mailer_config}
+    refute_received {:deliver, _, _}
 
     new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver_later
-    refute_received {:deliver, _, @mailer_config}
+    refute_received {:deliver, _, _}
 
     new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver_later
-    refute_received {:deliver, _, @mailer_config}
+    refute_received {:deliver, _, _}
 
     new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver_later
-    refute_received {:deliver, _, @mailer_config}
+    refute_received {:deliver, _, _}
   end
 
   test "deliver_later/1 calls deliver on the adapter" do
