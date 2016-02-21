@@ -8,7 +8,7 @@ defmodule Bamboo.Adapter do
 
   ## Example
 
-      defmodule Bamboo.CustomAdapter do
+      defmodule Bamboo.Adapters.Custom do
         @behaviour Bamboo.Adapter
 
         def deliver(email, config) do

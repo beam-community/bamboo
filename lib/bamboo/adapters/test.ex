@@ -1,4 +1,4 @@
-defmodule Bamboo.TestAdapter do
+defmodule Bamboo.Adapters.Test do
   @moduledoc """
   Used for testing email delivery
 
@@ -9,7 +9,7 @@ defmodule Bamboo.TestAdapter do
 
       # Typically done in config/test.exs
       config :my_app, MyApp.Mailer,
-        adapter: Bamboo.TestAdapter
+        adapter: Bamboo.Adapters.Test
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
@@ -27,18 +27,18 @@ defmodule Bamboo.TestAdapter do
   def handle_config(config) do
     case config[:deliver_later_strategy] do
       nil ->
-        Map.put(config, :deliver_later_strategy, Bamboo.ImmediateDeliveryStrategy)
-      Bamboo.ImmediateDeliveryStrategy ->
+        Map.put(config, :deliver_later_strategy, Bamboo.Strategies.ImmediateDelivery)
+      Bamboo.Strategies.ImmediateDelivery ->
         config
       _ ->
         raise ArgumentError, """
-        Bamboo.TestAdapter requires that the deliver_later_strategy is
-        Bamboo.ImmediateDeliveryStrategy
+        Bamboo.Adapters.Test requires that the deliver_later_strategy is
+        Bamboo.Strategies.ImmediateDelivery
 
         Instead it got: #{inspect config[:deliver_later_strategy]}
 
         Please remove the deliver_later_strategy from your config options, or
-        set it to Bamboo.ImmediateDeliveryStrategy.
+        set it to Bamboo.Strategies.ImmediateDelivery.
         """
     end
   end

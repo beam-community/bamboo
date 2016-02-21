@@ -1,5 +1,5 @@
-defmodule Bamboo.TaskSupervisorStrategy do
-  @behaviour Bamboo.DeliverLaterStrategy
+defmodule Bamboo.Strategies.TaskSupervisor do
+  @behaviour Bamboo.Strategy
   @supervisor_name Bamboo.TaskSupervior
 
   @moduledoc """
@@ -31,7 +31,7 @@ defmodule Bamboo.TaskSupervisorStrategy do
 
         children = [
           # Add the supervisor that handles deliver_later calls
-          Bamboo.TaskSupervisorStrategy.child_spec
+          Bamboo.Strategies.TaskSupervisor.child_spec
         ]
 
         # This part is usually already there.

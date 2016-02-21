@@ -3,17 +3,17 @@ defmodule Bamboo.Mailer do
   Sets up mailers that make it easy to configure and swap adapters.
 
   Adds deliver/1 and deliver_later/1 functions to the mailer module it is used by.
-  Bamboo ships with [Bamboo.MandrillAdapter](Bamboo.MandrillAdapter.html),
-  [Bamboo.LocalAdapter](Bamboo.LocalAdapter) and
-  [Bamboo.TestAdapter](Bamboo.TestAdapter.html).
+  Bamboo ships with [Bamboo.Adapters.Mandrill](Bamboo.Adapters.Mandrill.html),
+  [Bamboo.Adapters.Local](Bamboo.Adapters.Local) and
+  [Bamboo.Adapters.Test](Bamboo.Adapters.Test.html).
 
   ## Example
 
       # In your config/config.exs file
       # Other adapters that come with Bamboo are
-      # Bamboo.LocalAdapter and Bamboo.TestAdapter
+      # Bamboo.Adapters.Local and Bamboo.Adapters.Test
       config :my_app, MyApp.Mailer,
-        adapter: Bamboo.MandrillAdapter,
+        adapter: Bamboo.Adapters.Mandrill,
         api_key: "my_api_key"
 
       # Somewhere in your application. Maybe lib/my_app/mailer.ex
@@ -148,6 +148,6 @@ defmodule Bamboo.Mailer do
     config = Application.get_env(otp_app, mailer) |> Enum.into(%{})
 
     config.adapter.handle_config(config)
-    |> Map.put_new(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+    |> Map.put_new(:deliver_later_strategy, Bamboo.Strategies.TaskSupervisor)
   end
 end

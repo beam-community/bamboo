@@ -2,7 +2,7 @@ ExUnit.start()
 
 Supervisor.start_child(
   Bamboo.Supervisor,
-  Bamboo.TaskSupervisorStrategy.child_spec
+  Bamboo.Strategies.TaskSupervisor.child_spec
 )
 
 Application.ensure_all_started(:phoenix)

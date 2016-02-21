@@ -18,7 +18,7 @@ Bamboo breaks email creation and email sending in to two separate modules.
 ```elixir
 # In your config/config.exs file
 config :my_app, MyApp.Mailer,
-  adapter: Bamboo.MandrillAdapter,
+  adapter: Bamboo.Adapters.Mandrill,
   api_key: "my_api_key"
 
 # Somewhere in your application
@@ -61,7 +61,7 @@ end
 defmodule MyApp.Emails do
   # Adds a `render` function for rending emails with a Phoenix view
   use Bamboo.Phoenix, view: MyApp.EmailView
-  import Bamboo.MandrillEmails
+  import Bamboo.Adapters.Mandrill
 
   def welcome_email do
     base_email
@@ -116,13 +116,13 @@ localhost:4000/delivered_emails
 
 ## Testing
 
-You can use the `Bamboo.TestAdapter` to make testing your emails a piece of cake.
+You can use the `Bamboo.Adapters.Test` to make testing your emails a piece of cake.
 See documentation for `Bamboo.Test` for more examples.
 
 ```elixir
-# Use the Bamboo.TestAdapter in your config/test.exs file
+# Use the Bamboo.Adapters.Test in your config/test.exs file
 config :my_app, MyApp.Mailer,
-  adapter: Bamboo.TestAdapter
+  adapter: Bamboo.Adapters.Test
 
 # Unit testing requires no special functions
 defmodule MyApp.EmailsTest do
@@ -183,7 +183,7 @@ To use the latest from master.
 
     children = [
       # Add the supervisor that handles deliver_later calls
-      Bamboo.TaskSupervisorStrategy.child_spec
+      Bamboo.Strategies.TaskSupervisor.child_spec
     ]
 
     # This part is usually already there.
