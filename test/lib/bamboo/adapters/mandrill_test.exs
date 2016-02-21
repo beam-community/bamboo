@@ -1,11 +1,11 @@
-defmodule Bamboo.MandrillAdapterTest do
+defmodule Bamboo.Adapters.MandrillTest do
   use ExUnit.Case
   alias Bamboo.Email
-  alias Bamboo.MandrillEmail
-  alias Bamboo.MandrillAdapter
+  alias Bamboo.Adapters.Mandrill.Email, as: MandrillEmail
+  alias Bamboo.Adapters.Mandrill
 
-  @config %{adapter: MandrillAdapter, api_key: "123_abc"}
-  @config_with_bad_key %{adapter: MandrillAdapter, api_key: nil}
+  @config %{adapter: Mandrill, api_key: "123_abc"}
+  @config_with_bad_key %{adapter: Mandrill, api_key: nil}
 
   defmodule FakeMandrill do
     use Plug.Router
@@ -54,16 +54,16 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "raises if the api key is nil" do
     assert_raise ArgumentError, ~r/no API key set/, fn ->
-      new_email(from: "foo@bar.com") |> MandrillAdapter.deliver(@config_with_bad_key)
+      new_email(from: "foo@bar.com") |> Mandrill.deliver(@config_with_bad_key)
     end
 
     assert_raise ArgumentError, ~r/no API key set/, fn ->
-      MandrillAdapter.handle_config(%{})
+      Mandrill.handle_config(%{})
     end
   end
 
   test "deliver/2 sends the to the right url" do
-    new_email |> MandrillAdapter.deliver(@config)
+    new_email |> Mandrill.deliver(@config)
 
     assert_receive {:fake_mandrill, %{request_path: request_path}}
 
@@ -79,7 +79,7 @@ defmodule Bamboo.MandrillAdapterTest do
     )
     |> Email.put_header("Reply-To", "reply@foo.com")
 
-    email |> MandrillAdapter.deliver(@config)
+    email |> Mandrill.deliver(@config)
 
     assert_receive {:fake_mandrill, %{params: params}}
     assert params["key"] == @config[:api_key]
@@ -99,7 +99,7 @@ defmodule Bamboo.MandrillAdapterTest do
       bcc: [{"BCC", "bcc@bar.com"}],
     )
 
-    email |> MandrillAdapter.deliver(@config)
+    email |> Mandrill.deliver(@config)
 
     assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
     assert message["to"] == [
@@ -112,7 +112,7 @@ defmodule Bamboo.MandrillAdapterTest do
   test "deliver/2 adds extra params to the message " do
     email = new_email |> MandrillEmail.put_param("important", true)
 
-    email |> MandrillAdapter.deliver(@config)
+    email |> Mandrill.deliver(@config)
 
     assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
     assert message["important"] == true
@@ -121,16 +121,16 @@ defmodule Bamboo.MandrillAdapterTest do
   test "raises if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.MandrillAdapter.ApiError, fn ->
-      email |> MandrillAdapter.deliver(@config)
+    assert_raise Bamboo.Adapters.Mandrill.ApiError, fn ->
+      email |> Mandrill.deliver(@config)
     end
   end
 
   test "removes api key from error output" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.MandrillAdapter.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
-      email |> MandrillAdapter.deliver(@config)
+    assert_raise Bamboo.Adapters.Mandrill.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
+      email |> Mandrill.deliver(@config)
     end
   end
 

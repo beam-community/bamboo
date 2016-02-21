@@ -1,4 +1,4 @@
-defmodule Bamboo.LocalAdapter do
+defmodule Bamboo.Adapters.Local do
   @moduledoc """
   Stores emails locally. Can be queried to see sent emails.
 
@@ -11,7 +11,7 @@ defmodule Bamboo.LocalAdapter do
 
       # In config/config.exs, or config/dev.exs, etc.
       config :my_app, MyApp.Mailer,
-        adapter: Bamboo.LocalAdapter
+        adapter: Bamboo.Adapters.Local
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do

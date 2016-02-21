@@ -56,7 +56,7 @@ defmodule Bamboo.MailerTest do
     FooMailer.deliver(email)
 
     assert_received {:deliver, _email, config}
-    assert config.deliver_later_strategy == Bamboo.TaskSupervisorStrategy
+    assert config.deliver_later_strategy == Bamboo.Strategies.TaskSupervisor
   end
 
   test "deliver/1 calls the adapter with the email and config as a map" do
@@ -67,7 +67,7 @@ defmodule Bamboo.MailerTest do
     assert returned_email == Bamboo.Mailer.normalize_addresses(email)
     assert_received {:deliver, %Bamboo.Email{}, config}
     config_with_default_strategy = Enum.into(@mailer_config, %{})
-      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+      |> Map.put(:deliver_later_strategy, Bamboo.Strategies.TaskSupervisor)
     assert config == config_with_default_strategy
   end
 

@@ -2,7 +2,7 @@ defmodule Bamboo.Test do
   @moduledoc """
   Helpers for testing email delivery
 
-  Use these helpers with Bamboo.TestAdapter to test email delivery. Typically
+  Use these helpers with Bamboo.Adapters.Test to test email delivery. Typically
   you'll want to **unit test emails and then in integration tests use
   helpers from this module** to test whether that email was delivered.
 
@@ -72,7 +72,7 @@ defmodule Bamboo.Test do
   @doc """
   Checks whether an email was delivered.
 
-  Must be used with the Bamboo.TestAdapter or this will never pass. If a
+  Must be used with the Bamboo.Adapters.Test or this will never pass. If a
   Bamboo.Email struct is passed in, it will check that all fields are matching.
 
   You can also pass a keyword list and it will check just the fields you pass in.
