@@ -11,7 +11,7 @@ Flexible and easy to use email for Elixir.
 
 See the [docs] for the most up to date information.
 
-[docs]: https://hexdocs.pm/bamboo/README.html
+[docs]: https://hexdocs.pm/bamboo/readme.html
 
 ## Adapters
 
