@@ -2,14 +2,16 @@
 
 Flexible and easy to use email for Elixir.
 
-* Adapter based so it can be used with Mandrill, SMTP, or whatever else you want. Comes with a Mandrill adapter out of the box.
-* Easy to format recipients. You can do `new_email(to: Repo.one(User))` and Bamboo can format the user automatically.
-* Works out of the box with Phoenix. Use views and layouts to make rendering email easy.
-* Very composable. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
-* Easy to unit test. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
-* Easy to test delivery in integration tests. As little repeated code as possible.
+* **Adapter based** so it can be used with Mandrill, SMTP, or whatever else you want. Comes with a Mandrill adapter out of the box.
+* **Easy to format recipients**. You can do `new_email(to: Repo.one(User))` and Bamboo can format the user automatically.
+* **Works out of the box with Phoenix**. Use views and layouts to make rendering email easy.
+* **Very composable**. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
+* **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
+* **Easy to test delivery in integration tests**. As little repeated code as possible.
 
 See the module docs for the most up to date information.
+
+[module docs]: https://hexdocs.pm/bamboo/README.html
 
 ## Adapters
 
@@ -30,7 +32,8 @@ Sendgrid   | Bamboo.SendgridAdapter | [bamboo-sendgrid]
 
 ## Usage
 
-Bamboo breaks email creation and email sending in to two separate modules.
+Bamboo breaks email creation and email sending in to two separate modules. This
+is done to make testing easier and to make emails easy to pipe/compose.
 
 ```elixir
 # In your config/config.exs file
@@ -82,7 +85,7 @@ defmodule MyApp.Emails do
 
   def welcome_email do
     base_email
-    # Emails addresses can be a string
+    # Email addresses can be a string
     |> to("foo@bar.com")
     # or a 2 item tuple
     |> bcc({"John Smith", "john@gmail.com"})
@@ -158,7 +161,6 @@ defmodule MyApp.RegistrationControllerTest do
     assert_delivered_email Emails.welcome_email(newly_created_user)
   end
 end
-
 ```
 
 ## Installation

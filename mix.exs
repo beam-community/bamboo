@@ -7,7 +7,8 @@ defmodule Bamboo.Mixfile do
      elixir: "~> 1.2",
      compilers: compilers(Mix.env),
      elixirc_paths: elixirc_paths(Mix.env),
-     description: "Composable, testable, adapter based emails.",
+     description: "Elixir email for people that love piping. Comes with Phoenix support " <>
+     " and adapters for Mandrill, Sendgrid or anything you want.",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      package: package,
