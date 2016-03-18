@@ -1,10 +1,14 @@
 defmodule Bamboo.Mixfile do
   use Mix.Project
 
+  @project_url "https://github.com/paulcsmith/bamboo"
+
   def project do
     [app: :bamboo,
      version: "0.3.1",
      elixir: "~> 1.2",
+     source_url: @project_url,
+     homepage_url: @project_url,
      compilers: compilers(Mix.env),
      elixirc_paths: elixirc_paths(Mix.env),
      description: "Elixir email for people that love piping. Comes with Phoenix support " <>
@@ -32,7 +36,8 @@ defmodule Bamboo.Mixfile do
   defp package do
     [
       maintainers: ["Paul Smith"],
-      licenses: ["MIT"]
+      licenses: ["MIT"],
+      links: %{"GitHub" => @project_url}
     ]
   end
 
