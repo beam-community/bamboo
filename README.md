@@ -11,6 +11,23 @@ Flexible and easy to use email for Elixir.
 
 See the module docs for the most up to date information.
 
+## Adapters
+
+By official Bamboo adapter is for Mandrill, but there are other adapters as well.
+
+The Bamboo.MandrillAdapter *is being used in production and is known to work*.
+Refer to the other adapters README's for their status and for installation
+instructions.
+
+Service   | Ecto Adapter            | Dependency
+:----------| :--------------------- | :----------------------------|
+Mandrill   | Bamboo.MandrillAdapter | [bamboo]
+Sendgrid   | Bamboo.SendgridAdapter | [bamboo-sendgrid]
+
+[bamboo]: http://github.com/paulcsmith/bamboo
+[bamboo-sendgrid]: https://github.com/mtwilliams/bamboo-sendgrid
+[create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
+
 ## Usage
 
 Bamboo breaks email creation and email sending in to two separate modules.
@@ -98,20 +115,6 @@ defimpl Bamboo.Formatter, for: User do
     {fullname, user.email}
   end
 end
-```
-
-## In development (coming soonish)
-
-You can see the sent emails by forwarding a route to the `Bamboo.Preview`
-module. You can see all the emails sent. It will live update with new emails
-sent.
-
-```elixir
-# In your Phoenix router
-forward "/delivered_emails", Bamboo.SentEmailController
-
-# In your browser
-localhost:4000/delivered_emails
 ```
 
 ## Testing
