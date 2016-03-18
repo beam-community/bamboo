@@ -21,10 +21,8 @@ The Bamboo.MandrillAdapter **is being used in production and is known to work**.
 Refer to the other adapters README's for their status and for installation
 instructions.
 
-Service   | Ecto Adapter            | Dependency
-:----------| :--------------------- | :----------------------------|
-Mandrill   | Bamboo.MandrillAdapter | [bamboo]
-Sendgrid   | Bamboo.SendgridAdapter | [bamboo-sendgrid]
+* Bamboo.MandrillAdapter | [bamboo]
+* Bamboo.SendgridAdapter | [bamboo-sendgrid]
 
 [bamboo]: http://github.com/paulcsmith/bamboo
 [bamboo-sendgrid]: https://github.com/mtwilliams/bamboo-sendgrid
