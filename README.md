@@ -3,21 +3,21 @@
 Flexible and easy to use email for Elixir.
 
 * **Adapter based** so it can be used with Mandrill, SMTP, or whatever else you want. Comes with a Mandrill adapter out of the box.
-* **Easy to format recipients**. You can do `new_email(to: Repo.one(User))` and Bamboo can format the user automatically.
+* **Easy to format recipients**. You can do `new_email(to: Repo.one(User))` and Bamboo can format the User struct if you implement Bamboo.Formatter.
 * **Works out of the box with Phoenix**. Use views and layouts to make rendering email easy.
 * **Very composable**. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
 * **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
 * **Easy to test delivery in integration tests**. As little repeated code as possible.
 
-See the module docs for the most up to date information.
+See the [docs] for the most up to date information.
 
-[module docs]: https://hexdocs.pm/bamboo/README.html
+[docs]: https://hexdocs.pm/bamboo/README.html
 
 ## Adapters
 
-By official Bamboo adapter is for Mandrill, but there are other adapters as well.
+The official Bamboo adapter is for Mandrill, but there are other adapters as well.
 
-The Bamboo.MandrillAdapter *is being used in production and is known to work*.
+The Bamboo.MandrillAdapter **is being used in production and is known to work**.
 Refer to the other adapters README's for their status and for installation
 instructions.
 
@@ -30,9 +30,9 @@ Sendgrid   | Bamboo.SendgridAdapter | [bamboo-sendgrid]
 [bamboo-sendgrid]: https://github.com/mtwilliams/bamboo-sendgrid
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
 
-## Usage
+## Basic Usage
 
-Bamboo breaks email creation and email sending in to two separate modules. This
+Bamboo breaks email creation and email sending into two separate modules. This
 is done to make testing easier and to make emails easy to pipe/compose.
 
 ```elixir
@@ -51,7 +51,7 @@ defmodule MyApp.Emails do
   import Bamboo.Email
 
   def welcome_email do
-    new_mail(
+    new_email(
       to: "foo@example.com",
       from: "me@example.com",
       subject: "Welcome!!!",
@@ -62,106 +62,67 @@ defmodule MyApp.Emails do
 end
 
 # In a controller or some other module
-defmodule MyApp.Foo do
-  alias MyApp.Emails
-  alias MyApp.Mailer
+Emails.welcome_email |> Mailer.deliver
 
-  def register_user do
-    # Create a user and whatever else is needed
-
-    # Emails are not delivered until you explicitly deliver them.
-    Emails.welcome_email |> Mailer.deliver
-  end
-end
+# You can also deliver emails in the background with Mailer.deliver_later
+Emails.welcome_email |> Mailer.deliver_later
 ```
 
-## Composing with pipes. Use for default from address, default layouts, etc.
+## Delivering Emails in the Background
+
+By default delivering later uses `Bamboo.TaskSupervisorStrategy`, but you can
+deliver in the background however you want. See [Bamboo.DeliverLaterStrategy].
+
+[Bamboo.DeliverLaterStrategy]: https://hexdocs.pm/bamboo/Bamboo.DeliverLaterStrategy.html
+
+## Composing with Pipes. (Useful for default from address, default layouts, etc.)
 
 ```elixir
 defmodule MyApp.Emails do
-  # Adds a `render` function for rending emails with a Phoenix view
-  use Bamboo.Phoenix, view: MyApp.EmailView
-  import Bamboo.MandrillEmails
+  import Bamboo.Email
 
   def welcome_email do
     base_email
-    # Email addresses can be a string
     |> to("foo@bar.com")
-    # or a 2 item tuple
-    |> bcc({"John Smith", "john@gmail.com"})
-    # or you can set up a custom protocol that handles different types of structs.
-    |> cc(author_from_db())
     |> subject("Welcome!!!")
-    # Imported by Bamboo.MandrillEmails
-    |> tag("welcome-email")
-    |> put_header("Reply-To", "somewhere@example.com")
-    # Uses the view from `use Bamboo.Phoenix, view: View` to render the `welcome_email.html.eex`
-    # and `welcome_email.text.eex` templates with the passed in assigns.
-    # Use a string to render a specific template, e.g. `welcome_email.html.eex`
-    |> render(:welcome_email, author: author)
-  end
-
-  defp author_from_db do
-    User |> Repo.one
+    |> put_header("Reply-To", "someone@example.com")
+    |> html_body("<strong>Welcome</strong>")
+    |> text_body("Welcome")
   end
 
   defp base_email do
-    # Set a default from, default headers, etc.
-    mail(from: "myapp@example.com")
-  end
-end
-
-defimpl Bamboo.Formatter, for: User do
-  # Used by to, bcc, cc and from
-  def format_email_address(user, _opts) do
-    fullname = "#{user.first_name} #{user.last_name}"
-    {fullname, user.email}
+    # Here you can set a default from, default headers, etc.
+    new_email
+    |> from("myapp@example.com")
+    |> put_html_layout({MyApp.LayoutView, "email.html"})
+    |> put_text_layout({MyApp.LayoutView, "text.html"})
   end
 end
 ```
+
+## Handling Recipients
+
+The from, to, cc and bcc addresses can be passed a string, a 2 item tuple or
+anything that implements the Bamboo.Formatter protocol. See the [Bamboo.Email docs] for more info and examples.
+
+[Bamboo.Email docs]: https://hexdocs.pm/bamboo/Bamboo.Email.html
+
+## Using Phoenix Views and Layouts
+
+You can use Phoenix views and layouts with Bamboo. See [Bamboo.Phoenix]
+
+[Bamboo.Phoenix]: https://hexdocs.pm/bamboo/Bamboo.Phoenix.html
+
+## Mandrill Specific Functionality (tags, merge vars, etc.)
+
+See [Bamboo.MandrillEmail](https://hexdocs.pm/bamboo/Bamboo.MandrillEmail.html)
 
 ## Testing
 
 You can use the `Bamboo.TestAdapter` to make testing your emails a piece of cake.
-See documentation for `Bamboo.Test` for more examples.
+See documentation for [Bamboo.Test] for more examples.
 
-```elixir
-# Use the Bamboo.TestAdapter in your config/test.exs file
-config :my_app, MyApp.Mailer,
-  adapter: Bamboo.TestAdapter
-
-# Unit testing requires no special functions
-defmodule MyApp.EmailsTest do
-  use ExUnit.Case
-
-  alias MyApp.Emails
-
-  test "welcome email" do
-    user = %User{...}
-    email = Emails.welcome_email(user)
-
-    assert email.to == "someone@foo.com"
-    assert email.subject == "This is your welcome email"
-    assert email.html_body =~ "Welcome to the app!"
-  end
-end
-
-# Integration tests
-
-defmodule MyApp.RegistrationControllerTest do
-  use ExUnit.Case
-
-  use Bamboo.Test
-  alias MyApp.Emails
-
-  test "registers user and sends welcome email" do
-    ...post to registration controller
-
-    newly_created_user = Repo.first(User)
-    assert_delivered_email Emails.welcome_email(newly_created_user)
-  end
-end
-```
+[Bamboo.Test]: https://hexdocs.pm/bamboo/Bamboo.Test.html
 
 ## Installation
 
@@ -169,15 +130,19 @@ To use the latest from master.
 
   1. Add bamboo to your list of dependencies in `mix.exs`:
 
-        def deps do
-          [{:bamboo, github: "paulcsmith/bamboo"}]
-        end
+    ```elixir
+    def deps do
+      [{:bamboo, github: "paulcsmith/bamboo"}]
+    end
+    ```
 
   2. Ensure bamboo is started before your application:
 
-        def application do
-          [applications: [:bamboo]]
-        end
+    ```elixir
+    def application do
+      [applications: [:bamboo]]
+    end
+    ```
 
   3. Add the the Bamboo.TaskSupervior as a child to your supervisor
 
