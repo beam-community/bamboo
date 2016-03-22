@@ -11,6 +11,7 @@ Flexible and easy to use email for Elixir.
 * **Very composable**. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
 * **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
 * **Easy to test delivery in integration tests**. Helpers are provided to make testing a easy and robust.
+* **Deliver emails in the background**. Most of the time you don't want or need to wait for the email to send. Bamboo makes it easy with Mailer.deliver_later
 
 See the [docs] for the most up to date information.
 
@@ -71,7 +72,7 @@ defmodule MyApp.Emails do
 end
 
 # In a controller or some other module
-Emails.welcome_email |> Mailer.deliver
+Emails.welcome_email |> Mailer.deliver_now
 
 # You can also deliver emails in the background with Mailer.deliver_later
 Emails.welcome_email |> Mailer.deliver_later
