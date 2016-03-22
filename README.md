@@ -1,7 +1,7 @@
-[![Circle CI](https://circleci.com/gh/paulcsmith/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/paulcsmith/bamboo/tree/master)
-[![Coverage Status](https://coveralls.io/repos/github/paulcsmith/bamboo/badge.svg?branch=master)](https://coveralls.io/github/paulcsmith/bamboo?branch=master)
 
-# Bamboo
+
+Bamboo [![Circle CI](https://circleci.com/gh/paulcsmith/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/paulcsmith/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/paulcsmith/bamboo/badge.png?branch=master)](https://coveralls.io/github/paulcsmith/bamboo?branch=master)
+========
 
 Flexible and easy to use email for Elixir.
 
