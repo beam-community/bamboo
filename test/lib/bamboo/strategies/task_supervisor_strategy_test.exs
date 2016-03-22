@@ -2,7 +2,7 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
   use ExUnit.Case
 
   defmodule FakeAdapter do
-    def deliver_now(_email, _config) do
+    def deliver(_email, _config) do
       send :task_supervisor_strategy_test, :delivered
     end
   end

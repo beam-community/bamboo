@@ -78,7 +78,7 @@ defmodule Bamboo.Mailer do
       debug_unsent(email)
     else
       debug_sent(email, adapter)
-      adapter.deliver_now(email, config)
+      adapter.deliver(email, config)
     end
     email
   end

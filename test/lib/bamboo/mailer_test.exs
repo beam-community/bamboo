@@ -3,7 +3,7 @@ defmodule Bamboo.MailerTest do
   alias Bamboo.Email
 
   defmodule FooAdapter do
-    def deliver_now(email, config) do
+    def deliver(email, config) do
       send :mailer_test, {:deliver, email, config}
     end
 
@@ -11,7 +11,7 @@ defmodule Bamboo.MailerTest do
   end
 
   defmodule CustomConfigAdapter do
-    def deliver_now(email, config) do
+    def deliver(email, config) do
       send :mailer_test, {:deliver, email, config}
     end
 

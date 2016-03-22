@@ -31,7 +31,7 @@ defmodule Bamboo.TestAdapterTest do
   test "deliver/2 sends a message to the process" do
     email = new_email()
 
-    email |> TestAdapter.deliver_now(@config)
+    email |> TestAdapter.deliver(@config)
 
     assert_received {:delivered_email, ^email}
   end

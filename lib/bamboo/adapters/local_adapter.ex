@@ -24,7 +24,7 @@ defmodule Bamboo.LocalAdapter do
   @behaviour Bamboo.Adapter
 
   @doc "Adds email to Bamboo.SentEmail"
-  def deliver_now(email, _config) do
+  def deliver(email, _config) do
     SentEmail.push(email)
   end
 

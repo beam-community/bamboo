@@ -2,7 +2,7 @@ defmodule Bamboo.ImmediateDeliveryStrategyTest do
   use ExUnit.Case
 
   defmodule FakeAdapter do
-    def deliver_now(_email, _config), do: send self(), :delivered
+    def deliver(_email, _config), do: send self(), :delivered
   end
 
   @mailer_config %{}
