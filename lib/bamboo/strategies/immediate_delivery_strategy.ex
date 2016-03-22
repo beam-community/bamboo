@@ -8,6 +8,6 @@ defmodule Bamboo.ImmediateDeliveryStrategy do
   @behaviour Bamboo.DeliverLaterStrategy
 
   def deliver_later(adapter, email, config) do
-    adapter.deliver(email, config)
+    adapter.deliver_now(email, config)
   end
 end

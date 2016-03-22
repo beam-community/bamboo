@@ -31,7 +31,7 @@ defmodule Bamboo.TestAdapterTest do
   test "deliver/2 sends a message to the process" do
     email = new_email()
 
-    email |> TestAdapter.deliver(@config)
+    email |> TestAdapter.deliver_now(@config)
 
     assert_received {:delivered_email, ^email}
   end
@@ -40,7 +40,7 @@ defmodule Bamboo.TestAdapterTest do
     sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
     unsent_email = new_email(from: "foo@bar.com")
 
-    sent_email |> TestMailer.deliver
+    sent_email |> TestMailer.deliver_now
 
     assert_delivered_email sent_email
     refute_delivered_email unsent_email
@@ -50,7 +50,7 @@ defmodule Bamboo.TestAdapterTest do
     recipient = {nil, "foo@bar.com"}
     sent_email = new_email(from: "foo@bar.com", to: [recipient])
 
-    sent_email |> TestMailer.deliver
+    sent_email |> TestMailer.deliver_now
 
     refute_delivered_email(from: "someoneelse@bar.com")
     assert_delivered_email(from: "foo@bar.com", to: "foo@bar.com")
@@ -66,7 +66,7 @@ defmodule Bamboo.TestAdapterTest do
     sent_email =
       new_email(from: user_that_needs_to_be_formatted, to: "foo@bar.com")
 
-    sent_email |> TestMailer.deliver
+    sent_email |> TestMailer.deliver_now
 
     assert_delivered_email sent_email
   end

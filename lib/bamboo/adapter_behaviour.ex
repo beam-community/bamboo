@@ -11,7 +11,7 @@ defmodule Bamboo.Adapter do
       defmodule Bamboo.CustomAdapter do
         @behaviour Bamboo.Adapter
 
-        def deliver(email, config) do
+        def deliver_now(email, config) do
           deliver_the_email_somehow(email)
         end
 
@@ -29,6 +29,6 @@ defmodule Bamboo.Adapter do
       end
   """
 
-  @callback deliver(%Bamboo.Email{}, %{}) :: any
+  @callback deliver_now(%Bamboo.Email{}, %{}) :: any
   @callback handle_config(map) :: map
 end

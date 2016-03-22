@@ -20,7 +20,7 @@ defmodule Bamboo.TestAdapter do
   @behaviour Bamboo.Adapter
 
   @doc false
-  def deliver(email, _config) do
+  def deliver_now(email, _config) do
     send self(), {:delivered_email, email}
   end
 

@@ -45,7 +45,7 @@ defmodule Bamboo.MandrillAdapter do
     end
   end
 
-  def deliver(email, config) do
+  def deliver_now(email, config) do
     api_key = get_key(config)
     params = email |> convert_to_mandrill_params(api_key) |> Poison.encode!
     case request!(@send_message_path, params) do

@@ -3,7 +3,7 @@ defmodule Bamboo.MailerTest do
   alias Bamboo.Email
 
   defmodule FooAdapter do
-    def deliver(email, config) do
+    def deliver_now(email, config) do
       send :mailer_test, {:deliver, email, config}
     end
 
@@ -11,7 +11,7 @@ defmodule Bamboo.MailerTest do
   end
 
   defmodule CustomConfigAdapter do
-    def deliver(email, config) do
+    def deliver_now(email, config) do
       send :mailer_test, {:deliver, email, config}
     end
 
@@ -44,7 +44,7 @@ defmodule Bamboo.MailerTest do
   test "uses adapter's handle_config/1 to customize or validate the config" do
     email = new_email(to: "foo@bar.com")
 
-    CustomConfigMailer.deliver(email)
+    CustomConfigMailer.deliver_now(email)
 
     assert_received {:deliver, _email, config}
     assert config.custom_key == "Set by the adapter"
@@ -53,7 +53,7 @@ defmodule Bamboo.MailerTest do
   test "sets a default deliver_later_strategy if none is set" do
     email = new_email(to: "foo@bar.com")
 
-    FooMailer.deliver(email)
+    FooMailer.deliver_now(email)
 
     assert_received {:deliver, _email, config}
     assert config.deliver_later_strategy == Bamboo.TaskSupervisorStrategy
@@ -62,7 +62,7 @@ defmodule Bamboo.MailerTest do
   test "deliver/1 calls the adapter with the email and config as a map" do
     email = new_email(to: "foo@bar.com")
 
-    returned_email = FooMailer.deliver(email)
+    returned_email = FooMailer.deliver_now(email)
 
     assert returned_email == Bamboo.Mailer.normalize_addresses(email)
     assert_received {:deliver, %Bamboo.Email{}, config}
@@ -75,21 +75,21 @@ defmodule Bamboo.MailerTest do
     email = new_email(from: nil)
 
     assert_raise Bamboo.EmptyFromAddressError, fn ->
-      FooMailer.deliver(email)
+      FooMailer.deliver_now(email)
     end
   end
 
   test "deliver/1 with empty lists for recipients does not deliver email" do
-    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver
+    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver_now
     refute_received {:deliver, _, _}
 
-    new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver
+    new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver_now
     refute_received {:deliver, _, _}
 
-    new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver
+    new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver_now
     refute_received {:deliver, _, _}
 
-    new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver
+    new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver_now
     refute_received {:deliver, _, _}
   end
 
@@ -120,7 +120,7 @@ defmodule Bamboo.MailerTest do
     address = {"Someone", "foo@bar.com"}
     email = new_email(to: address, cc: address, bcc: address)
 
-    FooMailer.deliver(email)
+    FooMailer.deliver_now(email)
 
     assert_received {:deliver, delivered_email, _}
     assert delivered_email.to == [address]
@@ -132,7 +132,7 @@ defmodule Bamboo.MailerTest do
     address = "foo@bar.com"
     email = new_email(from: address, to: address, cc: address, bcc: address)
 
-    FooMailer.deliver(email)
+    FooMailer.deliver_now(email)
 
     converted_address = {nil, address}
     assert_received {:deliver, delivered_email, _}
@@ -146,7 +146,7 @@ defmodule Bamboo.MailerTest do
     user = %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
     email = new_email(from: user, to: user, cc: user, bcc: user)
 
-    FooMailer.deliver(email)
+    FooMailer.deliver_now(email)
 
     converted_recipient = {user.first_name, user.email}
     assert_received {:deliver, delivered_email, _}
@@ -160,13 +160,13 @@ defmodule Bamboo.MailerTest do
     email = new_email(from: 1)
 
     assert_raise Protocol.UndefinedError, fn ->
-      FooMailer.deliver(email)
+      FooMailer.deliver_now(email)
     end
   end
 
   test "raises if all receipients are nil" do
     assert_raise Bamboo.NilRecipientsError, fn ->
-      new_email(to: nil, cc: nil, bcc: nil) |> FooMailer.deliver
+      new_email(to: nil, cc: nil, bcc: nil) |> FooMailer.deliver_now
     end
   end
 
@@ -174,7 +174,7 @@ defmodule Bamboo.MailerTest do
     email = new_email(from: %{foo: :bar})
 
     assert_raise ArgumentError, fn ->
-      FooMailer.deliver(email)
+      FooMailer.deliver_now(email)
     end
   end
 

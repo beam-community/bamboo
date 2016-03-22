@@ -23,7 +23,7 @@ defmodule Bamboo.DeliverLaterStrategy do
         def deliver_later(adapter, email, config) do
           Task.async fn ->
             # Always call deliver on the adapter so that the email is delivered.
-            adapter.deliver(email, config)
+            adapter.deliver_now(email, config)
           end
         end
       end

@@ -60,8 +60,8 @@ defmodule Bamboo.Mailer do
       @adapter config.adapter
       @config config
 
-      def deliver(email) do
-        Bamboo.Mailer.deliver(@adapter, email, @config)
+      def deliver_now(email) do
+        Bamboo.Mailer.deliver_now(@adapter, email, @config)
       end
 
       def deliver_later(email) do
@@ -71,14 +71,14 @@ defmodule Bamboo.Mailer do
   end
 
   @doc false
-  def deliver(adapter, email, config) do
+  def deliver_now(adapter, email, config) do
     email = email |> validate_and_normalize
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
       debug_unsent(email)
     else
       debug_sent(email, adapter)
-      adapter.deliver(email, config)
+      adapter.deliver_now(email, config)
     end
     email
   end
