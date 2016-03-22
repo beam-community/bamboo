@@ -10,7 +10,7 @@ Flexible and easy to use email for Elixir.
 * **Works out of the box with Phoenix**. Use views and layouts to make rendering email easy.
 * **Very composable**. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
 * **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
-* **Easy to test delivery in integration tests**. As little repeated code as possible.
+* **Easy to test delivery in integration tests**. Helpers are provided to make testing a easy and robust.
 
 See the [docs] for the most up to date information.
 
@@ -59,6 +59,14 @@ defmodule MyApp.Emails do
       html_body: "<strong>Welcome</strong>",
       text_body: "welcome"
     )
+
+    # or pipe using Bamboo.Email functions
+    new_email
+    |> to("foo@example.com")
+    |> from("me@example.com")
+    |> subject("Welcome!!!")
+    |> html_body("<strong>Welcome</strong>")
+    |> text_body("welcome")
   end
 end
 
@@ -76,7 +84,7 @@ deliver in the background however you want. See [Bamboo.DeliverLaterStrategy].
 
 [Bamboo.DeliverLaterStrategy]: https://hexdocs.pm/bamboo/Bamboo.DeliverLaterStrategy.html
 
-## Composing with Pipes. (Useful for default from address, default layouts, etc.)
+## Composing with Pipes (for default from address, default layouts, etc.)
 
 ```elixir
 defmodule MyApp.Emails do
@@ -157,7 +165,7 @@ To use the latest from master.
       Bamboo.TaskSupervisorStrategy.child_spec
     ]
 
-    # This part is usually already there.
+    # This part is usually already in the start function
     opts = [strategy: :one_for_one, name: MyApp.Supervisor]
     Supervisor.start_link(children, opts)
   end

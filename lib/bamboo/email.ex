@@ -7,11 +7,13 @@ defmodule Bamboo.Email do
   address easy to do. This module is for creating emails. To actually send them,
   use [Bamboo.Mailer](Bamboo.Mailer.html).
 
+  ## Handling email addresses
+
   The from, to, cc and bcc addresses accept a string, a 2 item tuple
   {name, address}, or anything else that you create that implements the
   Bamboo.Formatter protocol. The to, cc and bcc fields can also accepts a list
   of any combination of strings, 2 item tuples or anything that
-  implement the Bamboo.Formatter protocol. See
+  implements the Bamboo.Formatter protocol. See
   [Bamboo.Formatter](Bamboo.Formatter.html) for more info.
 
   ## Simplest way to create a new email
@@ -32,7 +34,7 @@ defmodule Bamboo.Email do
   end
   ```
 
-  ## Using functions to extract common parts
+  ## Extracting common parts (default layout, default from address, etc.)
 
   Let's say you want all emails to have the same from address. Here's how you
   could do that
@@ -42,6 +44,7 @@ defmodule Bamboo.Email do
     import Bamboo.Email
 
     def welcome_email(user) do
+      # Since new_email/1 returns a struct you can update it with Kernel.struct!/2
       struct!(base_email,
         to: user,
         subject: "Welcome!",
@@ -50,7 +53,6 @@ defmodule Bamboo.Email do
       )
 
       # or you can use functions to build it up step by step
-
       base_email
       |> to(user)
       |> subject("Welcome!")

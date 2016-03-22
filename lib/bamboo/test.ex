@@ -88,7 +88,6 @@ defmodule Bamboo.Test do
       email = Bamboo.Email.new_email(subject: "something")
       email |> MyApp.Mailer.deliver
       assert_delivered_email(email) # Will pass
-      assert_delivered_email(subject: "something") # Would also pass
 
       unsent_email = Bamboo.Email.new_email(subject: "something else")
       assert_delivered_email(unsent_email) # Will fail

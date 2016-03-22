@@ -1,6 +1,6 @@
 defmodule Bamboo.MandrillEmail do
   @moduledoc """
-  Functions for using features specific to Mandrill.
+  Functions for using features specific to Mandrill e.g. tagging, merge vars
   """
 
   alias Bamboo.Email

@@ -13,8 +13,8 @@ defmodule Bamboo.Mixfile do
      test_coverage: [tool: ExCoveralls],
      preferred_cli_env: ["coveralls": :test, "coveralls.circle": :test],
      elixirc_paths: elixirc_paths(Mix.env),
-     description: "Elixir email for people that love piping. Comes with Phoenix support " <>
-     " and adapters for Mandrill, Sendgrid or anything you want.",
+     description: "Testable, composable, and adapter based elixir email library " <>
+     "for devs that love piping. Adapters for Mandrill and Sendgrid",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      package: package,

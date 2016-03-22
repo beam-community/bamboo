@@ -1,6 +1,6 @@
 defmodule Bamboo.ImmediateDeliveryStrategy do
   @moduledoc """
-  Strategy that sends the email immediately. Useful for testing.
+  Strategy for deliver_later that sends the email immediately.
 
   This strategy is used and required by the Bamboo.LocalAdapter and Bamboo.TestAdapter.
   """
