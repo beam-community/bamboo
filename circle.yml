@@ -11,4 +11,5 @@ dependencies:
 test:
   override:
     - MIX_ENV=prod mix compile --warnings-as-errors
+    - mix coveralls.circle
     - mix test

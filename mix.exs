@@ -10,6 +10,8 @@ defmodule Bamboo.Mixfile do
      source_url: @project_url,
      homepage_url: @project_url,
      compilers: compilers(Mix.env),
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: ["coveralls": :test, "coveralls.circle": :test],
      elixirc_paths: elixirc_paths(Mix.env),
      description: "Elixir email for people that love piping. Comes with Phoenix support " <>
      " and adapters for Mandrill, Sendgrid or anything you want.",
@@ -54,7 +56,8 @@ defmodule Bamboo.Mixfile do
       {:ex_doc, "~> 0.9", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
       {:httpoison, "~> 0.8"},
-      {:poison, ">= 1.5.0"}
+      {:poison, ">= 1.5.0"},
+      {:excoveralls, "~> 0.4"}
     ]
   end
 end
