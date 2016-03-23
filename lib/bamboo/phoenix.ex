@@ -57,9 +57,16 @@ defmodule Bamboo.Phoenix do
     verify_phoenix_dep
     quote do
       import Bamboo.Email
-      import Bamboo.Phoenix
+      import Bamboo.Phoenix, except: [render: 3]
       @email_view_module unquote(view_module)
 
+      @doc """
+      Render an Phoenix template and set the body on the email
+
+      Pass an atom as the template name (:welcome_email) to render HTML *and* plain
+      text emails. Use a string if you only want to render one type, e.g.
+      "welcome_email.text" or "welcome_email.html". Scroll to the top for more examples.
+      """
       def render(email, template, assigns \\ []) do
         Bamboo.Phoenix.render_email(@email_view_module, email, template, assigns)
       end
@@ -79,6 +86,18 @@ defmodule Bamboo.Phoenix do
       "Please add phoenix to your dependencies."
     end
   end
+
+  @doc """
+  Render a Phoenix template and set the body on the email
+
+  Pass an atom as the template name to render HTML *and* plain text emails,
+  e.g. `:welcome_email`. Use a string if you only want to render one type, e.g.
+  `"welcome_email.text"` or `"welcome_email.html"`. Scroll to the top for more examples.
+  """
+  def render(_email, _template_name, _assigns) do
+    raise "function implemented for documentation only, please call: use Bamboo.Phoenix"
+  end
+
 
   @doc """
   Sets the layout when rendering HTML templates

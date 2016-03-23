@@ -109,4 +109,10 @@ defmodule Bamboo.PhoenixTest do
       Emails.invalid_template
     end
   end
+
+  test "render raises if called directly" do
+    assert_raise RuntimeError, ~r/documentation only/, fn ->
+      Bamboo.Phoenix.render(:foo, :foo, :foo)
+    end
+  end
 end

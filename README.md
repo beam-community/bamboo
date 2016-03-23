@@ -230,3 +230,14 @@ See documentation for [Bamboo.Test] for more examples, and remember to use Bambo
     # The rest of the code for starting the app
   end
   ```
+
+## Contributing
+
+Before opening a pull request, please open an issue first.
+
+    $ git clone https://github.com/paulcsmith/bamboo.git
+    $ cd ex_machina
+    $ mix deps.get
+    $ mix test
+
+Once you've made your additions and `mix test` passes, go ahead and open a PR!
