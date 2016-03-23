@@ -5,7 +5,7 @@ defmodule Bamboo.Mixfile do
 
   def project do
     [app: :bamboo,
-     version: "0.3.2",
+     version: "0.4.0",
      elixir: "~> 1.2",
      source_url: @project_url,
      homepage_url: @project_url,
@@ -49,15 +49,15 @@ defmodule Bamboo.Mixfile do
 
   defp deps do
     [
-      {:plug, "~> 1.0", only: [:test]},
-      {:cowboy, "~> 1.0", only: [:test]},
-      {:phoenix, "~> 1.1", only: [:test]},
-      {:phoenix_html, "~> 2.2", only: [:test]},
+      {:plug, "~> 1.0", only: :test},
+      {:cowboy, "~> 1.0", only: :test},
+      {:phoenix, "~> 1.1", only: :test},
+      {:phoenix_html, "~> 2.2", only: :test},
+      {:excoveralls, "~> 0.4", only: :test},
       {:ex_doc, "~> 0.9", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
       {:httpoison, "~> 0.8"},
       {:poison, ">= 1.5.0"},
-      {:excoveralls, "~> 0.4"}
     ]
   end
 end
