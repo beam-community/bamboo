@@ -7,10 +7,12 @@ defmodule Bamboo.TaskSupervisorStrategy do
 
   This is the default strategy because it is the simplest to get started with.
   This strategy uses a Task.Supervisor to monitor the delivery. Deliveries that
-  fail will raise, but will not be retried.
+  fail will raise, but will not be retried, and will not bring down the calling
+  process.
 
   To use this strategy, the Bamboo.TaskSupervior must be added to your
-  supervisor. See the docs for `child_spec` or check out the README.
+  supervisor. See the docs for `child_spec` or check out the installation
+  section of the README.
   """
 
   @doc false

@@ -14,6 +14,6 @@ defmodule Bamboo.ImmediateDeliveryStrategyTest do
       @mailer_config
     )
 
-    assert_receive :delivered
+    assert_received :delivered
   end
 end

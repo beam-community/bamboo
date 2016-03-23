@@ -1,6 +1,6 @@
 defmodule Bamboo.Email do
   @moduledoc """
-  Contains functions for creating emails.
+  Contains functions for composing emails.
 
   Bamboo separates composing emails from delivering them. This separation emails
   easy to test and makes things like using a default layout, or a default from
@@ -11,9 +11,9 @@ defmodule Bamboo.Email do
 
   The from, to, cc and bcc addresses accept a string, a 2 item tuple
   {name, address}, or anything else that you create that implements the
-  Bamboo.Formatter protocol. The to, cc and bcc fields can also accepts a list
-  of any combination of strings, 2 item tuples or anything that
-  implements the Bamboo.Formatter protocol. See
+  [Bamboo.Formatter](Bamboo.Formatter.html) protocol. The to, cc and bcc fields
+  can also accepts a *list* of any combination of strings, 2 item tuples or
+  anything that implements the Bamboo.Formatter protocol. See
   [Bamboo.Formatter](Bamboo.Formatter.html) for more info.
 
   ## Simplest way to create a new email
@@ -123,7 +123,7 @@ defmodule Bamboo.Email do
 
   This is mostly used to implement specific functionality for a particular
   adapter. It will rarely be used directly from your code. Internally this is
-  used to set Mandrill specific params for the Mandrill Adapter and it's also
+  used to set Mandrill specific params for the MandrillAdapter and it's also
   used to store the view module, template and layout when using Bamboo.Phoenix.
 
   ## Example

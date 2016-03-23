@@ -6,6 +6,9 @@ defmodule Bamboo.Adapter do
   of {name, address}. For example, `email.from |> elem(0)` would return the name
   and `email.from |> elem(1)` would return the email address.
 
+  For a more in-depth examples check out the
+  [adapters in Bamboo](https://github.com/paulcsmith/bamboo/tree/master/lib/bamboo/adapters).
+
   ## Example
 
       defmodule Bamboo.CustomAdapter do

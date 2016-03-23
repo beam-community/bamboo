@@ -19,11 +19,9 @@ defmodule Bamboo.Test do
       defmodule MyApp.EmailsTest do
         use ExUnit.Case
 
-        alias MyApp.Emails
-
         test "welcome email" do
           user = %User{name: "John", email: "person@example.com"}
-          email = Emails.welcome_email(user)
+          email = MyApp.Email.welcome_email(user)
 
           assert email.to == user
           assert email.subject == "This is your welcome email"
@@ -49,18 +47,16 @@ defmodule Bamboo.Test do
 
       defmodule MyApp.EmailDeliveryTest do
         use ExUnit.Case
-
         use Bamboo.Test
-        alias MyApp.Emails
 
         test "sends welcome email" do
           user = %User{...}
-          email = Emails.welcome_email(user)
+          email = MyApp.Email.welcome_email(user)
 
-          email |> MyApp.Mailer.deliver
+          email |> MyApp.Mailer.deliver_now
 
-          # Also works with MyApp.Mailer.deliver_later
-          assert_delivered_email Emails.welcome_email(user)
+          # Works with deliver_now and deliver_later
+          assert_delivered_email MyAppEmail.welcome_email(user)
         end
       end
   """

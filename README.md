@@ -15,24 +15,37 @@ Flexible and easy to use email for Elixir.
 
 See the [docs] for the most up to date information.
 
+We designed Bamboo to be simple and powerful. If you run into *anything* that is
+less than exceptional, or you just need some help, please open an issue.
+
 [docs]: https://hexdocs.pm/bamboo/readme.html
 
 ## Adapters
 
 The official Bamboo adapter is for Mandrill, but there are other adapters as well.
 
-The Bamboo.MandrillAdapter **is being used in production and is known to work**.
-Refer to the other adapters README's for their status and for installation
-instructions.
+The Bamboo.MandrillAdapter **is being used in production** and has had no issues.
+Refer to other adapters README's for their status and for installation
+instructions. It's also pretty simple to [create your own adapter].
 
-* Bamboo.MandrillAdapter | [bamboo]
-* Bamboo.SendgridAdapter | [bamboo-sendgrid]
+* `Bamboo.MandrillAdapter` - Ships with Bamboo.
+* `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
+* `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
+* `Bamboo.SendgridAdapter` - Check out [bamboo-sendgrid] by @mtwilliams.
+
+To switch adapters, change the config for your mailer
+
+```elixir
+# In your config file
+config :my_app, MyApp.Mailer,
+  adapter: Bamboo.LocalAdapter
+```
 
 [bamboo]: http://github.com/paulcsmith/bamboo
 [bamboo-sendgrid]: https://github.com/mtwilliams/bamboo-sendgrid
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
 
-## Basic Usage
+## Getting Started
 
 Bamboo breaks email creation and email sending into two separate modules. This
 is done to make testing easier and to make emails easy to pipe/compose.
@@ -49,16 +62,16 @@ defmodule MyApp.Mailer do
 end
 
 # Define your emails
-defmodule MyApp.Emails do
+defmodule MyApp.Email do
   import Bamboo.Email
 
   def welcome_email do
     new_email(
-      to: "foo@example.com",
-      from: "me@example.com",
-      subject: "Welcome!!!",
-      html_body: "<strong>Welcome</strong>",
-      text_body: "welcome"
+      to: "john@gmail.com",
+      from: "support@myapp.com",
+      subject: "Welcome to the app.",
+      html_body: "<strong>Thanks for joining!</strong>",
+      text_body: "Thanks for joining!"
     )
 
     # or pipe using Bamboo.Email functions
@@ -72,16 +85,22 @@ defmodule MyApp.Emails do
 end
 
 # In a controller or some other module
-Emails.welcome_email |> Mailer.deliver_now
+Email.welcome_email |> Mailer.deliver_now
 
 # You can also deliver emails in the background with Mailer.deliver_later
-Emails.welcome_email |> Mailer.deliver_later
+Email.welcome_email |> Mailer.deliver_later
 ```
 
 ## Delivering Emails in the Background
 
-By default delivering later uses `Bamboo.TaskSupervisorStrategy`, but you can
-deliver in the background however you want. See [Bamboo.DeliverLaterStrategy].
+Often times you don't want to send email right away because it will slow down things like web requests in Phoenix.
+Bamboo offers `deliver_later` on your mailers to send emails in the background so that your requests don't block.
+
+By default delivering later uses [`Bamboo.TaskSupervisorStrategy`](https://hexdocs.pm/bamboo/Bamboo.TaskSupervisorStrategy.html). This strategy sends the email right away, but does so in the background without linking to the calling process, so errors in the mailer won't bring down your app.
+
+If you need something more custom you can
+can create a strategy with [Bamboo.DeliverLaterStrategy](https://hex.pm/packages/bamboo). For example, you could create strategies
+for adding emails to a background processing queue such as [exq](https://github.com/akira/exq/tree/master/test) or [toniq](https://github.com/joakimk/toniq).
 
 [Bamboo.DeliverLaterStrategy]: https://hexdocs.pm/bamboo/Bamboo.DeliverLaterStrategy.html
 
@@ -112,49 +131,91 @@ end
 
 ## Handling Recipients
 
-The from, to, cc and bcc addresses can be passed a string, a 2 item tuple or
-anything that implements the Bamboo.Formatter protocol. See the [Bamboo.Email docs] for more info and examples.
+The from, to, cc and bcc addresses can be passed a string, or a 2 item tuple.
 
-[Bamboo.Email docs]: https://hexdocs.pm/bamboo/Bamboo.Email.html
+Sometimes doing this can be a pain though. What happens if you try to send to a list of users? You'd have to do something like this for every email:
+
+```elixir
+# Where users looks like [%User{name: "John", email: "john@gmail.com"}]
+users = for user <- users do
+  {user.name, user.email}
+end
+
+new_email(to: users)
+```
+
+To help with this, Bamboo has a `Bamboo.Formatter` protocol.
+See the [Bamboo.Email] and [Bamboo.Formatter docs] for more info and examples.
+
+[Bamboo.Email]: https://hexdocs.pm/bamboo/Bamboo.Email.html
+[Bamboo.Formatter docs]: https://hexdocs.pm/bamboo/Bamboo.Formatter.html
 
 ## Using Phoenix Views and Layouts
 
-You can use Phoenix views and layouts with Bamboo. See [Bamboo.Phoenix]
-
-[Bamboo.Phoenix]: https://hexdocs.pm/bamboo/Bamboo.Phoenix.html
+Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can use Phoenix views and layouts with Bamboo. See [Bamboo.Phoenix](https://hexdocs.pm/bamboo/Bamboo.Phoenix.html)
 
 ## Mandrill Specific Functionality (tags, merge vars, etc.)
 
-See [Bamboo.MandrillEmail](https://hexdocs.pm/bamboo/Bamboo.MandrillEmail.html)
+Mandrill offers extra features on top of regular SMTP email like tagging, merge vars, and scheduling emails to send in the future. See [Bamboo.MandrillEmail](https://hexdocs.pm/bamboo/Bamboo.MandrillEmail.html).
 
 ## Testing
 
-You can use the `Bamboo.TestAdapter` to make testing your emails a piece of cake.
-See documentation for [Bamboo.Test] for more examples.
+You can use the Bamboo.TestAdapter along with [Bamboo.Test] to make testing your emails a piece of cake.
+
+```elixir
+# Using the mailer from the Getting Started section
+defmodule MyApp.Registration do
+  use ExUnit.Case
+  use Bamboo.Test
+
+  test "welcome email" do
+    # Unit testing is easy since the email is just a struct
+    user = new_user
+
+    email = Emails.welcome_email(user)
+
+    assert email.to == user
+    # The =~ checks that the html_body contains the text on the right
+    assert email.html_body =~ "Thanks for joining"
+  end
+
+  test "after registering, the user gets a welcome email" do
+    # Integration test with the helpers from Bamboo.Test
+    user = new_user
+
+    MyApp.Register(user)
+
+    assert_delivered_email MyApp.Email.welcome_email(user)
+  end
+end
+```
+
+See documentation for [Bamboo.Test] for more examples, and remember to use Bamboo.TestAdapter.
 
 [Bamboo.Test]: https://hexdocs.pm/bamboo/Bamboo.Test.html
 
 ## Installation
 
-To use the latest from master.
+1. Add bamboo to your list of dependencies in `mix.exs`:
 
-  1. Add bamboo to your list of dependencies in `mix.exs`:
+  ```elixir
+  def deps do
+    # Get from hex
+    [{:bamboo, "~> 0.3"}]
+    # Or use the latest from master
+    [{:bamboo, github: "paulcsmith/bamboo"}]
+  end
+  ```
 
-    ```elixir
-    def deps do
-      [{:bamboo, github: "paulcsmith/bamboo"}]
-    end
-    ```
+2. Ensure bamboo is started before your application:
 
-  2. Ensure bamboo is started before your application:
+  ```elixir
+  def application do
+    [applications: [:bamboo]]
+  end
+  ```
 
-    ```elixir
-    def application do
-      [applications: [:bamboo]]
-    end
-    ```
-
-  3. Add the the Bamboo.TaskSupervior as a child to your supervisor
+3. Add the the `Bamboo.TaskSupervisor` as a child to your supervisor. This is necessary for `deliver_later` to work.
 
   ```elixir
   # Usually in lib/my_app_name/my_app_name.ex
@@ -162,12 +223,10 @@ To use the latest from master.
     import Supervisor.Spec
 
     children = [
-      # Add the supervisor that handles deliver_later calls
+      # This is where you add the supervisor that handles deliver_later calls
       Bamboo.TaskSupervisorStrategy.child_spec
     ]
 
-    # This part is usually already in the start function
-    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
-    Supervisor.start_link(children, opts)
+    # The rest of the code for starting the app
   end
   ```

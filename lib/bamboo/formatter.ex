@@ -30,15 +30,11 @@ defprotocol Bamboo.Formatter do
 
       user = %User{first_name: "John", last_name: "Doe", email: "me@example.com"}
       Bamboo.Email.new_email(from: user)
-  """
 
-  @doc ~S"""
-  Receives data and opts and should return a string or a 2 item tuple {name, address}
+  ## Customize formatting based on from, to, cc or bcc
 
-  opts is currently a map with the key `:type` and a value of
-  `:from`, `:to`, `:cc` or `:bcc`. You can pattern match on this to customize
-  the address depending on what it's use for. For example, you could add the
-  app name to the user's name if it is used for a from address
+  This can be helpful if you want to add the name of the app when sending on
+  behalf of a user.
 
       defimpl Bamboo.Formatter, for: MyApp.User do
         # Include the app name when used in a from address
@@ -53,6 +49,14 @@ defprotocol Bamboo.Formatter do
           {fullname, user.email}
         end
       end
+  """
+
+  @doc ~S"""
+  Receives data and opts and should return a string or a 2 item tuple {name, address}
+
+  opts is a map with the key `:type` and a value of
+  `:from`, `:to`, `:cc` or `:bcc`. You can pattern match on this to customize
+  the address.
   """
   def format_email_address(data, opts)
 end
@@ -80,8 +84,8 @@ defimpl Bamboo.Formatter, for: Map do
     raise ArgumentError, """
     The format of the address was invalid. Got #{inspect invalid_address}.
 
-    Expected a string, e.g. "foo@bar.com", or a 2 item tuple {name, address}.
-    You can also implement a custom protocol.
+    Expected a string, e.g. "foo@bar.com", a 2 item tuple {name, address}, or
+    something that implements the Bamboo.Formatter protocol.
 
     Example:
 
