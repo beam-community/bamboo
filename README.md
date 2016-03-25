@@ -211,7 +211,7 @@ Bamboo.TestAdapter.
   ```elixir
   def deps do
     # Get from hex
-    [{:bamboo, "~> 0.3"}]
+    [{:bamboo, "~> 0.4"}]
     # Or use the latest from master
     [{:bamboo, github: "paulcsmith/bamboo"}]
   end
