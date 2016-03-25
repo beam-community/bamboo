@@ -1,7 +1,7 @@
 defmodule Bamboo.MandrillAdapterTest do
   use ExUnit.Case
   alias Bamboo.Email
-  alias Bamboo.MandrillEmail
+  alias Bamboo.MandrillHelper
   alias Bamboo.MandrillAdapter
 
   @config %{adapter: MandrillAdapter, api_key: "123_abc"}
@@ -110,7 +110,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 adds extra params to the message " do
-    email = new_email |> MandrillEmail.put_param("important", true)
+    email = new_email |> MandrillHelper.put_param("important", true)
 
     email |> MandrillAdapter.deliver(@config)
 

@@ -165,7 +165,7 @@ See [Bamboo.EmailPreviewPlug](https://hexdocs.pm/bamboo/Bamboo.EmailPreviewPlug.
 
 ## Mandrill Specific Functionality (tags, merge vars, etc.)
 
-Mandrill offers extra features on top of regular SMTP email like tagging, merge vars, and scheduling emails to send in the future. See [Bamboo.MandrillEmail](https://hexdocs.pm/bamboo/Bamboo.MandrillEmail.html).
+Mandrill offers extra features on top of regular SMTP email like tagging, merge vars, and scheduling emails to send in the future. See [Bamboo.MandrillHelper](https://hexdocs.pm/bamboo/Bamboo.MandrillHelper.html).
 
 ## Testing
 

@@ -1,4 +1,4 @@
-defmodule Bamboo.MandrillEmail do
+defmodule Bamboo.MandrillHelper do
   @moduledoc """
   Functions for using features specific to Mandrill e.g. tagging, merge vars
   """
