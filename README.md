@@ -239,8 +239,10 @@ Bamboo.TestAdapter.
 
 Before opening a pull request, please open an issue first.
 
+Once we've decided how to move forward with a pull request:
+
     $ git clone https://github.com/paulcsmith/bamboo.git
-    $ cd ex_machina
+    $ cd bamboo
     $ mix deps.get
     $ mix test
 
