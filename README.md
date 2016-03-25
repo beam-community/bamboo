@@ -199,7 +199,8 @@ defmodule MyApp.Registration do
 end
 ```
 
-See documentation for [Bamboo.Test] for more examples, and remember to use Bamboo.TestAdapter.
+See documentation for [Bamboo.Test] for more examples, and remember to use
+Bamboo.TestAdapter.
 
 [Bamboo.Test]: https://hexdocs.pm/bamboo/Bamboo.Test.html
 
@@ -227,17 +228,11 @@ See documentation for [Bamboo.Test] for more examples, and remember to use Bambo
 3. Add the the `Bamboo.TaskSupervisor` as a child to your supervisor. This is necessary for `deliver_later` to work.
 
   ```elixir
-  # Usually in lib/my_app_name/my_app_name.ex
-  def start(_type, _args) do
-    import Supervisor.Spec
-
-    children = [
-      # This is where you add the supervisor that handles deliver_later calls
-      Bamboo.TaskSupervisorStrategy.child_spec
-    ]
-
-    # The rest of the code for starting the app
-  end
+  # Usually in lib/my_app_name.ex
+  children = [
+    # This is where you add the supervisor that handles deliver_later calls
+    Bamboo.TaskSupervisorStrategy.child_spec
+  ]
   ```
 
 ## Contributing

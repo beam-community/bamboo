@@ -27,19 +27,11 @@ defmodule Bamboo.TaskSupervisorStrategy do
 
   ## Example
 
-      # Usually in lib/my_app_name/my_app_name.ex
-      def start(_type, _args) do
-        import Supervisor.Spec
-
-        children = [
-          # Add the supervisor that handles deliver_later calls
-          Bamboo.TaskSupervisorStrategy.child_spec
-        ]
-
-        # This part is usually already there.
-        opts = [strategy: :one_for_one, name: MyApp.Supervisor]
-        Supervisor.start_link(children, opts)
-      end
+      # Usually in lib/my_app_name.ex
+      children = [
+        # Add the supervisor that handles deliver_later calls
+        Bamboo.TaskSupervisorStrategy.child_spec
+      ]
   """
   def child_spec do
     Supervisor.Spec.supervisor(
