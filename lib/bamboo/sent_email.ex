@@ -4,6 +4,7 @@ defmodule Bamboo.SentEmail do
 
   When emails are sent with the Bamboo.LocalAdapter, they are stored in
   Bamboo.SentEmail. Use the functions in this module to store and retrieve the emails.
+
   Remember to start the Bamboo app by adding it to the app list in `mix.exs` or
   starting it with `Application.ensure_all_started(:bamboo)`
   """

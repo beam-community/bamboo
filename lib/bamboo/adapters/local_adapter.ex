@@ -3,9 +3,12 @@ defmodule Bamboo.LocalAdapter do
   Stores emails locally. Can be queried to see sent emails.
 
   Use this adapter for storing emails locally instead of sending them. Emails
-  are stored and can be read from [Bamboo.SentEmail](Bamboo.SentEmail.html).
+  are stored and can be read from `Bamboo.SentEmail`.
   Typically this adapter is used in the dev environment so emails are not
   delivered to real email addresses.
+
+  You can use this adapter along with `Bamboo.EmailPreviewPlug` to view emails
+  in the browser.
 
   ## Example config
 

@@ -3,9 +3,9 @@ defmodule Bamboo.Phoenix do
   Render templates and layouts with Phoenix.
 
   This module makes it very easy to render layouts and views using Phoenix.
-  Pass an atom as the template name to render HTML and plain text emails. Use
-  a string if you only want to render one type, e.g. "welcome_email.text" or
-  "welcome_email.html".
+  Pass an atom (e.g. `:welcome_email`) as the template name to render HTML and
+  plain text emails. Use a string if you only want to render one type, e.g.
+  `"welcome_email.text"` or `"welcome_email.html"`.
 
   ## Examples
 

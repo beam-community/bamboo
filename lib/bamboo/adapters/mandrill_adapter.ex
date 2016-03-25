@@ -3,8 +3,8 @@ defmodule Bamboo.MandrillAdapter do
   Sends email using Mandrill's JSON API.
 
   Use this adapter to send emails through Mandrill's API. Requires that an API
-  key is set in the config. See [Bamboo.MandrillHelper](Bamboo.MandrillHelper.html)
-  for extra functions that can be used by the MandrillAdapter (tagging, merge vars, etc.)
+  key is set in the config. See `Bamboo.MandrillHelper` for extra functions that
+  can be used by `Bamboo.MandrillAdapter` (tagging, merge vars, etc.)
 
   ## Example config
 

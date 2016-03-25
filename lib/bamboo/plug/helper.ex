@@ -1,6 +1,8 @@
 defmodule Bamboo.EmailPreviewPlug.Helper do
   import Bamboo.SentEmail
 
+  @moduledoc false
+
   def selected_email_class(email, selected_email) do
     if get_id(email) == get_id(selected_email) do
       "selected-email"

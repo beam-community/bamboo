@@ -2,16 +2,12 @@ defmodule Bamboo.Mailer do
   @moduledoc """
   Sets up mailers that make it easy to configure and swap adapters.
 
-  Adds deliver/1 and deliver_later/1 functions to the mailer module it is used by.
-  Bamboo ships with [Bamboo.MandrillAdapter](Bamboo.MandrillAdapter.html),
-  [Bamboo.LocalAdapter](Bamboo.LocalAdapter) and
-  [Bamboo.TestAdapter](Bamboo.TestAdapter.html).
+  Adds `deliver/1` and `deliver_later/1` functions to the mailer module it is used by.
+  Bamboo ships with `Bamboo.MandrillAdapter`, `Bamboo.LocalAdapter` and `Bamboo.TestAdapter`.
 
   ## Example
 
       # In your config/config.exs file
-      # Other adapters that come with Bamboo are
-      # Bamboo.LocalAdapter and Bamboo.TestAdapter
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.MandrillAdapter,
         api_key: "my_api_key"

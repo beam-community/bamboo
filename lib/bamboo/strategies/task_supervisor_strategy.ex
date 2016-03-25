@@ -10,9 +10,17 @@ defmodule Bamboo.TaskSupervisorStrategy do
   fail will raise, but will not be retried, and will not bring down the calling
   process.
 
-  To use this strategy, the Bamboo.TaskSupervior must be added to your
-  supervisor. See the docs for `child_spec` or check out the installation
+  To use this strategy, the `Bamboo.TaskSupervisor` must be added to your
+  supervisor. See the docs for `child_spec/0` or check out the installation
   section of the README.
+
+  ## Why use it?
+
+  Sending emails can often take time and may fail. If you are sending email
+  during a web request (for instance, sending a welcome email), you probably
+  don't want to make your users wait the extra time for the welcome email to send.
+  Instead you can use `deliver_later/1` and it will be delivered in the background
+  so web requests remain snappy.
   """
 
   @doc false

@@ -6,18 +6,18 @@ defmodule Bamboo.EmailPreviewPlug do
   A plug that can be used in your router to see delivered emails.
 
   This plug allows you to view all deliver emails. To see emails you must use
-  the Bamboo.LocalAdapter.
+  the `Bamboo.LocalAdapter`.
 
-  ## Setup
+  ## Using with Plug or Phoenix
 
       # Make sure you are using Bamboo.LocalAdapter in your config
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.LocalAdapter
 
+      # In your Router
       defmodule MyApp.Router do
         use Phoenix.Router # or use Plug.Router if you're not using Phoenix
 
-        # You typically only want to preview emails in dev
         if Mix.env == :dev do
           # If using Phoenix
           forward "/sent_emails", Bamboo.EmailPreviewPlug

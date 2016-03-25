@@ -3,8 +3,8 @@ defmodule Bamboo.Test do
   Helpers for testing email delivery
 
   Use these helpers with Bamboo.TestAdapter to test email delivery. Typically
-  you'll want to **unit test emails and then in integration tests use
-  helpers from this module** to test whether that email was delivered.
+  you'll want to **unit test emails first**. Then in integration tests use
+  helpers from this module to test whether that email was delivered.
 
   ## In your config
 
@@ -12,7 +12,7 @@ defmodule Bamboo.Test do
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.TestAdapter
 
-  ## Unit testing example
+  ## Unit test
 
   You don't need any special functions to unit test emails.
 
@@ -21,6 +21,7 @@ defmodule Bamboo.Test do
 
         test "welcome email" do
           user = %User{name: "John", email: "person@example.com"}
+
           email = MyApp.Email.welcome_email(user)
 
           assert email.to == user
@@ -29,7 +30,7 @@ defmodule Bamboo.Test do
         end
       end
 
-  ## Integration tests
+  ## Integration test
 
       defmodule MyApp.Email do
         import Bamboo.Email

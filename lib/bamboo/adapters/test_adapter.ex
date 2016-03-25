@@ -3,7 +3,7 @@ defmodule Bamboo.TestAdapter do
   Used for testing email delivery
 
   No emails are sent, instead a message is sent to the current process and can
-  be asserted on with helpers from [Bamboo.Test](Bamboo.Test.html).
+  be asserted on with helpers from `Bamboo.Test`.
 
   ## Example config
 
@@ -11,7 +11,7 @@ defmodule Bamboo.TestAdapter do
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.TestAdapter
 
-      # Define a Mailer. Maybe in lib/my_app/mailer.ex
+      # Define a Mailer. Typically in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
         use Bamboo.Mailer, otp_app: :my_app
       end

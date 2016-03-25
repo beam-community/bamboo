@@ -3,10 +3,11 @@ defmodule Bamboo.Adapter do
   Behaviour for creating Bamboo adapters
 
   All recipients in the Bamboo.Email struct will be normalized to a 2 item tuple
-  of {name, address}. For example, `email.from |> elem(0)` would return the name
-  and `email.from |> elem(1)` would return the email address.
+  of {name, address} when deliver through your mailer. For example,
+  `email.from |> elem(0)` would return the name and `email.from |> elem(1)`
+  would return the email address.
 
-  For a more in-depth examples check out the
+  For more in-depth examples check out the
   [adapters in Bamboo](https://github.com/paulcsmith/bamboo/tree/master/lib/bamboo/adapters).
 
   ## Example
@@ -26,7 +27,7 @@ defmodule Bamboo.Adapter do
           if Map.get(config, :smtp_username) do
             config
           else
-            raise "smpt_username is required in config, got #{inspect config}"
+            raise "smtp_username is required in config, got #{inspect config}"
           end
         end
       end
