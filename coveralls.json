@@ -1,0 +1,5 @@
+{
+  "skip_files": [
+    "lib/mix/start_email_preview_task.ex",
+  ]
+}

@@ -6,12 +6,13 @@ Bamboo [![Circle CI](https://circleci.com/gh/paulcsmith/bamboo/tree/master.svg?s
 Flexible and easy to use email for Elixir.
 
 * **Adapter based** so it can be used with Mandrill, SMTP, or whatever else you want. Comes with a Mandrill adapter out of the box.
+* **Deliver emails in the background**. Most of the time you don't want or need to wait for the email to send. Bamboo makes it easy with Mailer.deliver_later
 * **Easy to format recipients**. You can do `new_email(to: Repo.one(User))` and Bamboo can format the User struct if you implement Bamboo.Formatter.
 * **Works out of the box with Phoenix**. Use views and layouts to make rendering email easy.
 * **Very composable**. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
 * **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
 * **Easy to test delivery in integration tests**. Helpers are provided to make testing a easy and robust.
-* **Deliver emails in the background**. Most of the time you don't want or need to wait for the email to send. Bamboo makes it easy with Mailer.deliver_later
+* **Preview sent emails during development**. Bamboo comes with a plug that can be used in your router to preview sent emails.
 
 See the [docs] for the most up to date information.
 
@@ -153,6 +154,14 @@ See the [Bamboo.Email] and [Bamboo.Formatter docs] for more info and examples.
 ## Using Phoenix Views and Layouts
 
 Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can use Phoenix views and layouts with Bamboo. See [Bamboo.Phoenix](https://hexdocs.pm/bamboo/Bamboo.Phoenix.html)
+
+## Previewing Sent Emails
+
+Bamboo comes with a handy plug for viewing emails sent in development. Now you
+don't have to look at the logs to get password resets, confirmation links, etc.
+Just open up the email preview and click the link.
+
+See [Bamboo.EmailPreviewPlug](https://hexdocs.pm/bamboo/Bamboo.EmailPreviewPlug.html)
 
 ## Mandrill Specific Functionality (tags, merge vars, etc.)
 

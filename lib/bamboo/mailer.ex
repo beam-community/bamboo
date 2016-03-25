@@ -127,7 +127,8 @@ defmodule Bamboo.Mailer do
   @doc """
   Wraps to, cc and bcc addresses in a list and normalizes email addresses.
 
-  Email normalization/formatting is done by the [Bamboo.Formatter] protocol.
+  Also formats the from address. Email normalization/formatting is done by the
+  [Bamboo.Formatter] protocol.
   """
   def normalize_addresses(email) do
     %{email |

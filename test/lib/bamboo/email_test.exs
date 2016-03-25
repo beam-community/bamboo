@@ -28,6 +28,32 @@ defmodule Bamboo.EmailTest do
     assert email.subject == "Cool Email"
   end
 
+  test "get_address gets the address or raises if not normalized" do
+    assert get_address({"Paul", "paul@gmail.com"}) == "paul@gmail.com"
+
+    assert_raise RuntimeError, ~r/expected an address/, fn ->
+      get_address({})
+    end
+  end
+
+  test "returns list of all recipients" do
+    email = new_email(from: "foo", to: "to@foo.com", cc: "cc@foo.com", bcc: "bcc@foo.com")
+      |> Bamboo.Mailer.normalize_addresses
+
+    assert all_recipients(email) == [
+      {nil, "to@foo.com"},
+      {nil, "cc@foo.com"},
+      {nil, "bcc@foo.com"},
+    ]
+  end
+
+  test "raises if emails are not normalized" do
+    assert_raise RuntimeError, ~r/normalized/, fn ->
+      email = new_email(to: ["to@foo.com"])
+      all_recipients(email)
+    end
+  end
+
   test "can pipe updates with functions" do
     email = new_email
       |> from("me@foo.com")

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Email Preview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.0.0/normalize.css" charset="utf-8">
+    <style>
+      body {
+        min-width: 800px;
+        font-size: 15px;
+        font-family: sans-serif;
+      }
+
+      .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .email-sidebar {
+        display: flex;
+        flex-direction: column;
+        padding: 25px 35px;;
+        width: 40%;
+        max-width: 400px;
+      }
+
+      .selected-email {
+        background-color: #2D9EB9;
+        -webkit-box-shadow: 0px 5px 17px 1px rgba(0,0,0,0.21);
+        -moz-box-shadow: 0px 5px 17px 1px rgba(0,0,0,0.21);
+        box-shadow: 0px 5px 17px 1px rgba(0,0,0,0.21);
+      }
+
+      .selected-email .email-summary-subject,
+      .selected-email .email-summary-recipients {
+        color: #fff;
+      }
+
+      .selected-email .email-summary-body-excerpt {
+        color: #CDF0F8;
+      }
+
+      .email-summary {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: #000;
+        padding: 15px 25px;
+        border-radius: 5px;
+      }
+
+      .email-summary:hover {
+        -webkit-box-shadow: 0px 5px 17px 1px rgba(0,0,0,0.11);
+        -moz-box-shadow: 0px 5px 17px 1px rgba(0,0,0,0.11);
+        box-shadow: 0px 5px 17px 1px rgba(0,0,0,0.11);
+      }
+
+      .email-summary-subject {
+        font-weight: 700;
+        font-size: 15px;
+        padding: 5px 0px;
+      }
+
+      .email-summary-recipients {
+        font-size: 15px;
+        padding-bottom: 5px;
+      }
+
+      .email-summary-body-excerpt {
+        color: #777;
+        max-height: 40px;
+        font-size: 14px;
+        line-height: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .email-preview-pane {
+        width: 100%;
+        padding: 35px;
+        padding-left: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .email-preview-hero {
+        display: flex;
+        flex-direction: column;
+        padding-left: 20px;
+      }
+
+      .email-preview-subject {
+        font-weight: bold;
+        font-size: 22px;
+        padding: 10px 0;
+      }
+
+      .email-preview-bodies-container {
+        border: 1px solid #eee;
+        border-radius: 5px;
+        padding: 20px;
+        margin-top: 30px;
+      }
+
+      .email-preview-body-label {
+        padding: 0;
+        margin: 0 0 12px 0;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .email-preview-recipients {
+        color: #aaa;
+      }
+
+      .email-preview-recipients strong {
+        color: #555;
+      }
+
+      .email-preview-body {
+        margin: 15px 0 25px 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="container">
+      <aside class="email-sidebar">
+        <%= for email <- @emails do %>
+          <a
+            class="email-summary <%= Bamboo.EmailPreviewPlug.Helper.selected_email_class(email, @selected_email) %>"
+            href="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(email)}" %>">
+            <span class="email-summary-subject truncate"><%= email.subject %></span>
+            <span class="email-summary-recipients truncate">
+              <%= Bamboo.Email.get_address(@selected_email.from) %>
+              to <%= Bamboo.EmailPreviewPlug.Helper.email_addresses(@selected_email) %>
+            </span>
+            <span class="email-summary-body-excerpt"><%= email.text_body %></span>
+          </a>
+        <% end %>
+      </aside>
+      <section class="email-preview-pane">
+        <section class="email-preview-hero">
+          <span class="email-preview-subject"><%= @selected_email.subject %></span>
+          <span class="email-preview-recipients">
+            From <strong><%= Bamboo.Email.get_address(@selected_email.from) %></strong>
+            to <strong><%= Bamboo.EmailPreviewPlug.Helper.email_addresses(@selected_email) %></strong>
+          </span>
+        </section>
+
+        <section class="email-preview-bodies-container">
+          <h3 class="email-preview-body-label">HTML body</h3>
+          <p class="email-preview-body">
+            <%= @selected_email.html_body %>
+          </p>
+
+          <h3 class="email-preview-body-label">Text Body</h3>
+          <p class="email-preview-body">
+            <%= Bamboo.EmailPreviewPlug.Helper.format_text(@selected_email.text_body) %>
+          </p>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

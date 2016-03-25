@@ -8,6 +8,8 @@ defmodule Bamboo.SentEmail do
   starting it with Application.ensure_all_started(:bamboo)
   """
 
+  @id_length 16
+
   defmodule DeliveriesError do
     defexception [:message]
 
@@ -37,7 +39,7 @@ defmodule Bamboo.SentEmail do
     defexception [:message]
 
     def exception(_) do
-      message = "SentEmail.one/1 expected to find one email, but got none."
+      message = "expected to find one email, but got none."
       %NoDeliveriesError{message: message}
     end
   end
@@ -47,20 +49,80 @@ defmodule Bamboo.SentEmail do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
+  @doc """
+  Gets the email's id.
+
+  The email must be an email that was sent with Bamboo.LocalAdapter or added
+  via SentEmail.push/1, otherwise the id will not have been set.
+  """
+  def get_id(%Bamboo.Email{private: %{local_adapter_id: id}}) do
+    id
+  end
+
+  def get_id(%Bamboo.Email{}) do
+    raise """
+    SentEmail.get_id/1 expected the email to have an id, but no id was present.
+
+    This is usually because the email was not sent with Bamboo.LocalAdapter
+    or wasn't pushed with SentEmail.push/1
+    """
+  end
+
+  def get_id(email) do
+    raise "SentEmail.get_id/1 expected a %Bamboo.Email{}, instead got: #{inspect email}"
+  end
+
+  @doc """
+  Gets an email by id. Returns nil if it can't find a matching email.
+  """
+  def get(id) do
+    do_get(id)
+  end
+
+  @doc """
+  Gets an email by id. Raises if it can't find one.
+  """
+  def get!(id) do
+    do_get(id) || raise NoDeliveriesError, nil
+  end
+
+  defp do_get(id) do
+    Enum.find all, nil, fn(email) ->
+      get_id(email) == id
+    end
+  end
+
   @doc "Returns a list of all sent emails"
   def all do
     Agent.get(__MODULE__, fn(emails) -> emails end)
   end
 
-  @doc "Adds an email to the list of sent emails"
+  @doc """
+  Adds an email to the list of sent emails
+
+  Adds an email to the beginning of the sent emails list. Also gives the email
+  an id that can be fetched with SentEmail.get_id/1.
+  """
   def push(email) do
+    email = put_rand_id(email)
     Agent.update(__MODULE__, fn(emails) ->
-      emails ++ [email]
+      [email | emails]
     end)
+    email
+  end
+
+  defp put_rand_id(email) do
+    email |> Bamboo.Email.put_private(:local_adapter_id, rand_id)
+  end
+
+  defp rand_id do
+    :crypto.rand_bytes(@id_length)
+    |> Base.url_encode64
+    |> binary_part(0, @id_length)
   end
 
   @doc """
-  Returns exactly one sent email
+  Returns exactly one sent email. Raises if none, or more than one are found
 
   Raises `NoDeliveriesError` if there are no emails. Raises `DeliveriesError` if
   there are 2 or more emails.

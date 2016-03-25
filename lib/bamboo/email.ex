@@ -108,6 +108,40 @@ defmodule Bamboo.Email do
   end
 
   @doc """
+  Returns a list of all recipients (to, cc and bcc).
+  """
+  def all_recipients(%Bamboo.Email{to: to, cc: cc, bcc: bcc} = email)
+  when is_list(to) and is_list(cc) and is_list(bcc) do
+    email.to ++ email.cc ++ email.bcc
+  end
+
+  def all_recipients(email) do
+    raise """
+    expected email with normalized recipients, got: #{inspect email}
+
+    Make sure to call Bamboo.Mailer.normalize_addresses
+    """
+  end
+
+  @doc """
+  Gets the just the email address from a normalized email address
+
+  Normalized email addresses are 2 item tuples {name, address}. This gets the
+  address part of the tuple. Use this instead of calling `elem(address, 1)`
+  so that if Bamboo changes how email addresses are represented your code will
+  still work
+
+  ## Examples
+
+    Bamboo.Email.get_address({"Paul", "paul@thoughtbot.com"}) # "paul@thoughtbot.com"
+  """
+  def get_address({_name, address}), do: address
+
+  def get_address(invalid_address) do
+    raise "expected an address as a 2 item tuple {name, address}, got: #{inspect invalid_address}"
+  end
+
+  @doc """
   Adds a header to the email
 
   ## Example

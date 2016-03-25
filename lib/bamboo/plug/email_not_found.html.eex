@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Email Preview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.0.0/normalize.css" charset="utf-8">
+    <style>
+      html {
+        height: 100%;
+      }
+
+      body {
+        min-height: 100%;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 100%;
+        font-family: sans-serif;
+      }
+
+      .notice {
+        width: 80%;
+        max-width: 500px;
+        padding: 40px 50px;
+        text-align: center;
+        background-color: #f8f8f8;
+        border-radius: 12px;
+      }
+
+      h1 {
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      p {
+        color: #555;
+        line-height: 25px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="notice">
+      <h1>Email not found</h1>
+      <p>
+        This may be because the server was restarted.
+        <br>Go <a href="<%= @base_path %>/">back to email index</a> to see all emails.
+      </p>
+    </section>
+  </body>
+</html>

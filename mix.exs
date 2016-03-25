@@ -13,8 +13,8 @@ defmodule Bamboo.Mixfile do
      test_coverage: [tool: ExCoveralls],
      preferred_cli_env: ["coveralls": :test, "coveralls.circle": :test],
      elixirc_paths: elixirc_paths(Mix.env),
-     description: "Testable, composable, and adapter based elixir email library " <>
-     "for devs that love piping. Adapters for Mandrill and Sendgrid",
+     description: "Straightforward, composable, and adapter based Elixir email library " <>
+     "for people that love piping. Adapters for Mandrill, Sendgrid, in-memory, and testing",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      package: package,
@@ -49,11 +49,13 @@ defmodule Bamboo.Mixfile do
 
   defp deps do
     [
-      {:plug, "~> 1.0", only: :test},
-      {:cowboy, "~> 1.0", only: :test},
+      {:plug, "~> 1.0"},
+      {:ex_machina, "~> 1.0.0-beta.0", github: "thoughtbot/ex_machina", only: [:test]},
+      {:cowboy, "~> 1.0", only: [:test, :dev]},
       {:phoenix, "~> 1.1", only: :test},
       {:phoenix_html, "~> 2.2", only: :test},
       {:excoveralls, "~> 0.4", only: :test},
+      {:floki, "~> 0.8", only: :test},
       {:ex_doc, "~> 0.9", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
       {:httpoison, "~> 0.8"},

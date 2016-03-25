@@ -16,6 +16,6 @@ defmodule Bamboo.LocalAdapterTest do
 
     email |> LocalAdapter.deliver(@config)
 
-    assert SentEmail.all == [email]
+    assert [%Bamboo.Email{subject: "This is my email"}] = SentEmail.all
   end
 end
