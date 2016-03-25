@@ -59,7 +59,13 @@ defmodule Bamboo.MailerTest do
     assert config.deliver_later_strategy == Bamboo.TaskSupervisorStrategy
   end
 
-  test "deliver/1 calls the adapter with the email and config as a map" do
+  test "deliver/1 raises a helpful error message" do
+    assert_raise RuntimeError, ~r/Use deliver_now/, fn ->
+      FooMailer.deliver(:anything)
+    end
+  end
+
+  test "deliver_now/1 calls the adapter with the email and config as a map" do
     email = new_email(to: "foo@bar.com")
 
     returned_email = FooMailer.deliver_now(email)
@@ -71,7 +77,7 @@ defmodule Bamboo.MailerTest do
     assert config == config_with_default_strategy
   end
 
-  test "deliver/1 with no from address" do
+  test "deliver_now/1 with no from address" do
     email = new_email(from: nil)
 
     assert_raise Bamboo.EmptyFromAddressError, fn ->
@@ -79,7 +85,7 @@ defmodule Bamboo.MailerTest do
     end
   end
 
-  test "deliver/1 with empty lists for recipients does not deliver email" do
+  test "deliver_now/1 with empty lists for recipients does not deliver email" do
     new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver_now
     refute_received {:deliver, _, _}
 
@@ -116,7 +122,7 @@ defmodule Bamboo.MailerTest do
     assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
   end
 
-  test "deliver/1 wraps the recipients in a list" do
+  test "deliver_now/1 wraps the recipients in a list" do
     address = {"Someone", "foo@bar.com"}
     email = new_email(to: address, cc: address, bcc: address)
 
@@ -128,7 +134,7 @@ defmodule Bamboo.MailerTest do
     assert delivered_email.bcc == [address]
   end
 
-  test "deliver/1 converts binary addresses to %{name: name, email: email}" do
+  test "deliver_now/1 converts binary addresses to %{name: name, email: email}" do
     address = "foo@bar.com"
     email = new_email(from: address, to: address, cc: address, bcc: address)
 

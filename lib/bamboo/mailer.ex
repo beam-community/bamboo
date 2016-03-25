@@ -67,6 +67,14 @@ defmodule Bamboo.Mailer do
       def deliver_later(email) do
         Bamboo.Mailer.deliver_later(@adapter, email, @config)
       end
+
+      def deliver(_email) do
+        raise """
+        you called deliver/1, but it has been renamed to deliver_now/1 to add clarity.
+
+        Use deliver_now/1 to send right away, or deliver_later/1 to send in the background.
+        """
+      end
     end
   end
 
