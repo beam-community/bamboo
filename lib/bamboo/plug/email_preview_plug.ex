@@ -5,7 +5,7 @@ defmodule Bamboo.EmailPreviewPlug do
   @moduledoc """
   A plug that can be used in your router to see delivered emails.
 
-  This plug allows you to view all deliver emails. To see emails you must use
+  This plug allows you to view all delivered emails. To see emails you must use
   the `Bamboo.LocalAdapter`.
 
   ## Using with Plug or Phoenix
