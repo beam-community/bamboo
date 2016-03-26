@@ -137,7 +137,7 @@ The from, to, cc and bcc addresses can be passed a string, or a 2 item tuple.
 Sometimes doing this can be a pain though. What happens if you try to send to a list of users? You'd have to do something like this for every email:
 
 ```elixir
-# Where users looks like [%User{name: "John", email: "john@gmail.com"}]
+# This stinks. Do you want to do this every time you send you create a new email?
 users = for user <- users do
   {user.name, user.email}
 end
@@ -145,7 +145,7 @@ end
 new_email(to: users)
 ```
 
-To help with this, Bamboo has a `Bamboo.Formatter` protocol.
+To circumvent this, Bamboo has a `Bamboo.Formatter` protocol.
 See the [Bamboo.Email] and [Bamboo.Formatter docs] for more info and examples.
 
 [Bamboo.Email]: https://hexdocs.pm/bamboo/Bamboo.Email.html
