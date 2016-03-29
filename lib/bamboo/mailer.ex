@@ -41,7 +41,7 @@ defmodule Bamboo.Mailer do
         def register_user do
           # Create a user and whatever else is needed
           # Could also have called Mailer.deliver_later
-          Email.welcome_email |> Mailer.deliver
+          Email.welcome_email |> Mailer.deliver_now
         end
       end
   """
