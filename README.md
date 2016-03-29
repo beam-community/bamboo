@@ -46,6 +46,38 @@ config :my_app, MyApp.Mailer,
 [bamboo-sendgrid]: https://github.com/mtwilliams/bamboo-sendgrid
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
 
+
+## Installation
+
+1. Add bamboo to your list of dependencies in `mix.exs`:
+
+  ```elixir
+  def deps do
+    # Get from hex
+    [{:bamboo, "~> 0.4"}]
+    # Or use the latest from master
+    [{:bamboo, github: "paulcsmith/bamboo"}]
+  end
+  ```
+
+2. Ensure bamboo is started before your application:
+
+  ```elixir
+  def application do
+    [applications: [:bamboo]]
+  end
+  ```
+
+3. Add the the `Bamboo.TaskSupervisor` as a child to your supervisor. This is necessary for `deliver_later` to work.
+
+  ```elixir
+  # Usually in lib/my_app_name.ex
+  children = [
+    # This is where you add the supervisor that handles deliver_later calls
+    Bamboo.TaskSupervisorStrategy.child_spec
+  ]
+  ```
+
 ## Getting Started
 
 Bamboo breaks email creation and email sending into two separate modules. This
@@ -203,37 +235,6 @@ See documentation for [Bamboo.Test] for more examples, and remember to use
 Bamboo.TestAdapter.
 
 [Bamboo.Test]: https://hexdocs.pm/bamboo/Bamboo.Test.html
-
-## Installation
-
-1. Add bamboo to your list of dependencies in `mix.exs`:
-
-  ```elixir
-  def deps do
-    # Get from hex
-    [{:bamboo, "~> 0.4"}]
-    # Or use the latest from master
-    [{:bamboo, github: "paulcsmith/bamboo"}]
-  end
-  ```
-
-2. Ensure bamboo is started before your application:
-
-  ```elixir
-  def application do
-    [applications: [:bamboo]]
-  end
-  ```
-
-3. Add the the `Bamboo.TaskSupervisor` as a child to your supervisor. This is necessary for `deliver_later` to work.
-
-  ```elixir
-  # Usually in lib/my_app_name.ex
-  children = [
-    # This is where you add the supervisor that handles deliver_later calls
-    Bamboo.TaskSupervisorStrategy.child_spec
-  ]
-  ```
   
 ## About thoughtbot
 
