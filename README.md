@@ -30,9 +30,9 @@ Refer to other adapters README's for their status and for installation
 instructions. It's also pretty simple to [create your own adapter].
 
 * `Bamboo.MandrillAdapter` - Ships with Bamboo.
+* `Bamboo.SendgridAdapter` - Ships with Bamboo.
 * `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
 * `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
-* `Bamboo.SendgridAdapter` - Check out [bamboo-sendgrid] by @mtwilliams.
 
 To switch adapters, change the config for your mailer
 
@@ -43,7 +43,6 @@ config :my_app, MyApp.Mailer,
 ```
 
 [bamboo]: http://github.com/paulcsmith/bamboo
-[bamboo-sendgrid]: https://github.com/mtwilliams/bamboo-sendgrid
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
 
 
@@ -267,3 +266,7 @@ Once we've decided how to move forward with a pull request:
     $ mix test
 
 Once you've made your additions and `mix test` passes, go ahead and open a PR!
+
+## Thanks!
+
+Thanks to @mtwilliams for an early version of the `SendgridAdapter`.
