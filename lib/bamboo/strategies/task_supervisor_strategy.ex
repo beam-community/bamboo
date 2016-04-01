@@ -5,10 +5,10 @@ defmodule Bamboo.TaskSupervisorStrategy do
   @moduledoc """
   Default strategy. Sends an email in the background using Task.Supervisor
 
-  This is the default strategy because it is the simplest to get started with.
-  This strategy uses a Task.Supervisor to monitor the delivery. Deliveries that
-  fail will raise, but will not be retried, and will not bring down the calling
-  process.
+  This is the default strategy when calling `deliver_later` because it is the
+  simplest to get started with. This strategy uses a Task.Supervisor to monitor
+  the delivery. Deliveries that fail will raise, but will not be retried, and
+  will not bring down the calling process.
 
   To use this strategy, the `Bamboo.TaskSupervisor` must be added to your
   supervisor. See the docs for `child_spec/0` or check out the installation

@@ -2,8 +2,14 @@ defmodule Bamboo.Mailer do
   @moduledoc """
   Sets up mailers that make it easy to configure and swap adapters.
 
-  Adds `deliver/1` and `deliver_later/1` functions to the mailer module it is used by.
-  Bamboo ships with `Bamboo.MandrillAdapter`, `Bamboo.LocalAdapter` and `Bamboo.TestAdapter`.
+  Adds `deliver_now/1` and `deliver_later/1` functions to the mailer module it is used by.
+
+  ## Bamboo ships with the following adapters
+
+  * `Bamboo.MandrillAdapter`
+  * `Bamboo.LocalAdapter`
+  * `Bamboo.TestAdapter`
+  * or create your own with `Bamboo.Adapter`
 
   ## Example
 
@@ -14,7 +20,7 @@ defmodule Bamboo.Mailer do
 
       # Somewhere in your application. Maybe lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
-        # Adds deliver/1 and deliver_later/1
+        # Adds deliver_now/1 and deliver_later/1
         use Bamboo.Mailer, otp_app: :my_app
       end
 
@@ -45,8 +51,13 @@ defmodule Bamboo.Mailer do
         end
       end
   """
-  require Logger
 
+  @cannot_call_directly_error """
+  cannot call Bamboo.Mailer directly. Instead implement your own Mailer module
+  with: use Bamboo.Mailer, otp_app: :my_app
+  """
+
+  require Logger
   alias Bamboo.Formatter
 
   defmacro __using__(opts) do
@@ -72,6 +83,29 @@ defmodule Bamboo.Mailer do
         """
       end
     end
+  end
+
+  @doc """
+  Deliver an email right away
+
+  Call your mailer with `deliver_now/1` to send an email right away. Call
+  `deliver_later/1` if you want to send in the background to speed things up.
+  """
+  def deliver_now(_email) do
+    raise @cannot_call_directly_error
+  end
+
+  @doc """
+  Deliver an email in the background
+
+  Call your mailer with `deliver_later/1` to send an email using the configured
+  `deliver_later_strategy`. If no `deliver_later_strategy` is set,
+  `Bamboo.TaskSupervisorStrategy` will be used. See
+  `Bamboo.DeliverLaterStrategy` to learn how to change how emails are delivered
+  with `deliver_later/1`.
+  """
+  def deliver_later(_email) do
+    raise @cannot_call_directly_error
   end
 
   @doc false

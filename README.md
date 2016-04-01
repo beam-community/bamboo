@@ -185,7 +185,9 @@ See the [Bamboo.Email] and [Bamboo.Formatter docs] for more info and examples.
 
 ## Using Phoenix Views and Layouts
 
-Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can use Phoenix views and layouts with Bamboo. See [Bamboo.Phoenix](https://hexdocs.pm/bamboo/Bamboo.Phoenix.html)
+Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can
+use Phoenix views and layouts with Bamboo. See
+[Bamboo.Phoenix](https://hexdocs.pm/bamboo/Bamboo.Phoenix.html)
 
 ## Previewing Sent Emails
 
@@ -197,11 +199,14 @@ See [Bamboo.EmailPreviewPlug](https://hexdocs.pm/bamboo/Bamboo.EmailPreviewPlug.
 
 ## Mandrill Specific Functionality (tags, merge vars, etc.)
 
-Mandrill offers extra features on top of regular SMTP email like tagging, merge vars, and scheduling emails to send in the future. See [Bamboo.MandrillHelper](https://hexdocs.pm/bamboo/Bamboo.MandrillHelper.html).
+Mandrill offers extra features on top of regular SMTP email like tagging, merge
+vars, and scheduling emails to send in the future. See
+[Bamboo.MandrillHelper](https://hexdocs.pm/bamboo/Bamboo.MandrillHelper.html).
 
 ## Testing
 
-You can use the Bamboo.TestAdapter along with [Bamboo.Test] to make testing your emails a piece of cake.
+You can use the Bamboo.TestAdapter along with [Bamboo.Test] to make testing your
+emails straightforward.
 
 ```elixir
 # Using the mailer from the Getting Started section
@@ -235,7 +240,7 @@ See documentation for [Bamboo.Test] for more examples, and remember to use
 Bamboo.TestAdapter.
 
 [Bamboo.Test]: https://hexdocs.pm/bamboo/Bamboo.Test.html
-  
+
 ## About thoughtbot
 
 ![thoughtbot](https://thoughtbot.com/logo.png)

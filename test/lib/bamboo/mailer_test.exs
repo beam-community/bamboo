@@ -184,6 +184,18 @@ defmodule Bamboo.MailerTest do
     end
   end
 
+  test "raises an error if deliver_now or deliver_later is called directly" do
+    email = new_email(from: %{foo: :bar})
+
+    assert_raise RuntimeError, ~r/cannot call Bamboo.Mailer/, fn ->
+      Bamboo.Mailer.deliver_now(email)
+    end
+
+    assert_raise RuntimeError, ~r/cannot call Bamboo.Mailer/, fn ->
+      Bamboo.Mailer.deliver_later(email)
+    end
+  end
+
   defp new_email(attrs \\ []) do
     attrs = Keyword.merge([from: "foo@bar.com", to: "foo@bar.com"], attrs)
     Email.new_email(attrs)

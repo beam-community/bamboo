@@ -1,12 +1,15 @@
 defmodule Bamboo.DeliverLaterStrategy do
   @moduledoc """
-  Behaviour for creating strategies for delivering emails with deliver_later
+  Behaviour for delivering emails with `Bamboo.Mailer.deliver_later/1`
 
   Use this behaviour to create strategies for delivering later. You could make a
   strategy using a GenServer, a background job library or whatever else you
-  decide. Bamboo ships with two strategies:
-  `Bamboo.TaskSupervisorStrategy` and
-  `Bamboo.ImmediateDeliveryStrategy`.
+  decide.
+
+  ## Bamboo ships with two strategies:
+
+  * `Bamboo.TaskSupervisorStrategy`
+  * `Bamboo.ImmediateDeliveryStrategy`
 
   ## Example of setting custom strategies
 
@@ -14,7 +17,7 @@ defmodule Bamboo.DeliverLaterStrategy do
         adapter: Bamboo.MandrillAdapter, # or whatever adapter you want
         deliver_later_strategy: MyCustomStrategy
 
-  ## Example of delivering later using Task.async
+  ## Example of creating a custom strategy for delivering later using Task.async
 
       defmodule Bamboo.TaskAsyncStrategy do
         @behaviour Bamboo.DeliverLaterStrategy
