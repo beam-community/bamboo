@@ -1,3 +1,16 @@
+## 0.4.2
+
+### New Additions
+
+* Add Bamboo.SendgridAdapter
+* Improve and update docs
+
+## 0.4.1
+
+### New Additions
+
+* Improve docs
+
 ## 0.4.0
 
 ### New Additions

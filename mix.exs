@@ -5,7 +5,7 @@ defmodule Bamboo.Mixfile do
 
   def project do
     [app: :bamboo,
-     version: "0.4.1",
+     version: "0.4.2",
      elixir: "~> 1.2",
      source_url: @project_url,
      homepage_url: @project_url,
