@@ -42,7 +42,7 @@ config :my_app, MyApp.Mailer,
   adapter: Bamboo.LocalAdapter
 ```
 
-[bamboo]: http://github.com/paulcsmith/bamboo
+[bamboo]: https://github.com/thoughtbot/bamboo
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
 
 
