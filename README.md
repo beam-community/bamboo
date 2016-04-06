@@ -9,9 +9,9 @@ Flexible and easy to use email for Elixir.
 * **Deliver emails in the background**. Most of the time you don't want or need to wait for the email to send. Bamboo makes it easy with Mailer.deliver_later
 * **Easy to format recipients**. You can do `new_email(to: Repo.one(User))` and Bamboo can format the User struct if you implement Bamboo.Formatter.
 * **Works out of the box with Phoenix**. Use views and layouts to make rendering email easy.
-* **Very composable**. Emails are just a Bamboo.Email struct and be manipulated with plain functions.
+* **Very composable**. Emails are just a Bamboo.Email struct and can be manipulated with plain functions.
 * **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
-* **Easy to test delivery in integration tests**. Helpers are provided to make testing a easy and robust.
+* **Easy to test delivery in integration tests**. Helpers are provided to make testing easy and robust.
 * **Preview sent emails during development**. Bamboo comes with a plug that can be used in your router to preview sent emails.
 
 See the [docs] for the most up to date information.
