@@ -20,7 +20,7 @@ defmodule Bamboo.SendgridAdapterTest do
       Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
       Agent.update(__MODULE__, &HashDict.put(&1, :parent, parent))
       Application.put_env(:bamboo, :sendgrid_base_uri, "http://localhost:4002")
-      Plug.Adapters.Cowboy.http __MODULE__, [], port: 4002
+      Plug.Adapters.Cowboy.http __MODULE__, [], port: 4002, ref: __MODULE__
     end
 
     def shutdown do

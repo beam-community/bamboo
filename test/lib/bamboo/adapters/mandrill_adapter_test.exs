@@ -21,7 +21,7 @@ defmodule Bamboo.MandrillAdapterTest do
       Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
       Agent.update(__MODULE__, &HashDict.put(&1, :parent, parent))
       Application.put_env(:bamboo, :mandrill_base_uri, "http://localhost:4001")
-      Plug.Adapters.Cowboy.http __MODULE__, [], port: 4001
+      Plug.Adapters.Cowboy.http __MODULE__, [], port: 4001, ref: __MODULE__
     end
 
     def shutdown do
