@@ -21,7 +21,11 @@ defmodule Bamboo.TestAdapter do
 
   @doc false
   def deliver(email, _config) do
-    send self(), {:delivered_email, email}
+    send test_process, {:delivered_email, email}
+  end
+
+  defp test_process do
+    Application.get_env(:bamboo, :test_process_name) || self()
   end
 
   def handle_config(config) do
