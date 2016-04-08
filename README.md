@@ -23,18 +23,16 @@ less than exceptional, or you just need some help, please open an issue.
 
 ## Adapters
 
-The official Bamboo adapter is for Mandrill, but there are other adapters as well.
-
-The Bamboo.MandrillAdapter **is being used in production** and has had no issues.
-Refer to other adapters README's for their status and for installation
-instructions. It's also pretty simple to [create your own adapter].
+The Bamboo.MandrillAdapter and Bamboo.SendgridAdapter **are being used in production** 
+and have had no issues. It's also pretty simple to [create your own adapter]. Feel free
+to open an issue or a PR if you'd like to add a new adapter to the list.
 
 * `Bamboo.MandrillAdapter` - Ships with Bamboo.
 * `Bamboo.SendgridAdapter` - Ships with Bamboo.
 * `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
 * `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
 
-To switch adapters, change the config for your mailer
+To switch adapters, change the config for your mailer:
 
 ```elixir
 # In your config file
