@@ -22,4 +22,16 @@ defmodule Bamboo.MultiProcessTest do
 
     assert_delivered_email email
   end
+
+  test "refute_delivered_email with process_name set and with refute_timeout blank, raises an error" do
+    assert_raise RuntimeError, ~r/set a timeout/, fn ->
+      refute_delivered_email new_email(from: "someone")
+    end
+  end
+
+  test "assert_no_emails_delivered with process_name set and with refute_timeout blank, raises an error" do
+    assert_raise RuntimeError, ~r/set a timeout/, fn ->
+      assert_no_emails_delivered
+    end
+  end
 end
