@@ -20,8 +20,16 @@ defmodule Bamboo.MandrillAdapterTest do
     def start_server(parent) do
       Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
       Agent.update(__MODULE__, &HashDict.put(&1, :parent, parent))
-      Application.put_env(:bamboo, :mandrill_base_uri, "http://localhost:4001")
-      Plug.Adapters.Cowboy.http __MODULE__, [], port: 4001, ref: __MODULE__
+      port = get_free_port
+      Application.put_env(:bamboo, :mandrill_base_uri, "http://localhost:#{port}")
+      Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
+    end
+
+    defp get_free_port do
+      {:ok, socket} = :ranch_tcp.listen(port: 0)
+      {:ok, port} = :inet.port(socket)
+      :erlang.port_close(socket)
+      port
     end
 
     def shutdown do
