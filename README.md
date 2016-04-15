@@ -23,7 +23,7 @@ less than exceptional, or you just need some help, please open an issue.
 
 ## Adapters
 
-The Bamboo.MandrillAdapter and Bamboo.SendgridAdapter **are being used in production** 
+The Bamboo.MandrillAdapter and Bamboo.SendgridAdapter **are being used in production**
 and have had no issues. It's also pretty simple to [create your own adapter]. Feel free
 to open an issue or a PR if you'd like to add a new adapter to the list.
 
@@ -42,7 +42,6 @@ config :my_app, MyApp.Mailer,
 
 [bamboo]: http://github.com/thoughtbot/bamboo
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
-
 
 ## Installation
 
@@ -258,7 +257,7 @@ Before opening a pull request, please open an issue first.
 
 Once we've decided how to move forward with a pull request:
 
-    $ git clone https://github.com/paulcsmith/bamboo.git
+    $ git clone https://github.com/thoughtbot/bamboo.git
     $ cd bamboo
     $ mix deps.get
     $ mix test
