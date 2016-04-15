@@ -14,9 +14,11 @@ defmodule Bamboo.Phoenix do
 
         def text_and_html_email_with_layout do
           new_email()
-          # You could also only set a layout for just html, or just text
-          |> put_html_layout({MyApp.LayoutView, "email.html"})
-          |> put_text_layout({MyApp.LayoutView, "email.text"})
+          # You could set just a text layout or just an html layout
+          |> put_text_layout
+          |> put_html_layout
+          # Or you can set a layout for both html and text at the same time
+          |> put_layout
           # Pass an atom to render html AND plain text templates
           |> render(:text_and_html_email)
         end
@@ -98,9 +100,16 @@ defmodule Bamboo.Phoenix do
     raise "function implemented for documentation only, please call: use Bamboo.Phoenix"
   end
 
-
   @doc """
   Sets the layout when rendering HTML templates
+
+  ## Example
+
+      def html_email_layout do
+        new_email
+        # Will use MyApp.LayoutView with email.html layout when rendering html emails
+        |> put_html_layout({MyApp.LayoutView, "email.html"})
+      end
   """
   def put_html_layout(email, layout) do
     email |> put_private(:html_layout, layout)
@@ -108,9 +117,35 @@ defmodule Bamboo.Phoenix do
 
   @doc """
   Sets the layout when rendering plain text templates
+
+  ## Example
+
+      def text_email_layout do
+        new_email
+        # Will use MyApp.LayoutView with email.text layout when rendering text emails
+        |> put_text_layout({MyApp.LayoutView, "email.text"})
+      end
   """
   def put_text_layout(email, layout) do
     email |> put_private(:text_layout, layout)
+  end
+
+  @doc """
+  Sets the layout for rendering plain text and HTML templates
+
+  ## Example
+
+      def text_and_html_email_layout do
+        new_email
+        # Will use MyApp.LayoutView with the email.html template for html emails
+        # Will use MyApp.LayoutView with the text.html template for text emails
+        |> put_layout({MyApp.LayoutView, :email})
+      end
+  """
+  def put_layout(email, {layout, template}) do
+    email
+    |> put_text_layout({layout, to_string(template) <> ".text"})
+    |> put_html_layout({layout, to_string(template) <> ".html"})
   end
 
   @doc """

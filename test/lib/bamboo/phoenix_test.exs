@@ -14,8 +14,7 @@ defmodule Bamboo.PhoenixTest do
 
     def text_and_html_email_with_layout do
       new_email()
-      |> put_html_layout({LayoutView, "app.html"})
-      |> put_text_layout({LayoutView, "app.text"})
+      |> put_layout({LayoutView, :app})
       |> render(:text_and_html_email)
     end
 
