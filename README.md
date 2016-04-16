@@ -129,7 +129,7 @@ By default delivering later uses [`Bamboo.TaskSupervisorStrategy`](https://hexdo
 
 If you need something more custom you can
 can create a strategy with [Bamboo.DeliverLaterStrategy](https://hex.pm/packages/bamboo). For example, you could create strategies
-for adding emails to a background processing queue such as [exq](https://github.com/akira/exq/tree/master/test) or [toniq](https://github.com/joakimk/toniq).
+for adding emails to a background processing queue such as [exq](https://github.com/akira/exq) or [toniq](https://github.com/joakimk/toniq).
 
 [Bamboo.DeliverLaterStrategy]: https://hexdocs.pm/bamboo/Bamboo.DeliverLaterStrategy.html
 
