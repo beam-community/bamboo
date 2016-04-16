@@ -10,6 +10,5 @@ dependencies:
     - mix local.rebar
 test:
   override:
-    - mix coveralls.circle
     - mix test
     - MIX_ENV=prod mix compile --warnings-as-errors
