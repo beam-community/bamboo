@@ -81,7 +81,7 @@ defmodule Bamboo.MailgunAdapter do
     ]
   end
 
-  @mailgun_message_fields [:from, :to, :cc, :bcc, :subject, :text, :html]
+  @mailgun_message_fields ~w(from to cc bcc subject text html)a
 
   defp to_mailgun_body(%Email{} = email) do
     email
