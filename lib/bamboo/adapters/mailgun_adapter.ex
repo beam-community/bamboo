@@ -77,8 +77,12 @@ defmodule Bamboo.MailgunAdapter do
   defp headers(config) do
     [
       {"Content-Type", "application/x-www-form-urlencoded"},
-      {"Authorization", "Basic #{Base.encode64(config.api_key)}"},
+      {"Authorization", "Basic #{auth_token(config)}"},
     ]
+  end
+
+  defp auth_token(config) do
+    Base.encode64("api:" <> config.api_key)
   end
 
   @mailgun_message_fields ~w(from to cc bcc subject text html)a
