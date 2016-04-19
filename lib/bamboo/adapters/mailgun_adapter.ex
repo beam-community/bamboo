@@ -94,7 +94,7 @@ defmodule Bamboo.MailgunAdapter do
     |> put_html_body(email)
     |> put_text_body(email)
     |> Map.take(@mailgun_message_fields)
-    |> Enum.filter(fn {_k, v} -> not v in [nil, "", []] end)
+    |> remove_empty_fields
   end
 
   defp combine_name_and_email(map) when is_map(map) do
@@ -114,9 +114,13 @@ defmodule Bamboo.MailgunAdapter do
     end
   end
 
-  defp put_html_body(body, %Email{html_body: html_body}), do: put_in(body[:html], html_body)
+  defp remove_empty_fields(params) do
+    Enum.reject(params, fn {_k, v} -> v in [nil, "", []] end)
+  end
 
-  defp put_text_body(body, %Email{text_body: text_body}), do: put_in(body[:text], text_body)
+  defp put_html_body(body, %Email{html_body: html_body}), do: Map.put(body, :html, html_body)
+
+  defp put_text_body(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
 
   defp full_uri(config) do
     (Application.get_env(:bamboo, :mailgun_base_uri) || @base_uri)

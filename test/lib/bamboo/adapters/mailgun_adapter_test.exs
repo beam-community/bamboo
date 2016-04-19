@@ -99,7 +99,7 @@ defmodule Bamboo.MailgunAdapterTest do
 
     hashed_token  = Base.encode64("api:" <> @config.api_key)
 
-    assert Enum.member?(headers, {"authorization", "Basic #{hashed_token}"})
+    assert {"authorization", "Basic #{hashed_token}"} in headers
   end
 
   test "deliver/2 correctly formats recipients" do
