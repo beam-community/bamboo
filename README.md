@@ -23,7 +23,7 @@ less than exceptional, or you just need some help, please open an issue.
 
 ## Adapters
 
-The Bamboo.MandrillAdapter and Bamboo.SendgridAdapter **are being used in production** 
+The Bamboo.MandrillAdapter and Bamboo.SendgridAdapter **are being used in production**
 and have had no issues. It's also pretty simple to [create your own adapter]. Feel free
 to open an issue or a PR if you'd like to add a new adapter to the list.
 
@@ -43,7 +43,6 @@ config :my_app, MyApp.Mailer,
 [bamboo]: http://github.com/thoughtbot/bamboo
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
 
-
 ## Installation
 
 1. Add bamboo to your list of dependencies in `mix.exs`:
@@ -53,7 +52,7 @@ config :my_app, MyApp.Mailer,
     # Get from hex
     [{:bamboo, "~> 0.4"}]
     # Or use the latest from master
-    [{:bamboo, github: "paulcsmith/bamboo"}]
+    [{:bamboo, github: "thoughtbot/bamboo"}]
   end
   ```
 
@@ -130,7 +129,7 @@ By default delivering later uses [`Bamboo.TaskSupervisorStrategy`](https://hexdo
 
 If you need something more custom you can
 can create a strategy with [Bamboo.DeliverLaterStrategy](https://hex.pm/packages/bamboo). For example, you could create strategies
-for adding emails to a background processing queue such as [exq](https://github.com/akira/exq/tree/master/test) or [toniq](https://github.com/joakimk/toniq).
+for adding emails to a background processing queue such as [exq](https://github.com/akira/exq) or [toniq](https://github.com/joakimk/toniq).
 
 [Bamboo.DeliverLaterStrategy]: https://hexdocs.pm/bamboo/Bamboo.DeliverLaterStrategy.html
 
@@ -258,7 +257,7 @@ Before opening a pull request, please open an issue first.
 
 Once we've decided how to move forward with a pull request:
 
-    $ git clone https://github.com/paulcsmith/bamboo.git
+    $ git clone https://github.com/thoughtbot/bamboo.git
     $ cd bamboo
     $ mix deps.get
     $ mix test
