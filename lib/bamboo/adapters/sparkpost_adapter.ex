@@ -115,12 +115,12 @@ defmodule Bamboo.SparkpostAdapter do
     Map.delete(headers, "Reply-To")
   end
 
-  defp add_message_params(mandrill_message, %{private: %{message_params: message_params}}) do
-    Enum.reduce(message_params, mandrill_message, fn({key, value}, mandrill_message) ->
-      Map.put(mandrill_message, key, value)
+  defp add_message_params(sparkpost_message, %{private: %{message_params: message_params}}) do
+    Enum.reduce(message_params, sparkpost_message, fn({key, value}, sparkpost_message) ->
+      Map.put(sparkpost_message, key, value)
     end)
   end
-  defp add_message_params(mandrill_message, _), do: mandrill_message
+  defp add_message_params(sparkpost_message, _), do: sparkpost_message
 
   defp recipients(email) do
     []
@@ -157,6 +157,6 @@ defmodule Bamboo.SparkpostAdapter do
   end
 
   defp base_uri do
-    Application.get_env(:bamboo, :mandrill_base_uri) || @default_base_uri
+    Application.get_env(:bamboo, :sparkpost_base_uri) || @default_base_uri
   end
 end

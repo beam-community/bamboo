@@ -2,6 +2,7 @@ defmodule Bamboo.SparkpostAdapterTest do
   use ExUnit.Case
   alias Bamboo.Email
   alias Bamboo.SparkpostAdapter
+  alias Bamboo.SparkpostHelper
 
   @config %{adapter: SparkpostAdapter, api_key: "123_abc"}
   @config_with_bad_key %{adapter: SparkpostAdapter, api_key: nil}
@@ -21,7 +22,7 @@ defmodule Bamboo.SparkpostAdapterTest do
       Agent.update(__MODULE__, &HashDict.put(&1, :parent, parent))
       port = get_free_port
 
-      Application.put_env(:bamboo, :mandrill_base_uri, "http://localhost:#{port}")
+      Application.put_env(:bamboo, :sparkpost_base_uri, "http://localhost:#{port}")
       Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
     end
 
@@ -45,7 +46,7 @@ defmodule Bamboo.SparkpostAdapterTest do
 
     defp send_to_parent(conn) do
       parent = Agent.get(__MODULE__, fn(set) -> HashDict.get(set, :parent) end)
-      send parent, {:fake_mandrill, conn}
+      send parent, {:fake_sparkpost, conn}
       conn
     end
   end
@@ -73,7 +74,7 @@ defmodule Bamboo.SparkpostAdapterTest do
   test "deliver/2 sends the to the right url" do
     new_email |> SparkpostAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{request_path: request_path}}
+    assert_receive {:fake_sparkpost, %{request_path: request_path}}
 
     assert request_path == "/api/v1/transmissions"
   end
@@ -89,7 +90,7 @@ defmodule Bamboo.SparkpostAdapterTest do
 
     email |> SparkpostAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: params}=conn}
+    assert_receive {:fake_sparkpost, %{params: params}=conn}
     assert Plug.Conn.get_req_header(conn, "content-type") == ["application/json"]
     assert Plug.Conn.get_req_header(conn, "authorization") == [@config[:api_key]]
 
@@ -112,13 +113,22 @@ defmodule Bamboo.SparkpostAdapterTest do
 
     email |> SparkpostAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: %{"recipients" => recipients, "content" => %{"headers" => headers}}}}
+    assert_receive {:fake_sparkpost, %{params: %{"recipients" => recipients, "content" => %{"headers" => headers}}}}
     assert recipients == [
       %{"address" => %{"name" => "To", "email" => "to@bar.com"}},
       %{"address" => %{"name" => "CC", "email" => "cc@bar.com", "header_to" => "to@bar.com"}},
       %{"address" => %{"name" => "BCC", "email" => "bcc@bar.com", "header_to" => "to@bar.com"}},
     ]
     assert headers["CC"] == "cc@bar.com"
+  end
+
+  test "deliver/2 adds extra params to the message " do
+    email = new_email |> SparkpostHelper.mark_transactional
+
+    email |> SparkpostAdapter.deliver(@config)
+
+    assert_receive {:fake_sparkpost, %{params: params}}
+    assert params["options"] == %{"transactional" => true}
   end
 
   test "raises if the response is not a success" do
