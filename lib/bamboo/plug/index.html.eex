@@ -140,8 +140,8 @@
             href="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(email)}" %>">
             <span class="email-summary-subject truncate"><%= email.subject %></span>
             <span class="email-summary-recipients truncate">
-              <%= Bamboo.Email.get_address(@selected_email.from) %>
-              to <%= Bamboo.EmailPreviewPlug.Helper.email_addresses(@selected_email) %>
+              <%= Bamboo.Email.get_address(email.from) %>
+              to <%= Bamboo.EmailPreviewPlug.Helper.email_addresses(email) %>
             </span>
             <span class="email-summary-body-excerpt"><%= email.text_body %></span>
           </a>
