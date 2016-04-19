@@ -32,6 +32,7 @@ defmodule Bamboo.EmailPreviewTest do
     for email <- emails do
       assert Floki.raw_html(sidebar(conn)) =~ ~s(href="/sent_emails/foo/#{SentEmail.get_id(email)}")
       assert Floki.text(sidebar(conn)) =~ email.subject
+      assert Floki.text(sidebar(conn)) =~ Bamboo.Email.get_address(email.from)
     end
   end
 
