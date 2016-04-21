@@ -150,7 +150,7 @@ defmodule Bamboo.Email do
 
   ## Examples
 
-    Bamboo.Email.get_address({"Paul", "paul@thoughtbot.com"}) # "paul@thoughtbot.com"
+      Bamboo.Email.get_address({"Paul", "paul@thoughtbot.com"}) # "paul@thoughtbot.com"
   """
   @spec get_address(address) :: String.t | no_return
   def get_address({_name, address}), do: address
