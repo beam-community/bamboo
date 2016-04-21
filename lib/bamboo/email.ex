@@ -111,7 +111,7 @@ defmodule Bamboo.Email do
   Returns a list of all recipients (to, cc and bcc).
   """
   def all_recipients(%Bamboo.Email{to: to, cc: cc, bcc: bcc} = email)
-  when is_list(to) and is_list(cc) and is_list(bcc) do
+      when is_list(to) and is_list(cc) and is_list(bcc) do
     email.to ++ email.cc ++ email.bcc
   end
 
