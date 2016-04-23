@@ -166,7 +166,7 @@ The from, to, cc and bcc addresses can be passed a string, or a 2 item tuple.
 Sometimes doing this can be a pain though. What happens if you try to send to a list of users? You'd have to do something like this for every email:
 
 ```elixir
-# This stinks. Do you want to do this every time you send you create a new email?
+# This stinks. Do you want to do this every time you create a new email?
 users = for user <- users do
   {user.name, user.email}
 end
