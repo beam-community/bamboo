@@ -82,8 +82,35 @@ defmodule Bamboo.SMTPAdapter do
     add_smtp_body_line(body, :cc, format_email(recipients, :cc))
   end
 
+  defp add_ending_header(body) do
+    body <> "\r\n"
+  end
+
+  defp add_ending_multipart(body, delimiter) do
+    body <> "--" <> delimiter <> "--\r\n"
+  end
+
+  defp add_html_body(body, %Bamboo.Email{html_body: html_body}) do
+    body <>
+    "Content-Type: text/html;charset=UTF-8\r\n" <>
+    "Content-ID: html-body\r\n" <>
+    html_body <> "\r\n"
+  end
+
   defp add_from(body, %Bamboo.Email{from: from}) do
     add_smtp_body_line(body, :from, format_email(from, :from))
+  end
+
+  defp add_mime_header(body) do
+    body <> "MIME-Version: 1.0\r\n"
+  end
+
+  def add_multipart_delimiter(body, delimiter) do
+    body <> "--" <> delimiter <> "\r\n"
+  end
+
+  defp add_multipart_header(body, delimiter) do
+    body <> ~s(Content-Type: multipart/alternative; boundary="#{delimiter}"\r\n)
   end
 
   defp add_smtp_body_line(body, type, content) when is_list(content) do
@@ -93,16 +120,15 @@ defmodule Bamboo.SMTPAdapter do
     body <> String.capitalize(to_string(type)) <> ": " <> content <> "\r\n"
   end
 
-  defp add_html_body(body, %Bamboo.Email{html_body: _html_body}) do
-    body
-  end
-
   defp add_subject(body, %Bamboo.Email{subject: subject}) do
     add_smtp_body_line(body, :subject, subject)
   end
 
   defp add_text_body(body, %Bamboo.Email{text_body: text_body}) do
-    body <> "\r\n" <> text_body
+    body <>
+    "Content-Type: text/plain;charset=UTF-8\r\n" <>
+    "Content-ID: text-body\r\n" <>
+    text_body <> "\r\n"
   end
 
   defp add_to(body, %Bamboo.Email{to: recipients}) do
@@ -120,15 +146,25 @@ defmodule Bamboo.SMTPAdapter do
     Map.put_new(config, key, default_value)
   end
 
+  defp generate_multi_part_delimiter, do: "----=_Part_123456789_987654321.192837465"
+
   defp body(%Bamboo.Email{} = email) do
+    multi_part_delimiter = generate_multi_part_delimiter
+
     ""
     |> add_subject(email)
     |> add_from(email)
     |> add_bcc(email)
     |> add_cc(email)
     |> add_to(email)
+    |> add_mime_header
+    |> add_multipart_header(multi_part_delimiter)
+    |> add_ending_header
+    |> add_multipart_delimiter(multi_part_delimiter)
     |> add_text_body(email)
+    |> add_multipart_delimiter(multi_part_delimiter)
     |> add_html_body(email)
+    |> add_ending_multipart(multi_part_delimiter)
   end
 
   defp build_error({:ok, _value}, _key, errors), do: errors
@@ -188,10 +224,9 @@ defmodule Bamboo.SMTPAdapter do
     """
   end
 
-  defp to(%Bamboo.Email{to: to, cc: cc, bcc: bcc}) do
-    to
-    |> Enum.into(cc)
-    |> Enum.into(bcc)
+  defp to(%Bamboo.Email{} = email) do
+    email
+    |> Bamboo.Email.all_recipients
     |> format_email(:to)
   end
 
