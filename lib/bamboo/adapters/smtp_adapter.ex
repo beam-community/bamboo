@@ -75,15 +75,15 @@ defmodule Bamboo.SMTPAdapter do
   end
 
   defp add_bcc(body, %Bamboo.Email{bcc: recipients}) do
-    add_smtp_body_line(body, :bcc, format_email(recipients, :bcc))
+    add_smtp_header_line(body, :bcc, format_email(recipients, :bcc))
   end
 
   defp add_cc(body, %Bamboo.Email{cc: recipients}) do
-    add_smtp_body_line(body, :cc, format_email(recipients, :cc))
+    add_smtp_header_line(body, :cc, format_email(recipients, :cc))
   end
 
   defp add_custom_header(body, {key, value}) do
-    body <> key <> ": " <> value <> "\r\n"
+    add_smtp_header_line(body, key, value)
   end
 
   defp add_custom_headers(body, %Bamboo.Email{headers: headers}) do
@@ -91,56 +91,61 @@ defmodule Bamboo.SMTPAdapter do
   end
 
   defp add_ending_header(body) do
-    body <> "\r\n"
+    add_smtp_line(body, "")
   end
 
   defp add_ending_multipart(body, delimiter) do
-    body <> "--" <> delimiter <> "--\r\n"
+    add_smtp_line(body, "--#{delimiter}--")
   end
 
   defp add_html_body(body, %Bamboo.Email{html_body: html_body}) do
-    body <>
-    "Content-Type: text/html;charset=UTF-8\r\n" <>
-    "Content-ID: html-body\r\n" <>
-    html_body <> "\r\n"
+    body
+    |> add_smtp_header_line("Content-Type", "text/html;charset=UTF-8")
+    |> add_smtp_header_line("Content-ID", "html-body")
+    |> add_smtp_line(html_body)
   end
 
   defp add_from(body, %Bamboo.Email{from: from}) do
-    add_smtp_body_line(body, :from, format_email(from, :from))
+    add_smtp_header_line(body, :from, format_email(from, :from))
   end
 
   defp add_mime_header(body) do
-    body <> "MIME-Version: 1.0\r\n"
+    add_smtp_header_line(body, "MIME-Version", "1.0")
   end
 
   def add_multipart_delimiter(body, delimiter) do
-    body <> "--" <> delimiter <> "\r\n"
+    add_smtp_line(body, "--#{delimiter}")
   end
 
   defp add_multipart_header(body, delimiter) do
-    body <> ~s(Content-Type: multipart/alternative; boundary="#{delimiter}"\r\n)
+    add_smtp_header_line(body, "Content-Type", ~s(multipart/alternative; boundary="#{delimiter}"))
   end
 
-  defp add_smtp_body_line(body, type, content) when is_list(content) do
-    Enum.reduce(content, body, &add_smtp_body_line(&2, type, &1))
+  defp add_smtp_header_line(body, type, content) when is_list(content) do
+    Enum.reduce(content, body, &add_smtp_header_line(&2, type, &1))
   end
-  defp add_smtp_body_line(body, type, content) do
-    body <> String.capitalize(to_string(type)) <> ": " <> content <> "\r\n"
+  defp add_smtp_header_line(body, type, content) when is_atom(type) do
+    add_smtp_header_line(body, String.capitalize(to_string(type)), content)
   end
+  defp add_smtp_header_line(body, type, content) when is_binary(type) do
+    add_smtp_line(body, "#{type}: #{content}")
+  end
+
+  defp add_smtp_line(body, content), do: body <> content <> "\r\n"
 
   defp add_subject(body, %Bamboo.Email{subject: subject}) do
-    add_smtp_body_line(body, :subject, subject)
+    add_smtp_header_line(body, :subject, subject)
   end
 
   defp add_text_body(body, %Bamboo.Email{text_body: text_body}) do
-    body <>
-    "Content-Type: text/plain;charset=UTF-8\r\n" <>
-    "Content-ID: text-body\r\n" <>
-    text_body <> "\r\n"
+    body
+    |> add_smtp_header_line("Content-Type", "text/plain;charset=UTF-8")
+    |> add_smtp_header_line("Content-ID", "text-body")
+    |> add_smtp_line(text_body)
   end
 
   defp add_to(body, %Bamboo.Email{to: recipients}) do
-    add_smtp_body_line(body, :to, format_email(recipients, :to))
+    add_smtp_header_line(body, :to, format_email(recipients, :to))
   end
 
   defp aggregate_errors(config, key, errors) do
