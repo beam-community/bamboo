@@ -103,7 +103,7 @@ defmodule Bamboo.Test do
       setup tags do
         if tags[:async] do
           raise """
-          using shared mode with Bamboo.Test cannot be done for async tests.
+          you cannot use Bamboo.Test shared mode with async tests.
 
           There are a few options, the 1st is the easiest:
 
