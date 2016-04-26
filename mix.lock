@@ -1,4 +1,5 @@
 %{"certifi": {:hex, :certifi, "0.3.0"},
+  "combine": {:hex, :combine, "0.7.0"},
   "cowboy": {:hex, :cowboy, "1.0.4"},
   "cowlib": {:hex, :cowlib, "1.0.2"},
   "earmark": {:hex, :earmark, "0.2.1"},
@@ -7,10 +8,13 @@
   "excoveralls": {:hex, :excoveralls, "0.5.1"},
   "exjsx": {:hex, :exjsx, "3.2.0"},
   "floki": {:hex, :floki, "0.8.0"},
+  "gen_smtp": {:hex, :gen_smtp, "0.9.0"},
+  "gettext": {:hex, :gettext, "0.11.0"},
   "hackney": {:hex, :hackney, "1.4.8"},
   "httpoison": {:hex, :httpoison, "0.8.1"},
   "idna": {:hex, :idna, "1.0.3"},
   "jsx": {:hex, :jsx, "2.6.2"},
+  "mailer": {:hex, :mailer, "1.0.1"},
   "mimerl": {:hex, :mimerl, "1.0.2"},
   "mochiweb_html": {:hex, :mochiweb_html, "2.13.0"},
   "phoenix": {:hex, :phoenix, "1.1.4"},
@@ -18,4 +22,6 @@
   "plug": {:hex, :plug, "1.1.2"},
   "poison": {:hex, :poison, "2.1.0"},
   "ranch": {:hex, :ranch, "1.2.1"},
-  "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.5"}}
+  "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.5"},
+  "timex": {:hex, :timex, "2.1.4"},
+  "tzdata": {:hex, :tzdata, "0.5.7"}}
