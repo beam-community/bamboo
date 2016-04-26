@@ -82,6 +82,14 @@ defmodule Bamboo.SMTPAdapter do
     add_smtp_body_line(body, :cc, format_email(recipients, :cc))
   end
 
+  defp add_custom_header(body, {key, value}) do
+    body <> key <> ": " <> value <> "\r\n"
+  end
+
+  defp add_custom_headers(body, %Bamboo.Email{headers: headers}) do
+    Enum.reduce(headers, body, &add_custom_header(&2, &1))
+  end
+
   defp add_ending_header(body) do
     body <> "\r\n"
   end
@@ -157,6 +165,7 @@ defmodule Bamboo.SMTPAdapter do
     |> add_bcc(email)
     |> add_cc(email)
     |> add_to(email)
+    |> add_custom_headers(email)
     |> add_mime_header
     |> add_multipart_header(multi_part_delimiter)
     |> add_ending_header
