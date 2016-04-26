@@ -13,10 +13,10 @@ defmodule Bamboo.Test do
   ## Note on sending from other processes
 
   If you are sending emails from another process (for example, from inside a
-  Task or GenServer) you may need to use the `process_name` option when using
+  Task or GenServer) you may need to use shared mode when using
   `Bamboo.Test`. See the docs `__using__/1` for an example.
 
-  For most scenarios you will not need the `process_name` option.
+  For most scenarios you will not need shared mode.
 
   ## In your config
 
@@ -82,31 +82,28 @@ defmodule Bamboo.Test do
   checked when using the assertion helpers like `assert_delivered_email/1`.
 
   Sometimes emails don't show up when asserting because you may deliver an email
-  from a _different_ process than the test process. When that happens, set the
-  `process_name`. This will name the test process using `Process.register/2`
-  and set `Bamboo.TestAdapter` to always send to that process. This means
-  that you cannot use `process_name` with async tests.
+  from a _different_ process than the test process. When that happens, turn on
+  shared mode. This will tell `Bamboo.TestAdapter` to always send to the test process.
+  This means that you cannot use shared mode with async tests.
 
   ## Try to use this version first
 
       use Bamboo.Test
 
-  ## And if you are delivering from another process, set `process_name`
+  ## And if you are delivering from another process, set `shared: true`
 
-      # Note: the process name can be whatever you want.
-      use Bamboo.Test, process_name: :name_of_my_test
-
+      use Bamboo.Test, shared: true
 
   Common scenarios for delivering mail from a different process are when you
   send from inside of a Task, GenServer, or are running acceptance tests with a
   headless browser like phantomjs.
   """
-  defmacro __using__(process_name: process_name) do
+  defmacro __using__(shared: true) do
     quote do
       setup tags do
         if tags[:async] do
           raise """
-          passing process_name to Bamboo.Test cannot be done for async tests.
+          using shared mode with Bamboo.Test cannot be done for async tests.
 
           There are a few options, the 1st is the easiest:
 
@@ -115,14 +112,13 @@ defmodule Bamboo.Test do
                delivering from within Task.async or Process.spawn), try using
                Mailer.deliver_later. If you use Mailer.deliver_later without
                spawning another process you can use Bamboo.Test with [async:
-               true] and without the process_name option.
-            3) If you are doing an acceptance test that requires the process_name
-               option, try using a controller test instead. Then see if the test
-               works without the process_name option.
+               true] and without the shared mode.
+            3) If you are writing an acceptance test that requires shared mode,
+               try using a controller test instead. Then see if the test works
+               without shared mode.
           """
         else
-          Application.put_env(:bamboo, :test_process_name, unquote(process_name))
-          Process.register(self, unquote(process_name))
+          Application.put_env(:bamboo, :shared_test_process, self())
         end
 
         :ok
@@ -136,7 +132,7 @@ defmodule Bamboo.Test do
   defmacro __using__(_opts) do
     quote do
       setup tags do
-        Application.delete_env(:bamboo, :test_process_name)
+        Application.delete_env(:bamboo, :shared_test_process)
 
         :ok
       end
@@ -185,10 +181,10 @@ defmodule Bamboo.Test do
 
         1) Make sure you call deliver_now/1 or deliver_later/1 to deliver the email
         2) Make sure you are using the Bamboo.TestAdapter
-        3) Use the process_name feature of Bamboo.Test. This will allow Bamboo.Test
-           to work across processes: use Bamboo.Test, process_name: :my_test_name
+        3) Use shared mode with Bamboo.Test. This will allow Bamboo.Test
+           to work across processes: use Bamboo.Test, shared: :true
         4) If you are writing an acceptance test through a headless browser, use
-           the process_name feature described in option 3.
+           shared mode as described in option 3.
       """
     else
       flunk """
@@ -224,8 +220,8 @@ defmodule Bamboo.Test do
   @doc """
   Checks that no emails were sent.
 
-  If used with the process_name feature of `Bamboo.Test`, you must also configure
-  a timeout in your test config.
+  If `Bamboo.Test` is used with shared mode, you must also configure a timeout
+  in your test config.
 
       # Set this in your config, typically in config/test.exs
       config :bamboo, :refute_timeout, 10
@@ -263,8 +259,8 @@ defmodule Bamboo.Test do
   Same as `assert_delivered_email/0`, except it checks that a particular email
   was not sent.
 
-  If used with the process_name feature of `Bamboo.Test`, you must also configure
-  a timeout in your test config.
+  If `Bamboo.Test` is used with shared mode, you must also configure a timeout
+  in your test config.
 
       # Set this in your config, typically in config/test.exs
       config :bamboo, :refute_timeout, 10
@@ -294,9 +290,9 @@ defmodule Bamboo.Test do
   end
 
   defp refute_timeout do
-    if using_process_name? do
+    if using_shared_mode? do
       Application.get_env(:bamboo, :refute_timeout) || raise """
-      When using process_name with Bamboo.Test, you must set a timeout. This
+      When using shared mode with Bamboo.Test, you must set a timeout. This
       is because an email can be delivered after the assertion is called.
 
           # Set this in your config, typically in config/test.exs
@@ -310,7 +306,7 @@ defmodule Bamboo.Test do
     end
   end
 
-  defp using_process_name? do
-    !!Application.get_env(:bamboo, :test_process_name)
+  defp using_shared_mode? do
+    !!Application.get_env(:bamboo, :shared_test_process)
   end
 end

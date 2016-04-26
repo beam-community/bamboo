@@ -25,7 +25,7 @@ defmodule Bamboo.TestAdapter do
   end
 
   defp test_process do
-    Application.get_env(:bamboo, :test_process_name) || self()
+    Application.get_env(:bamboo, :shared_test_process) || self()
   end
 
   def handle_config(config) do

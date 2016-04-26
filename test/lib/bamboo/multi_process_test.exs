@@ -1,6 +1,6 @@
 defmodule Bamboo.MultiProcessTest do
   use ExUnit.Case
-  use Bamboo.Test, process_name: :multi_process_test
+  use Bamboo.Test, shared: true
   import Bamboo.Email
 
   Application.put_env(
@@ -23,13 +23,13 @@ defmodule Bamboo.MultiProcessTest do
     assert_delivered_email email
   end
 
-  test "refute_delivered_email with process_name set and with refute_timeout blank, raises an error" do
+  test "refute_delivered_email with shared mode and with refute_timeout blank, raises an error" do
     assert_raise RuntimeError, ~r/set a timeout/, fn ->
       refute_delivered_email new_email(from: "someone")
     end
   end
 
-  test "assert_no_emails_delivered with process_name set and with refute_timeout blank, raises an error" do
+  test "assert_no_emails_delivered with shared mode and with refute_timeout blank, raises an error" do
     assert_raise RuntimeError, ~r/set a timeout/, fn ->
       assert_no_emails_delivered
     end
