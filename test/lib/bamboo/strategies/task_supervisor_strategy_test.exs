@@ -21,12 +21,9 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
     assert_receive :delivered
   end
 
-  test "child_spec" do
-    spec = Bamboo.TaskSupervisorStrategy.child_spec
-
-    assert spec == Supervisor.Spec.supervisor(
-      Task.Supervisor,
-      [[name: Bamboo.TaskSupervior]]
-    )
+  test "child_spec raises error about removal" do
+    assert_raise RuntimeError, ~r/remove Bamboo.TaskSupervisorStrategy.child_spec/, fn ->
+      Bamboo.TaskSupervisorStrategy.child_spec
+    end
   end
 end

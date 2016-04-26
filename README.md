@@ -65,16 +65,6 @@ config :my_app, MyApp.Mailer,
   end
   ```
 
-3. Add the the `Bamboo.TaskSupervisor` as a child to your supervisor. This is necessary for `deliver_later` to work.
-
-  ```elixir
-  # Usually in lib/my_app_name.ex
-  children = [
-    # This is where you add the supervisor that handles deliver_later calls
-    Bamboo.TaskSupervisorStrategy.child_spec
-  ]
-  ```
-
 ## Getting Started
 
 Bamboo breaks email creation and email sending into two separate modules. This

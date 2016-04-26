@@ -34,7 +34,9 @@ defmodule Bamboo do
 
     children = [
       worker(Bamboo.SentEmail, []),
+      supervisor(Task.Supervisor, [[name: Bamboo.TaskSupervisorStrategy.supervisor_name]])
     ]
+
     opts = [strategy: :one_for_one, name: Bamboo.Supervisor]
     Supervisor.start_link(children, opts)
   end
