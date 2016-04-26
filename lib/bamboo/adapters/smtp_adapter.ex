@@ -29,12 +29,12 @@ defmodule Bamboo.SMTPAdapter do
   require Logger
 
   @required_configuration [:server, :port, :username, :password]
-  @default_configuration [tls: :if_available, ssl: :false, retries: 1, transport: :smtp]
+  @default_configuration %{tls: :if_available, ssl: :false, retries: 1, transport: :smtp}
 
   defmodule SMTPError do
     defexception [:message]
 
-    def exception({:error, reason, detail}) do
+    def exception({reason, detail}) do
       message = """
       There was a problem sending the email through SMTP.
 
@@ -49,11 +49,15 @@ defmodule Bamboo.SMTPAdapter do
     end
   end
 
-  def deliver(email, _config) do
+  def deliver(email, config) do
+    gen_smtp_config =
+      config
+      |> to_gen_smtp_server_config
+
     email
-    |> to_mailer_message
-    |> Mailer.send
-    |> check_smtp_response
+    |> to_gen_smtp_message
+    |> :gen_smtp_client.send_blocking(gen_smtp_config)
+    |> handle_response
   end
 
   @doc false
@@ -61,69 +65,48 @@ defmodule Bamboo.SMTPAdapter do
     config
     |> check_required_configuration
     |> put_default_configuration
-    |> define_mailer_environment
   end
 
-  defp add_bcc(%Mailer.Email.Multipart{} = email, %Bamboo.Email{bcc: bcc})
-  when bcc == nil or bcc == [] do
-    email
+  defp handle_response({:error, reason, detail}) do
+    raise SMTPError, {reason, detail}
   end
-  defp add_bcc(%Mailer.Email.Multipart{} = email, %Bamboo.Email{} = _from_email) do
-    not_yet_supported
-
-    email
+  defp handle_response(_) do
+    :ok
   end
 
-  defp add_cc(%Mailer.Email.Multipart{} = email, %Bamboo.Email{cc: cc})
-  when cc == nil or cc == [] do
-    email
-  end
-  defp add_cc(%Mailer.Email.Multipart{} = email, %Bamboo.Email{} = _from_email) do
-    not_yet_supported
-
-    email
+  defp add_bcc(body, %Bamboo.Email{bcc: recipients}) do
+    add_smtp_body_line(body, :bcc, format_email(recipients, :bcc))
   end
 
-  defp add_date(%Mailer.Email.Multipart{} = email, %Bamboo.Email{} = _from_email) do
-    Mailer.Email.Multipart.add_date(email, Mailer.Util.localtime_to_str)
+  defp add_cc(body, %Bamboo.Email{cc: recipients}) do
+    add_smtp_body_line(body, :cc, format_email(recipients, :cc))
   end
 
-  defp add_from(%Mailer.Email.Multipart{} = email, %Bamboo.Email{from: from}) do
-    sender =
-      from
-      |> Bamboo.Formatter.format_email_address(:from)
-      |> format_email_address_as_string
-
-    Mailer.Email.Multipart.add_from(email, sender)
+  defp add_from(body, %Bamboo.Email{from: from}) do
+    add_smtp_body_line(body, :from, format_email(from, :from))
   end
 
-  defp add_html_body(%Mailer.Email.Multipart{} = email, %Bamboo.Email{html_body: html_body}) do
-    Mailer.Email.Multipart.add_html_body(email, html_body)
+  defp add_smtp_body_line(body, type, content) when is_list(content) do
+    Enum.reduce(content, body, &add_smtp_body_line(&2, type, &1))
+  end
+  defp add_smtp_body_line(body, type, content) do
+    body <> String.capitalize(to_string(type)) <> ": " <> content <> "\r\n"
   end
 
-  defp add_message_id(%Mailer.Email.Multipart{} = email, %Bamboo.Email{from: from}) do
-    message_id =
-      from
-      |> Bamboo.Formatter.format_email_address(:from)
-      |> format_email_address_as_string
-      |> Mailer.Message.Id.create
-
-    Mailer.Email.Multipart.add_message_id(email, message_id)
+  defp add_html_body(body, %Bamboo.Email{html_body: _html_body}) do
+    body
   end
 
-  defp add_subject(%Mailer.Email.Multipart{} = email, %Bamboo.Email{subject: subject}) do
-    Mailer.Email.Multipart.add_subject(email, subject)
+  defp add_subject(body, %Bamboo.Email{subject: subject}) do
+    add_smtp_body_line(body, :subject, subject)
   end
 
-  defp add_text_body(%Mailer.Email.Multipart{} = email, %Bamboo.Email{text_body: text_body}) do
-    Mailer.Email.Multipart.add_text_body(email, text_body)
+  defp add_text_body(body, %Bamboo.Email{text_body: text_body}) do
+    body <> "\r\n" <> text_body
   end
 
-  defp add_to(%Mailer.Email.Multipart{} = email, %Bamboo.Email{to: to}) do
-    to
-    |> Bamboo.Formatter.format_email_address(:to)
-    |> format_email_address_as_string
-    |> Enum.reduce(email, &Mailer.Email.Multipart.add_to(&2, &1))
+  defp add_to(body, %Bamboo.Email{to: recipients}) do
+    add_smtp_body_line(body, :to, format_email(recipients, :to))
   end
 
   defp aggregate_errors(config, key, errors) do
@@ -132,9 +115,25 @@ defmodule Bamboo.SMTPAdapter do
     |> build_error(key, errors)
   end
 
+  defp apply_default_configuration({:ok, _value}, _default, config), do: config
+  defp apply_default_configuration(:error, {key, default_value}, config) do
+    Map.put_new(config, key, default_value)
+  end
+
+  defp body(%Bamboo.Email{} = email) do
+    ""
+    |> add_subject(email)
+    |> add_from(email)
+    |> add_bcc(email)
+    |> add_cc(email)
+    |> add_to(email)
+    |> add_text_body(email)
+    |> add_html_body(email)
+  end
+
   defp build_error({:ok, _value}, _key, errors), do: errors
   defp build_error(:error, key, errors) do
-    Dict.put_new(errors, key, "Key #{key} is required for SMTP Adapter")
+    ["Key #{key} is required for SMTP Adapter" | errors]
   end
 
   defp check_required_configuration(config) do
@@ -143,33 +142,21 @@ defmodule Bamboo.SMTPAdapter do
     |> raise_on_missing_setting(config)
   end
 
-  defp check_smtp_response({:error, _reason, _detail} = error), do: raise(SMTPError, error)
-  defp check_smtp_response(_success), do: :ok
-
-  defp define_mailer_environment(config) do
-    mailer_config =
-      config
-      |> Enum.into([])
-      |> Enum.filter(&part_of_mailer_configuration?/1)
-
-    Application.put_env(:mailer, :smtp_client, mailer_config)
-
-    config
+  defp format_email(email, type) do
+    email
+    |> Bamboo.Formatter.format_email_address(type)
+    |> format_email_address_as_string
   end
 
   defp format_email_address_as_string({nil, email}), do: email
-  defp format_email_address_as_string({_name, email}), do: email
+  defp format_email_address_as_string({name, email}), do: "<#{email}> #{name}"
   defp format_email_address_as_string(emails) when is_list(emails) do
     Enum.map(emails, &format_email_address_as_string/1)
   end
 
-  defp not_yet_supported, do: Logger.warn "BCC feature is not supported by SMTP adapter"
-
-  defp part_of_mailer_configuration?({key, _value}) when key in @required_configuration, do: true
-  defp part_of_mailer_configuration?({key, _value}) do
-    @default_configuration
-    |> Enum.map(fn ({default_key, _default_value}) -> default_key end)
-    |> Enum.any?(&(&1 == key))
+  defp from(%Bamboo.Email{from: from}) do
+    from
+    |> format_email(:from)
   end
 
   defp put_default_configuration(config) do
@@ -179,13 +166,8 @@ defmodule Bamboo.SMTPAdapter do
 
   defp put_default_configuration(config, default = {key, _default_value}) do
     config
-    |> Dict.fetch(key)
+    |> Map.fetch(key)
     |> apply_default_configuration(default, config)
-  end
-
-  defp apply_default_configuration({:ok, _value}, _default, config), do: config
-  defp apply_default_configuration(:error, {key, default_value}, config) do
-    Dict.put_new(config, key, default_value)
   end
 
   defp raise_on_missing_setting([], config), do: config
@@ -206,16 +188,43 @@ defmodule Bamboo.SMTPAdapter do
     """
   end
 
-  defp to_mailer_message(%Bamboo.Email{} = email) do
-    Mailer.Email.Multipart.create
-    |> add_from(email)
-    |> add_to(email)
-    |> add_bcc(email)
-    |> add_cc(email)
-    |> add_subject(email)
-    |> add_message_id(email)
-    |> add_date(email)
-    |> add_html_body(email)
-    |> add_text_body(email)
+  defp to(%Bamboo.Email{to: to, cc: cc, bcc: bcc}) do
+    to
+    |> Enum.into(cc)
+    |> Enum.into(bcc)
+    |> format_email(:to)
+  end
+
+  defp to_gen_smtp_message(%Bamboo.Email{} = email) do
+    {from(email), to(email), body(email)}
+  end
+
+  defp to_gen_smtp_server_config(config) do
+    Enum.reduce(config, [], &to_gen_smtp_server_config/2)
+  end
+
+  defp to_gen_smtp_server_config({:server, value}, config) do
+    [{:relay, value} | config]
+  end
+  defp to_gen_smtp_server_config({:username, value}, config) do
+    [{:username, value} | config]
+  end
+  defp to_gen_smtp_server_config({:password, value}, config) do
+    [{:password, value} | config]
+  end
+  defp to_gen_smtp_server_config({:tls, value}, config) do
+    [{:tls, value} | config]
+  end
+  defp to_gen_smtp_server_config({:port, value}, config) do
+    [{:port, value} | config]
+  end
+  defp to_gen_smtp_server_config({:ssl, value}, config) do
+    [{:ssl, value} | config]
+  end
+  defp to_gen_smtp_server_config({:retries, value}, config) do
+    [{:retries, value} | config]
+  end
+ defp to_gen_smtp_server_config({_key, _value}, config) do
+    config
   end
 end
