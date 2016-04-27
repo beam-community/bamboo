@@ -1,9 +1,9 @@
 defmodule Bamboo.SMTPAdapter do
   @moduledoc """
-  Sends email using SMTP protocol.
+  Sends email using SMTP.
 
-  Use this adapter to send emails through SMTP protocol. Requires that some
-  settings are set in the config. See the example section below.
+  Use this adapter to send emails through SMTP. This adapter requires
+  that some settings are set in the config. See the example section below.
 
   ## Example config
 
