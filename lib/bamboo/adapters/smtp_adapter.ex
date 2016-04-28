@@ -12,7 +12,7 @@ defmodule Bamboo.SMTPAdapter do
         adapter: Bamboo.SMTPAdapter,
         server: "smtp.domain",
         port: 1025,
-        username: "your.name@your.domain"
+        username: "your.name@your.domain",
         password: "pa55word",
         tls: :if_available, # can be `:always` or `:never`
         ssl: :false, # can be `:true`
@@ -154,8 +154,10 @@ defmodule Bamboo.SMTPAdapter do
     |> build_error(key, errors)
   end
 
-  defp apply_default_configuration({:ok, _value}, _default, config), do: config
-  defp apply_default_configuration(:error, {key, default_value}, config) do
+  defp apply_default_configuration({:ok, value}, _default, config) when value != nil do
+    config
+  end
+  defp apply_default_configuration(_not_found_value, {key, default_value}, config) do
     Map.put_new(config, key, default_value)
   end
 
@@ -181,15 +183,15 @@ defmodule Bamboo.SMTPAdapter do
     |> add_ending_multipart(multi_part_delimiter)
   end
 
-  defp build_error({:ok, _value}, _key, errors), do: errors
-  defp build_error(:error, key, errors) do
+  defp build_error({:ok, value}, _key, errors) when value != nil, do: errors
+  defp build_error(_not_found_value, key, errors) do
     ["Key #{key} is required for SMTP Adapter" | errors]
   end
 
   defp check_required_configuration(config) do
     @required_configuration
     |> Enum.reduce([], &aggregate_errors(config, &1, &2))
-    |> raise_on_missing_setting(config)
+    |> raise_on_missing_configuration(config)
   end
 
   defp format_email(email, type) do
@@ -220,8 +222,8 @@ defmodule Bamboo.SMTPAdapter do
     |> apply_default_configuration(default, config)
   end
 
-  defp raise_on_missing_setting([], config), do: config
-  defp raise_on_missing_setting(errors, config) do
+  defp raise_on_missing_configuration([], config), do: config
+  defp raise_on_missing_configuration(errors, config) do
     formatted_errors =
       errors
       |> Enum.map(&("* #{&1}"))
