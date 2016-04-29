@@ -32,9 +32,9 @@ defmodule Bamboo.TaskSupervisorStrategy do
   @doc false
   def child_spec do
     raise """
-    the TaskSupervisorStrategy is now started automatically by the :bamboo application.
+    Bamboo.TaskSupervisorStrategy is now automatically started by the :bamboo application.
 
-    You can safely remove Bamboo.TaskSupervisorStrategy.child_spec
+    Please remove the call to Bamboo.TaskSupervisorStrategy.child_spec
     """
   end
 end

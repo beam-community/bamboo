@@ -22,7 +22,7 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
   end
 
   test "child_spec raises error about removal" do
-    assert_raise RuntimeError, ~r/remove Bamboo.TaskSupervisorStrategy.child_spec/, fn ->
+    assert_raise RuntimeError, ~r/Bamboo.TaskSupervisorStrategy.child_spec/, fn ->
       Bamboo.TaskSupervisorStrategy.child_spec
     end
   end
