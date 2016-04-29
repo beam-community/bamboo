@@ -187,6 +187,10 @@ Just open up the email preview and click the link.
 
 See [Bamboo.EmailPreviewPlug](https://hexdocs.pm/bamboo/Bamboo.EmailPreviewPlug.html)
 
+Here is what it looks like:
+
+![Screenshot of BambooEmailPreview](https://cloud.githubusercontent.com/assets/22394/14929083/bda60b76-0e29-11e6-9e11-5ec60069e825.png)
+
 ## Mandrill Specific Functionality (tags, merge vars, etc.)
 
 Mandrill offers extra features on top of regular SMTP email like tagging, merge
