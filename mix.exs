@@ -5,7 +5,7 @@ defmodule Bamboo.Mixfile do
 
   def project do
     [app: :bamboo,
-     version: "0.4.2",
+     version: "0.5.0",
      elixir: "~> 1.2",
      source_url: @project_url,
      homepage_url: @project_url,
@@ -13,8 +13,8 @@ defmodule Bamboo.Mixfile do
      test_coverage: [tool: ExCoveralls],
      preferred_cli_env: ["coveralls": :test, "coveralls.circle": :test],
      elixirc_paths: elixirc_paths(Mix.env),
-     description: "Straightforward, composable, and adapter based Elixir email library " <>
-     "for people that love piping. Adapters for Mandrill, Sendgrid, Sparkpost, in-memory, and test.",
+     description: "Straightforward, powerful, and adapter based Elixir email library." <>
+     " Works with Mandrill, Mailgun, SendGrid, SparkPost, in-memory, and test.",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      package: package,
