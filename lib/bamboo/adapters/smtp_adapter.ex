@@ -29,7 +29,7 @@ defmodule Bamboo.SMTPAdapter do
   require Logger
 
   @required_configuration [:server, :port, :username, :password]
-  @default_configuration %{tls: :if_available, ssl: :false, retries: 1, transport: :smtp}
+  @default_configuration %{tls: :if_available, ssl: :false, retries: 1, transport: :gen_smtp_client}
 
   defmodule SMTPError do
     defexception [:message]
@@ -55,8 +55,9 @@ defmodule Bamboo.SMTPAdapter do
       |> to_gen_smtp_server_config
 
     email
+    |> Bamboo.Mailer.normalize_addresses
     |> to_gen_smtp_message
-    |> :gen_smtp_client.send_blocking(gen_smtp_config)
+    |> config[:transport].send_blocking(gen_smtp_config)
     |> handle_response
   end
 
@@ -75,11 +76,11 @@ defmodule Bamboo.SMTPAdapter do
   end
 
   defp add_bcc(body, %Bamboo.Email{bcc: recipients}) do
-    add_smtp_header_line(body, :bcc, format_email(recipients, :bcc))
+    add_smtp_header_line(body, :bcc, format_email_as_string(recipients, :bcc))
   end
 
   defp add_cc(body, %Bamboo.Email{cc: recipients}) do
-    add_smtp_header_line(body, :cc, format_email(recipients, :cc))
+    add_smtp_header_line(body, :cc, format_email_as_string(recipients, :cc))
   end
 
   defp add_custom_header(body, {key, value}) do
@@ -98,15 +99,20 @@ defmodule Bamboo.SMTPAdapter do
     add_smtp_line(body, "--#{delimiter}--")
   end
 
-  defp add_html_body(body, %Bamboo.Email{html_body: html_body}) do
+  defp add_html_body(body, %Bamboo.Email{html_body: html_body}, _multi_part_delimiter)
+  when html_body == nil do
     body
+  end
+  defp add_html_body(body, %Bamboo.Email{html_body: html_body}, multi_part_delimiter) do
+    body
+    |> add_multipart_delimiter(multi_part_delimiter)
     |> add_smtp_header_line("Content-Type", "text/html;charset=UTF-8")
     |> add_smtp_header_line("Content-ID", "html-body")
     |> add_smtp_line(html_body)
   end
 
   defp add_from(body, %Bamboo.Email{from: from}) do
-    add_smtp_header_line(body, :from, format_email(from, :from))
+    add_smtp_header_line(body, :from, format_email_as_string(from, :from))
   end
 
   defp add_mime_header(body) do
@@ -137,15 +143,20 @@ defmodule Bamboo.SMTPAdapter do
     add_smtp_header_line(body, :subject, subject)
   end
 
-  defp add_text_body(body, %Bamboo.Email{text_body: text_body}) do
+  defp add_text_body(body, %Bamboo.Email{text_body: text_body}, _multi_part_delimiter)
+  when text_body == nil do
     body
+  end
+  defp add_text_body(body, %Bamboo.Email{text_body: text_body}, multi_part_delimiter) do
+    body
+    |> add_multipart_delimiter(multi_part_delimiter)
     |> add_smtp_header_line("Content-Type", "text/plain;charset=UTF-8")
     |> add_smtp_header_line("Content-ID", "text-body")
     |> add_smtp_line(text_body)
   end
 
   defp add_to(body, %Bamboo.Email{to: recipients}) do
-    add_smtp_header_line(body, :to, format_email(recipients, :to))
+    add_smtp_header_line(body, :to, format_email_as_string(recipients, :to))
   end
 
   defp aggregate_errors(config, key, errors) do
@@ -176,10 +187,8 @@ defmodule Bamboo.SMTPAdapter do
     |> add_mime_header
     |> add_multipart_header(multi_part_delimiter)
     |> add_ending_header
-    |> add_multipart_delimiter(multi_part_delimiter)
-    |> add_text_body(email)
-    |> add_multipart_delimiter(multi_part_delimiter)
-    |> add_html_body(email)
+    |> add_text_body(email, multi_part_delimiter)
+    |> add_html_body(email, multi_part_delimiter)
     |> add_ending_multipart(multi_part_delimiter)
   end
 
@@ -194,16 +203,29 @@ defmodule Bamboo.SMTPAdapter do
     |> raise_on_missing_configuration(config)
   end
 
+  defp format_email({nil, email}), do: email
+  defp format_email({name, email}), do: "<#{email}> #{name}"
+  defp format_email(emails) when is_list(emails) do
+    Enum.map(emails, &format_email/1)
+  end
+
   defp format_email(email, type) do
     email
     |> Bamboo.Formatter.format_email_address(type)
-    |> format_email_address_as_string
+    |> format_email
   end
 
-  defp format_email_address_as_string({nil, email}), do: email
-  defp format_email_address_as_string({name, email}), do: "<#{email}> #{name}"
-  defp format_email_address_as_string(emails) when is_list(emails) do
-    Enum.map(emails, &format_email_address_as_string/1)
+  defp format_email_as_string(emails) when is_list(emails) do
+    Enum.join(emails, ", ")
+  end
+  defp format_email_as_string(email) do
+    email
+  end
+
+  defp format_email_as_string(email, type) do
+    email
+    |> format_email(type)
+    |> format_email_as_string
   end
 
   defp from(%Bamboo.Email{from: from}) do
