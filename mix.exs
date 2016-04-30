@@ -30,7 +30,7 @@ defmodule Bamboo.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :httpoison, :poison],
+      applications: [:logger, :gen_smtp, :httpoison, :poison],
       mod: {Bamboo, []}
     ]
   end
@@ -52,6 +52,7 @@ defmodule Bamboo.Mixfile do
       {:plug, "~> 1.0"},
       {:ex_machina, "~> 1.0.0-beta.0", github: "thoughtbot/ex_machina", only: [:test]},
       {:cowboy, "~> 1.0", only: [:test, :dev]},
+      {:gen_smtp, "~> 0.9.0"},
       {:phoenix, "~> 1.1", only: :test},
       {:phoenix_html, "~> 2.2", only: :test},
       {:excoveralls, "~> 0.4", only: :test},

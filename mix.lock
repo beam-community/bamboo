@@ -7,6 +7,7 @@
   "excoveralls": {:hex, :excoveralls, "0.5.1"},
   "exjsx": {:hex, :exjsx, "3.2.0"},
   "floki": {:hex, :floki, "0.8.0"},
+  "gen_smtp": {:hex, :gen_smtp, "0.9.0"},
   "hackney": {:hex, :hackney, "1.4.8"},
   "httpoison": {:hex, :httpoison, "0.8.1"},
   "idna": {:hex, :idna, "1.0.3"},
