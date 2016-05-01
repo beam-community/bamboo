@@ -30,7 +30,8 @@ to open an issue or a PR if you'd like to add a new adapter to the list.
 * `Bamboo.MailgunAdapter` - Ships with Bamboo. Thanks to [@princemaple].
 * `Bamboo.MandrillAdapter` - Ships with Bamboo.
 * `Bamboo.SendgridAdapter` - Ships with Bamboo.
-* `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost)
+* `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
+* `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
 * `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
 * `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
 
