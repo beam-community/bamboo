@@ -184,7 +184,7 @@ defmodule Bamboo.Mailer do
   @doc false
   def parse_opts(mailer, opts) do
     otp_app = Keyword.fetch!(opts, :otp_app)
-    config = Application.get_env(otp_app, mailer) |> Enum.into(%{})
+    config = Application.fetch_env!(otp_app, mailer) |> Enum.into(%{})
 
     config.adapter.handle_config(config)
     |> Map.put_new(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
