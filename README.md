@@ -71,6 +71,10 @@ config :my_app, MyApp.Mailer,
 
 ## Getting Started
 
+> **Do you like to learn by watching?** Check out the [free Bamboo screencast from DailyDrip](daily_drip_bamboo_episode). It is a wonderful introduction to sending and testing emails with Bamboo. It also covers some of the ways that Bamboo helps catch errors, how some of the internals work, and how to format recipients with the Bamboo.Formatter protocol.
+
+[daily_drip_bamboo_episode]: https://www.dailydrip.com/topics/elixir/drips/bamboo-email
+
 Bamboo breaks email creation and email sending into two separate modules. This
 is done to make testing easier and to make emails easy to pipe/compose.
 
