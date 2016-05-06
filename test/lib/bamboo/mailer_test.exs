@@ -178,7 +178,17 @@ defmodule Bamboo.MailerTest do
     end
 
     assert_raise Bamboo.NilRecipientsError, fn ->
-      new_email(to: nil, cc: {"foo", nil}, bcc: [{"bar", nil}])
+      new_email(to: {"foo", nil})
+      |> FooMailer.deliver_now
+    end
+
+    assert_raise Bamboo.NilRecipientsError, fn ->
+      new_email(to: [{"foo", nil}])
+      |> FooMailer.deliver_now
+    end
+
+    assert_raise Bamboo.NilRecipientsError, fn ->
+      new_email(to: [nil])
       |> FooMailer.deliver_now
     end
   end
