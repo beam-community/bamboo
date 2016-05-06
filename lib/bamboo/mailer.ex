@@ -154,13 +154,38 @@ defmodule Bamboo.Mailer do
     email |> validate |> normalize_addresses
   end
 
-  defp validate(%{from: nil}) do
+  defp validate(email) do
+    email
+    |> validate_from_address
+    |> validate_recipients
+  end
+
+  defp validate_from_address(%{from: nil}) do
     raise Bamboo.EmptyFromAddressError, nil
   end
-  defp validate(%{to: nil, cc: nil, bcc: nil} = email) do
-    raise Bamboo.NilRecipientsError, email
+  defp validate_from_address(%{from: {_, nil}}) do
+    raise Bamboo.EmptyFromAddressError, nil
   end
-  defp validate(email), do: email
+  defp validate_from_address(email), do: email
+
+  defp validate_recipients(%Bamboo.Email{} = email) do
+    if Enum.all?(
+      Enum.map([:to, :cc, :bcc], &Map.get(email, &1)),
+      &is_nil_recipient?/1
+    ) do
+      raise Bamboo.NilRecipientsError, email
+    else
+      email
+    end
+  end
+
+  defp is_nil_recipient?(nil), do: true
+  defp is_nil_recipient?({_, nil}), do: true
+  defp is_nil_recipient?([]), do: false
+  defp is_nil_recipient?([_|_] = recipients) do
+    Enum.all?(recipients, &is_nil_recipient?/1)
+  end
+  defp is_nil_recipient?(_), do: false
 
   @doc """
   Wraps to, cc and bcc addresses in a list and normalizes email addresses.
