@@ -58,8 +58,11 @@ defprotocol Bamboo.Formatter do
   `:from`, `:to`, `:cc` or `:bcc`. You can pattern match on this to customize
   the address.
   """
+
   @type opts :: %{type: :from | :to | :cc | :bcc}
+
   @spec format_email_address(any, opts) :: Bamboo.Email.address
+
   def format_email_address(data, opts)
 end
 
