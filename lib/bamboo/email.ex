@@ -70,9 +70,9 @@ defmodule Bamboo.Email do
   @type address :: String.t | {String.t, String.t}
 
   @type t :: %__MODULE__{
-    to: nil | address | [address],
-    cc: nil | address | [address],
-    bcc: nil | address | [address],
+    to: nil | any,
+    cc: nil | any,
+    bcc: nil | any,
     subject: nil | String.t,
     html_body: nil | String.t,
     text_body: nil | String.t,
@@ -183,7 +183,7 @@ defmodule Bamboo.Email do
 
       put_private(email, :tags, "welcome-email")
   """
-  @spec put_private(__MODULE__.t, atom, String.t) :: __MODULE__.t
+  @spec put_private(__MODULE__.t, atom, any) :: __MODULE__.t
   def put_private(%Email{private: private} = email, key, value) do
     %{email | private: Map.put(private, key, value)}
   end
