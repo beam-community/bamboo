@@ -117,7 +117,6 @@ defmodule Bamboo.Email do
     @doc """
     Sets the #{function_name} on the email
     """
-    @spec unquote(function_name)(__MODULE__.t, String.t) :: __MODULE__.t
     def unquote(function_name)(email, attr) do
       Map.put(email, unquote(function_name), attr)
     end
