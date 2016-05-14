@@ -21,6 +21,7 @@ defmodule Bamboo.TestAdapter do
 
   @doc false
   def deliver(email, _config) do
+    email = clean_assigns(email)
     send test_process, {:delivered_email, email}
   end
 
@@ -45,5 +46,10 @@ defmodule Bamboo.TestAdapter do
         set it to Bamboo.ImmediateDeliveryStrategy.
         """
     end
+  end
+
+  @doc false
+  def clean_assigns(email) do
+    %{email | assigns: :assigns_removed_for_testing}
   end
 end

@@ -33,6 +33,8 @@ defmodule Bamboo.TestAdapterTest do
 
     email |> TestAdapter.deliver(@config)
 
+    email = TestAdapter.clean_assigns(email)
+
     assert_received {:delivered_email, ^email}
   end
 
@@ -156,5 +158,17 @@ defmodule Bamboo.TestAdapterTest do
     sent_email |> TestMailer.deliver_now
 
     assert_delivered_email sent_email
+  end
+
+  # The actual sent email and the email tested may have differences in their assigns
+  # Even if the resulting body is the same
+  test "assertion helpers remove assigns" do
+    test_email = new_email(from: "foo@bar.com", to: "bar@baz.com")
+    sent_email = %{test_email | assigns: %{foo: :bar}}
+    expected_email = %{test_email | assigns: %{foo: :baz}}
+
+    sent_email |> TestMailer.deliver_now
+
+    assert_delivered_email expected_email
   end
 end
