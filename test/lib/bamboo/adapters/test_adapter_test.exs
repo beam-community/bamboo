@@ -160,15 +160,11 @@ defmodule Bamboo.TestAdapterTest do
     assert_delivered_email sent_email
   end
 
-  # The actual sent email and the email tested may have differences in their assigns
-  # Even if the resulting body is the same
-  test "assertion helpers remove assigns" do
-    test_email = new_email(from: "foo@bar.com", to: "bar@baz.com")
-    sent_email = %{test_email | assigns: %{foo: :bar}}
-    expected_email = %{test_email | assigns: %{foo: :baz}}
+  test "delivered emails have normalized assigns" do
+    email = new_email(from: "foo@bar.com", to: "bar@baz.com", assigns: :anything)
 
-    sent_email |> TestMailer.deliver_now
+    email |> TestMailer.deliver_now
 
-    assert_delivered_email expected_email
+    assert_delivered_email %{email | assigns: :assigns_removed_for_testing}
   end
 end
