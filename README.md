@@ -71,7 +71,7 @@ config :my_app, MyApp.Mailer,
 
 ## Getting Started
 
-> **Do you like to learn by watching?** Check out the [free Bamboo screencast from DailyDrip]. 
+> **Do you like to learn by watching?** Check out the [free Bamboo screencast from DailyDrip].
 
 > It is a wonderful introduction to sending and testing emails with Bamboo. It also covers some of the ways that Bamboo helps catch errors, how some of the internals work, and how to format recipients with the Bamboo.Formatter protocol.
 
@@ -203,6 +203,20 @@ Here is what it looks like:
 Mandrill offers extra features on top of regular SMTP email like tagging, merge
 vars, and scheduling emails to send in the future. See
 [Bamboo.MandrillHelper](https://hexdocs.pm/bamboo/Bamboo.MandrillHelper.html).
+
+## Heroku Configuration
+
+If you are deploying to Heroku, you will need to ensure that your configuration
+variables are available at compile time. This is done in the [build pack config].
+
+```
+config_vars_to_export=(
+  DATABASE_URL
+  MANDRILL_API_KEY
+)
+```
+
+[build pack config]: https://github.com/HashNuke/heroku-buildpack-elixir#specifying-config-vars-to-export-at-compile-time
 
 ## Testing
 
