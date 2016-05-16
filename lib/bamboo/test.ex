@@ -160,7 +160,7 @@ defmodule Bamboo.Test do
       assert_delivered_email(unsent_email) # Will fail
   """
   def assert_delivered_email(%Bamboo.Email{} = email) do
-    email = Bamboo.Mailer.normalize_addresses(email)
+    email = normalize_for_testing(email)
     do_assert_delivered_email(email)
   end
 
@@ -270,7 +270,7 @@ defmodule Bamboo.Test do
   times 1ms is enough.
   """
   def refute_delivered_email(%Bamboo.Email{} = email) do
-    email = Bamboo.Mailer.normalize_addresses(email)
+    email = normalize_for_testing(email)
 
     receive do
       {:delivered_email, ^email} -> flunk_with_unexpected_matching_email(email)
@@ -308,5 +308,11 @@ defmodule Bamboo.Test do
 
   defp using_shared_mode? do
     !!Application.get_env(:bamboo, :shared_test_process)
+  end
+
+  defp normalize_for_testing(email) do
+    email
+    |> Bamboo.Mailer.normalize_addresses
+    |> Bamboo.TestAdapter.clean_assigns
   end
 end

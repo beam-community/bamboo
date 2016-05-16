@@ -33,6 +33,8 @@ defmodule Bamboo.TestAdapterTest do
 
     email |> TestAdapter.deliver(@config)
 
+    email = TestAdapter.clean_assigns(email)
+
     assert_received {:delivered_email, ^email}
   end
 
@@ -156,5 +158,13 @@ defmodule Bamboo.TestAdapterTest do
     sent_email |> TestMailer.deliver_now
 
     assert_delivered_email sent_email
+  end
+
+  test "delivered emails have normalized assigns" do
+    email = new_email(from: "foo@bar.com", to: "bar@baz.com", assigns: :anything)
+
+    email |> TestMailer.deliver_now
+
+    assert_delivered_email %{email | assigns: :assigns_removed_for_testing}
   end
 end
