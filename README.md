@@ -207,6 +207,12 @@ Mandrill offers extra features on top of regular SMTP email like tagging, merge
 vars, templates, and scheduling emails to send in the future. See
 [Bamboo.MandrillHelper](https://hexdocs.pm/bamboo/Bamboo.MandrillHelper.html).
 
+## SendGrid Specific Functionality (templates and substitution tags)
+
+SendGrid offers extra features on top of regular SMTP email like transactional
+templates with substitution tags. See
+[Bamboo.SendgridHelper](https://hexdocs.pm/bamboo/Bamboo.SendgridHelper.html).
+
 ## Heroku Configuration
 
 If you are deploying to Heroku, you will need to ensure that your configuration
