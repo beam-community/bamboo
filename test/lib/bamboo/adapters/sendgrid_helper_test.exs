@@ -15,7 +15,7 @@ defmodule Bamboo.SendgridHelperTest do
                                             "filters" => %{
                                               "templates" => %{
                                                 "settings" => %{
-                                                  "enabled" => 1,
+                                                  "enable" => 1,
                                                   "template_id" => @template_id
                                                 }
                                               }
@@ -49,6 +49,23 @@ defmodule Bamboo.SendgridHelperTest do
     assert_raise FunctionClauseError, fn ->
       email |> substitute(:name, "Jon Snow")
     end
+  end
+
+  test "is structured correctly", %{email: email} do
+    email = email |> with_template(@template_id) |> substitute("%name%", "Jon Snow")
+    assert email.private["x-smtpapi"] == %{
+                                            "filters" => %{
+                                              "templates" => %{
+                                                "settings" => %{
+                                                  "enable" => 1,
+                                                  "template_id" => @template_id
+                                                }
+                                              }
+                                            },
+                                            "sub" => %{
+                                              "%name%" => ["Jon Snow"]
+                                            }
+                                          }
   end
 
   test "is non-dependent on function call ordering", %{email: email} do

@@ -68,7 +68,7 @@ defmodule Bamboo.SendgridHelper do
     %{
       "templates" => %{
         "settings" => %{
-          "enabled" => 1,
+          "enable" => 1,
           "template_id" => template_id
         }
       }
