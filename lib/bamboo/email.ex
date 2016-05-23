@@ -68,11 +68,12 @@ defmodule Bamboo.Email do
   """
 
   @type address :: String.t | {String.t, String.t}
+  @type address_list :: nil | address | [address] | any
 
   @type t :: %__MODULE__{
-    to: nil | any,
-    cc: nil | any,
-    bcc: nil | any,
+    to: address_list,
+    cc: address_list,
+    bcc: address_list,
     subject: nil | String.t,
     html_body: nil | String.t,
     text_body: nil | String.t,
@@ -94,7 +95,8 @@ defmodule Bamboo.Email do
 
   alias Bamboo.Email
 
-  @attribute_pipe_functions ~w(from to cc bcc subject text_body html_body)a
+  @address_functions ~w(from to cc bcc)a
+  @attribute_pipe_functions ~w(subject text_body html_body)a
 
   @doc """
   Used to create a new email
@@ -111,6 +113,22 @@ defmodule Bamboo.Email do
   @spec new_email(Enum.t) :: __MODULE__.t
   def new_email(attrs \\ []) do
     struct!(%__MODULE__{}, attrs)
+  end
+
+  for function_name <- @address_functions do
+    @doc """
+    Sets the `#{function_name}` on the email.
+
+    You can pass in a string, list of strings,
+    or anything that implements the `Bamboo.Formatter` protocol.
+
+        new_email
+        |> #{function_name}(["sally@example.com", "james@example.com"])
+    """
+    @spec unquote(function_name)(__MODULE__.t, address_list) :: __MODULE__.t
+    def unquote(function_name)(email, attr) do
+      Map.put(email, unquote(function_name), attr)
+    end
   end
 
   for function_name <- @attribute_pipe_functions do
