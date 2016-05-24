@@ -18,53 +18,49 @@ defmodule Bamboo.Email do
 
   ## Simplest way to create a new email
 
-  ```
-  defmodule MyApp.Email do
-    import Bamboo.Email
-
-    def welcome_email(user) do
-      new_email(
-        from: "me@app.com",
-        to: user,
-        subject: "Welcome!",
-        text_body: "Welcome to the app",
-        html_body: "<strong>Welcome to the app</strong>"
-      )
-    end
-  end
-  ```
+      defmodule MyApp.Email do
+        import Bamboo.Email
+    
+        def welcome_email(user) do
+          new_email(
+            from: "me@app.com",
+            to: user,
+            subject: "Welcome!",
+            text_body: "Welcome to the app",
+            html_body: "<strong>Welcome to the app</strong>"
+          )
+        end
+      end
 
   ## Extracting common parts (default layout, default from address, etc.)
 
   Let's say you want all emails to have the same from address. Here's how you
   could do that
 
-  ```
-  defmodule MyApp.Email do
-    import Bamboo.Email
-
-    def welcome_email(user) do
-      # Since new_email/1 returns a struct you can update it with Kernel.struct!/2
-      struct!(base_email,
-        to: user,
-        subject: "Welcome!",
-        text_body: "Welcome to the app",
-        html_body: "<strong>Welcome to the app</strong>"
-      )
-
-      # or you can use functions to build it up step by step
-      base_email
-      |> to(user)
-      |> subject("Welcome!")
-      |> text_body("Welcome to the app")
-      |> html_body("<strong>Welcome to the app</strong>")
-    end
-
-    def base_email do
-      new_email(from: "me@app.com")
-    end
-  end
-  ```
+      defmodule MyApp.Email do
+        import Bamboo.Email
+    
+        def welcome_email(user) do
+          # Since new_email/1 returns a struct you can update it with Kernel.struct!/2
+          struct!(base_email,
+            to: user,
+            subject: "Welcome!",
+            text_body: "Welcome to the app",
+            html_body: "<strong>Welcome to the app</strong>"
+          )
+    
+          # or you can use functions to build it up step by step
+          base_email
+          |> to(user)
+          |> subject("Welcome!")
+          |> text_body("Welcome to the app")
+          |> html_body("<strong>Welcome to the app</strong>")
+        end
+    
+        def base_email do
+          new_email(from: "me@app.com")
+        end
+      end
   """
 
   @type address :: String.t | {String.t, String.t}
