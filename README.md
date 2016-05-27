@@ -1,6 +1,6 @@
 
 
-Bamboo [![Circle CI](https://circleci.com/gh/thoughtbot/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtbot/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/thoughtbot/bamboo/badge.png?branch=master)](https://coveralls.io/github/thoughtbot/bamboo?branch=master)
+Bamboo [![Circle CI](https://circleci.com/gh/thoughtbot/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtbot/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/thoughtbot/bamboo/badge.png?branch=master)](https://coveralls.io/github/thoughtbot/bamboo?branch=master) [![Deps Status](https://beta.hexfaktor.org/badge/all/github/thoughtbot/bamboo.svg)](https://beta.hexfaktor.org/github/thoughtbot/bamboo)
 ========
 
 Flexible and easy to use email for Elixir.
