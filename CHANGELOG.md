@@ -1,3 +1,16 @@
+## 0.6.0
+
+### New Additions
+
+* Improved error message when mailer config is invalid ([#148])
+* Added typespecs to many modules and functions ([#150], [#164])
+* Strip assigns from the email when testing. Makes testing more reliable ([#158])
+
+[#148]: https://github.com/thoughtbot/bamboo/pull/148
+[#150]: https://github.com/thoughtbot/bamboo/pull/150
+[#164]: https://github.com/thoughtbot/bamboo/pull/164
+[#158]: https://github.com/thoughtbot/bamboo/pull/158
+
 ## 0.5.0
 
 ### New Additions
