@@ -62,19 +62,15 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      config = Bamboo.Mailer.parse_opts(__MODULE__, opts)
-
-      @adapter config.adapter
-      @config config
 
       @spec deliver_now(Bamboo.Email.t) :: Bamboo.Email.t
       def deliver_now(email) do
-        Bamboo.Mailer.deliver_now(@adapter, email, @config)
+        Bamboo.Mailer.deliver_now(adapter, email, config)
       end
 
       @spec deliver_later(Bamboo.Email.t) :: Bamboo.Email.t
       def deliver_later(email) do
-        Bamboo.Mailer.deliver_later(@adapter, email, @config)
+        Bamboo.Mailer.deliver_later(adapter, email, config)
       end
 
       def deliver(_email) do
@@ -84,6 +80,15 @@ defmodule Bamboo.Mailer do
         Use deliver_now/1 to send right away, or deliver_later/1 to send in the background.
         """
       end
+
+      if Keyword.get(opts, :dynamic_config, false) do
+        defp config, do: Bamboo.Mailer.parse_opts(__MODULE__, unquote(opts))
+      else
+        @config Bamboo.Mailer.parse_opts(__MODULE__, opts)
+        defp config, do: @config
+      end
+
+      defp adapter, do: config.adapter
     end
   end
 

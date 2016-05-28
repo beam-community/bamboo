@@ -10,6 +10,14 @@ defmodule Bamboo.MailerTest do
     def handle_config(config), do: config
   end
 
+  defmodule RaiseConfigErrorAdapter do
+    def deliver(email, config) do
+      send :mailer_test, {:deliver, email, config}
+    end
+
+    def handle_config(_config), do: raise "Invalid config"
+  end
+
   defmodule CustomConfigAdapter do
     def deliver(email, config) do
       send :mailer_test, {:deliver, email, config}
@@ -36,6 +44,12 @@ defmodule Bamboo.MailerTest do
     use Bamboo.Mailer, otp_app: :bamboo
   end
 
+  defmodule DynamicConfigMailer do
+    use Bamboo.Mailer, otp_app: :bamboo, dynamic_config: true
+  end
+
+  Application.put_env(:bamboo, __MODULE__.DynamicConfigMailer, adapter: RaiseConfigErrorAdapter)
+
   setup do
     Process.register(self, :mailer_test)
     :ok
@@ -44,6 +58,28 @@ defmodule Bamboo.MailerTest do
   test "uses adapter's handle_config/1 to customize or validate the config" do
     email = new_email(to: "foo@bar.com")
 
+    CustomConfigMailer.deliver_now(email)
+
+    assert_received {:deliver, _email, config}
+    assert config.custom_key == "Set by the adapter"
+  end
+
+  test "dynamic_config option" do
+    email = new_email(to: "foo@bar.com")
+
+    assert_raise(RuntimeError, fn -> DynamicConfigMailer.deliver_now(email) end)
+
+    Application.put_env(:bamboo, __MODULE__.DynamicConfigMailer, @custom_config)
+    DynamicConfigMailer.deliver_now(email)
+
+    assert_received {:deliver, _email, config}
+    assert config.custom_key == "Set by the adapter"
+  end
+
+  test "config is only handled during compile time" do
+    email = new_email(to: "foo@bar.com")
+
+    Application.put_env(:bamboo, __MODULE__.CustomConfigMailer, @mailer_config)
     CustomConfigMailer.deliver_now(email)
 
     assert_received {:deliver, _email, config}
