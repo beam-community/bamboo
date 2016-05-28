@@ -62,20 +62,21 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      config = Bamboo.Mailer.parse_opts(__MODULE__, opts)
-
-      @adapter config.adapter
-      @config config
-
       @spec deliver_now(Bamboo.Email.t) :: Bamboo.Email.t
       def deliver_now(email) do
-        Bamboo.Mailer.deliver_now(@adapter, email, @config)
+        config = get_config
+        Bamboo.Mailer.deliver_now(config.adapter, email, config)
       end
 
       @spec deliver_later(Bamboo.Email.t) :: Bamboo.Email.t
       def deliver_later(email) do
-        Bamboo.Mailer.deliver_later(@adapter, email, @config)
+        config = get_config
+        Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
+
+      otp_app = Keyword.fetch!(opts, :otp_app)
+
+      defp get_config, do: Bamboo.Mailer.parse_opts(__MODULE__, unquote(otp_app))
 
       def deliver(_email) do
         raise """
@@ -184,9 +185,8 @@ defmodule Bamboo.Mailer do
   end
 
   @doc false
-  def parse_opts(mailer, opts) do
-    otp_app = Keyword.fetch!(opts, :otp_app)
-    config = Application.fetch_env!(otp_app, mailer) |> Enum.into(%{})
+  def parse_opts(mailer, otp_app) do
+    config = Application.fetch_env!(otp_app, mailer) |> Map.new
 
     config.adapter.handle_config(config)
     |> Map.put_new(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
