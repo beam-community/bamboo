@@ -50,6 +50,14 @@ defmodule Bamboo.EmailPreviewPlug do
     end
   end
 
+  get "/:id/html" do
+    if email = SentEmail.get(id) do
+      conn |> send_resp(:ok, email.html_body)
+    else
+      conn |> render(:not_found, "email_not_found.html")
+    end
+  end
+
   defp all_emails do
     SentEmail.all
   end

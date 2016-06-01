@@ -159,7 +159,11 @@
         <section class="email-preview-bodies-container">
           <h3 class="email-preview-body-label">HTML body</h3>
           <p class="email-preview-body">
-            <%= @selected_email.html_body %>
+            <%= if is_nil(@selected_email.html_body) do %>
+              None
+            <% else %>
+              <a href="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/html" %>">Click Here to View</a>
+            <% end %>
           </p>
 
           <h3 class="email-preview-body-label">Text Body</h3>
