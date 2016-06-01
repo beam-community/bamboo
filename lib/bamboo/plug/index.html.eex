@@ -159,11 +159,13 @@
         <section class="email-preview-bodies-container">
           <h3 class="email-preview-body-label">HTML body</h3>
           <p class="email-preview-body">
-            <%= if is_nil(@selected_email.html_body) do %>
-              None
-            <% else %>
-              <a href="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/html" %>">Click Here to View</a>
-            <% end %>
+            <script>
+            function adjustFrameHeight(iframe) {
+              var body = iframe.contentWindow.document.body;
+              iframe.style.height = (body.scrollHeight + body.offsetHeight - body.clientHeight) + "px";
+            }
+            </script>
+            <iframe width="100%" onload="adjustFrameHeight(this)" src="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/html" %>"></iframe>
           </p>
 
           <h3 class="email-preview-body-label">Text Body</h3>
