@@ -51,6 +51,49 @@ defmodule Bamboo.Phoenix do
           |> render("text_email.text")
         end
       end
+
+  ## Full HTML Layout Example
+
+      # web/email.ex
+      defmodule Changelog.Email do
+        use Bamboo.Phoenix, view: Changelog.EmailView
+
+        def sign_in_email(person) do
+          base_email
+          |> to(person)
+          |> subject("Your Sign In Link")
+          |> assign(:person, person)
+          |> render(:sign_in)
+        end
+
+        defp base_email do
+          new_email
+          |> from("Rob Ot<robot@changelog.com>")
+          |> put_header("Reply-To", "editors@changelog.com")
+          |> put_html_layout({Changelog.LayoutView, "email.html"})
+        end
+      end
+
+      # web/views/email_view.ex
+      defmodule Changelog.EmailView do
+        use Changelog.Web, :view
+      end
+
+      # web/templates/layout/email.html.eex
+      <html>
+        <head>
+          <link rel="stylesheet" href="<%= static_url(Changelog.Endpoint, "/css/email.css") %>">
+        </head>
+        <body>
+          <%= render @view_module, @view_template, assigns %>
+        </body>
+      </html>
+
+      # web/templates/email/sign_in.html.eex
+      <p><%= link "Sign In", to: sign_in_url(Changelog.Endpoint, :create, @person) %></p>
+
+      # web/templates/email/sign_in.text.eex
+      Sign In: <%= sign_in_url(Changelog.Endpoint, :create, @person) %>
   """
 
   import Bamboo.Email, only: [put_private: 3]
