@@ -200,10 +200,10 @@ Here is what it looks like:
 
 ![Screenshot of BambooEmailPreview](https://cloud.githubusercontent.com/assets/22394/14929083/bda60b76-0e29-11e6-9e11-5ec60069e825.png)
 
-## Mandrill Specific Functionality (tags, merge vars, etc.)
+## Mandrill Specific Functionality (tags, merge vars, templates, etc.)
 
 Mandrill offers extra features on top of regular SMTP email like tagging, merge
-vars, and scheduling emails to send in the future. See
+vars, templates, and scheduling emails to send in the future. See
 [Bamboo.MandrillHelper](https://hexdocs.pm/bamboo/Bamboo.MandrillHelper.html).
 
 ## Heroku Configuration
