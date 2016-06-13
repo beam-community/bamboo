@@ -43,6 +43,13 @@ defmodule Bamboo.MandrillAdapterTest do
       end
     end
 
+    post "/api/1.0/messages/send-template.json" do
+      case get_in(conn.params, ["message", "from_email"]) do
+        "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!") |> send_to_parent
+        _ -> conn |> send_resp(200, "SENT") |> send_to_parent
+      end
+    end
+
     defp send_to_parent(conn) do
       parent = Agent.get(__MODULE__, fn(set) -> HashDict.get(set, :parent) end)
       send parent, {:fake_mandrill, conn}
@@ -76,6 +83,14 @@ defmodule Bamboo.MandrillAdapterTest do
     assert_receive {:fake_mandrill, %{request_path: request_path}}
 
     assert request_path == "/api/1.0/messages/send.json"
+  end
+
+  test "deliver/2 sends the to the right url for templates" do
+    new_email |> MandrillHelper.template("hello") |> MandrillAdapter.deliver(@config)
+
+    assert_receive {:fake_mandrill, %{request_path: request_path}}
+
+    assert request_path == "/api/1.0/messages/send-template.json"
   end
 
   test "deliver/2 sends from, html and text body, subject, and headers" do
