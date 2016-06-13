@@ -92,7 +92,15 @@ defmodule Bamboo.MandrillAdapter do
 
   defp convert_to_mandrill_params(email, api_key) do
     %{key: api_key, message: message_params(email)}
+    |> maybe_put_template_params(email)
   end
+
+  defp maybe_put_template_params(params, %{private: %{template_name: template_name, template_content: template_content}}) do
+    params
+    |> Map.put(:template_name, template_name)
+    |> Map.put(:template_content, template_content)
+  end
+  defp maybe_put_template_params(params, _), do: params
 
   defp message_params(email) do
     %{
