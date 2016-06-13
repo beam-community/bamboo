@@ -62,20 +62,22 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      config = Bamboo.Mailer.parse_opts(__MODULE__, opts)
-
-      @adapter config.adapter
-      @config config
 
       @spec deliver_now(Bamboo.Email.t) :: Bamboo.Email.t
       def deliver_now(email) do
-        Bamboo.Mailer.deliver_now(@adapter, email, @config)
+        config = build_config
+        Bamboo.Mailer.deliver_now(config.adapter, email, config)
       end
 
       @spec deliver_later(Bamboo.Email.t) :: Bamboo.Email.t
       def deliver_later(email) do
-        Bamboo.Mailer.deliver_later(@adapter, email, @config)
+        config = build_config
+        Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
+
+      otp_app = Keyword.fetch!(opts, :otp_app)
+
+      defp build_config, do: Bamboo.Mailer.build_config(__MODULE__, unquote(otp_app))
 
       def deliver(_email) do
         raise """
@@ -185,10 +187,21 @@ defmodule Bamboo.Mailer do
 
   @doc false
   def parse_opts(mailer, opts) do
-    otp_app = Keyword.fetch!(opts, :otp_app)
-    config = Application.fetch_env!(otp_app, mailer) |> Enum.into(%{})
+    Logger.warn("#{__MODULE__}.parse_opts/2 has been deprecated. Use #{__MODULE__}.build_config/2")
 
-    config.adapter.handle_config(config)
+    otp_app = Keyword.fetch!(opts, :otp_app)
+    build_config(mailer, otp_app)
+  end
+
+  def build_config(mailer, otp_app) do
+    otp_app
+    |> Application.fetch_env!(mailer)
+    |> Map.new
+    |> handle_adapter_config
+  end
+
+  defp handle_adapter_config(base_config = %{adapter: adapter}) do
+    adapter.handle_config(base_config)
     |> Map.put_new(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
   end
 end
