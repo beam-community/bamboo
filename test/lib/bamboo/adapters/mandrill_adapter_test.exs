@@ -93,7 +93,7 @@ defmodule Bamboo.MandrillAdapterTest do
     assert request_path == "/api/1.0/messages/send-template.json"
   end
 
-  test "deliver/2 sends from, html and text body, subject, and headers" do
+  test "deliver/2 sends from, html and text body, subject, headers and attachment" do
     email = new_email(
       from: {"From", "from@foo.com"},
       subject: "My Subject",
@@ -101,6 +101,7 @@ defmodule Bamboo.MandrillAdapterTest do
       html_body: "HTML BODY",
     )
     |> Email.put_header("Reply-To", "reply@foo.com")
+    |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
 
     email |> MandrillAdapter.deliver(@config)
 
@@ -113,6 +114,13 @@ defmodule Bamboo.MandrillAdapterTest do
     assert message["text"] == email.text_body
     assert message["html"] == email.html_body
     assert message["headers"] == email.headers
+    assert message["attachments"] == [
+      %{
+        "type" => "text/plain",
+        "name" => "attachment.txt",
+        "content" => "VGVzdCBBdHRhY2htZW50Cg=="
+      }
+    ]
   end
 
   test "deliver/2 correctly formats recipients" do
