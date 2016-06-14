@@ -51,6 +51,52 @@ defmodule Bamboo.Phoenix do
           |> render("text_email.text")
         end
       end
+
+  ## Full HTML Layout Example
+
+      # web/email.ex
+      defmodule Myapp.Email do
+        use Bamboo.Phoenix, view: Myapp.EmailView
+
+        def sign_in_email(person) do
+          base_email
+          |> to(person)
+          |> subject("Your Sign In Link")
+          |> assign(:person, person)
+          |> render(:sign_in)
+        end
+
+        defp base_email do
+          new_email
+          |> from("Rob Ot<robot@changelog.com>")
+          |> put_header("Reply-To", "editors@changelog.com")
+          # This will use the "email.html.eex" file as a layout when rendering html emails.
+          # Plain text emails will not use a layout unless you use `put_text_layout`
+          |> put_html_layout({Myapp.LayoutView, "email.html"})
+        end
+      end
+
+      # web/views/email_view.ex
+      defmodule Myapp.EmailView do
+        use Myapp.Web, :view
+      end
+
+      # web/templates/layout/email.html.eex
+      <html>
+        <head>
+          <link rel="stylesheet" href="<%= static_url(Myapp.Endpoint, "/css/email.css") %>">
+        </head>
+        <body>
+          <%= render @view_module, @view_template, assigns %>
+        </body>
+      </html>
+
+      # web/templates/email/sign_in.html.eex
+      <p><%= link "Sign In", to: sign_in_url(Myapp.Endpoint, :create, @person) %></p>
+
+      # web/templates/email/sign_in.text.eex
+      # This will not be rendered within a layout because `put_text_layout` was not used.
+      Sign In: <%= sign_in_url(Myapp.Endpoint, :create, @person) %>
   """
 
   import Bamboo.Email, only: [put_private: 3]
