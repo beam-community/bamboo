@@ -89,6 +89,17 @@ defmodule Bamboo.EmailPreviewTest do
     refute showing_in_preview_pane?(conn, SentEmail.get(unselected_email_id))
   end
 
+  test "shows an email's html by id" do
+    normalize_and_push_pair(:html_email)
+    selected_email_id = SentEmail.all |> Enum.at(0) |> SentEmail.get_id
+    conn = conn(:get, "/sent_emails/foo/#{selected_email_id}/html")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert conn.resp_body =~ SentEmail.get(selected_email_id).html_body
+  end
+
   test "shows error if email could not be found" do
     conn = conn(:get, "/sent_emails/foo/non_existent_id")
 

@@ -8,4 +8,12 @@ defmodule Bamboo.Factory do
       subject: sequence("Email subject")
     }
   end
+
+  def factory(:html_email) do
+    %Bamboo.Email{
+      from: sequence(:email, &"from-#{&1}@gmail.com"),
+      subject: sequence("Email subject"),
+      html_body: "<p>ohai!</p>"
+    }
+  end
 end

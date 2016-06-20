@@ -13,6 +13,11 @@
         font-family: sans-serif;
       }
 
+      iframe {
+        width: 100%;
+        border: none;
+      }
+
       .truncate {
         white-space: nowrap;
         overflow: hidden;
@@ -159,7 +164,13 @@
         <section class="email-preview-bodies-container">
           <h3 class="email-preview-body-label">HTML body</h3>
           <p class="email-preview-body">
-            <%= @selected_email.html_body %>
+            <script>
+            function adjustFrameHeight(iframe) {
+              var body = iframe.contentWindow.document.body;
+              iframe.style.height = (body.scrollHeight + body.offsetHeight - body.clientHeight) + "px";
+            }
+            </script>
+            <iframe onload="adjustFrameHeight(this)" src="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/html" %>"></iframe>
           </p>
 
           <h3 class="email-preview-body-label">Text Body</h3>
