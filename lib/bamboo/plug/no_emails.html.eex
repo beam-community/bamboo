@@ -45,9 +45,22 @@
     <main class="notice">
       <h1>No emails have been sent</h1>
       <p>
-        If you think you have sent an email and it is not showing up, make sure
-        you are using Bamboo.LocalAdapter for your mailer.
-      </p>
+        Here are some possible reasons
+
+        <ul>
+          <li>
+            <strong>Not using Bamboo.LocalAdapter.</strong> Make sure you have
+            your mailer configured to use Bamboo.LocalAdapter or the
+            emails will not show up here.
+          </li>
+
+          <li>
+            <strong>You recently restarted your server.</strong> The previewer
+            does not persist emails so whenever you restart the server the list
+            will be cleared.
+          </li>
+        </ul>
+      </P>
     </section>
   </body>
 </html>
