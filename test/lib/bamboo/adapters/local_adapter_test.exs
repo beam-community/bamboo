@@ -2,7 +2,7 @@ defmodule Bamboo.LocalAdapterTest do
   use ExUnit.Case
   alias Bamboo.SentEmail
   alias Bamboo.LocalAdapter
-  import Bamboo.Email, only: [new_email: 0, new_email: 1]
+  import Bamboo.Email, only: [new_email: 1]
 
   @config %{}
 
