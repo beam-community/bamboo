@@ -24,9 +24,12 @@
         width: 80%;
         max-width: 500px;
         padding: 40px 50px;
-        text-align: center;
         background-color: #f8f8f8;
         border-radius: 12px;
+      }
+
+      .main-message {
+        text-align: center;
       }
 
       h1 {
@@ -34,33 +37,28 @@
         font-size: 18px;
       }
 
-      p {
-        color: #555;
-        line-height: 25px;
+      li {
+        margin-bottom: 20px;
       }
     </style>
   </head>
 
   <body>
     <main class="notice">
-      <h1>No emails have been sent</h1>
-      <p>
-        Here are some possible reasons
+      <h1 class="main-message">No emails sent. Maybe because:</h1>
+      <ul>
+        <li>
+          <strong>Not using Bamboo.LocalAdapter.</strong> Make sure you have
+          your mailer configured to use Bamboo.LocalAdapter or the
+          emails will not show up here.
+        </li>
 
-        <ul>
-          <li>
-            <strong>Not using Bamboo.LocalAdapter.</strong> Make sure you have
-            your mailer configured to use Bamboo.LocalAdapter or the
-            emails will not show up here.
-          </li>
-
-          <li>
-            <strong>You recently restarted your server.</strong> The previewer
-            does not persist emails so whenever you restart the server the list
-            will be cleared.
-          </li>
-        </ul>
-      </P>
-    </section>
+        <li>
+          <strong>You recently restarted your server.</strong> The previewer
+          does not persist emails so whenever you restart the server the list
+          will be cleared.
+        </li>
+      </ul>
+    </main>
   </body>
 </html>
