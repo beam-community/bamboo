@@ -78,10 +78,12 @@ defmodule Bamboo.MailerTest do
   end
 
   test "deliver_now/1 with no from address" do
-    email = new_email(from: nil)
+    assert_raise Bamboo.EmptyFromAddressError, fn ->
+      FooMailer.deliver_now(new_email(from: nil))
+    end
 
     assert_raise Bamboo.EmptyFromAddressError, fn ->
-      FooMailer.deliver_now(email)
+      FooMailer.deliver_now(new_email(from: {"foo", nil}))
     end
   end
 
@@ -173,6 +175,21 @@ defmodule Bamboo.MailerTest do
   test "raises if all receipients are nil" do
     assert_raise Bamboo.NilRecipientsError, fn ->
       new_email(to: nil, cc: nil, bcc: nil) |> FooMailer.deliver_now
+    end
+
+    assert_raise Bamboo.NilRecipientsError, fn ->
+      new_email(to: {"foo", nil})
+      |> FooMailer.deliver_now
+    end
+
+    assert_raise Bamboo.NilRecipientsError, fn ->
+      new_email(to: [{"foo", nil}])
+      |> FooMailer.deliver_now
+    end
+
+    assert_raise Bamboo.NilRecipientsError, fn ->
+      new_email(to: [nil])
+      |> FooMailer.deliver_now
     end
   end
 
