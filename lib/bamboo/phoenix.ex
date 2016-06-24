@@ -52,7 +52,7 @@ defmodule Bamboo.Phoenix do
         end
       end
 
-  ## Full HTML Layout Example
+  ## HTML Layout Example
 
       # web/email.ex
       defmodule Myapp.Email do
