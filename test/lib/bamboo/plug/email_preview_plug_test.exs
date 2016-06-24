@@ -73,7 +73,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
-    assert conn.resp_body =~ "No emails have been sent"
+    assert conn.resp_body =~ "No emails sent"
   end
 
   test "shows an email by id" do
