@@ -2,14 +2,14 @@ defmodule Bamboo.Factory do
   use ExMachina
   use Bamboo.NormalizeAndPushStrategy
 
-  def factory(:email) do
+  def email_factory do
     %Bamboo.Email{
       from: sequence(:email, &"from-#{&1}@gmail.com"),
       subject: sequence("Email subject")
     }
   end
 
-  def factory(:html_email) do
+  def html_email_factory do
     %Bamboo.Email{
       from: sequence(:email, &"from-#{&1}@gmail.com"),
       subject: sequence("Email subject"),
