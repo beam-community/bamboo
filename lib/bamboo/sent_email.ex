@@ -117,7 +117,7 @@ defmodule Bamboo.SentEmail do
   end
 
   defp rand_id do
-    :crypto.rand_bytes(@id_length)
+    :crypto.strong_rand_bytes(@id_length)
     |> Base.url_encode64
     |> binary_part(0, @id_length)
   end
