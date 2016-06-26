@@ -58,7 +58,7 @@ defmodule Bamboo.Mixfile do
       {:floki, "~> 0.8", only: :test},
       {:ex_doc, "~> 0.9", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:httpoison, "~> 0.8"},
+      {:httpoison, "~> 0.9"},
       {:poison, ">= 1.5.0"},
     ]
   end
