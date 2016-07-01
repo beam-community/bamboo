@@ -30,6 +30,7 @@
 
       .main-message {
         text-align: center;
+        margin-bottom: 40px;
       }
 
       h1 {
@@ -39,6 +40,8 @@
 
       li {
         margin-bottom: 20px;
+        line-height: 27px;
+        color: #666;
       }
     </style>
   </head>
