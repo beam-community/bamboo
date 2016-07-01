@@ -1,6 +1,6 @@
 defmodule Bamboo.MandrillHelper do
   @moduledoc """
-  Functions for using features specific to Mandrill e.g. tagging, merge vars
+  Functions for using features specific to Mandrill e.g. tagging, merge vars, templates
   """
 
   alias Bamboo.Email
@@ -47,5 +47,24 @@ defmodule Bamboo.MandrillHelper do
   """
   def tag(email, tags) do
     put_param(email, "tags", List.wrap(tags))
+  end
+
+  @doc """
+  Send emails using Mandrill's template API.
+
+  Setup Mandrill to send using a named template with template content. Use this
+  in conjuction with merge vars to offload template rendering to Mandrill. The
+  template name specified here must match the template name stored in Mandrill.
+  Mandrill's API docs for this can be found [here](https://www.mandrillapp.com/api/docs/messages.JSON.html#method=send-template).
+
+  ## Example
+
+      template(email, "welcome")
+      template(email, "welcome", [%{"name" => "Name", "content" => "John"}])
+  """
+  def template(email, template_name, template_content \\ []) do
+    email
+    |> Email.put_private(:template_name, template_name)
+    |> Email.put_private(:template_content, template_content)
   end
 end

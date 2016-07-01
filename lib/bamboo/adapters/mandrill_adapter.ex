@@ -21,6 +21,7 @@ defmodule Bamboo.MandrillAdapter do
 
   @default_base_uri "https://mandrillapp.com/"
   @send_message_path "api/1.0/messages/send.json"
+  @send_message_template_path "api/1.0/messages/send-template.json"
   @behaviour Bamboo.Adapter
 
   defmodule ApiError do
@@ -56,7 +57,7 @@ defmodule Bamboo.MandrillAdapter do
   def deliver(email, config) do
     api_key = get_key(config)
     params = email |> convert_to_mandrill_params(api_key) |> Poison.encode!
-    case request!(@send_message_path, params) do
+    case request!(api_path(email), params) do
       %{status_code: status} = response when status > 299 ->
         raise(ApiError, %{params: params, response: response})
       response -> response
@@ -91,7 +92,15 @@ defmodule Bamboo.MandrillAdapter do
 
   defp convert_to_mandrill_params(email, api_key) do
     %{key: api_key, message: message_params(email)}
+    |> maybe_put_template_params(email)
   end
+
+  defp maybe_put_template_params(params, %{private: %{template_name: template_name, template_content: template_content}}) do
+    params
+    |> Map.put(:template_name, template_name)
+    |> Map.put(:template_content, template_content)
+  end
+  defp maybe_put_template_params(params, _), do: params
 
   defp message_params(email) do
     %{
@@ -129,6 +138,9 @@ defmodule Bamboo.MandrillAdapter do
       }]
     end)
   end
+
+  defp api_path(%{private: %{template_name: _}}), do: @send_message_template_path
+  defp api_path(_), do: @send_message_path
 
   defp headers do
     %{"content-type" => "application/json"}
