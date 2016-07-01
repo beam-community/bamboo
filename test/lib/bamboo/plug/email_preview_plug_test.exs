@@ -100,6 +100,17 @@ defmodule Bamboo.EmailPreviewTest do
     assert conn.resp_body =~ SentEmail.get(selected_email_id).html_body
   end
 
+  test "sends an empty body for html emails if html body is nil" do
+    normalize_and_push_pair(:email, html_body: nil)
+    selected_email_id = SentEmail.all |> Enum.at(0) |> SentEmail.get_id
+    conn = conn(:get, "/sent_emails/foo/#{selected_email_id}/html")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert conn.resp_body == ""
+  end
+
   test "shows error if email could not be found" do
     conn = conn(:get, "/sent_emails/foo/non_existent_id")
 
