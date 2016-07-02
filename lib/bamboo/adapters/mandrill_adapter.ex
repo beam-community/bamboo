@@ -20,6 +20,7 @@ defmodule Bamboo.MandrillAdapter do
   """
 
   @default_base_uri "https://mandrillapp.com/"
+  @base_uri Application.get_env(:bamboo, :mandrill_base_uri, @default_base_uri)
   @send_message_path "api/1.0/messages/send.json"
   @send_message_template_path "api/1.0/messages/send-template.json"
   @behaviour Bamboo.Adapter
@@ -147,10 +148,6 @@ defmodule Bamboo.MandrillAdapter do
   end
 
   defp request!(path, params) do
-    HTTPoison.post!("#{base_uri}/#{path}", params, headers)
-  end
-
-  defp base_uri do
-    Application.get_env(:bamboo, :mandrill_base_uri) || @default_base_uri
+    HTTPoison.post!(@base_uri <> path, params, headers)
   end
 end

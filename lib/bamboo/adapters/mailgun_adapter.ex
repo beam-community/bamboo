@@ -19,7 +19,8 @@ defmodule Bamboo.MailgunAdapter do
       end
   """
 
-  @base_uri "https://api.mailgun.net/v3/"
+  @default_base_uri "https://api.mailgun.net/v3/"
+  @base_uri Application.get_env(:bamboo, :mailgun_base_uri, @default_base_uri)
   @behaviour Bamboo.Adapter
 
   alias Bamboo.Email
@@ -123,7 +124,6 @@ defmodule Bamboo.MailgunAdapter do
   defp put_text_body(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
 
   defp full_uri(config) do
-    (Application.get_env(:bamboo, :mailgun_base_uri) || @base_uri)
-    <> config.domain <> "/messages"
+    @base_uri <> config.domain <> "/messages"
   end
 end
