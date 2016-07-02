@@ -16,40 +16,36 @@ defmodule Bamboo.FakeEndpoint do
     Plug.Adapters.Cowboy.http __MODULE__, [], port: 8765, ref: __MODULE__
   end
 
-  def register(name, pid) do
+  def register(pid, %{
+    name: name,
+    params_path: params_path,
+    request_path: request_path
+  }) do
     Agent.update(__MODULE__, &Map.put(&1, name, pid))
+
+    request_paths = List.wrap(request_path)
+
+    for request_path <- request_paths do
+      Agent.update(__MODULE__, &Map.put(&1, request_path, %{
+        name: name, params_path: params_path
+      }))
+    end
   end
 
-  post "/test.tt/messages" do
-    case Map.get(conn.params, "from") do
-      "INVALID_EMAIL" -> send_resp(conn, 500, "Error!!")
-      _ -> send_resp(conn, 200, "SENT")
-    end |> send_to_parent("mailgun")
-  end
+  post "/*request_path" do
+    request_path = "/" <> Enum.join(request_path, "/")
 
-  post "/api/1.0/messages/send.json" do
-    case get_in(conn.params, ["message", "from_email"]) do
+    %{name: name, params_path: params_path} =
+      Agent.get(__MODULE__, &(&1[request_path]))
+
+    case get_in(conn.params, params_path) do
       "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!")
       _ -> conn |> send_resp(200, "SENT")
-    end |> send_to_parent("mandrill")
-  end
-
-  post "/api/1.0/messages/send-template.json" do
-    case get_in(conn.params, ["message", "from_email"]) do
-      "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!")
-      _ -> conn |> send_resp(200, "SENT")
-    end |> send_to_parent("mandrill")
-  end
-
-  post "/mail.send.json" do
-    case Map.get(conn.params, "from") do
-      "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!")
-      _ -> conn |> send_resp(200, "SENT")
-    end |> send_to_parent("sendgrid")
+    end |> send_to_parent(name)
   end
 
   defp send_to_parent(conn, which) do
-    parent = Agent.get(__MODULE__, fn(map) -> Map.get(map, which) end)
+    parent = Agent.get(__MODULE__, &Map.get(&1, which))
     send parent, {:fake_endpoint, conn}
     conn
   end

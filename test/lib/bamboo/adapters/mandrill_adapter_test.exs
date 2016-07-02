@@ -10,7 +10,14 @@ defmodule Bamboo.MandrillAdapterTest do
 
   setup do
     FakeEndpoint.start_server
-    FakeEndpoint.register("mandrill", self())
+    FakeEndpoint.register(self(), %{
+      name: "mandrill",
+      params_path: ["message", "from_email"],
+      request_path: [
+        "/api/1.0/messages/send.json",
+        "/api/1.0/messages/send-template.json"
+      ]
+    })
 
     :ok
   end

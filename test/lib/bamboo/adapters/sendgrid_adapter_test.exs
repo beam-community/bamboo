@@ -9,7 +9,11 @@ defmodule Bamboo.SendgridAdapterTest do
 
   setup do
     FakeEndpoint.start_server
-    FakeEndpoint.register("sendgrid", self())
+    FakeEndpoint.register(self(), %{
+      name: "sendgrid",
+      params_path: ["from"],
+      request_path: "/mail.send.json"
+    })
 
     :ok
   end

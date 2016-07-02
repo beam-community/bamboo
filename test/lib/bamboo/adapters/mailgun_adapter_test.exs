@@ -10,7 +10,11 @@ defmodule Bamboo.MailgunAdapterTest do
 
   setup do
     FakeEndpoint.start_server
-    FakeEndpoint.register("mailgun", self())
+    FakeEndpoint.register(self(), %{
+      name: "mailgun",
+      params_path: ["from"],
+      request_path: "/test.tt/messages"
+    })
 
     :ok
   end
