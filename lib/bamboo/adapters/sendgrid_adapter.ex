@@ -19,6 +19,7 @@ defmodule Bamboo.SendgridAdapter do
   """
 
   @default_base_uri "https://api.sendgrid.com/api"
+  @base_uri Application.get_env(:bamboo, :sendgrid_base_uri, @default_base_uri)
   @send_message_path "/mail.send.json"
   @behaviour Bamboo.Adapter
 
@@ -58,7 +59,7 @@ defmodule Bamboo.SendgridAdapter do
     api_key = get_key(config)
     body = email |> to_sendgrid_body |> Plug.Conn.Query.encode
 
-    case HTTPoison.post!(base_uri <> @send_message_path, body, headers(api_key)) do
+    case HTTPoison.post!(@base_uri <> @send_message_path, body, headers(api_key)) do
       %{status_code: status} = response when status > 299 ->
         raise(ApiError, %{params: body, response: response})
       response -> response
@@ -159,9 +160,5 @@ defmodule Bamboo.SendgridAdapter do
   defp list_empty?([]), do: true
   defp list_empty?(list) do
     Enum.all?(list, fn(el) -> el == "" || el == nil end)
-  end
-
-  defp base_uri do
-    Application.get_env(:bamboo, :sendgrid_base_uri) || @default_base_uri
   end
 end
