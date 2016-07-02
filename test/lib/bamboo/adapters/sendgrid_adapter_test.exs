@@ -2,59 +2,14 @@ defmodule Bamboo.SendgridAdapterTest do
   use ExUnit.Case
   alias Bamboo.Email
   alias Bamboo.SendgridAdapter
+  alias Bamboo.FakeEndpoint
 
   @config %{adapter: SendgridAdapter, api_key: "123_abc"}
   @config_with_bad_key %{adapter: SendgridAdapter, api_key: nil}
 
-  defmodule FakeSendgrid do
-    use Plug.Router
-
-    plug Plug.Parsers,
-      parsers: [:urlencoded, :multipart, :json],
-      pass: ["*/*"],
-      json_decoder: Poison
-    plug :match
-    plug :dispatch
-
-    def start_server(parent) do
-      Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
-      Agent.update(__MODULE__, &HashDict.put(&1, :parent, parent))
-      port = get_free_port
-      Application.put_env(:bamboo, :sendgrid_base_uri, "http://localhost:#{port}")
-      Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
-    end
-
-    defp get_free_port do
-      {:ok, socket} = :ranch_tcp.listen(port: 0)
-      {:ok, port} = :inet.port(socket)
-      :erlang.port_close(socket)
-      port
-    end
-
-    def shutdown do
-      Plug.Adapters.Cowboy.shutdown __MODULE__
-    end
-
-    post "/mail.send.json" do
-      case Map.get(conn.params, "from") do
-        "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!") |> send_to_parent
-        _ -> conn |> send_resp(200, "SENT") |> send_to_parent
-      end
-    end
-
-    defp send_to_parent(conn) do
-      parent = Agent.get(__MODULE__, fn(set) -> HashDict.get(set, :parent) end)
-      send parent, {:fake_sendgrid, conn}
-      conn
-    end
-  end
-
   setup do
-    FakeSendgrid.start_server(self)
-
-    on_exit fn ->
-      FakeSendgrid.shutdown
-    end
+    FakeEndpoint.start_server
+    FakeEndpoint.register("sendgrid", self())
 
     :ok
   end
@@ -72,7 +27,7 @@ defmodule Bamboo.SendgridAdapterTest do
   test "deliver/2 sends the to the right url" do
     new_email |> SendgridAdapter.deliver(@config)
 
-    assert_receive {:fake_sendgrid, %{request_path: request_path}}
+    assert_receive {:fake_endpoint, %{request_path: request_path}}
 
     assert request_path == "/mail.send.json"
   end
@@ -88,7 +43,7 @@ defmodule Bamboo.SendgridAdapterTest do
 
     email |> SendgridAdapter.deliver(@config)
 
-    assert_receive {:fake_sendgrid, %{params: params, req_headers: headers}}
+    assert_receive {:fake_endpoint, %{params: params, req_headers: headers}}
 
     assert params["fromname"] == email.from |> elem(0)
     assert params["from"] == email.from |> elem(1)
@@ -107,7 +62,7 @@ defmodule Bamboo.SendgridAdapterTest do
 
     email |> SendgridAdapter.deliver(@config)
 
-    assert_receive {:fake_sendgrid, %{params: params}}
+    assert_receive {:fake_endpoint, %{params: params}}
     assert params["to"] == ["to@bar.com", "noname@bar.com"]
     assert params["toname"] == ["To", ""]
     assert params["cc"] == ["cc@bar.com"]

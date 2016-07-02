@@ -2,60 +2,15 @@ defmodule Bamboo.MailgunAdapterTest do
   use ExUnit.Case
   alias Bamboo.Email
   alias Bamboo.MailgunAdapter
+  alias Bamboo.FakeEndpoint
 
   @config %{adapter: MailgunAdapter, api_key: "dummyapikey", domain: "test.tt"}
   @config_with_bad_key %{@config | api_key: nil}
   @config_with_bad_domain %{@config | domain: nil}
 
-  defmodule FakeMailgun do
-    use Plug.Router
-
-    plug Plug.Parsers,
-      parsers: [:urlencoded, :multipart, :json],
-      pass: ["*/*"],
-      json_decoder: Poison
-    plug :match
-    plug :dispatch
-
-    def start_server(parent) do
-      Agent.start_link(fn -> Map.new end, name: __MODULE__)
-      Agent.update(__MODULE__, &Map.put(&1, :parent, parent))
-      port = get_free_port
-      Application.put_env(:bamboo, :mailgun_base_uri, "http://localhost:#{port}/")
-      Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
-    end
-
-    defp get_free_port do
-      {:ok, socket} = :ranch_tcp.listen(port: 0)
-      {:ok, port} = :inet.port(socket)
-      :erlang.port_close(socket)
-      port
-    end
-
-    def shutdown do
-      Plug.Adapters.Cowboy.shutdown __MODULE__
-    end
-
-    post "/test.tt/messages" do
-      case Map.get(conn.params, "from") do
-        "INVALID_EMAIL" -> send_resp(conn, 500, "Error!!")
-        _ -> send_resp(conn, 200, "SENT")
-      end |> send_to_parent
-    end
-
-    defp send_to_parent(conn) do
-      parent = Agent.get(__MODULE__, fn(set) -> Map.get(set, :parent) end)
-      send parent, {:fake_mailgun, conn}
-      conn
-    end
-  end
-
   setup do
-    FakeMailgun.start_server(self)
-
-    on_exit fn ->
-      FakeMailgun.shutdown
-    end
+    FakeEndpoint.start_server
+    FakeEndpoint.register("mailgun", self())
 
     :ok
   end
@@ -75,7 +30,7 @@ defmodule Bamboo.MailgunAdapterTest do
   test "deliver/2 sends the to the right url" do
     new_email |> MailgunAdapter.deliver(@config)
 
-    assert_receive {:fake_mailgun, %{request_path: request_path}}
+    assert_receive {:fake_endpoint, %{request_path: request_path}}
 
     assert request_path == "/test.tt/messages"
   end
@@ -90,7 +45,7 @@ defmodule Bamboo.MailgunAdapterTest do
 
     MailgunAdapter.deliver(email, @config)
 
-    assert_receive {:fake_mailgun, %{params: params, req_headers: headers}}
+    assert_receive {:fake_endpoint, %{params: params, req_headers: headers}}
 
     assert params["from"] == elem(email.from, 1)
     assert params["subject"] == email.subject
@@ -111,7 +66,7 @@ defmodule Bamboo.MailgunAdapterTest do
 
     email |> MailgunAdapter.deliver(@config)
 
-    assert_receive {:fake_mailgun, %{params: params}}
+    assert_receive {:fake_endpoint, %{params: params}}
     assert params["to"] == ["To <to@bar.com>", "noname@bar.com"]
     assert params["cc"] == ["CC <cc@bar.com>"]
     assert params["bcc"] == ["BCC <bcc@bar.com>"]

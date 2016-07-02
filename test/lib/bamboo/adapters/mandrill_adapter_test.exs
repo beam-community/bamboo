@@ -3,66 +3,14 @@ defmodule Bamboo.MandrillAdapterTest do
   alias Bamboo.Email
   alias Bamboo.MandrillHelper
   alias Bamboo.MandrillAdapter
+  alias Bamboo.FakeEndpoint
 
   @config %{adapter: MandrillAdapter, api_key: "123_abc"}
   @config_with_bad_key %{adapter: MandrillAdapter, api_key: nil}
 
-  defmodule FakeMandrill do
-    use Plug.Router
-
-    plug Plug.Parsers,
-      parsers: [:urlencoded, :multipart, :json],
-      pass: ["*/*"],
-      json_decoder: Poison
-    plug :match
-    plug :dispatch
-
-    def start_server(parent) do
-      Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
-      Agent.update(__MODULE__, &HashDict.put(&1, :parent, parent))
-      port = get_free_port
-      Application.put_env(:bamboo, :mandrill_base_uri, "http://localhost:#{port}")
-      Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
-    end
-
-    defp get_free_port do
-      {:ok, socket} = :ranch_tcp.listen(port: 0)
-      {:ok, port} = :inet.port(socket)
-      :erlang.port_close(socket)
-      port
-    end
-
-    def shutdown do
-      Plug.Adapters.Cowboy.shutdown __MODULE__
-    end
-
-    post "/api/1.0/messages/send.json" do
-      case get_in(conn.params, ["message", "from_email"]) do
-        "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!") |> send_to_parent
-        _ -> conn |> send_resp(200, "SENT") |> send_to_parent
-      end
-    end
-
-    post "/api/1.0/messages/send-template.json" do
-      case get_in(conn.params, ["message", "from_email"]) do
-        "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!") |> send_to_parent
-        _ -> conn |> send_resp(200, "SENT") |> send_to_parent
-      end
-    end
-
-    defp send_to_parent(conn) do
-      parent = Agent.get(__MODULE__, fn(set) -> HashDict.get(set, :parent) end)
-      send parent, {:fake_mandrill, conn}
-      conn
-    end
-  end
-
   setup do
-    FakeMandrill.start_server(self)
-
-    on_exit fn ->
-      FakeMandrill.shutdown
-    end
+    FakeEndpoint.start_server
+    FakeEndpoint.register("mandrill", self())
 
     :ok
   end
@@ -80,7 +28,7 @@ defmodule Bamboo.MandrillAdapterTest do
   test "deliver/2 sends the to the right url" do
     new_email |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{request_path: request_path}}
+    assert_receive {:fake_endpoint, %{request_path: request_path}}
 
     assert request_path == "/api/1.0/messages/send.json"
   end
@@ -88,7 +36,7 @@ defmodule Bamboo.MandrillAdapterTest do
   test "deliver/2 sends the to the right url for templates" do
     new_email |> MandrillHelper.template("hello") |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{request_path: request_path}}
+    assert_receive {:fake_endpoint, %{request_path: request_path}}
 
     assert request_path == "/api/1.0/messages/send-template.json"
   end
@@ -104,7 +52,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
     email |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: params}}
+    assert_receive {:fake_endpoint, %{params: params}}
     assert params["key"] == @config[:api_key]
     message = params["message"]
     assert message["from_name"] == email.from |> elem(0)
@@ -124,7 +72,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
     email |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
+    assert_receive {:fake_endpoint, %{params: %{"message" => message}}}
     assert message["to"] == [
       %{"name" => "To", "email" => "to@bar.com", "type" => "to"},
       %{"name" => "CC", "email" => "cc@bar.com", "type" => "cc"},
@@ -137,7 +85,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
     email |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
+    assert_receive {:fake_endpoint, %{params: %{"message" => message}}}
     assert message["important"] == true
   end
 
@@ -146,7 +94,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
     email |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: %{"template_name" => template_name, "template_content" => template_content}}}
+    assert_receive {:fake_endpoint, %{params: %{"template_name" => template_name, "template_content" => template_content}}}
     assert template_name == "hello"
     assert template_content == []
   end
@@ -158,7 +106,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
     email |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: %{"template_name" => template_name, "template_content" => template_content}}}
+    assert_receive {:fake_endpoint, %{params: %{"template_name" => template_name, "template_content" => template_content}}}
     assert template_name == "hello"
     assert template_content == [%{"content" => 'example content', "name" => 'example name'}]
   end
