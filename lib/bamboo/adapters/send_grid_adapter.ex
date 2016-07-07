@@ -1,11 +1,22 @@
-defmodule Bamboo.SendgridAdapter do
+defmodule Bamboo.SendGridAdapter do
   @moduledoc """
-  WARNING: this module is deprecated.
+  Sends email using SendGrid's JSON API.
 
-  You should instead use the `SendGridAdapter` module.
+  Use this adapter to send emails through SendGrid's API. Requires that an API
+  key is set in the config.
+
+  ## Example config
+
+      # In config/config.exs, or config.prod.exs, etc.
+      config :my_app, MyApp.Mailer,
+        adapter: Bamboo.SendgridAdapter,
+        api_key: "my_api_key"
+
+      # Define a Mailer. Maybe in lib/my_app/mailer.ex
+      defmodule MyApp.Mailer do
+        use Bamboo.Mailer, otp_app: :my_app
+      end
   """
-
-  # TODO: Deprecate every function by 1.0
 
   @default_base_uri "https://api.sendgrid.com/api"
   @send_message_path "/mail.send.json"
