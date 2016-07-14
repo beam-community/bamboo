@@ -1,7 +1,7 @@
 defmodule Bamboo.SendgridAdapter do
   @moduledoc false
 
-  def deliver(email, config) do
+  def deliver(_email, _config) do
     raise """
     Bamboo.SendgridAdapter has been renamed to SendGridAdapter (note the capital "G")
 
