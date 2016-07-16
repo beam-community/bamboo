@@ -1,9 +1,6 @@
 defmodule Bamboo.SendgridHelper do
   @moduledoc """
-  Functions for using features specific to Sendgrid template substitution tags.
-
-  Only one template can be specified, but multiple tags can be added to the
-  email. Ordering of the function calls do not make a difference.
+  Functions for using features specific to Sendgrid.
 
   ## Example
 
@@ -16,27 +13,26 @@ defmodule Bamboo.SendgridHelper do
   alias Bamboo.Email
 
   @id_size 36
+  @field_name "x-smtpapi"
 
   @doc """
-  Specify the template for SendGrid to use for the substitutions
-
-  The `template_id` must be a valid `UUID` as generated for each template by
-  SendGrid. If called multiple times, the last template specified will be used.
+  Specify the template for SendGrid to use for the context of the substitution
+  tags.
 
   ## Example
 
       email
       |> with_template("80509523-83de-42b6-a2bf-54b7513bd2aa")
   """
-  def with_template(%Email{private: %{"x-smtpapi" => _}} = email, template_id) when byte_size(template_id) == @id_size do
-    fields = email.private["x-smtpapi"]
-             |> Map.merge(%{"filters" => build_template_filter(template_id)})
-
-    email |> Email.put_private("x-smtpapi", fields)
-  end
-
-  def with_template(email, template_id) when byte_size(template_id) == @id_size do
-    email |> Email.put_private("x-smtpapi", %{"filters" => build_template_filter(template_id)})
+  def with_template(email, template_id) do
+    case byte_size(template_id) == @id_size do
+      false ->
+        raise "expected the template_id parameter to be a UUID 36 characters long, got #{template_id}"
+      true ->
+        xsmtpapi = Map.get(email.private, @field_name, %{})
+        email
+        |> Email.put_private(@field_name, set_template(xsmtpapi, template_id))
+    end
   end
 
   @doc """
@@ -50,18 +46,27 @@ defmodule Bamboo.SendgridHelper do
       email
       |> substitute("%name%", "Jon Snow")
   """
-  def substitute(%Email{private: %{"x-smtpapi" => _}} = email, tag, value) when is_binary(tag) do
-    substitutions = Map.get(email.private["x-smtpapi"], "sub", %{})
-      |> Map.merge(%{tag => [value]})
-
-    fields = email.private["x-smtpapi"]
-      |> Map.merge(%{"sub" => substitutions})
-
-    email |> Email.put_private("x-smtpapi", fields)
+  def substitute(email, tag, value) do
+    case is_binary(tag) do
+      false ->
+        raise "expected the tag parameter to be of type binary, got #{tag}"
+      true ->
+        xsmtpapi = Map.get(email.private, @field_name, %{})
+        email
+        |> Email.put_private(@field_name, add_subsitution(xsmtpapi, tag, value))
+    end
   end
 
-  def substitute(email, tag, value) when is_binary(tag) do
-    email |> Email.put_private("x-smtpapi", %{"sub" => %{tag => [value]}})
+  defp set_template(xsmtpapi, template_id) do
+    xsmtpapi
+    |> Map.merge(%{"filters" => build_template_filter(template_id)})
+  end
+
+  defp add_subsitution(xsmtpapi, tag, value) do
+    xsmtpapi
+    |> Map.update("sub", %{tag => [value]}, fn substitutions ->
+      Map.merge(substitutions, %{tag => [value]})
+    end)
   end
 
   defp build_template_filter(template_id) do

@@ -128,8 +128,20 @@ defmodule Bamboo.SendgridAdapterTest do
     |> SendgridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
-    assert params["text"]
-    assert params["x-smtpapi"]
+    assert params["text"] == " "
+    assert Poison.decode(params["x-smtpapi"]) == {:ok, %{
+        "sub" => %{
+          "%foo%" => ["bar"]
+        },
+        "filters" => %{
+          "templates" => %{
+            "settings" => %{
+              "enable" => 1,
+              "template_id" => "a4ca8ac9-3294-4eaf-8edc-335935192b8d"
+            }
+          }
+        }
+      }}
   end
 
   test "raises if the response is not a success" do
