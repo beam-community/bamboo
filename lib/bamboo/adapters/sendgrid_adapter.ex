@@ -107,7 +107,7 @@ defmodule Bamboo.SendgridAdapter do
     |> put_subject(email)
     |> put_html_body(email)
     |> put_text_body(email)
-    |> put_x_smtp_api(email)
+    |> maybe_put_x_smtp_api(email)
   end
 
   defp put_from(body, %Email{from: {"", address}}), do: Map.put(body, :from, address)
@@ -148,16 +148,16 @@ defmodule Bamboo.SendgridAdapter do
   defp put_text_body(body, %Email{text_body: nil}), do: body
   defp put_text_body(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
 
-  defp put_x_smtp_api(body, %Email{private: %{"x-smtpapi" => fields}} = email) do
+  defp maybe_put_x_smtp_api(body, %Email{private: %{"x-smtpapi" => fields}} = email) do
     # SendGrid will error with empty bodies, even while using templates.
     # Sets a default `text_body` if one is not specified, allowing the consumer
-    # to negelect doing so themselves.
+    # to neglect doing so themselves.
     case {email.text_body, email.html_body} do
       {nil, nil} -> put_text_body(body, %Email{email | text_body: " "})
       _ -> body
     end |> Map.put("x-smtpapi", Poison.encode!(fields))
   end
-  defp put_x_smtp_api(body, _), do: body
+  defp maybe_put_x_smtp_api(body, _), do: body
 
   defp put_addresses(body, field, addresses), do: Map.put(body, field, addresses)
   defp put_names(body, field, names) do
