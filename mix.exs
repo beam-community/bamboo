@@ -30,7 +30,7 @@ defmodule Bamboo.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :httpoison, :poison],
+      applications: [:logger, :hackney, :poison],
       mod: {Bamboo, []}
     ]
   end
@@ -58,7 +58,7 @@ defmodule Bamboo.Mixfile do
       {:floki, "~> 0.8", only: :test},
       {:ex_doc, "~> 0.9", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:httpoison, "~> 0.9"},
+      {:hackney, "~> 1.6"},
       {:poison, ">= 1.5.0"},
     ]
   end

@@ -19,13 +19,17 @@ defmodule Bamboo.MandrillAdapter do
       end
   """
 
-  @default_base_uri "https://mandrillapp.com/"
+  @default_base_uri "https://mandrillapp.com"
   @send_message_path "api/1.0/messages/send.json"
   @send_message_template_path "api/1.0/messages/send-template.json"
   @behaviour Bamboo.Adapter
 
   defmodule ApiError do
     defexception [:message]
+
+    def exception(%{message: message}) do
+      %ApiError{message: message}
+    end
 
     def exception(%{params: params, response: response}) do
       filtered_params = params |> Poison.decode! |> Map.put("key", "[FILTERED]")
@@ -57,10 +61,15 @@ defmodule Bamboo.MandrillAdapter do
   def deliver(email, config) do
     api_key = get_key(config)
     params = email |> convert_to_mandrill_params(api_key) |> Poison.encode!
-    case request!(api_path(email), params) do
-      %{status_code: status} = response when status > 299 ->
+    uri = [base_uri(), "/", api_path(email)]
+
+    case :hackney.post(uri, headers(), params, [:with_body]) do
+      {:ok, status, _headers, response} when status > 299 ->
         raise(ApiError, %{params: params, response: response})
-      response -> response
+      {:ok, status, headers, response} ->
+        %{status_code: status, headers: headers, body: response}
+      {:error, reason} ->
+        raise(ApiError, %{message: inspect(reason)})
     end
   end
 
@@ -143,11 +152,7 @@ defmodule Bamboo.MandrillAdapter do
   defp api_path(_), do: @send_message_path
 
   defp headers do
-    %{"content-type" => "application/json"}
-  end
-
-  defp request!(path, params) do
-    HTTPoison.post!("#{base_uri}/#{path}", params, headers)
+    [{"content-type", "application/json"}]
   end
 
   defp base_uri do

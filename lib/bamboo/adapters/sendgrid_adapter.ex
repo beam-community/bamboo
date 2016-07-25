@@ -27,6 +27,10 @@ defmodule Bamboo.SendgridAdapter do
   defmodule ApiError do
     defexception [:message]
 
+    def exception(%{message: message}) do
+      %ApiError{message: message}
+    end
+
     def exception(%{params: params, response: response}) do
       filtered_params = params |> Plug.Conn.Query.decode |> Map.put("key", "[FILTERED]")
 
@@ -57,11 +61,15 @@ defmodule Bamboo.SendgridAdapter do
   def deliver(email, config) do
     api_key = get_key(config)
     body = email |> to_sendgrid_body |> Plug.Conn.Query.encode
+    url = [base_uri, @send_message_path]
 
-    case HTTPoison.post!(base_uri <> @send_message_path, body, headers(api_key)) do
-      %{status_code: status} = response when status > 299 ->
+    case :hackney.post(url, headers(api_key), body, [:with_body]) do
+      {:ok, status, _headers, response} when status > 299 ->
         raise(ApiError, %{params: body, response: response})
-      response -> response
+      {:ok, status, headers, response} ->
+        %{status_code: status, headers: headers, body: response}
+      {:error, reason} ->
+        raise(ApiError, %{message: inspect(reason)})
     end
   end
 
