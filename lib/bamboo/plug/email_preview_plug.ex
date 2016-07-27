@@ -10,19 +10,24 @@ defmodule Bamboo.EmailPreviewPlug do
 
   ## Using with Plug or Phoenix
 
-      # Make sure you are using Bamboo.LocalAdapter in your config
+      # Ensure you are using Bamboo.LocalAdapter in your config
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.LocalAdapter
 
       # In your Router
+      # If using Phoenix:
       defmodule MyApp.Router do
-        use Phoenix.Router # or use Plug.Router if you're not using Phoenix
 
         if Mix.env == :dev do
-          # If using Phoenix
           forward "/sent_emails", Bamboo.EmailPreviewPlug
+        end
+      end
 
-          # If using Plug.Router, make sure to add the `to`
+      # If using Plug (note the added `to:`):
+      defmodule MyApp.Router do
+        use Plug.Router
+      
+        if Mix.env == :dev do
           forward "/sent_emails", to: Bamboo.EmailPreviewPlug
         end
       end
