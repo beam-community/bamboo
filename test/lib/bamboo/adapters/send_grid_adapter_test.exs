@@ -1,12 +1,12 @@
-defmodule Bamboo.SendgridAdapterTest do
+defmodule Bamboo.SendGridAdapterTest do
   use ExUnit.Case
   alias Bamboo.Email
-  alias Bamboo.SendgridAdapter
+  alias Bamboo.SendGridAdapter
 
-  @config %{adapter: SendgridAdapter, api_key: "123_abc"}
-  @config_with_bad_key %{adapter: SendgridAdapter, api_key: nil}
+  @config %{adapter: SendGridAdapter, api_key: "123_abc"}
+  @config_with_bad_key %{adapter: SendGridAdapter, api_key: nil}
 
-  defmodule FakeSendgrid do
+  defmodule FakeSendGrid do
     use Plug.Router
 
     plug Plug.Parsers,
@@ -44,16 +44,16 @@ defmodule Bamboo.SendgridAdapterTest do
 
     defp send_to_parent(conn) do
       parent = Agent.get(__MODULE__, fn(set) -> HashDict.get(set, :parent) end)
-      send parent, {:fake_sendgrid, conn}
+      send parent, {:fake_send_grid, conn}
       conn
     end
   end
 
   setup do
-    FakeSendgrid.start_server(self)
+    FakeSendGrid.start_server(self)
 
     on_exit fn ->
-      FakeSendgrid.shutdown
+      FakeSendGrid.shutdown
     end
 
     :ok
@@ -61,18 +61,18 @@ defmodule Bamboo.SendgridAdapterTest do
 
   test "raises if the api key is nil" do
     assert_raise ArgumentError, ~r/no API key set/, fn ->
-      new_email(from: "foo@bar.com") |> SendgridAdapter.deliver(@config_with_bad_key)
+      new_email(from: "foo@bar.com") |> SendGridAdapter.deliver(@config_with_bad_key)
     end
 
     assert_raise ArgumentError, ~r/no API key set/, fn ->
-      SendgridAdapter.handle_config(%{})
+      SendGridAdapter.handle_config(%{})
     end
   end
 
   test "deliver/2 sends the to the right url" do
-    new_email |> SendgridAdapter.deliver(@config)
+    new_email |> SendGridAdapter.deliver(@config)
 
-    assert_receive {:fake_sendgrid, %{request_path: request_path}}
+    assert_receive {:fake_send_grid, %{request_path: request_path}}
 
     assert request_path == "/mail.send.json"
   end
@@ -86,9 +86,9 @@ defmodule Bamboo.SendgridAdapterTest do
     )
     |> Email.put_header("Reply-To", "reply@foo.com")
 
-    email |> SendgridAdapter.deliver(@config)
+    email |> SendGridAdapter.deliver(@config)
 
-    assert_receive {:fake_sendgrid, %{params: params, req_headers: headers}}
+    assert_receive {:fake_send_grid, %{params: params, req_headers: headers}}
 
     assert params["fromname"] == email.from |> elem(0)
     assert params["from"] == email.from |> elem(1)
@@ -105,9 +105,9 @@ defmodule Bamboo.SendgridAdapterTest do
       bcc: [{"BCC", "bcc@bar.com"}],
     )
 
-    email |> SendgridAdapter.deliver(@config)
+    email |> SendGridAdapter.deliver(@config)
 
-    assert_receive {:fake_sendgrid, %{params: params}}
+    assert_receive {:fake_send_grid, %{params: params}}
     assert params["to"] == ["to@bar.com", "noname@bar.com"]
     assert params["toname"] == ["To", ""]
     assert params["cc"] == ["cc@bar.com"]
@@ -119,16 +119,16 @@ defmodule Bamboo.SendgridAdapterTest do
   test "raises if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.SendgridAdapter.ApiError, fn ->
-      email |> SendgridAdapter.deliver(@config)
+    assert_raise Bamboo.SendGridAdapter.ApiError, fn ->
+      email |> SendGridAdapter.deliver(@config)
     end
   end
 
   test "removes api key from error output" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.SendgridAdapter.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
-      email |> SendgridAdapter.deliver(@config)
+    assert_raise Bamboo.SendGridAdapter.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
+      email |> SendGridAdapter.deliver(@config)
     end
   end
 

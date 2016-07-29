@@ -1,4 +1,4 @@
-defmodule Bamboo.SendgridAdapter do
+defmodule Bamboo.SendGridAdapter do
   @moduledoc """
   Sends email using SendGrid's JSON API.
 
@@ -9,7 +9,7 @@ defmodule Bamboo.SendgridAdapter do
 
       # In config/config.exs, or config.prod.exs, etc.
       config :my_app, MyApp.Mailer,
-        adapter: Bamboo.SendgridAdapter,
+        adapter: Bamboo.SendGridAdapter,
         api_key: "my_api_key"
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
@@ -56,7 +56,7 @@ defmodule Bamboo.SendgridAdapter do
 
   def deliver(email, config) do
     api_key = get_key(config)
-    body = email |> to_sendgrid_body |> Plug.Conn.Query.encode
+    body = email |> to_send_grid_body |> Plug.Conn.Query.encode
 
     case HTTPoison.post!(base_uri <> @send_message_path, body, headers(api_key)) do
       %{status_code: status} = response when status > 299 ->
@@ -98,7 +98,7 @@ defmodule Bamboo.SendgridAdapter do
     ]
   end
 
-  defp to_sendgrid_body(%Email{} = email) do
+  defp to_send_grid_body(%Email{} = email) do
     %{}
     |> put_from(email)
     |> put_to(email)
