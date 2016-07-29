@@ -27,6 +27,10 @@ defmodule Bamboo.MailgunAdapter do
   defmodule ApiError do
     defexception [:message]
 
+    def exception(%{message: message}) do
+      %ApiError{message: message}
+    end
+
     def exception(%{params: params, response: response}) do
       message = """
       There was a problem sending the email through the Mailgun API.
@@ -47,10 +51,13 @@ defmodule Bamboo.MailgunAdapter do
   def deliver(email, config) do
     body = email |> to_mailgun_body |> Plug.Conn.Query.encode
 
-    case HTTPoison.post!(full_uri(config), body, headers(config)) do
-      %{status_code: status} = response when status > 299 ->
+    case :hackney.post(full_uri(config), headers(config), body, [:with_body]) do
+      {:ok, status, _headers, response} when status > 299 ->
         raise(ApiError, %{params: body, response: response})
-      response -> response
+      {:ok, status, headers, response} ->
+        %{status_code: status, headers: headers, body: response}
+      {:error, reason} ->
+        raise(ApiError, %{message: inspect(reason)})
     end
   end
 
@@ -123,7 +130,7 @@ defmodule Bamboo.MailgunAdapter do
   defp put_text_body(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
 
   defp full_uri(config) do
-    (Application.get_env(:bamboo, :mailgun_base_uri) || @base_uri)
+    Application.get_env(:bamboo, :mailgun_base_uri, @base_uri)
     <> config.domain <> "/messages"
   end
 end
