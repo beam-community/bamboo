@@ -1,3 +1,32 @@
+## 0.7.0
+
+### New Additions
+
+* Add example of using HTML layouts with Bamboo.Phoenix ([#173])
+* Give suggestions for why email preview may not be working ([#177])
+* Add Mandrill template support ([#176])
+
+### Fixes/Enhancements
+
+* Build mailer config during runtime. Allows for configuratin with Conform ([#170])
+* Fix "leaking" HTML email styles ([#172])
+* Catch `nil` email addresses when used in 2-item tuple ([#151])
+* Remove `ExMachina` from dev/prod deps. It should have been a test only dep ([#198])
+* Small typo fixes ([#199])
+* Explicitly set content type in email preview so that HTML emails are always preview as HTML ([#203] and [#204])
+
+[#170]: https://github.com/thoughtbot/bamboo/pull/170
+[#173]: https://github.com/thoughtbot/bamboo/pull/173
+[#177]: https://github.com/thoughtbot/bamboo/pull/177
+[#172]: https://github.com/thoughtbot/bamboo/pull/172
+[#191]: https://github.com/thoughtbot/bamboo/pull/191
+[#151]: https://github.com/thoughtbot/bamboo/pull/151
+[#176]: https://github.com/thoughtbot/bamboo/pull/176
+[#198]: https://github.com/thoughtbot/bamboo/pull/198
+[#199]: https://github.com/thoughtbot/bamboo/pull/199
+[#203]: https://github.com/thoughtbot/bamboo/pull/203
+[#204]: https://github.com/thoughtbot/bamboo/pull/204
+
 ## 0.6.0
 
 ### New Additions
