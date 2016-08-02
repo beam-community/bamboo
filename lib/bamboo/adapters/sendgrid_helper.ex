@@ -25,13 +25,12 @@ defmodule Bamboo.SendgridHelper do
       |> with_template("80509523-83de-42b6-a2bf-54b7513bd2aa")
   """
   def with_template(email, template_id) do
-    case byte_size(template_id) == @id_size do
-      false ->
-        raise "expected the template_id parameter to be a UUID 36 characters long, got #{template_id}"
-      true ->
-        xsmtpapi = Map.get(email.private, @field_name, %{})
-        email
-        |> Email.put_private(@field_name, set_template(xsmtpapi, template_id))
+    if byte_size(template_id) == @id_size do
+      xsmtpapi = Map.get(email.private, @field_name, %{})
+      email
+      |> Email.put_private(@field_name, set_template(xsmtpapi, template_id))
+    else
+      raise "expected the template_id parameter to be a UUID 36 characters long, got #{template_id}"
     end
   end
 
@@ -47,13 +46,12 @@ defmodule Bamboo.SendgridHelper do
       |> substitute("%name%", "Jon Snow")
   """
   def substitute(email, tag, value) do
-    case is_binary(tag) do
-      false ->
-        raise "expected the tag parameter to be of type binary, got #{tag}"
-      true ->
-        xsmtpapi = Map.get(email.private, @field_name, %{})
-        email
-        |> Email.put_private(@field_name, add_subsitution(xsmtpapi, tag, value))
+    if is_binary(tag) do
+      xsmtpapi = Map.get(email.private, @field_name, %{})
+      email
+      |> Email.put_private(@field_name, add_subsitution(xsmtpapi, tag, value))
+    else
+      raise "expected the tag parameter to be of type binary, got #{tag}"
     end
   end
 
