@@ -30,9 +30,9 @@ defmodule Bamboo.SendgridHelperTest do
   end
 
   test "with_template/2 uses the last specified template", %{email: email} do
-    last = "355d0197-ecf5-4268-aa8b-2c0502aec406"
-    email = email |> with_template(@template_id) |> with_template(last)
-    assert email.private["x-smtpapi"]["filters"]["templates"]["settings"]["template_id"] == last
+    last_template_id = "355d0197-ecf5-4268-aa8b-2c0502aec406"
+    email = email |> with_template(@template_id) |> with_template(last_template_id)
+    assert email.private["x-smtpapi"]["filters"]["templates"]["settings"]["template_id"] == last_template_id
   end
 
   test "substitute/3 adds the specified tags", %{email: email} do
