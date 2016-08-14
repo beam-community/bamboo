@@ -131,7 +131,7 @@ Bamboo offers `deliver_later` on your mailers to send emails in the background s
 By default delivering later uses [`Bamboo.TaskSupervisorStrategy`](https://hexdocs.pm/bamboo/Bamboo.TaskSupervisorStrategy.html). This strategy sends the email right away, but does so in the background without linking to the calling process, so errors in the mailer won't bring down your app.
 
 If you need something more custom you can
-can create a strategy with [Bamboo.DeliverLaterStrategy](https://hex.pm/packages/bamboo). For example, you could create strategies
+create a strategy with [Bamboo.DeliverLaterStrategy](https://hex.pm/packages/bamboo). For example, you could create strategies
 for adding emails to a background processing queue such as [exq](https://github.com/akira/exq) or [toniq](https://github.com/joakimk/toniq).
 
 [Bamboo.DeliverLaterStrategy]: https://hexdocs.pm/bamboo/Bamboo.DeliverLaterStrategy.html
