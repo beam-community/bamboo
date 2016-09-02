@@ -14,7 +14,7 @@ defmodule Bamboo.Mixfile do
      preferred_cli_env: ["coveralls": :test, "coveralls.circle": :test],
      elixirc_paths: elixirc_paths(Mix.env),
      description: "Straightforward, powerful, and adapter based Elixir email library." <>
-     " Works with Mandrill, Mailgun, SendGrid, SparkPost, in-memory, and test.",
+     " Works with Mandrill, Mailgun, SendGrid, SparkPost, Postmark, in-memory, and test.",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      package: package,
