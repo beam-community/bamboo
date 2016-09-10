@@ -89,7 +89,7 @@ defmodule Bamboo.SentEmail do
 
   defp do_get(id) do
     Enum.find all, nil, fn(email) ->
-      get_id(email) == id
+      email |> get_id |> String.downcase == String.downcase(id)
     end
   end
 
