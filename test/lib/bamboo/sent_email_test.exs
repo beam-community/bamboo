@@ -37,6 +37,15 @@ defmodule Bamboo.SentEmailTest do
     assert %Bamboo.Email{subject: "Something"} = email
   end
 
+  test "get is case-insensitive" do
+    pushed_email = SentEmail.push(new_email(subject: "Something"))
+
+    id = SentEmail.get_id(pushed_email)
+
+    assert pushed_email == id |> String.upcase   |> SentEmail.get
+    assert pushed_email == id |> String.downcase |> SentEmail.get
+  end
+
   test "returns nil when getting email with no matching id" do
     assert SentEmail.get("non_existent_id") == nil
   end
