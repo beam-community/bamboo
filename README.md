@@ -142,6 +142,7 @@ for adding emails to a background processing queue such as [exq](https://github.
 ```elixir
 defmodule MyApp.Emails do
   import Bamboo.Email
+  import Bamboo.Phoenix
 
   def welcome_email do
     base_email
