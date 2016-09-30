@@ -16,13 +16,13 @@ defmodule Bamboo.MandrillHelper do
 
       email
       |> put_param(email, "track_opens", true)
-      |> put_param(email, "mege_vars", "merge_vars": [
+      |> put_param(email, "merge_vars", [
         %{
           rcpt: "recipient.email@example.com",
           vars: [
             %{
-              "name": "merge2",
-              "content": "merge2 content"
+              "name": "first_name",
+              "content": "John Doe"
             }
           ]
         }
