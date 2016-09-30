@@ -36,6 +36,58 @@ defmodule Bamboo.MandrillHelper do
   end
 
   @doc """
+  Set merge_vars that are used by Mandrill 
+
+  A convenience function for: 
+
+      email
+      |> put_param(email, "merge_vars", [
+        %{
+          rcpt: "user1@example.com",
+          vars: [
+            %{
+              "name": "full_name",
+              "content": "User 1"
+            }
+          ]
+        },
+        %{
+          rcpt: "user2@example.com",
+          vars: [
+            %{
+              "name": "full_name",
+              "content": "User 2"
+            }
+          ]
+        }
+      ])
+
+  ## Example
+
+      put_merge_vars(users, fn(user) -> %{first_name: user.first_name} end)
+  """
+  def put_merge_vars(email, enumerable, fun) do
+    merge_vars = Enum.map(enumerable, fn(e) ->
+      %{
+        rcpt: e.email,
+        vars: merge_vars(e, fun)
+      }
+    end)
+
+    email |> put_param("merge_vars", merge_vars)
+  end
+
+  defp merge_vars(e, fun) do
+    fun.(e)
+    |> Enum.map(fn({ key, value }) ->
+      %{
+        "name": to_string(key),
+        "content": value
+      }
+    end)
+  end
+
+  @doc """
   Set a single tag or multiple tags for an email.
 
   A convenience function for `put_param(email, "tags", ["my-tag"])`
