@@ -64,7 +64,8 @@ defmodule Bamboo.MandrillHelper do
 
   ## Example
 
-      put_merge_vars(users, fn(user) -> %{first_name: user.first_name} end)
+      email
+      |> put_merge_vars(users, fn(user) -> %{first_name: user.first_name} end)
   """
   def put_merge_vars(email, enumerable, fun) do
     merge_vars = Enum.map(enumerable, fn(e) ->
