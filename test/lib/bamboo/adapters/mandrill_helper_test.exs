@@ -21,8 +21,9 @@ defmodule Bamboo.MandrillHelperTest do
       }
     ]
 
-    email = new_email
-    |> MandrillHelper.put_merge_vars(users, fn(user) -> %{ full_name: user.full_name } end)
+    email = MandrillHelper.put_merge_vars new_email, users, fn(user) ->
+      %{full_name: user.full_name}
+    end
 
     assert email.private.message_params == %{"merge_vars" => [
         %{

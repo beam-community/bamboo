@@ -38,6 +38,11 @@ defmodule Bamboo.MandrillHelper do
   @doc """
   Set merge_vars that are used by Mandrill 
 
+  ## Example
+
+      email
+      |> put_merge_vars(users, fn(user) -> %{first_name: user.first_name} end)
+
   A convenience function for: 
 
       email
@@ -61,11 +66,6 @@ defmodule Bamboo.MandrillHelper do
           ]
         }
       ])
-
-  ## Example
-
-      email
-      |> put_merge_vars(users, fn(user) -> %{first_name: user.first_name} end)
   """
   def put_merge_vars(email, enumerable, fun) do
     merge_vars = Enum.map(enumerable, fn(e) ->
