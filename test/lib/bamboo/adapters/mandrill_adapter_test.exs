@@ -166,7 +166,7 @@ defmodule Bamboo.MandrillAdapterTest do
   test "raises if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.MandrillAdapter.ApiError, fn ->
+    assert_raise Bamboo.ApiError, fn ->
       email |> MandrillAdapter.deliver(@config)
     end
   end
@@ -174,7 +174,7 @@ defmodule Bamboo.MandrillAdapterTest do
   test "removes api key from error output" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.MandrillAdapter.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
+    assert_raise Bamboo.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
       email |> MandrillAdapter.deliver(@config)
     end
   end

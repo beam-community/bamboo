@@ -24,30 +24,7 @@ defmodule Bamboo.MandrillAdapter do
   @send_message_template_path "api/1.0/messages/send-template.json"
   @behaviour Bamboo.Adapter
 
-  defmodule ApiError do
-    defexception [:message]
-
-    def exception(%{message: message}) do
-      %ApiError{message: message}
-    end
-
-    def exception(%{params: params, response: response}) do
-      filtered_params = params |> Poison.decode! |> Map.put("key", "[FILTERED]")
-
-      message = """
-      There was a problem sending the email through the Mandrill API.
-
-      Here is the response:
-
-      #{inspect response, limit: :infinity}
-
-      Here are the params we sent:
-
-      #{inspect filtered_params, limit: :infinity}
-      """
-      %ApiError{message: message}
-    end
-  end
+  alias Bamboo.ApiError
 
   def deliver(email, config) do
     api_key = get_key(config)
@@ -56,11 +33,11 @@ defmodule Bamboo.MandrillAdapter do
 
     case :hackney.post(uri, headers(), params, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        raise(ApiError, %{params: params, response: response})
+        raise_api_error(params, response)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
       {:error, reason} ->
-        raise(ApiError, %{message: inspect(reason)})
+        raise_api_error(inspect(reason))
     end
   end
 
@@ -78,6 +55,34 @@ defmodule Bamboo.MandrillAdapter do
       nil -> raise_api_key_error(config)
       key -> key
     end
+  end
+
+  defp raise_api_error(message), do: raise(ApiError, message: message)
+  defp raise_api_error(params, response) do
+    filtered_params = params |> Poison.decode! |> Map.put("key", "[FILTERED]")
+
+    message = """
+    There was a problem sending the email through the Mandrill API.
+
+    Here is the response:
+
+    #{inspect response, limit: :infinity}
+
+    Here are the params we sent:
+
+    #{inspect filtered_params, limit: :infinity}
+
+    If you are deploying to Heroku and using ENV variables to handle your API key,
+    you will need to explicitly export the variables so they are available at compile time.
+    Add the following configuration to your elixir_buildpack.config:
+
+    config_vars_to_export=(
+      DATABASE_URL
+      MANDRILL_API_KEY
+    )
+    """
+
+    raise(ApiError, message: message)
   end
 
   defp raise_api_key_error(config) do
