@@ -52,6 +52,44 @@ defmodule Bamboo.EmailPreviewTest do
     end
   end
 
+  test "prints single header in preview" do
+    email = normalize_and_push(:email, headers: %{"Reply-To" => "reply-to@example.com"})
+    conn = conn(:get, "/sent_emails/foo")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert conn.resp_body =~ Bamboo.Email.get_address(email.from)
+    assert conn.resp_body =~ "Reply-To"
+    assert conn.resp_body =~ "reply-to@example.com"
+  end
+
+  test "prints multiple headers in preview" do
+    email = normalize_and_push(:email, headers: %{"Reply-To" => ["reply-to1@example.com", "reply-to2@example.com"], "Foobar" => "foobar-header"})
+    conn = conn(:get, "/sent_emails/foo")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert conn.resp_body =~ Bamboo.Email.get_address(email.from)
+    assert conn.resp_body =~ "Reply-To"
+    assert conn.resp_body =~ "reply-to1@example.com"
+    assert conn.resp_body =~ "reply-to2@example.com"
+    assert conn.resp_body =~ "Foobar"
+    assert conn.resp_body =~ "foobar-header"
+  end
+
+  test "falls back to inspect when printing header value that is not a string or list" do
+    normalize_and_push(:email, headers: %{"SomeHeader" => %{"Some" => "Header"}})
+    conn = conn(:get, "/sent_emails/foo")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert conn.resp_body =~ "SomeHeader"
+    assert conn.resp_body =~ "%{\"Some\" => \"Header\"}"
+  end
+
   defp selected_sidebar_email_text(conn) do
     sidebar(conn) |> Floki.find("a.selected-email") |> Floki.text
   end
