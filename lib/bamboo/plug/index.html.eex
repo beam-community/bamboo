@@ -122,11 +122,13 @@
         font-weight: 700;
       }
 
-      .email-preview-recipients {
+      .email-preview-recipients,
+      .email-preview-headers {
         color: #aaa;
       }
 
-      .email-preview-recipients strong {
+      .email-preview-recipients strong,
+      .email-preview-headers strong {
         color: #555;
       }
 
@@ -158,6 +160,13 @@
           <span class="email-preview-recipients">
             From <strong><%= Bamboo.Email.get_address(@selected_email.from) %></strong>
             to <strong><%= Bamboo.EmailPreviewPlug.Helper.email_addresses(@selected_email) %></strong>
+          </span>
+          <span class="email-preview-headers">
+            <%= for {header, value} <- @selected_email.headers do %>
+              <div class="email-preview-header">
+                <%= header %> <strong><%= Bamboo.EmailPreviewPlug.Helper.format_headers(value) %></strong>
+              </div>
+            <% end %>
           </span>
         </section>
 
