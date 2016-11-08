@@ -116,6 +116,34 @@ defmodule Bamboo.SendgridAdapterTest do
     assert params["bccname"] == ["BCC"]
   end
 
+  test "deliver/2 correctly handles templates" do
+    email = new_email(
+      from: {"From", "from@foo.com"},
+      subject: "My Subject",
+    )
+
+    email
+    |> Bamboo.SendgridHelper.with_template("a4ca8ac9-3294-4eaf-8edc-335935192b8d")
+    |> Bamboo.SendgridHelper.substitute("%foo%", "bar")
+    |> SendgridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["text"] == " "
+    assert Poison.decode(params["x-smtpapi"]) == {:ok, %{
+        "sub" => %{
+          "%foo%" => ["bar"]
+        },
+        "filters" => %{
+          "templates" => %{
+            "settings" => %{
+              "enable" => 1,
+              "template_id" => "a4ca8ac9-3294-4eaf-8edc-335935192b8d"
+            }
+          }
+        }
+      }}
+  end
+
   test "raises if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
