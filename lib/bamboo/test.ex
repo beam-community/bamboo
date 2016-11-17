@@ -144,7 +144,7 @@ defmodule Bamboo.Test do
   Checks whether an email was delivered.
 
   Must be used with the `Bamboo.TestAdapter` or this will never pass. In case you
-  are delivering from another process, the assertion waits up to 100ms before
+  are delivering from another process, the assertion waits up to 150ms before
   failing. Typically if an email is successfully delivered the assertion will
   pass instantly, so test suites will remain fast.
 
@@ -165,6 +165,23 @@ defmodule Bamboo.Test do
     end
   end
 
+  @doc """
+  Checks whether an email its params equal to the ones provided.
+
+  Must be used with the `Bamboo.TestAdapter` or this will never pass. In case you
+  are delivering from another process, the assertion waits up to 150ms before
+  failing. Typically if an email is successfully delivered the assertion will
+  pass instantly, so test suites will remain fast.
+
+  ## Examples
+
+      email = Bamboo.Email.new_email(subject: "something")
+      email |> MyApp.Mailer.deliver
+      assert_delivered_with(subject: "something") # Will pass
+
+      unsent_email = Bamboo.Email.new_email(subject: "something else")
+      assert_delivered_with(subject: "something else") # Will fail
+  """
   defmacro assert_delivered_with(email_params) do
     quote bind_quoted: [email_params: email_params] do
       import ExUnit.Assertions
