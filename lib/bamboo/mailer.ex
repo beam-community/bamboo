@@ -68,16 +68,27 @@ defmodule Bamboo.Mailer do
         config = build_config
         Bamboo.Mailer.deliver_now(config.adapter, email, config)
       end
+      @spec deliver_now(Bamboo.Email.t, map) :: Bamboo.Email.t
+      def deliver_now(email, sender_options) do
+        config = build_config(sender_options)
+        Bamboo.Mailer.deliver_now(config.adapter, email, config)
+      end
 
       @spec deliver_later(Bamboo.Email.t) :: Bamboo.Email.t
       def deliver_later(email) do
         config = build_config
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
+      @spec deliver_later(Bamboo.Email.t, map) :: Bamboo.Email.t
+      def deliver_later(email, sender_options) do
+        config = build_config(sender_options)
+        Bamboo.Mailer.deliver_later(config.adapter, email, config)
+      end
 
       otp_app = Keyword.fetch!(opts, :otp_app)
 
       defp build_config, do: Bamboo.Mailer.build_config(__MODULE__, unquote(otp_app))
+      defp build_config(sender_options), do: Bamboo.Mailer.build_config(__MODULE__, unquote(otp_app), sender_options)
 
       def deliver(_email) do
         raise """
@@ -222,6 +233,13 @@ defmodule Bamboo.Mailer do
     otp_app
     |> Application.fetch_env!(mailer)
     |> Map.new
+    |> handle_adapter_config
+  end
+  def build_config(mailer, otp_app, sender_options) do
+    otp_app
+    |> Application.fetch_env!(mailer)
+    |> Map.new
+    |> Map.merge(sender_options)
     |> handle_adapter_config
   end
 

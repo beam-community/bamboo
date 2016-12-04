@@ -124,6 +124,34 @@ defmodule Bamboo.MailerTest do
     assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
   end
 
+  test "deliver_later/2 calls the adapter with the email and config with added sender credentials as a map" do
+    email = new_email(to: "foo@bar.com")
+    sender_options = %{username: "mail@mail.com", password: "pass", server: "smtp.mail.com"}
+
+    returned_email = FooMailer.deliver_later(email, sender_options)
+
+    assert returned_email == Bamboo.Mailer.normalize_addresses(email)
+    assert_received {:deliver, %Bamboo.Email{}, received_config}
+    default_config = Enum.into(@mailer_config, %{})
+      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+      |> Map.merge(sender_options)
+    assert received_config == default_config
+  end
+
+  test "deliver_now/2 calls the adapter with the email and config with added sender credentials as a map" do
+    email = new_email(to: "foo@bar.com")
+    sender_options = %{username: "mail@mail.com", password: "pass", server: "smtp.mail.com"}
+
+    returned_email = FooMailer.deliver_now(email, sender_options)
+
+    assert returned_email == Bamboo.Mailer.normalize_addresses(email)
+    assert_received {:deliver, %Bamboo.Email{}, received_config}
+    default_config = Enum.into(@mailer_config, %{})
+      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+      |> Map.merge(sender_options)
+    assert received_config == default_config
+  end
+
   test "deliver_now/1 wraps the recipients in a list" do
     address = {"Someone", "foo@bar.com"}
     email = new_email(to: address, cc: address, bcc: address)
