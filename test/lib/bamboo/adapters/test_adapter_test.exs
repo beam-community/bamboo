@@ -121,7 +121,7 @@ defmodule Bamboo.TestAdapterTest do
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "0 emails delivered"
     else
-      _ -> flunk "assert_delivered_email should failed"
+      _ -> flunk "assert_delivered_email should have failed"
     end
   end
 
@@ -137,7 +137,7 @@ defmodule Bamboo.TestAdapterTest do
         assert error.message =~ "do not match"
         assert error.message =~ sent_email.from
     else
-      _ -> flunk "assert_delivered_email should failed"
+      _ -> flunk "assert_delivered_email should have failed"
     end
   end
 

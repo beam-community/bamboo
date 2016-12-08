@@ -144,7 +144,7 @@ defmodule Bamboo.Test do
   Checks whether an email was delivered.
 
   Must be used with the `Bamboo.TestAdapter` or this will never pass. In case you
-  are delivering from another process, the assertion waits up to 150ms before
+  are delivering from another process, the assertion waits up to 100ms before
   failing. Typically if an email is successfully delivered the assertion will
   pass instantly, so test suites will remain fast.
 
@@ -161,15 +161,15 @@ defmodule Bamboo.Test do
     quote do
       import ExUnit.Assertions
       email = Bamboo.Test.normalize_for_testing(unquote(email))
-      assert_receive({:delivered_email, ^email}, 150, Bamboo.Test.flunk_with_email_list(email))
+      assert_receive({:delivered_email, ^email}, 100, Bamboo.Test.flunk_with_email_list(email))
     end
   end
 
   @doc """
-  Checks whether an email its params equal to the ones provided.
+  Check whether an email's params are equal to the ones provided.
 
   Must be used with the `Bamboo.TestAdapter` or this will never pass. In case you
-  are delivering from another process, the assertion waits up to 150ms before
+  are delivering from another process, the assertion waits up to 100ms before
   failing. Typically if an email is successfully delivered the assertion will
   pass instantly, so test suites will remain fast.
 
@@ -185,7 +185,7 @@ defmodule Bamboo.Test do
   defmacro assert_delivered_with(email_params) do
     quote bind_quoted: [email_params: email_params] do
       import ExUnit.Assertions
-      assert_receive({:delivered_email, email}, 150, Bamboo.Test.flunk_no_emails_received)
+      assert_receive({:delivered_email, email}, 100, Bamboo.Test.flunk_no_emails_received)
 
       recieved_email_params = email |> Map.from_struct
       assert Enum.all?(email_params, fn({k, v}) -> recieved_email_params[k] == v end),
