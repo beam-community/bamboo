@@ -30,6 +30,7 @@ and have had no issues. It's also pretty simple to [create your own adapter]. Fe
 to open an issue or a PR if you'd like to add a new adapter to the list.
 
 * `Bamboo.MailgunAdapter` - Ships with Bamboo. Thanks to [@princemaple].
+* `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
 * `Bamboo.MandrillAdapter` - Ships with Bamboo.
 * `Bamboo.SendgridAdapter` - Ships with Bamboo.
 * `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
