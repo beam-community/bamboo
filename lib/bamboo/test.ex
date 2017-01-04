@@ -195,8 +195,8 @@ defmodule Bamboo.Test do
 
   @doc false
   def flunk_with_email_list(email) do
-    if Enum.empty?(delivered_emails) do
-      flunk_no_emails_received
+    if Enum.empty?(delivered_emails()) do
+      flunk_no_emails_received()
     else
       flunk """
       There were no matching emails.
@@ -207,7 +207,7 @@ defmodule Bamboo.Test do
 
       Delivered emails:
 
-      #{delivered_emails_as_list}
+      #{delivered_emails_as_list()}
       """
     end
   end
@@ -244,7 +244,7 @@ defmodule Bamboo.Test do
   end
 
   defp delivered_emails do
-    {:messages, messages} = Process.info(self, :messages)
+    {:messages, messages} = Process.info(self(), :messages)
 
     for {:delivered_email, _} = email_message <- messages do
       email_message
@@ -252,7 +252,7 @@ defmodule Bamboo.Test do
   end
 
   defp delivered_emails_as_list do
-    delivered_emails |> add_asterisk |> Enum.join("\n")
+    delivered_emails() |> add_asterisk |> Enum.join("\n")
   end
 
   defp add_asterisk(emails) do
@@ -276,7 +276,7 @@ defmodule Bamboo.Test do
     receive do
       {:delivered_email, email} -> flunk_with_unexpected_email(email)
     after
-      refute_timeout -> true
+      refute_timeout() -> true
     end
   end
 
@@ -317,7 +317,7 @@ defmodule Bamboo.Test do
     receive do
       {:delivered_email, ^email} -> flunk_with_unexpected_matching_email(email)
     after
-      refute_timeout -> true
+      refute_timeout() -> true
     end
   end
 
@@ -332,7 +332,7 @@ defmodule Bamboo.Test do
   end
 
   defp refute_timeout do
-    if using_shared_mode? do
+    if using_shared_mode?() do
       Application.get_env(:bamboo, :refute_timeout) || raise """
       When using shared mode with Bamboo.Test, you must set a timeout. This
       is because an email can be delivered after the assertion is called.

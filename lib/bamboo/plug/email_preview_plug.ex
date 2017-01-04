@@ -35,16 +35,16 @@ defmodule Bamboo.EmailPreviewPlug do
   plug :dispatch
 
   get "/" do
-    if Enum.empty?(all_emails) do
+    if Enum.empty?(all_emails()) do
       conn |> render(:ok, "no_emails.html")
     else
-      conn |> render(:ok, "index.html", emails: all_emails, selected_email: newest_email)
+      conn |> render(:ok, "index.html", emails: all_emails(), selected_email: newest_email())
     end
   end
 
   get "/:id" do
     if email = SentEmail.get(id) do
-      conn |> render(:ok, "index.html", emails: all_emails, selected_email: email)
+      conn |> render(:ok, "index.html", emails: all_emails(), selected_email: email)
     else
       conn |> render(:not_found, "email_not_found.html")
     end
@@ -67,7 +67,7 @@ defmodule Bamboo.EmailPreviewPlug do
   end
 
   defp newest_email do
-    all_emails |> List.first
+    all_emails() |> List.first
   end
 
   defp render(conn, status, template_name, assigns \\ []) do

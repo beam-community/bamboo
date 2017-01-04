@@ -4,7 +4,7 @@ defmodule Bamboo.EmailTest do
   import Bamboo.Email
 
   test "new_email/1 returns an Email struct" do
-    assert new_email == %Bamboo.Email{
+    assert new_email() == %Bamboo.Email{
       from: nil,
       to: nil,
       cc: nil,
@@ -55,7 +55,7 @@ defmodule Bamboo.EmailTest do
   end
 
   test "can pipe updates with functions" do
-    email = new_email
+    email = new_email()
       |> from("me@foo.com")
       |> to("to@example.com")
       |> cc("cc@example.com")
@@ -72,7 +72,7 @@ defmodule Bamboo.EmailTest do
   end
 
   test "put_private/3 puts a key and value in the private attribute" do
-    email = new_email |> put_private("foo", "bar")
+    email = new_email() |> put_private("foo", "bar")
 
     assert email.private["foo"] == "bar"
   end

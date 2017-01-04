@@ -61,7 +61,7 @@ defmodule Bamboo.SendgridAdapter do
   def deliver(email, config) do
     api_key = get_key(config)
     body = email |> to_sendgrid_body |> Plug.Conn.Query.encode
-    url = [base_uri, @send_message_path]
+    url = [base_uri(), @send_message_path]
 
     case :hackney.post(url, headers(api_key), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->

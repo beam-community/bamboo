@@ -4,8 +4,6 @@ defmodule Bamboo.MailgunAdapterTest do
   alias Bamboo.MailgunAdapter
 
   @config %{adapter: MailgunAdapter, api_key: "dummyapikey", domain: "test.tt"}
-  @config_with_bad_key %{@config | api_key: nil}
-  @config_with_bad_domain %{@config | domain: nil}
 
   defmodule FakeMailgun do
     use Plug.Router
@@ -20,7 +18,7 @@ defmodule Bamboo.MailgunAdapterTest do
     def start_server(parent) do
       Agent.start_link(fn -> Map.new end, name: __MODULE__)
       Agent.update(__MODULE__, &Map.put(&1, :parent, parent))
-      port = get_free_port
+      port = get_free_port()
       Application.put_env(:bamboo, :mailgun_base_uri, "http://localhost:#{port}/")
       Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
     end
@@ -51,7 +49,7 @@ defmodule Bamboo.MailgunAdapterTest do
   end
 
   setup do
-    FakeMailgun.start_server(self)
+    FakeMailgun.start_server(self())
 
     on_exit fn ->
       FakeMailgun.shutdown
@@ -73,7 +71,7 @@ defmodule Bamboo.MailgunAdapterTest do
   end
 
   test "deliver/2 sends the to the right url" do
-    new_email |> MailgunAdapter.deliver(@config)
+    new_email() |> MailgunAdapter.deliver(@config)
 
     assert_receive {:fake_mailgun, %{request_path: request_path}}
 

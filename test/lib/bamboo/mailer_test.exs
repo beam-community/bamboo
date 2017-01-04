@@ -37,7 +37,7 @@ defmodule Bamboo.MailerTest do
   end
 
   setup do
-    Process.register(self, :mailer_test)
+    Process.register(self(), :mailer_test)
     :ok
   end
 
@@ -88,35 +88,35 @@ defmodule Bamboo.MailerTest do
   end
 
   test "deliver_now/1 with empty lists for recipients does not deliver email" do
-    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver_now
+    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver_now()
     refute_received {:deliver, _, _}
 
-    new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver_now
+    new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver_now()
     refute_received {:deliver, _, _}
 
-    new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver_now
+    new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver_now()
     refute_received {:deliver, _, _}
 
-    new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver_now
+    new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver_now()
     refute_received {:deliver, _, _}
   end
 
   test "deliver_later/1 with empty lists for recipients does not deliver email" do
-    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver_later
+    new_email(to: [], cc: [], bcc: []) |> FooMailer.deliver_later()
     refute_received {:deliver, _, _}
 
-    new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver_later
+    new_email(to: [], cc: nil, bcc: nil) |> FooMailer.deliver_later()
     refute_received {:deliver, _, _}
 
-    new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver_later
+    new_email(to: nil, cc: [], bcc: nil) |> FooMailer.deliver_later()
     refute_received {:deliver, _, _}
 
-    new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver_later
+    new_email(to: nil, cc: nil, bcc: []) |> FooMailer.deliver_later()
     refute_received {:deliver, _, _}
   end
 
   test "deliver_later/1 calls deliver on the adapter" do
-    email = new_email
+    email = new_email()
 
     FooMailer.deliver_later(email)
 
@@ -174,22 +174,22 @@ defmodule Bamboo.MailerTest do
 
   test "raises if all receipients are nil" do
     assert_raise Bamboo.NilRecipientsError, fn ->
-      new_email(to: nil, cc: nil, bcc: nil) |> FooMailer.deliver_now
+      new_email(to: nil, cc: nil, bcc: nil) |> FooMailer.deliver_now()
     end
 
     assert_raise Bamboo.NilRecipientsError, fn ->
       new_email(to: {"foo", nil})
-      |> FooMailer.deliver_now
+      |> FooMailer.deliver_now()
     end
 
     assert_raise Bamboo.NilRecipientsError, fn ->
       new_email(to: [{"foo", nil}])
-      |> FooMailer.deliver_now
+      |> FooMailer.deliver_now()
     end
 
     assert_raise Bamboo.NilRecipientsError, fn ->
       new_email(to: [nil])
-      |> FooMailer.deliver_now
+      |> FooMailer.deliver_now()
     end
   end
 
