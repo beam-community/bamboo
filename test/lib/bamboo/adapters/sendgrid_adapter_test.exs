@@ -17,8 +17,8 @@ defmodule Bamboo.SendgridAdapterTest do
     plug :dispatch
 
     def start_server(parent) do
-      Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
-      Agent.update(__MODULE__, &HashDict.put(&1, :parent, parent))
+      Agent.start_link(fn -> Map.new end, name: __MODULE__)
+      Agent.update(__MODULE__, &Map.put(&1, :parent, parent))
       port = get_free_port
       Application.put_env(:bamboo, :sendgrid_base_uri, "http://localhost:#{port}")
       Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
@@ -43,7 +43,7 @@ defmodule Bamboo.SendgridAdapterTest do
     end
 
     defp send_to_parent(conn) do
-      parent = Agent.get(__MODULE__, fn(set) -> HashDict.get(set, :parent) end)
+      parent = Agent.get(__MODULE__, fn(set) -> Map.get(set, :parent) end)
       send parent, {:fake_sendgrid, conn}
       conn
     end
