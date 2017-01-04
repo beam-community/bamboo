@@ -96,7 +96,7 @@ defmodule MyApp.Mailer do
 end
 
 # Define your emails
-defmodule MyApp.Email do
+defmodule MyApp.Emails do
   import Bamboo.Email
 
   def welcome_email do
@@ -255,7 +255,7 @@ defmodule MyApp.Registration do
 
     MyApp.Register(user)
 
-    assert_delivered_email MyApp.Email.welcome_email(user)
+    assert_delivered_email MyApp.Emails.welcome_email(user)
   end
 end
 ```
