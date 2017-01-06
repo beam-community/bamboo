@@ -22,7 +22,7 @@ defmodule Bamboo.TestAdapter do
   @doc false
   def deliver(email, _config) do
     email = clean_assigns(email)
-    send test_process, {:delivered_email, email}
+    send test_process(), {:delivered_email, email}
   end
 
   defp test_process do

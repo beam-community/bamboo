@@ -88,7 +88,7 @@ defmodule Bamboo.SentEmail do
   end
 
   defp do_get(id) do
-    Enum.find all, nil, fn(email) ->
+    Enum.find all(), nil, fn(email) ->
       email |> get_id |> String.downcase == String.downcase(id)
     end
   end
@@ -113,7 +113,7 @@ defmodule Bamboo.SentEmail do
   end
 
   defp put_rand_id(email) do
-    email |> Bamboo.Email.put_private(:local_adapter_id, rand_id)
+    email |> Bamboo.Email.put_private(:local_adapter_id, rand_id())
   end
 
   defp rand_id do
@@ -129,7 +129,7 @@ defmodule Bamboo.SentEmail do
   there are 2 or more emails.
   """
   def one do
-    case all do
+    case all() do
       [email] -> email
       [] -> raise NoDeliveriesError
       emails -> raise DeliveriesError, emails

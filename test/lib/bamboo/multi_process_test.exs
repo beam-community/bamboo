@@ -31,7 +31,7 @@ defmodule Bamboo.MultiProcessTest do
 
   test "assert_no_emails_delivered with shared mode and with refute_timeout blank, raises an error" do
     assert_raise RuntimeError, ~r/set a timeout/, fn ->
-      assert_no_emails_delivered
+      assert_no_emails_delivered()
     end
   end
 end

@@ -10,7 +10,7 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
   @mailer_config %{}
 
   test "deliver_later delivers the email" do
-    Process.register(self, :task_supervisor_strategy_test)
+    Process.register(self(), :task_supervisor_strategy_test)
 
     Bamboo.TaskSupervisorStrategy.deliver_later(
       FakeAdapter,

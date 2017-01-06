@@ -65,13 +65,13 @@ defmodule Bamboo.Mailer do
 
       @spec deliver_now(Bamboo.Email.t) :: Bamboo.Email.t
       def deliver_now(email) do
-        config = build_config
+        config = build_config()
         Bamboo.Mailer.deliver_now(config.adapter, email, config)
       end
 
       @spec deliver_later(Bamboo.Email.t) :: Bamboo.Email.t
       def deliver_later(email) do
-        config = build_config
+        config = build_config()
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
 

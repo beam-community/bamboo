@@ -20,7 +20,7 @@ defmodule Bamboo.TaskSupervisorStrategy do
 
   @doc false
   def deliver_later(adapter, email, config) do
-    Task.Supervisor.start_child supervisor_name, fn ->
+    Task.Supervisor.start_child supervisor_name(), fn ->
       adapter.deliver(email, config)
     end
   end

@@ -10,7 +10,7 @@ defmodule Bamboo.SentEmailTest do
   end
 
   test "get_id gets the emails id" do
-    email = new_email |> put_private(:local_adapter_id, 1)
+    email = new_email() |> put_private(:local_adapter_id, 1)
 
     assert SentEmail.get_id(email) == 1
   end
@@ -22,7 +22,7 @@ defmodule Bamboo.SentEmailTest do
   end
 
   test "raises helpful message if the id is not set" do
-    email = new_email
+    email = new_email()
 
     assert_raise RuntimeError, ~r/no id was present/, fn ->
       SentEmail.get_id(email)
@@ -75,8 +75,8 @@ defmodule Bamboo.SentEmailTest do
   end
 
   test "one/0 raises if there are 2 or more emails in the mailbox" do
-    SentEmail.push(new_email)
-    SentEmail.push(new_email)
+    SentEmail.push(new_email())
+    SentEmail.push(new_email())
 
     assert_raise SentEmail.DeliveriesError, fn ->
       SentEmail.one
@@ -97,7 +97,7 @@ defmodule Bamboo.SentEmailTest do
   end
 
   test "reset/0 removes all emails from the mailbox" do
-    SentEmail.push(new_email)
+    SentEmail.push(new_email())
 
     SentEmail.reset
 

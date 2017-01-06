@@ -20,7 +20,7 @@ defmodule Bamboo.MandrillAdapterTest do
     def start_server(parent) do
       Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
       Agent.update(__MODULE__, &HashDict.put(&1, :parent, parent))
-      port = get_free_port
+      port = get_free_port()
       Application.put_env(:bamboo, :mandrill_base_uri, "http://localhost:#{port}")
       Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
     end
@@ -58,7 +58,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   setup do
-    FakeMandrill.start_server(self)
+    FakeMandrill.start_server(self())
 
     on_exit fn ->
       FakeMandrill.shutdown
@@ -78,7 +78,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 sends the to the right url" do
-    new_email |> MandrillAdapter.deliver(@config)
+    new_email() |> MandrillAdapter.deliver(@config)
 
     assert_receive {:fake_mandrill, %{request_path: request_path}}
 
@@ -86,7 +86,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 sends the to the right url for templates" do
-    new_email |> MandrillHelper.template("hello") |> MandrillAdapter.deliver(@config)
+    new_email() |> MandrillHelper.template("hello") |> MandrillAdapter.deliver(@config)
 
     assert_receive {:fake_mandrill, %{request_path: request_path}}
 
@@ -133,7 +133,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 adds extra params to the message " do
-    email = new_email |> MandrillHelper.put_param("important", true)
+    email = new_email() |> MandrillHelper.put_param("important", true)
 
     email |> MandrillAdapter.deliver(@config)
 
@@ -142,7 +142,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 puts template name and empty content" do
-    email = new_email |> MandrillHelper.template("hello")
+    email = new_email() |> MandrillHelper.template("hello")
 
     email |> MandrillAdapter.deliver(@config)
 
@@ -152,7 +152,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 puts template name and content" do
-    email = new_email |> MandrillHelper.template("hello", [
+    email = new_email() |> MandrillHelper.template("hello", [
       %{name: 'example name', content: 'example content'}
     ])
 
