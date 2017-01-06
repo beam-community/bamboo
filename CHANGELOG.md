@@ -6,7 +6,7 @@
 * Show header in email preview ([#225])
 * Add SendGrid template support ([#163])
 * Add `Bamboo.Test.assert_delivered_with` for more fine grained assertions ([#228])
-* Add SendGrid header support ([#235])
+* Add Mailgun header support ([#235])
 
 ### Fixes/Enhancements
 
@@ -18,6 +18,7 @@
 [#225]: https://github.com/thoughtbot/bamboo/pull/225
 [#163]: https://github.com/thoughtbot/bamboo/pull/163
 [#228]: https://github.com/thoughtbot/bamboo/pull/228
+[#235]: https://github.com/thoughtbot/bamboo/pull/235
 [#240]: https://github.com/thoughtbot/bamboo/pull/240
 [#241]: https://github.com/thoughtbot/bamboo/pull/241
 
