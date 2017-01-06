@@ -26,9 +26,9 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
-    assert selected_sidebar_email_text(conn) =~ newest_email.subject
-    assert showing_in_preview_pane?(conn, newest_email)
-    refute showing_in_preview_pane?(conn, oldest_email)
+    assert selected_sidebar_email_text(conn) =~ newest_email().subject
+    assert showing_in_preview_pane?(conn, newest_email())
+    refute showing_in_preview_pane?(conn, oldest_email())
     for email <- emails do
       assert Floki.raw_html(sidebar(conn)) =~ ~s(href="/sent_emails/foo/#{SentEmail.get_id(email)}")
       assert Floki.text(sidebar(conn)) =~ email.subject

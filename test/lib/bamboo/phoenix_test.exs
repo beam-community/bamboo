@@ -35,22 +35,22 @@ defmodule Bamboo.PhoenixTest do
     end
 
     def html_email do
-      new_email
+      new_email()
       |> render("html_email.html")
     end
 
     def text_email do
-      new_email
+      new_email()
       |> render("text_email.text")
     end
 
     def no_template do
-      new_email
+      new_email()
       |> render(:non_existent)
     end
 
     def invalid_template do
-      new_email
+      new_email()
       |> render("template.foobar")
     end
   end

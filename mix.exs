@@ -17,9 +17,9 @@ defmodule Bamboo.Mixfile do
      " Works with Mandrill, Mailgun, SendGrid, SparkPost, Postmark, in-memory, and test.",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     package: package,
+     package: package(),
      docs: [main: "readme", extras: ["README.md"]],
-     deps: deps]
+     deps: deps()]
   end
 
   defp compilers(:test), do: [:phoenix] ++ Mix.compilers
@@ -43,8 +43,8 @@ defmodule Bamboo.Mixfile do
     ]
   end
 
-  defp elixirc_paths(:test), do: elixirc_paths ++ ["test/support"]
-  defp elixirc_paths(_), do: elixirc_paths
+  defp elixirc_paths(:test), do: elixirc_paths() ++ ["test/support"]
+  defp elixirc_paths(_), do: elixirc_paths()
   defp elixirc_paths, do: ["lib"]
 
   defp deps do

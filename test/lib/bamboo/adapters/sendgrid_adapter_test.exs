@@ -19,7 +19,7 @@ defmodule Bamboo.SendgridAdapterTest do
     def start_server(parent) do
       Agent.start_link(fn -> Map.new end, name: __MODULE__)
       Agent.update(__MODULE__, &Map.put(&1, :parent, parent))
-      port = get_free_port
+      port = get_free_port()
       Application.put_env(:bamboo, :sendgrid_base_uri, "http://localhost:#{port}")
       Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
     end
@@ -50,7 +50,7 @@ defmodule Bamboo.SendgridAdapterTest do
   end
 
   setup do
-    FakeSendgrid.start_server(self)
+    FakeSendgrid.start_server(self())
 
     on_exit fn ->
       FakeSendgrid.shutdown
@@ -70,7 +70,7 @@ defmodule Bamboo.SendgridAdapterTest do
   end
 
   test "deliver/2 sends the to the right url" do
-    new_email |> SendgridAdapter.deliver(@config)
+    new_email() |> SendgridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{request_path: request_path}}
 

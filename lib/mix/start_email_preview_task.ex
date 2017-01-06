@@ -40,11 +40,11 @@ defmodule Mix.Tasks.Bamboo.StartEmailPreview do
     end
 
     IO.puts "Running email preview on port 4003"
-    no_halt
+    no_halt()
   end
 
   defp no_halt do
-    unless iex_running?, do: :timer.sleep(:infinity)
+    unless iex_running?(), do: :timer.sleep(:infinity)
   end
 
   defp iex_running? do
