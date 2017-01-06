@@ -1,3 +1,27 @@
+## 0.8.0
+
+### New Additions
+
+* Add helper for working with Mandrill merge vars ([#219])
+* Show header in email preview ([#225])
+* Add SendGrid template support ([#163])
+* Add `Bamboo.Test.assert_delivered_with` for more fine grained assertions ([#228])
+* Add Mailgun header support ([#235])
+
+### Fixes/Enhancements
+
+* Drop dependency on HTTPoison and use Hackney directly ([#201])
+* Remove warnings and deprecations for Elixir 1.4 ([#240], [#241])
+
+[#201]: https://github.com/thoughtbot/bamboo/pull/201
+[#219]: https://github.com/thoughtbot/bamboo/pull/219
+[#225]: https://github.com/thoughtbot/bamboo/pull/225
+[#163]: https://github.com/thoughtbot/bamboo/pull/163
+[#228]: https://github.com/thoughtbot/bamboo/pull/228
+[#235]: https://github.com/thoughtbot/bamboo/pull/235
+[#240]: https://github.com/thoughtbot/bamboo/pull/240
+[#241]: https://github.com/thoughtbot/bamboo/pull/241
+
 ## 0.7.0
 
 ### New Additions
