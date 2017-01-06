@@ -59,7 +59,7 @@ config :my_app, MyApp.Mailer,
   ```elixir
   def deps do
     # Get from hex
-    [{:bamboo, "~> 0.7"}]
+    [{:bamboo, "~> 0.8"}]
     # Or use the latest from master
     [{:bamboo, github: "thoughtbot/bamboo"}]
   end
