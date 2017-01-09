@@ -26,6 +26,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert selected_sidebar_email_text(conn) =~ newest_email().subject
     assert showing_in_preview_pane?(conn, newest_email())
     refute showing_in_preview_pane?(conn, oldest_email())
@@ -46,6 +47,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body =~ Bamboo.Email.get_address(email.from)
     for email_address <- Bamboo.Email.all_recipients(email) do
       assert conn.resp_body =~ Bamboo.Email.get_address(email_address)
@@ -59,6 +61,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body =~ Bamboo.Email.get_address(email.from)
     assert conn.resp_body =~ "Reply-To"
     assert conn.resp_body =~ "reply-to@example.com"
@@ -71,6 +74,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body =~ Bamboo.Email.get_address(email.from)
     assert conn.resp_body =~ "Reply-To"
     assert conn.resp_body =~ "reply-to1@example.com"
@@ -86,6 +90,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body =~ "SomeHeader"
     assert conn.resp_body =~ "%{\"Some\" => \"Header\"}"
   end
@@ -101,6 +106,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert Floki.raw_html(sidebar(conn)) =~ ~s(href="/#{SentEmail.get_id(email)}")
     assert Floki.text(sidebar(conn)) =~ email.subject
   end
@@ -111,6 +117,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body =~ "No emails sent"
   end
 
@@ -123,6 +130,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert showing_in_preview_pane?(conn, SentEmail.get(selected_email_id))
     refute showing_in_preview_pane?(conn, SentEmail.get(unselected_email_id))
   end
@@ -135,6 +143,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body =~ SentEmail.get(selected_email_id).html_body
   end
 
@@ -146,6 +155,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body == ""
   end
 
@@ -155,6 +165,7 @@ defmodule Bamboo.EmailPreviewTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 404
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body =~ "Email not found"
   end
 

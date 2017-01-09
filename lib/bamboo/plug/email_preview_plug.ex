@@ -56,9 +56,7 @@ defmodule Bamboo.EmailPreviewPlug do
       |> Plug.Conn.put_resp_content_type("text/html")
       |> send_resp(:ok, email.html_body || "")
     else
-      conn 
-      |> Plug.Conn.put_resp_content_type("text/html")
-      |> render(:not_found, "email_not_found.html")
+      conn |> render(:not_found, "email_not_found.html")
     end
   end
 
@@ -74,7 +72,9 @@ defmodule Bamboo.EmailPreviewPlug do
     path = Path.join(__DIR__, template_name <> ".eex")
     assigns = Keyword.merge(assigns, conn: conn, base_path: base_path(conn))
     rendered_template = EEx.eval_file(path, assigns: assigns)
-    send_resp(conn, status, rendered_template)
+    conn
+    |> Plug.Conn.put_resp_content_type("text/html")
+    |> send_resp(status, rendered_template)
   end
 
   defp base_path(%{script_name: []}), do: ""
