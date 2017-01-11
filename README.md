@@ -119,10 +119,10 @@ defmodule MyApp.Emails do
 end
 
 # In a controller or some other module
-Email.welcome_email |> Mailer.deliver_now
+Emails.welcome_email |> Mailer.deliver_now
 
 # You can also deliver emails in the background with Mailer.deliver_later
-Email.welcome_email |> Mailer.deliver_later
+Emails.welcome_email |> Mailer.deliver_later
 ```
 
 ## Delivering Emails in the Background
