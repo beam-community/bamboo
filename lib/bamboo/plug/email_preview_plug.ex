@@ -1,6 +1,16 @@
 defmodule Bamboo.EmailPreviewPlug do
   use Plug.Router
+  require EEx
   alias Bamboo.SentEmail
+
+  no_emails_template = Path.join(__DIR__, "no_emails.html.eex")
+  EEx.function_from_file(:defp, :no_emails, no_emails_template)
+
+  index_template = Path.join(__DIR__, "index.html.eex")
+  EEx.function_from_file(:defp, :index, index_template, [:assigns])
+
+  not_found_template = Path.join(__DIR__, "email_not_found.html.eex")
+  EEx.function_from_file(:defp, :not_found, not_found_template, [:assigns])
 
   @moduledoc """
   A plug that can be used in your router to see delivered emails.
@@ -36,17 +46,17 @@ defmodule Bamboo.EmailPreviewPlug do
 
   get "/" do
     if Enum.empty?(all_emails()) do
-      conn |> render(:ok, "no_emails.html")
+      conn |> render_no_emails
     else
-      conn |> render(:ok, "index.html", emails: all_emails(), selected_email: newest_email())
+      conn |> render_index(newest_email())
     end
   end
 
   get "/:id" do
     if email = SentEmail.get(id) do
-      conn |> render(:ok, "index.html", emails: all_emails(), selected_email: email)
+      conn |> render_index(email)
     else
-      conn |> render(:not_found, "email_not_found.html")
+      conn |> render_not_found
     end
   end
 
@@ -56,9 +66,9 @@ defmodule Bamboo.EmailPreviewPlug do
       |> Plug.Conn.put_resp_content_type("text/html")
       |> send_resp(:ok, email.html_body || "")
     else
-      conn 
+      conn
       |> Plug.Conn.put_resp_content_type("text/html")
-      |> render(:not_found, "email_not_found.html")
+      |> render_not_found
     end
   end
 
@@ -70,11 +80,23 @@ defmodule Bamboo.EmailPreviewPlug do
     all_emails() |> List.first
   end
 
-  defp render(conn, status, template_name, assigns \\ []) do
-    path = Path.join(__DIR__, template_name <> ".eex")
-    assigns = Keyword.merge(assigns, conn: conn, base_path: base_path(conn))
-    rendered_template = EEx.eval_file(path, assigns: assigns)
-    send_resp(conn, status, rendered_template)
+  defp render_no_emails(conn) do
+    send_resp(conn, :ok, no_emails())
+  end
+
+  defp render_not_found(conn) do
+    assigns = %{base_path: base_path(conn)}
+    send_resp(conn, :not_found, not_found(assigns))
+  end
+
+  defp render_index(conn, email) do
+    assigns = %{
+      conn: conn,
+      base_path: base_path(conn),
+      emails: all_emails(),
+      selected_email: email,
+    }
+    send_resp(conn, :ok, index(assigns))
   end
 
   defp base_path(%{script_name: []}), do: ""
