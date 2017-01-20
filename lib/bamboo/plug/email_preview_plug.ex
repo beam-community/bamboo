@@ -71,10 +71,10 @@ defmodule Bamboo.EmailPreviewPlug do
   end
 
   defp render(conn, status, template_name, assigns \\ []) do
-    root = File.cwd!
-    path = Path.join(root, "/lib/bamboo/plug/" <> template_name <> ".eex")
+    # root = File.cwd!
+    # path = Path.join(root, "/lib/bamboo/plug/" <> template_name <> ".eex")
     assigns = Keyword.merge(assigns, conn: conn, base_path: base_path(conn))
-    rendered_template = EEx.eval_file(path, assigns: assigns)
+    rendered_template = EEx.eval_file("#{template_name}.eex", assigns: assigns)
     send_resp(conn, status, rendered_template)
   end
 
