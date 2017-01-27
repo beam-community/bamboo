@@ -3,9 +3,14 @@ defmodule Bamboo.EmailPreviewPlug do
   require EEx
   alias Bamboo.SentEmail
 
-  EEx.function_from_file(:defp, :no_emails, Path.join(__DIR__, "no_emails.html.eex"))
-  EEx.function_from_file(:defp, :index, Path.join(__DIR__, "index.html.eex"), [:assigns])
-  EEx.function_from_file(:defp, :not_found, Path.join(__DIR__, "email_not_found.html.eex"), [:assigns])
+  no_emails_template = Path.join(__DIR__, "no_emails.html.eex")
+  EEx.function_from_file(:defp, :no_emails, no_emails_template)
+
+  index_template = Path.join(__DIR__, "index.html.eex")
+  EEx.function_from_file(:defp, :index, index_template, [:assigns])
+
+  not_found_template = Path.join(__DIR__, "email_not_found.html.eex")
+  EEx.function_from_file(:defp, :not_found, not_found_template, [:assigns])
 
   @moduledoc """
   A plug that can be used in your router to see delivered emails.
@@ -67,6 +72,18 @@ defmodule Bamboo.EmailPreviewPlug do
     end
   end
 
+  defp all_emails do
+    SentEmail.all
+  end
+
+  defp newest_email do
+    all_emails() |> List.first
+  end
+
+  defp render(conn, status, rendered_template) do
+    send_resp(conn, status, rendered_template)
+  end
+
   defp render_not_found(conn) do
     assigns = %{ base_path: base_path(conn) }
     render(conn, :not_found, not_found(assigns))
@@ -80,18 +97,6 @@ defmodule Bamboo.EmailPreviewPlug do
       selected_email: email
     }
     render(conn, :ok, index(assigns))
-  end
-
-  defp all_emails do
-    SentEmail.all
-  end
-
-  defp newest_email do
-    all_emails() |> List.first
-  end
-
-  defp render(conn, status, rendered_template) do
-    send_resp(conn, status, rendered_template)
   end
 
   defp base_path(%{script_name: []}), do: ""
