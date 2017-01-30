@@ -157,7 +157,7 @@ defmodule MyApp.Emails do
     new_email
     |> from("myapp@example.com")
     |> put_html_layout({MyApp.LayoutView, "email.html"})
-    |> put_text_layout({MyApp.LayoutView, "text.html"})
+    |> put_text_layout({MyApp.LayoutView, "email.text"})
   end
 end
 ```
