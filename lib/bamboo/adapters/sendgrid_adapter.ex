@@ -110,6 +110,7 @@ defmodule Bamboo.SendgridAdapter do
     %{}
     |> put_from(email)
     |> put_to(email)
+    |> put_reply_to(email)
     |> put_cc(email)
     |> put_bcc(email)
     |> put_subject(email)
@@ -117,6 +118,11 @@ defmodule Bamboo.SendgridAdapter do
     |> put_text_body(email)
     |> maybe_put_x_smtp_api(email)
   end
+
+  defp put_reply_to(body, %Email{headers: %{"reply-to" => reply_to}} = email) do
+    Map.put(body, :replyto, reply_to)
+  end
+  defp put_reply_to(body, _), do: body
 
   defp put_from(body, %Email{from: {"", address}}), do: Map.put(body, :from, address)
   defp put_from(body, %Email{from: {name, address}}) do
