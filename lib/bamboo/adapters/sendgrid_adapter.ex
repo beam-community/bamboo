@@ -119,7 +119,6 @@ defmodule Bamboo.SendgridAdapter do
     |> maybe_put_x_smtp_api(email)
   end
 
-
   defp put_from(body, %Email{from: {"", address}}), do: Map.put(body, :from, address)
   defp put_from(body, %Email{from: {name, address}}) do
     body
