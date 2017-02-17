@@ -159,7 +159,8 @@ defmodule Bamboo.SendgridAdapter do
   defp put_text_body(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
 
   # If you would like to add a replyto header to your email, then simply pass it in
-  # using the header property or put_header function like so: ("reply-to", "foo@bar.com")
+  # using the header property or put_header function like so:
+  # put_header("reply-to", "foo@bar.com")
   defp put_reply_to(body, %Email{headers: %{"reply-to" => reply_to}} = email) do
     Map.put(body, :replyto, reply_to)
   end
