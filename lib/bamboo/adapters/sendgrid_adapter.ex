@@ -119,10 +119,6 @@ defmodule Bamboo.SendgridAdapter do
     |> maybe_put_x_smtp_api(email)
   end
 
-  defp put_reply_to(body, %Email{headers: %{"reply-to" => reply_to}} = email) do
-    Map.put(body, :replyto, reply_to)
-  end
-  defp put_reply_to(body, _), do: body
 
   defp put_from(body, %Email{from: {"", address}}), do: Map.put(body, :from, address)
   defp put_from(body, %Email{from: {name, address}}) do
@@ -161,6 +157,13 @@ defmodule Bamboo.SendgridAdapter do
 
   defp put_text_body(body, %Email{text_body: nil}), do: body
   defp put_text_body(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
+
+  # If you would like to add a replyto header to your email, then simply pass it in
+  # using the header property or put_header function like so: ("reply-to", "foo@bar.com")
+  defp put_reply_to(body, %Email{headers: %{"reply-to" => reply_to}} = email) do
+    Map.put(body, :replyto, reply_to)
+  end
+  defp put_reply_to(body, _), do: body
 
   defp maybe_put_x_smtp_api(body, %Email{private: %{"x-smtpapi" => fields}} = email) do
     # SendGrid will error with empty bodies, even while using templates.
