@@ -66,9 +66,7 @@ defmodule Bamboo.EmailPreviewPlug do
       |> Plug.Conn.put_resp_content_type("text/html")
       |> send_resp(:ok, email.html_body || "")
     else
-      conn
-      |> Plug.Conn.put_resp_content_type("text/html")
-      |> render_not_found
+      conn |> render_not_found
     end
   end
 
@@ -81,12 +79,12 @@ defmodule Bamboo.EmailPreviewPlug do
   end
 
   defp render_no_emails(conn) do
-    send_resp(conn, :ok, no_emails())
+    send_html(conn, :ok, no_emails())
   end
 
   defp render_not_found(conn) do
     assigns = %{base_path: base_path(conn)}
-    send_resp(conn, :not_found, not_found(assigns))
+    send_html(conn, :not_found, not_found(assigns))
   end
 
   defp render_index(conn, email) do
@@ -96,7 +94,13 @@ defmodule Bamboo.EmailPreviewPlug do
       emails: all_emails(),
       selected_email: email,
     }
-    send_resp(conn, :ok, index(assigns))
+    send_html(conn, :ok, index(assigns))
+  end
+
+  defp send_html(conn, status, body) do
+    conn
+    |> Plug.Conn.put_resp_content_type("text/html")
+    |> send_resp(status, body)
   end
 
   defp base_path(%{script_name: []}), do: ""
