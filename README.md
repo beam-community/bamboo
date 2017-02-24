@@ -25,14 +25,14 @@ less than exceptional, or you just need some help, please open an issue.
 
 ## Adapters
 
-The Bamboo.MandrillAdapter and Bamboo.SendgridAdapter **are being used in production**
+The Bamboo.MandrillAdapter and Bamboo.SendGridAdapter **are being used in production**
 and have had no issues. It's also pretty simple to [create your own adapter]. Feel free
 to open an issue or a PR if you'd like to add a new adapter to the list.
 
 * `Bamboo.MailgunAdapter` - Ships with Bamboo. Thanks to [@princemaple].
 * `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
 * `Bamboo.MandrillAdapter` - Ships with Bamboo.
-* `Bamboo.SendgridAdapter` - Ships with Bamboo.
+* `Bamboo.SendGridAdapter` - Ships with Bamboo.
 * `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
 * `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
 * `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
@@ -214,7 +214,7 @@ vars, templates, and scheduling emails to send in the future. See
 
 SendGrid offers extra features on top of regular SMTP email like transactional
 templates with substitution tags. See
-[Bamboo.SendgridHelper](https://hexdocs.pm/bamboo/Bamboo.SendgridHelper.html).
+[Bamboo.SendGridHelper](https://hexdocs.pm/bamboo/Bamboo.SendGridHelper.html).
 
 ## Heroku Configuration
 
@@ -297,4 +297,4 @@ Once you've made your additions and `mix test` passes, go ahead and open a PR!
 
 ## Thanks!
 
-Thanks to @mtwilliams for an early version of the `SendgridAdapter`.
+Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
