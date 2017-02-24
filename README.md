@@ -86,11 +86,13 @@ is done to make testing easier and to make emails easy to pipe/compose.
 
 ```elixir
 # In your config/config.exs file
+#
+# There may be other adapter specific configuration you need to add.
+# Be sure to check the adapter's docs. For example, Mailgun requires a `domain` key.
 config :my_app, MyApp.Mailer,
   adapter: Bamboo.MandrillAdapter,
-  api_key: "my_api_key",
-  domain: "my-domain.com" # Set the domain in case you're using Mailgun
-  
+  api_key: "my_api_key"
+
 # Somewhere in your application
 defmodule MyApp.Mailer do
   use Bamboo.Mailer, otp_app: :my_app
