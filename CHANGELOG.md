@@ -99,7 +99,7 @@
 
 ### New Additions
 
-* Add `Bamboo.SendGridAdapter`
+* Add `Bamboo.SendgridAdapter`
 * Improve and update docs
 
 ## 0.4.1
