@@ -156,9 +156,9 @@ defmodule Bamboo.TestAdapterTest do
       assert_delivered_with text_body: ~r/tea/
     rescue
       error in [ExUnit.AssertionError] ->
-          assert error.message =~ "do not match"
+        assert error.message =~ "do not match"
     else
-        _ -> flunk "assert_delivered_with should have failed"
+      _ -> flunk "assert_delivered_with should have failed"
     end
   end
 
