@@ -141,6 +141,13 @@ defmodule Bamboo.TestAdapterTest do
     end
   end
 
+  test "assert_delivered_with allows regex matching" do
+    new_email(to: {nil, "foo@bar.com"}, from: {nil, "foo@bar.com"}, text_body: "I really like coffee")
+      |> TestMailer.deliver_now
+
+    assert_delivered_with text_body: ~r/like/
+  end
+
   test "assert_no_emails_delivered shows the delivered email" do
     sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
