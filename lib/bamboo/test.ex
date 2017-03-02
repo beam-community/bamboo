@@ -188,9 +188,19 @@ defmodule Bamboo.Test do
       assert_receive({:delivered_email, email}, 100, Bamboo.Test.flunk_no_emails_received)
 
       recieved_email_params = email |> Map.from_struct
-      assert Enum.all?(email_params, fn({k, v}) -> recieved_email_params[k] == v end),
-        Bamboo.Test.flunk_attributes_do_not_match(email_params, recieved_email_params) 
+      assert Enum.all?(email_params, fn({k, v}) -> do_match(recieved_email_params[k], v) end),
+        Bamboo.Test.flunk_attributes_do_not_match(email_params, recieved_email_params)
     end
+  end
+
+  @doc false
+  def do_match(value1, value2 = %Regex{}) do
+    Regex.match?(value2, value1)
+  end
+
+  @doc false
+  def do_match(value1, value2) do
+    value1 == value2
   end
 
   @doc false
