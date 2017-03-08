@@ -141,6 +141,27 @@ defmodule Bamboo.TestAdapterTest do
     end
   end
 
+  test "assert_delivered_with allows regex matching" do
+    new_email(to: {nil, "foo@bar.com"}, from: {nil, "foo@bar.com"}, text_body: "I really like coffee")
+      |> TestMailer.deliver_now
+
+    assert_delivered_with text_body: ~r/like/
+  end
+
+  test "ensure assert_delivered_with regex matching doesn't provide a false positive" do
+    new_email(to: {nil, "foo@bar.com"}, from: {nil, "foo@bar.com"}, text_body: "I really like coffee")
+      |> TestMailer.deliver_now
+
+    try do
+      assert_delivered_with text_body: ~r/tea/
+    rescue
+      error in [ExUnit.AssertionError] ->
+        assert error.message =~ "do not match"
+    else
+      _ -> flunk "assert_delivered_with should have failed"
+    end
+  end
+
   test "assert_no_emails_delivered shows the delivered email" do
     sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 

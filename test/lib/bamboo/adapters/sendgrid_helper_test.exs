@@ -1,7 +1,7 @@
-defmodule Bamboo.SendgridHelperTest do
+defmodule Bamboo.SendGridHelperTest do
   use ExUnit.Case
 
-  import Bamboo.SendgridHelper
+  import Bamboo.SendGridHelper
 
   @template_id "80509523-83de-42b6-a2bf-54b7513bd2aa"
 

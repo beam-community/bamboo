@@ -1,4 +1,4 @@
-defmodule Bamboo.SendgridHelper do
+defmodule Bamboo.SendGridHelper do
   @moduledoc """
   Functions for using features specific to Sendgrid.
 

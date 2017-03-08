@@ -1,4 +1,4 @@
-defmodule Bamboo.SendgridAdapter do
+defmodule Bamboo.SendGridAdapter do
   @moduledoc """
   Sends email using SendGrid's JSON API.
 
@@ -13,7 +13,7 @@ defmodule Bamboo.SendgridAdapter do
 
       # In config/config.exs, or config.prod.exs, etc.
       config :my_app, MyApp.Mailer,
-        adapter: Bamboo.SendgridAdapter,
+        adapter: Bamboo.SendGridAdapter,
         api_key: "my_api_key"
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex

@@ -32,7 +32,7 @@
 
 ### Fixes/Enhancements
 
-* Build mailer config during runtime. Allows for configuratin with Conform ([#170])
+* Build mailer config during runtime. Allows for configuration with Conform ([#170])
 * Fix "leaking" HTML email styles ([#172])
 * Catch `nil` email addresses when used in 2-item tuple ([#151])
 * Remove `ExMachina` from dev/prod deps. It should have been a test only dep ([#198])
