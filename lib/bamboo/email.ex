@@ -20,7 +20,7 @@ defmodule Bamboo.Email do
 
       defmodule MyApp.Email do
         import Bamboo.Email
-    
+
         def welcome_email(user) do
           new_email(
             from: "me@app.com",
@@ -39,7 +39,7 @@ defmodule Bamboo.Email do
 
       defmodule MyApp.Email do
         import Bamboo.Email
-    
+
         def welcome_email(user) do
           # Since new_email/1 returns a struct you can update it with Kernel.struct!/2
           struct!(base_email,
@@ -48,7 +48,7 @@ defmodule Bamboo.Email do
             text_body: "Welcome to the app",
             html_body: "<strong>Welcome to the app</strong>"
           )
-    
+
           # or you can use functions to build it up step by step
           base_email
           |> to(user)
@@ -56,7 +56,7 @@ defmodule Bamboo.Email do
           |> text_body("Welcome to the app")
           |> html_body("<strong>Welcome to the app</strong>")
         end
-    
+
         def base_email do
           new_email(from: "me@app.com")
         end
