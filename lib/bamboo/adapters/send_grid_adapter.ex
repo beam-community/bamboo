@@ -7,7 +7,8 @@ defmodule Bamboo.SendGridAdapter do
 
   If you would like to add a replyto header to your email, then simply pass it in
   using the header property or put_header function like so:
-  put_header("reply-to", "foo@bar.com")
+
+      put_header("reply-to", "foo@bar.com")
 
   ## Example config
 
