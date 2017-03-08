@@ -144,10 +144,8 @@ defmodule Bamboo.SendgridAdapterTest do
       }}
   end
 
-  test "deliver/2 correctly formats sendto from headers" do
-    email = new_email(
-      headers: %{"reply-to" => "foo@bar.com"}
-    )
+  test "deliver/2 correctly formats reply-to from headers" do
+    email = new_email(headers: %{"reply-to" => "foo@bar.com"})
 
     email |> SendgridAdapter.deliver(@config)
 

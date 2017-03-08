@@ -5,6 +5,10 @@ defmodule Bamboo.SendgridAdapter do
   Use this adapter to send emails through SendGrid's API. Requires that an API
   key is set in the config.
 
+  If you would like to add a replyto header to your email, then simply pass it in
+  using the header property or put_header function like so:
+  put_header("reply-to", "foo@bar.com")
+
   ## Example config
 
       # In config/config.exs, or config.prod.exs, etc.
@@ -157,9 +161,6 @@ defmodule Bamboo.SendgridAdapter do
   defp put_text_body(body, %Email{text_body: nil}), do: body
   defp put_text_body(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
 
-  # If you would like to add a replyto header to your email, then simply pass it in
-  # using the header property or put_header function like so:
-  # put_header("reply-to", "foo@bar.com")
   defp put_reply_to(body, %Email{headers: %{"reply-to" => reply_to}} = email) do
     Map.put(body, :replyto, reply_to)
   end
