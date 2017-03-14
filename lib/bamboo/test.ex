@@ -177,20 +177,20 @@ defmodule Bamboo.Test do
 
       email = Bamboo.Email.new_email(subject: "something")
       email |> MyApp.Mailer.deliver
-      assert_delivered_with(subject: "something") # Will pass
+      assert_email_delivered_with(subject: "something") # Will pass
 
       unsent_email = Bamboo.Email.new_email(subject: "something else")
-      assert_delivered_with(subject: "something else") # Will fail
+      assert_email_delivered_with(subject: "something else") # Will fail
 
   You can also pass a regex to match portions of an email.
 
   ## Example
 
       email = new_email(text_body: "I love coffee")
-      assert_delivered_with(email, text_body: ~r/love/) # Will pass
-      assert_delivered_with(email, text_body: ~r/like/) # Will fail
+      assert_email_delivered_with(email, text_body: ~r/love/) # Will pass
+      assert_email_delivered_with(email, text_body: ~r/like/) # Will fail
   """
-  defmacro assert_delivered_with(email_params) do
+  defmacro assert_email_delivered_with(email_params) do
     quote bind_quoted: [email_params: email_params] do
       import ExUnit.Assertions
       assert_receive({:delivered_email, email}, 100, Bamboo.Test.flunk_no_emails_received)
