@@ -24,12 +24,20 @@ defmodule Bamboo.EmailPreviewerTest do
   end
 
   describe "show" do
-    test "renders a valid email" do
-      conn = get("/email_previews/customer_email")
+    test "renders a valid html email" do
+      conn = get("/email_previews/customer_email/html")
 
       assert conn.resp_body =~ "Hi Customer HTML"
-      #assert html_response(conn, 200) =~ "View Text Version"
-      #refute html_response(conn, 200) =~ "View HTML Version"
+      assert conn.resp_body =~ "View Text Version"
+      refute conn.resp_body =~ "View HTML Version"
+    end
+
+    test "renders a valid text email" do
+      conn = get("/email_previews/guest_email/text")
+
+      assert conn.resp_body =~ "Hi Guest Text"
+      assert conn.resp_body =~ "View HTML Version"
+      refute conn.resp_body =~ "View Text Version"
     end
   end
 

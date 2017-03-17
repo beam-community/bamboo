@@ -21,11 +21,11 @@ defmodule Bamboo.EmailPreviewPlug do
     |> send_html(:ok, index(assigns))
   end
 
-  get "/:preview_path" do
+  get "/:preview_path/:format" do
     assigns = %{
       conn: conn,
-      preview: List.first(all_previews()),
-      showing_text: false,
+      preview: find_matching_preview(all_previews(), preview_path),
+      showing_text: format == "text",
     }
     conn
     |> send_html(:ok, show(assigns))
@@ -39,5 +39,9 @@ defmodule Bamboo.EmailPreviewPlug do
 
   defp all_previews do
     Application.fetch_env!(:bamboo, :email_preview_module).previews
+  end
+
+  defp find_matching_preview(previews, path) do
+    previews |> Enum.find(&(&1.path == path))
   end
 end

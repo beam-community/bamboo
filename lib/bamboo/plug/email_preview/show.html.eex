@@ -1,5 +1,13 @@
 <div>
   <%= if assigns.showing_text do %>
+    <a href="<%= assigns.preview.path %>/html">View HTML Version</a>
+  <% else %>
+    <a href="<%= assigns.preview.path %>/text">View Text Version</a>
+  <% end %>
+</div>
+
+<div>
+  <%= if assigns.showing_text do %>
     <pre><%= assigns.preview.email.().text_body %></pre>
   <% else %>
     <%= assigns.preview.email.().html_body %>
