@@ -12,7 +12,7 @@ defmodule Bamboo.EmailPreviewPlug do
   get "/" do
     assigns = %{
       conn: conn,
-      emails: [],
+      previews: all_previews(),
     }
     conn
     |> send_html(:ok, index(assigns))
@@ -22,5 +22,17 @@ defmodule Bamboo.EmailPreviewPlug do
     conn
     |> Plug.Conn.put_resp_content_type("text/html")
     |> send_resp(status, body)
+  end
+
+  defp all_previews do
+    [
+      %{
+        path: "customer_email",
+        name: "Customer Email",
+      }, %{
+        path: "guest_email",
+        name: "Guest Email",
+      },
+    ]
   end
 end
