@@ -12,14 +12,16 @@ defmodule Bamboo.EmailPreviewerTest do
     forward "/email_previews", to: Bamboo.EmailPreviewPlug
   end
 
-  test "shows all the available emails" do
-    conn = conn(:get, "/email_previews")
+  describe "index" do
+    test "shows all the available emails" do
+      conn = conn(:get, "/email_previews")
 
-    conn = AppRouter.call(conn, nil)
-    assert conn.status == 200
-    assert conn.resp_body =~ "Please select an email"
-    assert conn.resp_body =~ "Customer Email"
-    assert conn.resp_body =~ "Guest Email"
+      conn = AppRouter.call(conn, nil)
+      assert conn.status == 200
+      assert conn.resp_body =~ "Please select an email"
+      assert conn.resp_body =~ "Customer Email"
+      assert conn.resp_body =~ "Guest Email"
+    end
   end
 end
 
