@@ -25,14 +25,6 @@ defmodule Bamboo.EmailPreviewPlug do
   end
 
   defp all_previews do
-    [
-      %{
-        path: "customer_email",
-        name: "Customer Email",
-      }, %{
-        path: "guest_email",
-        name: "Guest Email",
-      },
-    ]
+    Application.fetch_env!(:bamboo, :email_preview_module).previews
   end
 end
