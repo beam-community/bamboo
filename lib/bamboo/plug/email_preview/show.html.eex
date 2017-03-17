@@ -1,12 +1,7 @@
-<%= if @showing_text do %>
-  <%= link("View HTML Version", to: email_preview_path(@conn, :show, @preview.path)) %>
-<% else %>
-  <%= link("View Text Version", to: email_preview_path(@conn, :show, @preview.path, text: true)) %>
-<% end %>
 <div>
-   <%= if @showing_text do %>
-    <pre><%= @preview.email.().text_body %></pre>
-   <% else %>
-    <%= raw @preview.email.().html_body %>
+  <%= if assigns.showing_text do %>
+    <pre><%= assigns.preview.email.().text_body %></pre>
+  <% else %>
+    <%= assigns.preview.email.().html_body %>
   <% end %>
 </div>
