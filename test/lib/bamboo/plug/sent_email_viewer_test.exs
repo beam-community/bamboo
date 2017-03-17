@@ -1,4 +1,4 @@
-defmodule Bamboo.EmailPreviewTest do
+defmodule Bamboo.SentEmailViewerTest do
   use ExUnit.Case
   use Plug.Test
   import Bamboo.Factory
@@ -10,8 +10,8 @@ defmodule Bamboo.EmailPreviewTest do
     plug :match
     plug :dispatch
 
-    forward "/sent_emails/foo", to: Bamboo.EmailPreviewPlug
-    forward "/", to: Bamboo.EmailPreviewPlug
+    forward "/sent_emails/foo", to: Bamboo.SentEmailViewerPlug
+    forward "/", to: Bamboo.SentEmailViewerPlug
   end
 
   setup do

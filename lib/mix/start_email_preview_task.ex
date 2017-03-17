@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Bamboo.StartEmailPreview do
+defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
   use Mix.Task
 
   @moduledoc false
@@ -9,7 +9,7 @@ defmodule Mix.Tasks.Bamboo.StartEmailPreview do
   def run(_) do
     Mix.Task.run "app.start"
     {:ok, _} = Application.ensure_all_started(:cowboy)
-    Plug.Adapters.Cowboy.http Bamboo.EmailPreviewPlug, [], port: 4003
+    Plug.Adapters.Cowboy.http Bamboo.SentEmailViewerPlug, [], port: 4003
 
     for index <- 0..5 do
       Bamboo.Email.new_email(

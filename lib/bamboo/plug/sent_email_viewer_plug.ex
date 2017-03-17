@@ -1,4 +1,4 @@
-defmodule Bamboo.EmailPreviewPlug do
+defmodule Bamboo.SentEmailViewerPlug do
   use Plug.Router
   require EEx
   alias Bamboo.SentEmail
@@ -30,10 +30,10 @@ defmodule Bamboo.EmailPreviewPlug do
 
         if Mix.env == :dev do
           # If using Phoenix
-          forward "/sent_emails", Bamboo.EmailPreviewPlug
+          forward "/sent_emails", Bamboo.SentEmailViewerPlug
 
           # If using Plug.Router, make sure to add the `to`
-          forward "/sent_emails", to: Bamboo.EmailPreviewPlug
+          forward "/sent_emails", to: Bamboo.SentEmailViewerPlug
         end
       end
 
