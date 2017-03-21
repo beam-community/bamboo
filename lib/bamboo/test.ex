@@ -67,7 +67,7 @@ defmodule Bamboo.Test do
           email |> MyApp.Mailer.deliver_now
 
           # Works with deliver_now and deliver_later
-          assert_delivered_email MyApp.Email.welcome_email(user)
+          assert_delivered_email email
         end
       end
   """
