@@ -2,7 +2,7 @@ Please select an email
 <nav>
   <ul>
     <%= for preview <- assigns[:previews] do %>
-      <li><a href="<%= preview.path %>"><%= preview.name %></a></li>
+      <li><a href="<%= preview.path %>/html"><%= preview.name %></a></li>
     <% end %>
   </ul>
 </nav>
