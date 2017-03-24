@@ -14,7 +14,7 @@ Flexible and easy to use email for Elixir.
 * **Very composable**. Emails are just a Bamboo.Email struct and can be manipulated with plain functions.
 * **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
 * **Easy to test delivery in integration tests**. Helpers are provided to make testing easy and robust.
-* **Preview sent emails during development**. Bamboo comes with a plug that can be used in your router to preview sent emails.
+* **View sent emails during development**. Bamboo comes with a plug that can be used in your router to view sent emails.
 
 See the [docs] for the most up to date information.
 
@@ -192,17 +192,17 @@ Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can
 use Phoenix views and layouts with Bamboo. See
 [Bamboo.Phoenix](https://hexdocs.pm/bamboo/Bamboo.Phoenix.html)
 
-## Previewing Sent Emails
+## Viewing Sent Emails
 
 Bamboo comes with a handy plug for viewing emails sent in development. Now you
 don't have to look at the logs to get password resets, confirmation links, etc.
-Just open up the email preview and click the link.
+Just open up the sent email viewer and click the link.
 
-See [Bamboo.EmailPreviewPlug](https://hexdocs.pm/bamboo/Bamboo.EmailPreviewPlug.html)
+See [Bamboo.SentEmailViewerPlug](https://hexdocs.pm/bamboo/Bamboo.SentEmailViewerPlug.html)
 
 Here is what it looks like:
 
-![Screenshot of BambooEmailPreview](https://cloud.githubusercontent.com/assets/22394/14929083/bda60b76-0e29-11e6-9e11-5ec60069e825.png)
+![Screenshot of BambooSentEmailViewer](https://cloud.githubusercontent.com/assets/22394/14929083/bda60b76-0e29-11e6-9e11-5ec60069e825.png)
 
 ## Mandrill Specific Functionality (tags, merge vars, templates, etc.)
 

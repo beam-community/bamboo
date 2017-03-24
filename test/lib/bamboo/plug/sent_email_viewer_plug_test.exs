@@ -1,4 +1,4 @@
-defmodule Bamboo.EmailPreviewTest do
+defmodule Bamboo.SentEmailViewerPlugTest do
   use ExUnit.Case
   use Plug.Test
   import Bamboo.Factory
@@ -10,8 +10,8 @@ defmodule Bamboo.EmailPreviewTest do
     plug :match
     plug :dispatch
 
-    forward "/sent_emails/foo", to: Bamboo.EmailPreviewPlug
-    forward "/", to: Bamboo.EmailPreviewPlug
+    forward "/sent_emails/foo", to: Bamboo.SentEmailViewerPlug
+    forward "/", to: Bamboo.SentEmailViewerPlug
   end
 
   setup do
@@ -19,7 +19,7 @@ defmodule Bamboo.EmailPreviewTest do
     :ok
   end
 
-  test "shows list of all sent emails, and previews the newest email" do
+  test "shows list of all sent emails, and the body of the newest email" do
     emails = normalize_and_push_pair(:email)
     conn = conn(:get, "/sent_emails/foo")
 
@@ -28,8 +28,8 @@ defmodule Bamboo.EmailPreviewTest do
     assert conn.status == 200
     assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert selected_sidebar_email_text(conn) =~ newest_email().subject
-    assert showing_in_preview_pane?(conn, newest_email())
-    refute showing_in_preview_pane?(conn, oldest_email())
+    assert showing_in_detail_pane?(conn, newest_email())
+    refute showing_in_detail_pane?(conn, oldest_email())
     for email <- emails do
       assert Floki.raw_html(sidebar(conn)) =~ ~s(href="/sent_emails/foo/#{SentEmail.get_id(email)}")
       assert Floki.text(sidebar(conn)) =~ email.subject
@@ -54,7 +54,7 @@ defmodule Bamboo.EmailPreviewTest do
     end
   end
 
-  test "prints single header in preview" do
+  test "prints single header in detail pane" do
     email = normalize_and_push(:email, headers: %{"Reply-To" => "reply-to@example.com"})
     conn = conn(:get, "/sent_emails/foo")
 
@@ -67,7 +67,7 @@ defmodule Bamboo.EmailPreviewTest do
     assert conn.resp_body =~ "reply-to@example.com"
   end
 
-  test "prints multiple headers in preview" do
+  test "prints multiple headers in detail pane" do
     email = normalize_and_push(:email, headers: %{"Reply-To" => ["reply-to1@example.com", "reply-to2@example.com"], "Foobar" => "foobar-header"})
     conn = conn(:get, "/sent_emails/foo")
 
@@ -131,8 +131,8 @@ defmodule Bamboo.EmailPreviewTest do
 
     assert conn.status == 200
     assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
-    assert showing_in_preview_pane?(conn, SentEmail.get(selected_email_id))
-    refute showing_in_preview_pane?(conn, SentEmail.get(unselected_email_id))
+    assert showing_in_detail_pane?(conn, SentEmail.get(selected_email_id))
+    refute showing_in_detail_pane?(conn, SentEmail.get(unselected_email_id))
   end
 
   test "shows an email's html by id" do
@@ -177,12 +177,12 @@ defmodule Bamboo.EmailPreviewTest do
     SentEmail.all |> List.last
   end
 
-  defp showing_in_preview_pane?(conn, email) do
-    Floki.text(preview_pane(conn)) =~ email.subject
+  defp showing_in_detail_pane?(conn, email) do
+    Floki.text(detail_pane(conn)) =~ email.subject
   end
 
-  defp preview_pane(conn) do
-    conn.resp_body |> Floki.find(".email-preview-pane")
+  defp detail_pane(conn) do
+    conn.resp_body |> Floki.find(".email-detail-pane")
   end
 
   defp sidebar(conn) do
