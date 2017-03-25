@@ -26,7 +26,7 @@ defmodule Bamboo.Test do
 
   You don't need any special functions to unit test emails.
 
-      defmodule MyApp.EmailsTest do
+      defmodule MyApp.EmailTest do
         use ExUnit.Case
 
         test "welcome email" do
