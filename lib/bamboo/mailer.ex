@@ -41,7 +41,7 @@ defmodule Bamboo.Mailer do
 
       # In a Phoenix controller or some other module
       defmodule MyApp.Foo do
-        alias MyApp.Emails
+        alias MyApp.Email
         alias MyApp.Mailer
 
         def register_user do
