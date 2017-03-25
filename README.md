@@ -99,7 +99,7 @@ defmodule MyApp.Mailer do
 end
 
 # Define your emails
-defmodule MyApp.Emails do
+defmodule MyApp.Email do
   import Bamboo.Email
 
   def welcome_email do
@@ -122,10 +122,10 @@ defmodule MyApp.Emails do
 end
 
 # In a controller or some other module
-Emails.welcome_email |> Mailer.deliver_now
+Email.welcome_email |> Mailer.deliver_now
 
 # You can also deliver emails in the background with Mailer.deliver_later
-Emails.welcome_email |> Mailer.deliver_later
+Email.welcome_email |> Mailer.deliver_later
 ```
 
 ## Delivering Emails in the Background
@@ -142,7 +142,7 @@ for adding emails to a background processing queue such as [exq](https://github.
 ## Composing with Pipes (for default from address, default layouts, etc.)
 
 ```elixir
-defmodule MyApp.Emails do
+defmodule MyApp.Email do
   import Bamboo.Email
   import Bamboo.Phoenix
 
@@ -245,7 +245,7 @@ defmodule MyApp.Registration do
     # Unit testing is easy since the email is just a struct
     user = new_user
 
-    email = Emails.welcome_email(user)
+    email = Email.welcome_email(user)
 
     assert email.to == user
     # The =~ checks that the html_body contains the text on the right
@@ -258,7 +258,7 @@ defmodule MyApp.Registration do
 
     MyApp.Register(user)
 
-    assert_delivered_email MyApp.Emails.welcome_email(user)
+    assert_delivered_email MyApp.Email.welcome_email(user)
   end
 end
 ```
