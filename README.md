@@ -199,7 +199,7 @@ Bamboo comes with a handy plug for viewing emails sent in development. Now you
 don't have to look at the logs to get password resets, confirmation links, etc.
 Just open up the sent email viewer and click the link.
 
-See [Bamboo.SentEmailViewerPlug](https://hexdocs.pm/bamboo/Bamboo.SentEmailViewerPlug.html)
+See [Bamboo.EmailPreviewPlug](https://hexdocs.pm/bamboo/Bamboo.EmailPreviewPlug.html)
 
 Here is what it looks like:
 
