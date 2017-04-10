@@ -25,10 +25,20 @@ defmodule Bamboo.SendGridAdapter do
 
   @default_base_uri "https://api.sendgrid.com/api"
   @send_message_path "/mail.send.json"
+  @extra_api_error_message """
+  If you are deploying to Heroku and using ENV variables to handle your API key,
+  you will need to explicitly export the variables so they are available at compile time.
+  Add the following configuration to your elixir_buildpack.config:
+
+  config_vars_to_export=(
+    DATABASE_URL
+    SENDGRID_API_KEY
+  )
+  """
   @behaviour Bamboo.Adapter
 
   alias Bamboo.Email
-  alias Bamboo.ApiError
+  import Bamboo.ApiError
 
   def deliver(email, config) do
     api_key = get_key(config)
@@ -37,7 +47,8 @@ defmodule Bamboo.SendGridAdapter do
 
     case :hackney.post(url, headers(api_key), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        raise_api_error(body, response)
+        filtered_params = body |> Plug.Conn.Query.decode |> Map.put("key", "[FILTERED]")
+        raise_api_error(__MODULE__, response, filtered_params, @extra_api_error_message)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
       {:error, reason} ->
@@ -59,34 +70,6 @@ defmodule Bamboo.SendGridAdapter do
       nil -> raise_api_key_error(config)
       key -> key
     end
-  end
-
-  defp raise_api_error(message), do: raise(ApiError, message: message)
-  defp raise_api_error(params, response) do
-    filtered_params = params |> Plug.Conn.Query.decode |> Map.put("key", "[FILTERED]")
-
-    message = """
-    There was a problem sending the email through the SendGrid API.
-
-    Here is the response:
-
-    #{inspect response, limit: :infinity}
-
-    Here are the params we sent:
-
-    #{inspect filtered_params, limit: :infinity}
-
-    If you are deploying to Heroku and using ENV variables to handle your API key,
-    you will need to explicitly export the variables so they are available at compile time.
-    Add the following configuration to your elixir_buildpack.config:
-
-    config_vars_to_export=(
-      DATABASE_URL
-      SENDGRID_API_KEY
-    )
-    """
-
-    raise(ApiError, message: message)
   end
 
   defp raise_api_key_error(config) do
