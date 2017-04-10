@@ -6,9 +6,9 @@ defmodule Bamboo.ApiError do
   defexception [:message]
 
   def raise_api_error(message), do: raise(__MODULE__, message: message)
-  def raise_api_error(adapter, response, params, extra_message \\ "") when is_atom(adapter) do
+  def raise_api_error(service_name, response, params, extra_message \\ "") do
     message = """
-    There was a problem sending the email through the #{adapter_name(adapter)} API.
+    There was a problem sending the email through the #{service_name} API.
 
     Here is the response:
 
@@ -22,13 +22,5 @@ defmodule Bamboo.ApiError do
     """
 
     raise(__MODULE__, message: message)
-  end
-
-  defp adapter_name(adapter) do
-    adapter
-    |> Atom.to_string
-    |> String.split(".")
-    |> List.last
-    |> String.replace_trailing("Adapter", "")
   end
 end

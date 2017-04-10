@@ -23,18 +23,9 @@ defmodule Bamboo.SendGridAdapter do
       end
   """
 
+  @service_name "SendGrid"
   @default_base_uri "https://api.sendgrid.com/api"
   @send_message_path "/mail.send.json"
-  @extra_api_error_message """
-  If you are deploying to Heroku and using ENV variables to handle your API key,
-  you will need to explicitly export the variables so they are available at compile time.
-  Add the following configuration to your elixir_buildpack.config:
-
-  config_vars_to_export=(
-    DATABASE_URL
-    SENDGRID_API_KEY
-  )
-  """
   @behaviour Bamboo.Adapter
 
   alias Bamboo.Email
@@ -48,7 +39,7 @@ defmodule Bamboo.SendGridAdapter do
     case :hackney.post(url, headers(api_key), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
         filtered_params = body |> Plug.Conn.Query.decode |> Map.put("key", "[FILTERED]")
-        raise_api_error(__MODULE__, response, filtered_params, @extra_api_error_message)
+        raise_api_error(@service_name, response, filtered_params)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
       {:error, reason} ->

@@ -19,6 +19,7 @@ defmodule Bamboo.MailgunAdapter do
       end
   """
 
+  @service_name "Mailgun"
   @base_uri "https://api.mailgun.net/v3/"
   @behaviour Bamboo.Adapter
 
@@ -30,7 +31,7 @@ defmodule Bamboo.MailgunAdapter do
 
     case :hackney.post(full_uri(config), headers(config), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        raise_api_error(__MODULE__, response, body)
+        raise_api_error(@service_name, response, body)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
       {:error, reason} ->

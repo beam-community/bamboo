@@ -157,7 +157,7 @@ defmodule Bamboo.SendGridAdapterTest do
     email = new_email(from: "INVALID_EMAIL")
 
     assert_raise Bamboo.ApiError, fn ->
-      email |> SendgridAdapter.deliver(@config)
+      email |> SendGridAdapter.deliver(@config)
     end
   end
 
@@ -165,7 +165,7 @@ defmodule Bamboo.SendGridAdapterTest do
     email = new_email(from: "INVALID_EMAIL")
 
     assert_raise Bamboo.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
-      email |> SendgridAdapter.deliver(@config)
+      email |> SendGridAdapter.deliver(@config)
     end
   end
 

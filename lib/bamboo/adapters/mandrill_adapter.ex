@@ -19,19 +19,10 @@ defmodule Bamboo.MandrillAdapter do
       end
   """
 
+  @service_name "Mandrill"
   @default_base_uri "https://mandrillapp.com"
   @send_message_path "api/1.0/messages/send.json"
   @send_message_template_path "api/1.0/messages/send-template.json"
-  @extra_api_error_message """
-  If you are deploying to Heroku and using ENV variables to handle your API key,
-  you will need to explicitly export the variables so they are available at compile time.
-  Add the following configuration to your elixir_buildpack.config:
-
-  config_vars_to_export=(
-    DATABASE_URL
-    MANDRILL_API_KEY
-  )
-  """
   @behaviour Bamboo.Adapter
 
   import Bamboo.ApiError
@@ -44,7 +35,7 @@ defmodule Bamboo.MandrillAdapter do
     case :hackney.post(uri, headers(), params, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
         filtered_params = params |> Poison.decode! |> Map.put("key", "[FILTERED]")
-        raise_api_error(__MODULE__, response, filtered_params, @extra_api_error_message)
+        raise_api_error(@service_name, response, filtered_params)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
       {:error, reason} ->
