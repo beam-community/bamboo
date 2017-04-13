@@ -44,15 +44,6 @@ defmodule Bamboo.MandrillAdapter do
       Here are the params we sent:
 
       #{inspect filtered_params, limit: :infinity}
-
-      If you are deploying to Heroku and using ENV variables to handle your API key,
-      you will need to explicitly export the variables so they are available at compile time.
-      Add the following configuration to your elixir_buildpack.config:
-
-      config_vars_to_export=(
-        DATABASE_URL
-        MANDRILL_API_KEY
-      )
       """
       %ApiError{message: message}
     end

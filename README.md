@@ -220,20 +220,6 @@ SendGrid offers extra features on top of regular SMTP email like transactional
 templates with substitution tags. See
 [Bamboo.SendGridHelper](https://hexdocs.pm/bamboo/Bamboo.SendGridHelper.html).
 
-## Heroku Configuration
-
-If you are deploying to Heroku, you will need to ensure that your configuration
-variables are available at compile time. This is done in the [build pack config].
-
-```
-config_vars_to_export=(
-  DATABASE_URL
-  MANDRILL_API_KEY
-)
-```
-
-[build pack config]: https://github.com/HashNuke/heroku-buildpack-elixir#specifying-config-vars-to-export-at-compile-time
-
 ## Testing
 
 You can use the Bamboo.TestAdapter along with [Bamboo.Test] to make testing your
