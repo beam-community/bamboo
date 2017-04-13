@@ -3,6 +3,9 @@
 Bamboo [![Circle CI](https://circleci.com/gh/thoughtbot/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtbot/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/thoughtbot/bamboo/badge.png?branch=master)](https://coveralls.io/github/thoughtbot/bamboo?branch=master)
 ========
 
+> **This README follows master, which may not be the currently published version!** Use
+[the docs for the published version of Bamboo](https://hexdocs.pm/bamboo/readme.html).
+
 **Bamboo is part of the [thoughtbot Elixir family][elixir-phoenix] of projects.**
 
 Flexible and easy to use email for Elixir.
