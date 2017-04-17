@@ -120,7 +120,7 @@ defmodule Bamboo.MailgunAdapterTest do
   test "raises if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise MailgunAdapter.ApiError, fn ->
+    assert_raise Bamboo.ApiError, fn ->
       email |> MailgunAdapter.deliver(@config)
     end
   end

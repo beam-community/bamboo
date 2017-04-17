@@ -19,35 +19,13 @@ defmodule Bamboo.MandrillAdapter do
       end
   """
 
+  @service_name "Mandrill"
   @default_base_uri "https://mandrillapp.com"
   @send_message_path "api/1.0/messages/send.json"
   @send_message_template_path "api/1.0/messages/send-template.json"
   @behaviour Bamboo.Adapter
 
-  defmodule ApiError do
-    defexception [:message]
-
-    def exception(%{message: message}) do
-      %ApiError{message: message}
-    end
-
-    def exception(%{params: params, response: response}) do
-      filtered_params = params |> Poison.decode! |> Map.put("key", "[FILTERED]")
-
-      message = """
-      There was a problem sending the email through the Mandrill API.
-
-      Here is the response:
-
-      #{inspect response, limit: :infinity}
-
-      Here are the params we sent:
-
-      #{inspect filtered_params, limit: :infinity}
-      """
-      %ApiError{message: message}
-    end
-  end
+  import Bamboo.ApiError
 
   def deliver(email, config) do
     api_key = get_key(config)
@@ -56,11 +34,12 @@ defmodule Bamboo.MandrillAdapter do
 
     case :hackney.post(uri, headers(), params, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        raise(ApiError, %{params: params, response: response})
+        filtered_params = params |> Poison.decode! |> Map.put("key", "[FILTERED]")
+        raise_api_error(@service_name, response, filtered_params)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
       {:error, reason} ->
-        raise(ApiError, %{message: inspect(reason)})
+        raise_api_error(inspect(reason))
     end
   end
 

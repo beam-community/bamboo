@@ -23,36 +23,13 @@ defmodule Bamboo.SendGridAdapter do
       end
   """
 
+  @service_name "SendGrid"
   @default_base_uri "https://api.sendgrid.com/api"
   @send_message_path "/mail.send.json"
   @behaviour Bamboo.Adapter
 
   alias Bamboo.Email
-
-  defmodule ApiError do
-    defexception [:message]
-
-    def exception(%{message: message}) do
-      %ApiError{message: message}
-    end
-
-    def exception(%{params: params, response: response}) do
-      filtered_params = params |> Plug.Conn.Query.decode |> Map.put("key", "[FILTERED]")
-
-      message = """
-      There was a problem sending the email through the SendGrid API.
-
-      Here is the response:
-
-      #{inspect response, limit: :infinity}
-
-      Here are the params we sent:
-
-      #{inspect filtered_params, limit: :infinity}
-      """
-      %ApiError{message: message}
-    end
-  end
+  import Bamboo.ApiError
 
   def deliver(email, config) do
     api_key = get_key(config)
@@ -61,11 +38,12 @@ defmodule Bamboo.SendGridAdapter do
 
     case :hackney.post(url, headers(api_key), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        raise(ApiError, %{params: body, response: response})
+        filtered_params = body |> Plug.Conn.Query.decode |> Map.put("key", "[FILTERED]")
+        raise_api_error(@service_name, response, filtered_params)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
       {:error, reason} ->
-        raise(ApiError, %{message: inspect(reason)})
+        raise_api_error(inspect(reason))
     end
   end
 
