@@ -8,6 +8,8 @@ defmodule Bamboo.MailerTest do
     end
 
     def handle_config(config), do: config
+
+    def supports_attachments?, do: true
   end
 
   defmodule CustomConfigAdapter do
@@ -20,11 +22,27 @@ defmodule Bamboo.MailerTest do
     end
   end
 
+  defmodule AdapterWithoutAttachmentSupport do
+    def deliver(_email, _config) do
+      :noop
+    end
+
+    def handle_config(config), do: config
+  end
+
   @custom_config adapter: CustomConfigAdapter, foo: :bar
 
   Application.put_env(:bamboo, __MODULE__.CustomConfigMailer, @custom_config)
 
   defmodule CustomConfigMailer do
+    use Bamboo.Mailer, otp_app: :bamboo
+  end
+
+  @mailer_config adapter: AdapterWithoutAttachmentSupport, foo: :bar
+
+  Application.put_env(:bamboo, __MODULE__.AdapterWithoutAttachmentSupportMailer, @mailer_config)
+
+  defmodule AdapterWithoutAttachmentSupportMailer do
     use Bamboo.Mailer, otp_app: :bamboo
   end
 
@@ -39,6 +57,33 @@ defmodule Bamboo.MailerTest do
   setup do
     Process.register(self(), :mailer_test)
     :ok
+  end
+
+  test "raise if adapter does not support attachments and attachments are sent" do
+    path = Path.join(__DIR__, "../../support/attachment.docx")
+    email = new_email(to: "foo@bar.com") |> Email.put_attachment(path)
+
+    assert_raise RuntimeError, ~r/does not support attachments/, fn ->
+      AdapterWithoutAttachmentSupportMailer.deliver_now(email)
+    end
+
+    assert_raise RuntimeError, ~r/does not support attachments/, fn ->
+      AdapterWithoutAttachmentSupportMailer.deliver_later(email)
+    end
+  end
+
+  test "does not raise if adapter supports attachments" do
+    path = Path.join(__DIR__, "../../support/attachment.docx")
+    email = new_email(to: "foo@bar.com") |> Email.put_attachment(path)
+
+    FooMailer.deliver_now(email)
+
+    assert_received {:deliver, _email, _config}
+  end
+
+  test "does not raise if no attachments are on the email" do
+    email = new_email(to: "foo@bar.com")
+    AdapterWithoutAttachmentSupportMailer.deliver_now(email)
   end
 
   test "uses adapter's handle_config/1 to customize or validate the config" do
