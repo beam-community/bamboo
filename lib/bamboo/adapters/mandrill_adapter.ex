@@ -52,6 +52,9 @@ defmodule Bamboo.MandrillAdapter do
     end
   end
 
+  @doc false
+  def supports_attachments?, do: true
+
   defp get_key(config) do
     case Map.get(config, :api_key) do
       nil -> raise_api_key_error(config)

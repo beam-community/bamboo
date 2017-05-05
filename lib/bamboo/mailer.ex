@@ -114,7 +114,7 @@ defmodule Bamboo.Mailer do
 
   @doc false
   def deliver_now(adapter, email, config) do
-    email = email |> validate_and_normalize
+    email = email |> validate_and_normalize(adapter)
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
       debug_unsent(email)
@@ -127,7 +127,7 @@ defmodule Bamboo.Mailer do
 
   @doc false
   def deliver_later(adapter, email, config) do
-    email = email |> validate_and_normalize
+    email = email |> validate_and_normalize(adapter)
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
       debug_unsent(email)
@@ -154,14 +154,24 @@ defmodule Bamboo.Mailer do
     """
   end
 
-  defp validate_and_normalize(email) do
-    email |> validate |> normalize_addresses
+  defp validate_and_normalize(email, adapter) do
+    email |> validate(adapter) |> normalize_addresses
   end
 
-  defp validate(email) do
+  defp validate(email, adapter) do
     email
     |> validate_from_address
     |> validate_recipients
+    |> validate_attachment_support(adapter)
+  end
+
+  defp validate_attachment_support(%{attachments: []} = email, _adapter), do: email
+  defp validate_attachment_support(email, adapter) do
+    if function_exported?(adapter, :supports_attachments?, 0) && adapter.supports_attachments? do
+      email
+    else
+      raise "the #{adapter} does not support attachments yet."
+    end
   end
 
   defp validate_from_address(%{from: nil}) do
