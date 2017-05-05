@@ -79,7 +79,7 @@ defmodule Bamboo.EmailTest do
 
   test "put_attachment/3 atts an attachment to the attachments list" do
     path = Path.join(__DIR__, "../../support/attachment.docx")
-    email = new_email |> put_attachment(path)
+    email = new_email() |> put_attachment(path)
 
     assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
   end
