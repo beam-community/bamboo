@@ -86,6 +86,7 @@ defmodule Bamboo.Email do
       html_body: nil,
       text_body: nil,
       headers: %{},
+      attachments: [],
       assigns: %{},
       private: %{}
 
@@ -199,5 +200,27 @@ defmodule Bamboo.Email do
   @spec put_private(__MODULE__.t, atom, any) :: __MODULE__.t
   def put_private(%Email{private: private} = email, key, value) do
     %{email | private: Map.put(private, key, value)}
+  end
+
+  @doc ~S"""
+  Adds an attachment to the email
+
+  ## Example
+    put_attachment(email, path, opts \\ [])
+
+  Accepts `filename: <name>` and `content_type: <type>` options.
+
+  If you are using Plug, it accepts a Plug.Upload struct
+
+  ## Example
+    def create(conn, params) do
+      #...
+      email
+      |> put_attachment(params["file"])
+      #...
+    end
+  """
+  def put_attachment(%__MODULE__{attachments: attachments} = email, path, opts \\ []) do
+    %{email | attachments: [Bamboo.Attachment.new(path, opts) | attachments]}
   end
 end
