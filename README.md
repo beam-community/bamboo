@@ -38,6 +38,7 @@ to open an issue or a PR if you'd like to add a new adapter to the list.
 * `Bamboo.SendGridAdapter` - Ships with Bamboo.
 * `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
 * `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
+* `Bamboo.PostageAppAdapter` - See [GBH/bamboo_postageapp](https://github.com/GBH/bamboo_postageapp).
 * `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
 * `Bamboo.SendcloudAdapter` - See [linjunpop/bamboo_sendcloud](https://github.com/linjunpop/bamboo_sendcloud).
 * `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
