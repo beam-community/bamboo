@@ -19,45 +19,23 @@ defmodule Bamboo.MailgunAdapter do
       end
   """
 
+  @service_name "Mailgun"
   @base_uri "https://api.mailgun.net/v3/"
   @behaviour Bamboo.Adapter
 
   alias Bamboo.Email
-
-  defmodule ApiError do
-    defexception [:message]
-
-    def exception(%{message: message}) do
-      %ApiError{message: message}
-    end
-
-    def exception(%{params: params, response: response}) do
-      message = """
-      There was a problem sending the email through the Mailgun API.
-
-      Here is the response:
-
-      #{inspect response, limit: :infinity}
-
-
-      Here are the params we sent:
-
-      #{inspect params, limit: :infinity}
-      """
-      %ApiError{message: message}
-    end
-  end
+  import Bamboo.ApiError
 
   def deliver(email, config) do
     body = email |> to_mailgun_body |> Plug.Conn.Query.encode
 
     case :hackney.post(full_uri(config), headers(config), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        raise(ApiError, %{params: body, response: response})
+        raise_api_error(@service_name, response, body)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
       {:error, reason} ->
-        raise(ApiError, %{message: inspect(reason)})
+        raise_api_error(inspect(reason))
     end
   end
 

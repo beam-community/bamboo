@@ -3,6 +3,9 @@
 Bamboo [![Circle CI](https://circleci.com/gh/thoughtbot/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtbot/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/thoughtbot/bamboo/badge.png?branch=master)](https://coveralls.io/github/thoughtbot/bamboo?branch=master)
 ========
 
+> **This README follows master, which may not be the currently published version!** Use
+[the docs for the published version of Bamboo](https://hexdocs.pm/bamboo/readme.html).
+
 **Bamboo is part of the [thoughtbot Elixir family][elixir-phoenix] of projects.**
 
 Flexible and easy to use email for Elixir.
@@ -14,7 +17,7 @@ Flexible and easy to use email for Elixir.
 * **Very composable**. Emails are just a Bamboo.Email struct and can be manipulated with plain functions.
 * **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
 * **Easy to test delivery in integration tests**. Helpers are provided to make testing easy and robust.
-* **Preview sent emails during development**. Bamboo comes with a plug that can be used in your router to preview sent emails.
+* **View sent emails during development**. Bamboo comes with a plug that can be used in your router to view sent emails.
 
 See the [docs] for the most up to date information.
 
@@ -35,7 +38,9 @@ to open an issue or a PR if you'd like to add a new adapter to the list.
 * `Bamboo.SendGridAdapter` - Ships with Bamboo.
 * `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
 * `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
+* `Bamboo.PostageAppAdapter` - See [GBH/bamboo_postageapp](https://github.com/GBH/bamboo_postageapp).
 * `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
+* `Bamboo.SendcloudAdapter` - See [linjunpop/bamboo_sendcloud](https://github.com/linjunpop/bamboo_sendcloud).
 * `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
 * `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
 
@@ -99,7 +104,7 @@ defmodule MyApp.Mailer do
 end
 
 # Define your emails
-defmodule MyApp.Emails do
+defmodule MyApp.Email do
   import Bamboo.Email
 
   def welcome_email do
@@ -122,10 +127,10 @@ defmodule MyApp.Emails do
 end
 
 # In a controller or some other module
-Emails.welcome_email |> Mailer.deliver_now
+Email.welcome_email |> Mailer.deliver_now
 
 # You can also deliver emails in the background with Mailer.deliver_later
-Emails.welcome_email |> Mailer.deliver_later
+Email.welcome_email |> Mailer.deliver_later
 ```
 
 ## Delivering Emails in the Background
@@ -142,7 +147,7 @@ for adding emails to a background processing queue such as [exq](https://github.
 ## Composing with Pipes (for default from address, default layouts, etc.)
 
 ```elixir
-defmodule MyApp.Emails do
+defmodule MyApp.Email do
   import Bamboo.Email
   import Bamboo.Phoenix
 
@@ -192,17 +197,17 @@ Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can
 use Phoenix views and layouts with Bamboo. See
 [Bamboo.Phoenix](https://hexdocs.pm/bamboo/Bamboo.Phoenix.html)
 
-## Previewing Sent Emails
+## Viewing Sent Emails
 
 Bamboo comes with a handy plug for viewing emails sent in development. Now you
 don't have to look at the logs to get password resets, confirmation links, etc.
-Just open up the email preview and click the link.
+Just open up the sent email viewer and click the link.
 
-See [Bamboo.EmailPreviewPlug](https://hexdocs.pm/bamboo/Bamboo.EmailPreviewPlug.html)
+See [Bamboo.SentEmailViewerPlug](https://hexdocs.pm/bamboo/Bamboo.SentEmailViewerPlug.html)
 
 Here is what it looks like:
 
-![Screenshot of BambooEmailPreview](https://cloud.githubusercontent.com/assets/22394/14929083/bda60b76-0e29-11e6-9e11-5ec60069e825.png)
+![Screenshot of BambooSentEmailViewer](https://cloud.githubusercontent.com/assets/22394/14929083/bda60b76-0e29-11e6-9e11-5ec60069e825.png)
 
 ## Mandrill Specific Functionality (tags, merge vars, templates, etc.)
 
@@ -215,20 +220,6 @@ vars, templates, and scheduling emails to send in the future. See
 SendGrid offers extra features on top of regular SMTP email like transactional
 templates with substitution tags. See
 [Bamboo.SendGridHelper](https://hexdocs.pm/bamboo/Bamboo.SendGridHelper.html).
-
-## Heroku Configuration
-
-If you are deploying to Heroku, you will need to ensure that your configuration
-variables are available at compile time. This is done in the [build pack config].
-
-```
-config_vars_to_export=(
-  DATABASE_URL
-  MANDRILL_API_KEY
-)
-```
-
-[build pack config]: https://github.com/HashNuke/heroku-buildpack-elixir#specifying-config-vars-to-export-at-compile-time
 
 ## Testing
 
@@ -245,7 +236,7 @@ defmodule MyApp.Registration do
     # Unit testing is easy since the email is just a struct
     user = new_user
 
-    email = Emails.welcome_email(user)
+    email = Email.welcome_email(user)
 
     assert email.to == user
     # The =~ checks that the html_body contains the text on the right
@@ -258,7 +249,7 @@ defmodule MyApp.Registration do
 
     MyApp.Register(user)
 
-    assert_delivered_email MyApp.Emails.welcome_email(user)
+    assert_delivered_email MyApp.Email.welcome_email(user)
   end
 end
 ```
@@ -270,7 +261,7 @@ Bamboo.TestAdapter.
 
 ## About thoughtbot
 
-![thoughtbot](https://thoughtbot.com/logo.png)
+![thoughtbot](http://presskit.thoughtbot.com/images/thoughtbot-logo-for-readmes.svg)
 
 Bamboo is maintained and funded by thoughtbot, inc.
 The names and logos for thoughtbot are trademarks of thoughtbot, inc.

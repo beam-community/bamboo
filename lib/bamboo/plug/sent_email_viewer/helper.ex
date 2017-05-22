@@ -1,4 +1,4 @@
-defmodule Bamboo.EmailPreviewPlug.Helper do
+defmodule Bamboo.SentEmailViewerPlug.Helper do
   import Bamboo.SentEmail
 
   @moduledoc false

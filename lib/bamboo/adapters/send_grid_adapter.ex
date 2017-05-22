@@ -23,45 +23,13 @@ defmodule Bamboo.SendGridAdapter do
       end
   """
 
+  @service_name "SendGrid"
   @default_base_uri "https://api.sendgrid.com/api"
   @send_message_path "/mail.send.json"
   @behaviour Bamboo.Adapter
 
   alias Bamboo.Email
-
-  defmodule ApiError do
-    defexception [:message]
-
-    def exception(%{message: message}) do
-      %ApiError{message: message}
-    end
-
-    def exception(%{params: params, response: response}) do
-      filtered_params = params |> Plug.Conn.Query.decode |> Map.put("key", "[FILTERED]")
-
-      message = """
-      There was a problem sending the email through the SendGrid API.
-
-      Here is the response:
-
-      #{inspect response, limit: :infinity}
-
-      Here are the params we sent:
-
-      #{inspect filtered_params, limit: :infinity}
-
-      If you are deploying to Heroku and using ENV variables to handle your API key,
-      you will need to explicitly export the variables so they are available at compile time.
-      Add the following configuration to your elixir_buildpack.config:
-
-      config_vars_to_export=(
-        DATABASE_URL
-        SENDGRID_API_KEY
-      )
-      """
-      %ApiError{message: message}
-    end
-  end
+  import Bamboo.ApiError
 
   def deliver(email, config) do
     api_key = get_key(config)
@@ -70,11 +38,12 @@ defmodule Bamboo.SendGridAdapter do
 
     case :hackney.post(url, headers(api_key), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        raise(ApiError, %{params: body, response: response})
+        filtered_params = body |> Plug.Conn.Query.decode |> Map.put("key", "[FILTERED]")
+        raise_api_error(@service_name, response, filtered_params)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
       {:error, reason} ->
-        raise(ApiError, %{message: inspect(reason)})
+        raise_api_error(inspect(reason))
     end
   end
 
@@ -162,7 +131,8 @@ defmodule Bamboo.SendGridAdapter do
   defp put_text_body(body, %Email{text_body: nil}), do: body
   defp put_text_body(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
 
-  defp put_reply_to(body, %Email{headers: %{"reply-to" => reply_to}} = email) do
+
+  defp put_reply_to(body, %Email{headers: %{"reply-to" => reply_to}}) do
     Map.put(body, :replyto, reply_to)
   end
   defp put_reply_to(body, _), do: body

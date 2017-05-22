@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>Email Preview</title>
+    <title>Sent Email</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.0.0/normalize.css" charset="utf-8">
     <style>
       html {
@@ -24,9 +24,13 @@
         width: 80%;
         max-width: 500px;
         padding: 40px 50px;
-        text-align: center;
         background-color: #f8f8f8;
         border-radius: 12px;
+      }
+
+      .main-message {
+        text-align: center;
+        margin-bottom: 40px;
       }
 
       h1 {
@@ -34,20 +38,30 @@
         font-size: 18px;
       }
 
-      p {
-        color: #555;
-        line-height: 25px;
+      li {
+        margin-bottom: 20px;
+        line-height: 27px;
+        color: #666;
       }
     </style>
   </head>
 
   <body>
     <main class="notice">
-      <h1>Email not found</h1>
-      <p>
-        This may be because the server was restarted.
-        <br>Go <a href="<%= @base_path %>/">back to email index</a> to see all emails.
-      </p>
-    </section>
+      <h1 class="main-message">No emails sent. Maybe because:</h1>
+      <ul>
+        <li>
+          <strong>Not using Bamboo.LocalAdapter.</strong> Make sure you have
+          your mailer configured to use Bamboo.LocalAdapter or the
+          emails will not show up here.
+        </li>
+
+        <li>
+          <strong>You recently restarted your server.</strong> The viewer
+          does not persist emails so whenever you restart the server the list
+          will be cleared.
+        </li>
+      </ul>
+    </main>
   </body>
 </html>

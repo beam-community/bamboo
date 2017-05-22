@@ -93,7 +93,7 @@ defmodule Bamboo.MandrillAdapterTest do
     assert request_path == "/api/1.0/messages/send-template.json"
   end
 
-  test "deliver/2 sends from, html and text body, subject, and headers" do
+  test "deliver/2 sends from, html and text body, subject, headers and attachment" do
     email = new_email(
       from: {"From", "from@foo.com"},
       subject: "My Subject",
@@ -101,9 +101,11 @@ defmodule Bamboo.MandrillAdapterTest do
       html_body: "HTML BODY",
     )
     |> Email.put_header("Reply-To", "reply@foo.com")
+    |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
 
     email |> MandrillAdapter.deliver(@config)
 
+    assert MandrillAdapter.supports_attachments?
     assert_receive {:fake_mandrill, %{params: params}}
     assert params["key"] == @config[:api_key]
     message = params["message"]
@@ -113,6 +115,13 @@ defmodule Bamboo.MandrillAdapterTest do
     assert message["text"] == email.text_body
     assert message["html"] == email.html_body
     assert message["headers"] == email.headers
+    assert message["attachments"] == [
+      %{
+        "type" => "text/plain",
+        "name" => "attachment.txt",
+        "content" => "VGVzdCBBdHRhY2htZW50Cg=="
+      }
+    ]
   end
 
   test "deliver/2 correctly formats recipients" do
@@ -166,7 +175,7 @@ defmodule Bamboo.MandrillAdapterTest do
   test "raises if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.MandrillAdapter.ApiError, fn ->
+    assert_raise Bamboo.ApiError, fn ->
       email |> MandrillAdapter.deliver(@config)
     end
   end
@@ -174,7 +183,7 @@ defmodule Bamboo.MandrillAdapterTest do
   test "removes api key from error output" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.MandrillAdapter.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
+    assert_raise Bamboo.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
       email |> MandrillAdapter.deliver(@config)
     end
   end

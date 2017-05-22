@@ -1,3 +1,25 @@
+## 1.0rc1
+
+### New Additions
+
+* Bamboo allows adapters to support attachments! (https://github.com/thoughtbot/bamboo/pull/156)
+* Add `MailgunAdapter` attachment support (https://github.com/thoughtbot/bamboo/commit/d47833194833e6a1cb9f9cb715be0742e55f5fd8)
+* Add support for `replyto` header in `SendGridAdapter` (https://github.com/thoughtbot/bamboo/pull/254)
+* Raise if email has attachments and adapter doesn't support them (https://github.com/thoughtbot/bamboo/commit/ce2249c9854a79148ecf91f877ae26142c83184b)
+
+### Fixes/Enhancements
+
+* Force correct mime type in preview (https://github.com/thoughtbot/bamboo/commit/e6f5389314193ef75a015d49a8a6e23b08bc281a)
+* Update Hackney to fix header issues (https://github.com/thoughtbot/bamboo/pull/263)
+* Adds `Bamboo.ApiError` that can be used by adapters (https://github.com/thoughtbot/bamboo/commit/2876dfeea0911fc51c9fa3daae0dbc7a17ca0557)
+* Numerous small updates and fixes to documentation and README.
+
+### Breaking changes
+
+* Renamed `SendgridAdapter/Helper` to `SendGridAdapter/Helper` (https://github.com/thoughtbot/bamboo/commit/6b582f80781f0072bd4051084a3286991bfde2d0)
+* Change `assert_delivered_with` to `assert_delivered_email_with` (https://github.com/thoughtbot/bamboo/commit/9823793fbcd45c2a58ef9bd1e65e5d162625513e)
+* Renamed `EmailPreviewPlug` to `SentEmailViewerPlug` (https://github.com/thoughtbot/bamboo/commit/f3668458f13e0a018eebbe38681362144292cd25)
+
 ## 0.8.0
 
 ### New Additions

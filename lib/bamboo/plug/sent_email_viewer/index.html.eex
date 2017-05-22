@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>Email Preview</title>
+    <title>Sent Email</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.0.0/normalize.css" charset="utf-8">
     <style>
       body {
@@ -88,7 +88,7 @@
         text-overflow: ellipsis;
       }
 
-      .email-preview-pane {
+      .email-detail-pane {
         width: 100%;
         padding: 35px;
         padding-left: 0;
@@ -96,43 +96,43 @@
         flex-direction: column;
       }
 
-      .email-preview-hero {
+      .email-detail-hero {
         display: flex;
         flex-direction: column;
         padding-left: 20px;
       }
 
-      .email-preview-subject {
+      .email-detail-subject {
         font-weight: bold;
         font-size: 22px;
         padding: 10px 0;
       }
 
-      .email-preview-bodies-container {
+      .email-detail-bodies-container {
         border: 1px solid #eee;
         border-radius: 5px;
         padding: 20px;
         margin-top: 30px;
       }
 
-      .email-preview-body-label {
+      .email-detail-body-label {
         padding: 0;
         margin: 0 0 12px 0;
         font-size: 15px;
         font-weight: 700;
       }
 
-      .email-preview-recipients,
-      .email-preview-headers {
+      .email-detail-recipients,
+      .email-detail-headers {
         color: #aaa;
       }
 
-      .email-preview-recipients strong,
-      .email-preview-headers strong {
+      .email-detail-recipients strong,
+      .email-detail-headers strong {
         color: #555;
       }
 
-      .email-preview-body {
+      .email-detail-body {
         margin: 15px 0 25px 0;
       }
     </style>
@@ -143,36 +143,36 @@
       <aside class="email-sidebar">
         <%= for email <- @emails do %>
           <a
-            class="email-summary <%= Bamboo.EmailPreviewPlug.Helper.selected_email_class(email, @selected_email) %>"
+            class="email-summary <%= Bamboo.SentEmailViewerPlug.Helper.selected_email_class(email, @selected_email) %>"
             href="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(email)}" %>">
             <span class="email-summary-subject truncate"><%= email.subject %></span>
             <span class="email-summary-recipients truncate">
               <%= Bamboo.Email.get_address(email.from) %>
-              to <%= Bamboo.EmailPreviewPlug.Helper.email_addresses(email) %>
+              to <%= Bamboo.SentEmailViewerPlug.Helper.email_addresses(email) %>
             </span>
             <span class="email-summary-body-excerpt"><%= email.text_body %></span>
           </a>
         <% end %>
       </aside>
-      <section class="email-preview-pane">
-        <section class="email-preview-hero">
-          <span class="email-preview-subject"><%= @selected_email.subject %></span>
-          <span class="email-preview-recipients">
+      <section class="email-detail-pane">
+        <section class="email-detail-hero">
+          <span class="email-detail-subject"><%= @selected_email.subject %></span>
+          <span class="email-detail-recipients">
             From <strong><%= Bamboo.Email.get_address(@selected_email.from) %></strong>
-            to <strong><%= Bamboo.EmailPreviewPlug.Helper.email_addresses(@selected_email) %></strong>
+            to <strong><%= Bamboo.SentEmailViewerPlug.Helper.email_addresses(@selected_email) %></strong>
           </span>
-          <span class="email-preview-headers">
+          <span class="email-detail-headers">
             <%= for {header, value} <- @selected_email.headers do %>
-              <div class="email-preview-header">
-                <%= header %> <strong><%= Bamboo.EmailPreviewPlug.Helper.format_headers(value) %></strong>
+              <div class="email-detail-header">
+                <%= header %> <strong><%= Bamboo.SentEmailViewerPlug.Helper.format_headers(value) %></strong>
               </div>
             <% end %>
           </span>
         </section>
 
-        <section class="email-preview-bodies-container">
-          <h3 class="email-preview-body-label">HTML body</h3>
-          <p class="email-preview-body">
+        <section class="email-detail-bodies-container">
+          <h3 class="email-detail-body-label">HTML body</h3>
+          <p class="email-detail-body">
             <script>
             function adjustFrameHeight(iframe) {
               var body = iframe.contentWindow.document.body;
@@ -182,9 +182,9 @@
             <iframe onload="adjustFrameHeight(this)" src="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/html" %>"></iframe>
           </p>
 
-          <h3 class="email-preview-body-label">Text Body</h3>
-          <p class="email-preview-body">
-            <%= Bamboo.EmailPreviewPlug.Helper.format_text(@selected_email.text_body) %>
+          <h3 class="email-detail-body-label">Text Body</h3>
+          <p class="email-detail-body">
+            <%= Bamboo.SentEmailViewerPlug.Helper.format_text(@selected_email.text_body) %>
           </p>
         </section>
       </section>

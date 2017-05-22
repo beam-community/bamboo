@@ -53,11 +53,11 @@ defmodule Bamboo.TestAdapterTest do
     end
 
     sent_email |> TestMailer.deliver_now
-    assert_delivered_with(from: {nil, "foo@bar.com"}) 
+    assert_email_delivered_with(from: {nil, "foo@bar.com"})
 
     sent_email |> TestMailer.deliver_now
     assert_raise ExUnit.AssertionError, fn ->
-      assert_delivered_with(from: "oops")
+      assert_email_delivered_with(from: "oops")
     end
   end
 
@@ -114,9 +114,9 @@ defmodule Bamboo.TestAdapterTest do
     end
   end
 
-  test "assert_delivered_with with no delivered emails" do
+  test "assert_email_delivered_with with no delivered emails" do
     try do
-      assert_delivered_with from: {nil, "foo@bar.com"}
+      assert_email_delivered_with from: {nil, "foo@bar.com"}
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "0 emails delivered"
@@ -125,13 +125,13 @@ defmodule Bamboo.TestAdapterTest do
     end
   end
 
-  test "assert_delivered_with shows non-matching delivered email" do
+  test "assert_email_delivered_with shows non-matching delivered email" do
     sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
     sent_email |> TestMailer.deliver_now
 
     try do
-      assert_delivered_with to: "oops"
+      assert_email_delivered_with to: "oops"
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "do not match"
@@ -141,24 +141,24 @@ defmodule Bamboo.TestAdapterTest do
     end
   end
 
-  test "assert_delivered_with allows regex matching" do
+  test "assert_email_delivered_with allows regex matching" do
     new_email(to: {nil, "foo@bar.com"}, from: {nil, "foo@bar.com"}, text_body: "I really like coffee")
       |> TestMailer.deliver_now
 
-    assert_delivered_with text_body: ~r/like/
+    assert_email_delivered_with text_body: ~r/like/
   end
 
-  test "ensure assert_delivered_with regex matching doesn't provide a false positive" do
+  test "ensure assert_email_delivered_with regex matching doesn't provide a false positive" do
     new_email(to: {nil, "foo@bar.com"}, from: {nil, "foo@bar.com"}, text_body: "I really like coffee")
       |> TestMailer.deliver_now
 
     try do
-      assert_delivered_with text_body: ~r/tea/
+      assert_email_delivered_with text_body: ~r/tea/
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "do not match"
     else
-      _ -> flunk "assert_delivered_with should have failed"
+      _ -> flunk "assert_email_delivered_with should have failed"
     end
   end
 

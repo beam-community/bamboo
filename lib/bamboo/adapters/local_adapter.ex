@@ -7,7 +7,7 @@ defmodule Bamboo.LocalAdapter do
   Typically this adapter is used in the dev environment so emails are not
   delivered to real email addresses.
 
-  You can use this adapter along with `Bamboo.EmailPreviewPlug` to view emails
+  You can use this adapter along with `Bamboo.SentEmailViewerPlug` to view emails
   in the browser.
 
   ## Example config
