@@ -24,8 +24,8 @@ defmodule Bamboo.SendGridAdapter do
   """
 
   @service_name "SendGrid"
-  @default_base_uri "https://api.sendgrid.com/api"
-  @send_message_path "/mail.send.json"
+  @default_base_uri "https://sendgrid.com/v3/"
+  @send_message_path "/mail/send"
   @behaviour Bamboo.Adapter
 
   alias Bamboo.Email
@@ -33,12 +33,12 @@ defmodule Bamboo.SendGridAdapter do
 
   def deliver(email, config) do
     api_key = get_key(config)
-    body = email |> to_sendgrid_body |> Plug.Conn.Query.encode
+    body = email |> to_sendgrid_body |> Poison.encode!
     url = [base_uri(), @send_message_path]
 
     case :hackney.post(url, headers(api_key), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        filtered_params = body |> Plug.Conn.Query.decode |> Map.put("key", "[FILTERED]")
+        filtered_params = body |> Poison.decode! |> Map.put("key", "[FILTERED]")
         raise_api_error(@service_name, response, filtered_params)
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
@@ -75,7 +75,7 @@ defmodule Bamboo.SendGridAdapter do
 
   defp headers(api_key) do
     [
-      {"Content-Type", "application/x-www-form-urlencoded"},
+      {"Content-Type", "application/json"},
       {"Authorization", "Bearer #{api_key}"},
     ]
   end
@@ -83,98 +83,102 @@ defmodule Bamboo.SendGridAdapter do
   defp to_sendgrid_body(%Email{} = email) do
     %{}
     |> put_from(email)
-    |> put_to(email)
+    |> put_personalization(email)
     |> put_reply_to(email)
-    |> put_cc(email)
-    |> put_bcc(email)
     |> put_subject(email)
-    |> put_html_body(email)
-    |> put_text_body(email)
-    |> maybe_put_x_smtp_api(email)
+    |> put_content(email)
+    |> put_template_id(email)
   end
 
-  defp put_from(body, %Email{from: {"", address}}), do: Map.put(body, :from, address)
-  defp put_from(body, %Email{from: {name, address}}) do
-    body
-    |> Map.put(:from, address)
-    |> Map.put(:fromname, name)
+  defp put_from(body, %Email{from: from}) do
+    Map.put(body, :from, to_address(from))
+  end
+
+  defp put_personalization(body, email) do
+    Map.put(body, :personalizations, [personalization(email)])
+  end
+
+  defp personalization(email) do
+    %{}
+    |> put_to(email)
+    |> put_cc(email)
+    |> put_bcc(email)
+    |> put_template_substitutions(email)
   end
 
   defp put_to(body, %Email{to: to}) do
-    {names, addresses} = Enum.unzip(to)
-    body
-    |> put_addresses(:to, addresses)
-    |> put_names(:toname, names)
+    put_addresses(body, :to, to)
   end
 
   defp put_cc(body, %Email{cc: []}), do: body
   defp put_cc(body, %Email{cc: cc}) do
-    {names, addresses} = Enum.unzip(cc)
-    body
-    |> put_addresses(:cc, addresses)
-    |> put_names(:ccname, names)
+    put_addresses(body, :cc, cc)
   end
 
   defp put_bcc(body, %Email{bcc: []}), do: body
   defp put_bcc(body, %Email{bcc: bcc}) do
-    {names, addresses} = Enum.unzip(bcc)
-    body
-    |> put_addresses(:bcc, addresses)
-    |> put_names(:bccname, names)
+    put_addresses(body, :bcc, bcc)
   end
 
-  defp put_subject(body, %Email{subject: subject}), do: Map.put(body, :subject, subject)
-
-  defp put_html_body(body, %Email{html_body: nil}), do: body
-  defp put_html_body(body, %Email{html_body: html_body}), do: Map.put(body, :html, html_body)
-
-  defp put_text_body(body, %Email{text_body: nil}), do: body
-  defp put_text_body(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
-
   defp put_reply_to(body, %Email{headers: %{"reply-to" => reply_to}}) do
-    Map.put(body, :replyto, reply_to)
+    Map.put(body, :reply_to, %{email: reply_to})
   end
   defp put_reply_to(body, _), do: body
 
-  defp maybe_put_x_smtp_api(body, %Email{private: %{"x-smtpapi" => fields}} = email) do
-    # SendGrid will error with empty bodies, even while using templates.
-    # Sets a default `text_body` and 'html_body' if either are not specified,
+  defp put_subject(body, %Email{subject: subject}), do: Map.put(body, :subject, subject)
+
+  defp put_content(body, email) do
+    Map.put(body, :content, content(email))
+  end
+
+  defp content(email) do
+    []
+    |> put_html_body(email)
+    |> put_text_body(email)
+  end
+
+  defp put_html_body(list, %Email{html_body: nil}), do: list
+  defp put_html_body(list, %Email{html_body: html_body}) do
+    [%{type: "text/html", value: html_body} | list]
+  end
+
+  defp put_text_body(list, %Email{text_body: nil}), do: list
+  defp put_text_body(list, %Email{text_body: text_body}) do
+    [%{type: "text/plain", value: text_body} | list]
+  end
+
+  defp put_template_id(body, %Email{private: %{send_grid_template: %{template_id: template_id}}} = email) do
+    # SendGrid will error with empty content and subject, even while using templates.
+    # Sets default `text_body` and `subject` if neither are specified,
     # allowing the consumer to neglect doing so themselves.
-    body = if is_nil(email.text_body) do
-      put_text_body(body, %Email{email | text_body: " "})
-    else
-      body
-    end
-
-    body = if is_nil(email.html_body) do
-      put_html_body(body, %Email{email | html_body: " "})
-    else
-      body
-    end
-
-    body = if is_nil(email.subject) do
-      put_subject(body, %Email{email | subject: " "})
-    else
-      body
-    end
-
-    Map.put(body, "x-smtpapi", Poison.encode!(fields))
+    body
+    |> ensure_content_provided(email)
+    |> ensure_subject_provided(email)
+    |> Map.put(:template_id, template_id)
   end
-  defp maybe_put_x_smtp_api(body, _), do: body
+  defp put_template_id(body, _), do: body
 
-  defp put_addresses(body, field, addresses), do: Map.put(body, field, addresses)
-  defp put_names(body, field, names) do
-    if list_empty?(names) do
-      body
-    else
-      Map.put(body, field, names)
-    end
+  defp put_template_substitutions(body, %Email{private: %{send_grid_template: %{substitutions: substitutions}}}) do
+    Map.put(body, :substitutions, substitutions)
   end
+  defp put_template_substitutions(body, _), do: body
 
-  defp list_empty?([]), do: true
-  defp list_empty?(list) do
-    Enum.all?(list, fn(el) -> el == "" || el == nil end)
+  defp ensure_content_provided(%{content: []} = body, email) do
+    put_content(body, %Email{email | text_body: " "})
   end
+  defp ensure_content_provided(body, _), do: body
+
+  defp ensure_subject_provided(%{subject: nil} = body, email) do
+    put_subject(body, %Email{email | subject: " "})
+  end
+  defp ensure_subject_provided(body, _), do: body
+
+  defp put_addresses(body, _, []), do: body
+  defp put_addresses(body, field, addresses), do: Map.put(body, field, Enum.map(addresses, &to_address/1))
+
+  defp to_address({nil, address}), do: %{email: address}
+  defp to_address({"", address}), do: %{email: address}
+  defp to_address({name, address}), do: %{email: address, name: name}
 
   defp base_uri do
     Application.get_env(:bamboo, :sendgrid_base_uri) || @default_base_uri
