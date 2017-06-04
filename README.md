@@ -201,9 +201,9 @@ use Phoenix views and layouts with Bamboo. See
 
 Bamboo comes with a handy plug for viewing emails sent in development. Now you
 don't have to look at the logs to get password resets, confirmation links, etc.
-Just open up the sent email viewer and click the link.
+Just open up the email preview web interface and click the link.
 
-See [Bamboo.SentEmailViewerPlug](https://hexdocs.pm/bamboo/Bamboo.SentEmailViewerPlug.html)
+Find instructions on how to setup and open the email preview interface in the [Bamboo.EmailPreviewPlug Docs](https://hexdocs.pm/bamboo/Bamboo.EmailPreviewPlug.html).
 
 Here is what it looks like:
 
