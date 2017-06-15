@@ -15,7 +15,7 @@ defmodule Bamboo.SendGridAdapter do
       # In config/config.exs, or config.prod.exs, etc.
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.SendGridAdapter,
-        api_key: "my_api_key"
+        api_key: "my_api_key" # or {:system, "SENDGRID_API_KEY"}
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
@@ -58,6 +58,14 @@ defmodule Bamboo.SendGridAdapter do
 
   defp get_key(config) do
     case Map.get(config, :api_key) do
+      nil             -> raise_api_key_error(config)
+      {:system, name} -> get_key_from_env(config, name)
+      key             -> key
+    end
+  end
+
+  defp get_key_from_env(config, name) do
+    case System.get_env(name) do
       nil -> raise_api_key_error(config)
       key -> key
     end
