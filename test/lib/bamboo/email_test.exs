@@ -9,6 +9,7 @@ defmodule Bamboo.EmailTest do
       to: nil,
       cc: nil,
       bcc: nil,
+      reply_to: nil,
       subject: nil,
       html_body: nil,
       text_body: nil,
@@ -60,6 +61,7 @@ defmodule Bamboo.EmailTest do
       |> to("to@example.com")
       |> cc("cc@example.com")
       |> bcc("bcc@foo.com")
+      |> reply_to("reply@foo.com")
       |> subject("Flexible Emails")
       |> put_header("Reply-To", "reply@foo.com")
 
@@ -67,6 +69,7 @@ defmodule Bamboo.EmailTest do
     assert email.to == "to@example.com"
     assert email.cc == "cc@example.com"
     assert email.bcc == "bcc@foo.com"
+    assert email.reply_to == "reply@foo.com"
     assert email.subject == "Flexible Emails"
     assert email.headers["Reply-To"] == "reply@foo.com"
   end
