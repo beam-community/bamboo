@@ -78,7 +78,7 @@ defmodule Bamboo.MailgunAdapterTest do
     assert request_path == "/test.tt/messages"
   end
 
-  test "deliver/2 sends from, subject, text body, html body and headers" do
+  test "deliver/2 sends from, subject, text body, html body, headers and custom vars" do
     email = new_email(
       from: "from@foo.com",
       subject: "My Subject",
@@ -86,6 +86,7 @@ defmodule Bamboo.MailgunAdapterTest do
       html_body: "HTML BODY",
     )
     |> Email.put_header("X-My-Header", "my_header_value")
+    |> Email.put_private(:mailgun_custom_vars, %{my_custom_var: 42, other_custom_var: 43})
 
     MailgunAdapter.deliver(email, @config)
 
@@ -95,7 +96,9 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["subject"] == email.subject
     assert params["text"] == email.text_body
     assert params["html"] == email.html_body
-    assert params["h:X-My-Header"] == "my_header_value" 
+    assert params["h:X-My-Header"] == "my_header_value"
+    assert params["v:my_custom_var"] == "42"
+    assert params["v:other_custom_var"] == "43"
 
     hashed_token = Base.encode64("api:" <> @config.api_key)
 
