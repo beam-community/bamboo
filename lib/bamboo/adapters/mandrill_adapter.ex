@@ -108,11 +108,11 @@ defmodule Bamboo.MandrillAdapter do
   defp attachments(%{attachments: attachments}) do
     attachments
     |> Enum.reverse
-    |> Enum.map(fn(att) ->
+    |> Enum.map(fn(attachment) ->
       %{
-        name: att.filename,
-        type: att.content_type,
-        content: Base.encode64(File.read!(att.path))
+        name: attachment.filename,
+        type: attachment.content_type,
+        content: Base.encode64(attachment.data)
       }
     end)
   end

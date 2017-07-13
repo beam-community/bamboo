@@ -8,7 +8,7 @@ defmodule Bamboo.AttachmentTest do
     attachment = Attachment.new(path)
     assert attachment.content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     assert attachment.filename == "attachment.docx"
-    assert attachment.path == path
+    assert attachment.data
   end
 
   test "create an attachment with an unknown content type" do
@@ -37,7 +37,7 @@ defmodule Bamboo.AttachmentTest do
     attachment = Attachment.new(upload)
     assert attachment.content_type == "application/msword"
     assert attachment.filename == "test.docx"
-    assert attachment.path == path
+    assert attachment.data
   end
 
   test "create an attachment from a Plug Upload struct with overrides" do
@@ -48,6 +48,6 @@ defmodule Bamboo.AttachmentTest do
     attachment = Attachment.new(upload, filename: "my-attachment.doc", content_type: "application/other")
     assert attachment.content_type == "application/other"
     assert attachment.filename == "my-attachment.doc"
-    assert attachment.path == path
+    assert attachment.data
   end
 end

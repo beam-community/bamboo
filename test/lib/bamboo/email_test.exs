@@ -77,7 +77,34 @@ defmodule Bamboo.EmailTest do
     assert email.private["foo"] == "bar"
   end
 
-  test "put_attachment/3 atts an attachment to the attachments list" do
+  describe "put_attachment/2" do
+    test "adds an attachment to the attachments list" do
+      attachment = %Bamboo.Attachment{filename: "attachment.docx", data: "content"}
+      email = new_email() |> put_attachment(attachment)
+
+      assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
+    end
+
+    test "with no filename throws an error" do
+      attachment = %Bamboo.Attachment{filename: nil, data: "content"}
+
+      msg = "You must provide a filename for the attachment, instead got: %Bamboo.Attachment{content_type: nil, data: \"content\", filename: nil, path: nil}"
+      assert_raise RuntimeError, msg, fn ->
+        new_email() |> put_attachment(attachment)
+      end
+    end
+
+    test "with no data throws an error" do
+      attachment = %Bamboo.Attachment{filename: "attachment.docx", data: nil}
+
+      msg = "The attachment must contain data, instead got: %Bamboo.Attachment{content_type: nil, data: nil, filename: \"attachment.docx\", path: nil}"
+      assert_raise RuntimeError, msg, fn ->
+        new_email() |> put_attachment(attachment)
+      end
+    end
+  end
+
+  test "put_attachment/3 adds an attachment to the attachments list" do
     path = Path.join(__DIR__, "../../support/attachment.docx")
     email = new_email() |> put_attachment(path)
 
