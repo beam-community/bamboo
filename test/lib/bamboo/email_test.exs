@@ -77,11 +77,29 @@ defmodule Bamboo.EmailTest do
     assert email.private["foo"] == "bar"
   end
 
-  test "put_attachment/2 adds an attachment to the attachments list" do
-    attachment = %Bamboo.Attachment{filename: "attachment.docx", data: "content"}
-    email = new_email() |> put_attachment(attachment)
+  describe "put_attachment/2" do
+    test "adds an attachment to the attachments list" do
+      attachment = %Bamboo.Attachment{filename: "attachment.docx", data: "content"}
+      email = new_email() |> put_attachment(attachment)
 
-    assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
+      assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
+    end
+
+    test "with no filename throws an error" do
+      attachment = %Bamboo.Attachment{filename: nil, data: "content"}
+
+      assert_raise RuntimeError, "You must provide a filename for the attachment.", fn ->
+        new_email() |> put_attachment(attachment)
+      end
+    end
+
+    test "with no data throws an error" do
+      attachment = %Bamboo.Attachment{filename: "attachment.docx", data: nil}
+
+      assert_raise RuntimeError, "The attachment must contain data.", fn ->
+        new_email() |> put_attachment(attachment)
+      end
+    end
   end
 
   test "put_attachment/3 adds an attachment to the attachments list" do

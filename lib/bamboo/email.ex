@@ -218,7 +218,13 @@ defmodule Bamboo.Email do
       #...
     end
   """
-  def put_attachment(%__MODULE__{attachments: attachments} = email, %Attachment{filename: _filename, data: _data} = attachment) do
+  def put_attachment(%__MODULE__{attachments: attachments} = email, %Attachment{filename: nil}) do
+    raise "You must provide a filename for the attachment."
+  end
+  def put_attachment(%__MODULE__{attachments: attachments} = email, %Attachment{data: nil}) do
+    raise "The attachment must contain data."
+  end
+  def put_attachment(%__MODULE__{attachments: attachments} = email, %Attachment{} = attachment) do
     %{email | attachments: [attachment | attachments]}
   end
 
