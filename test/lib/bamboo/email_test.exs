@@ -77,7 +77,14 @@ defmodule Bamboo.EmailTest do
     assert email.private["foo"] == "bar"
   end
 
-  test "put_attachment/3 atts an attachment to the attachments list" do
+  test "put_attachment/2 adds an attachment to the attachments list" do
+    attachment = %Bamboo.Attachment{filename: "attachment.docx", data: "content"}
+    email = new_email() |> put_attachment(attachment)
+
+    assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
+  end
+
+  test "put_attachment/3 adds an attachment to the attachments list" do
     path = Path.join(__DIR__, "../../support/attachment.docx")
     email = new_email() |> put_attachment(path)
 
