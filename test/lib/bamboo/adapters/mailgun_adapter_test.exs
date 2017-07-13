@@ -19,7 +19,7 @@ defmodule Bamboo.MailgunAdapterTest do
       Agent.start_link(fn -> Map.new end, name: __MODULE__)
       Agent.update(__MODULE__, &Map.put(&1, :parent, parent))
       port = get_free_port()
-      Application.put_env(:bamboo, :mailgun_base_uri, "http://localhost:#{port}/")
+      Application.put_env(:bamboo, :mailgun_base_uri, "http://localhost:#{port}")
       Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
     end
 
@@ -78,7 +78,7 @@ defmodule Bamboo.MailgunAdapterTest do
     assert request_path == "/test.tt/messages"
   end
 
-  test "deliver/2 sends from, subject, text body, html body and headers" do
+  test "deliver/2 sends from, subject, text body, html body, headers and attachment" do
     email = new_email(
       from: "from@foo.com",
       subject: "My Subject",
@@ -86,16 +86,25 @@ defmodule Bamboo.MailgunAdapterTest do
       html_body: "HTML BODY",
     )
     |> Email.put_header("X-My-Header", "my_header_value")
+    |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
 
     MailgunAdapter.deliver(email, @config)
 
     assert_receive {:fake_mailgun, %{params: params, req_headers: headers}}
 
+    assert MailgunAdapter.supports_attachments?
     assert params["from"] == elem(email.from, 1)
     assert params["subject"] == email.subject
     assert params["text"] == email.text_body
     assert params["html"] == email.html_body
-    assert params["h:X-My-Header"] == "my_header_value" 
+    assert params["h:X-My-Header"] == "my_header_value"
+    assert params["attachments"] == [
+      %{
+        "type" => "text/plain",
+        "name" => "attachment.txt",
+        "content" => "VGVzdCBBdHRhY2htZW50Cg=="
+      }
+    ]
 
     hashed_token = Base.encode64("api:" <> @config.api_key)
 
@@ -112,9 +121,9 @@ defmodule Bamboo.MailgunAdapterTest do
     email |> MailgunAdapter.deliver(@config)
 
     assert_receive {:fake_mailgun, %{params: params}}
-    assert params["to"] == ["To <to@bar.com>", "noname@bar.com"]
-    assert params["cc"] == ["CC <cc@bar.com>"]
-    assert params["bcc"] == ["BCC <bcc@bar.com>"]
+    assert params["to"] == "To <to@bar.com>,noname@bar.com"
+    assert params["cc"] == "CC <cc@bar.com>"
+    assert params["bcc"] == "BCC <bcc@bar.com>"
   end
 
   test "raises if the response is not a success" do
