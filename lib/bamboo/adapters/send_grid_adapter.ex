@@ -174,7 +174,7 @@ defmodule Bamboo.SendGridAdapter do
       %{
         filename: attachment.filename,
         type: attachment.content_type,
-        content: Base.encode64(File.read!(attachment.path))
+        content: Base.encode64(attachment.data)
       }
     end)
     Map.put(body, :attachments, transformed)
