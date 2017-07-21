@@ -153,6 +153,14 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["reply_to"] == %{"email" => "foo@bar.com"}
   end
 
+  test "deliver/2 omits attachments key if no attachments" do
+    email = new_email()
+    email |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    refute Map.has_key?(params, "attachments")
+  end
+
   test "raises if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 

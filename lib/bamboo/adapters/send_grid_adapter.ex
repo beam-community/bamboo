@@ -167,6 +167,7 @@ defmodule Bamboo.SendGridAdapter do
   end
   defp put_template_substitutions(body, _), do: body
 
+  defp put_attachments(body, %Email{attachments: []}), do: body
   defp put_attachments(body, %Email{attachments: attachments}) do
     transformed = attachments
     |> Enum.reverse
@@ -179,7 +180,6 @@ defmodule Bamboo.SendGridAdapter do
     end)
     Map.put(body, :attachments, transformed)
   end
-  defp put_attachments(body, _), do: body
 
   defp ensure_content_provided(%{content: []} = body, email) do
     put_content(body, %Email{email | text_body: " "})
