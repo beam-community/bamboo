@@ -118,12 +118,15 @@ defmodule Bamboo.Mailer do
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
       debug_unsent(email)
+      email
     else
       debug_sent(email, adapter)
-      adapter.deliver(email, config)
+      response =
+        email
+        |> adapter.deliver(config)
+        |> parse_response
+      email |> Map.merge(%{response: response})
     end
-
-    email
   end
 
   @doc false
@@ -132,13 +135,24 @@ defmodule Bamboo.Mailer do
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
       debug_unsent(email)
+      email
     else
       debug_sent(email, adapter)
-      config.deliver_later_strategy.deliver_later(adapter, email, config)
+      response =
+        adapter
+        |> config.deliver_later_strategy.deliver_later(email, config)
+        |> parse_response
+      email |> Map.merge(%{response: response})
     end
 
     email
   end
+
+  defp parse_response(%Task{} = task), do: task |> Task.await() |> parse_response()
+  defp parse_response(%Bamboo.Response{} = response), do: response
+  defp parse_response({:ok, _pid}), do: nil
+  defp parse_response(:noop), do: nil
+  defp parse_response(response), do: raise "Unknown response from adapter: #{inspect response}"
 
   defp debug_sent(email, adapter) do
     Logger.debug(fn ->

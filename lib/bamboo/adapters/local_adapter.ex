@@ -27,6 +27,7 @@ defmodule Bamboo.LocalAdapter do
   """
 
   alias Bamboo.SentEmail
+  import Bamboo.Response, only: [local_response: 0]
 
   @behaviour Bamboo.Adapter
 
@@ -39,6 +40,7 @@ defmodule Bamboo.LocalAdapter do
   @doc "Adds email to Bamboo.SentEmail"
   def deliver(email, _config) do
     SentEmail.push(email)
+    local_response()
   end
 
   def handle_config(config), do: config

@@ -25,6 +25,20 @@ defmodule Bamboo.MailgunAdapter do
 
   alias Bamboo.{Email, Attachment}
   import Bamboo.ApiError
+  import Bamboo.Response, only: [new_response: 1]
+
+  def deliver(email, config) do
+    body = email |> to_mailgun_body
+
+    case :hackney.post(full_uri(config), headers(email, config), body, [:with_body]) do
+      {:ok, status, _headers, response} when status > 299 ->
+        raise_api_error(@service_name, response, body)
+      {:ok, status, headers, response} ->
+        new_response(status_code: status, headers: headers, body: response)
+      {:error, reason} ->
+        raise_api_error(inspect(reason))
+    end
+  end
 
   @doc false
   def handle_config(config) do
@@ -45,21 +59,6 @@ defmodule Bamboo.MailgunAdapter do
 
     #{inspect(config)}
     """
-  end
-
-  def deliver(email, config) do
-    body = to_mailgun_body(email)
-
-    case :hackney.post(full_uri(config), headers(email, config), body, [:with_body]) do
-      {:ok, status, _headers, response} when status > 299 ->
-        raise_api_error(@service_name, response, body)
-
-      {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
-
-      {:error, reason} ->
-        raise_api_error(inspect(reason))
-    end
   end
 
   @doc false

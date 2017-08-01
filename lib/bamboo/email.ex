@@ -65,6 +65,7 @@ defmodule Bamboo.Email do
 
   @type address :: String.t() | {String.t(), String.t()}
   @type address_list :: nil | address | [address] | any
+  @type response :: Bamboo.Response.t
 
   @type t :: %__MODULE__{
           to: address_list,
@@ -73,12 +74,13 @@ defmodule Bamboo.Email do
           subject: nil | String.t(),
           html_body: nil | String.t(),
           text_body: nil | String.t(),
-          headers: %{String.t() => String.t()},
+          headers: %{String.t() => String.t},
           assigns: %{atom => any},
-          private: %{atom => any}
+          private: %{atom => any},
+          response: nil | response
         }
 
-  defstruct from: nil,
+        defstruct from: nil,
             to: nil,
             cc: nil,
             bcc: nil,
@@ -88,7 +90,8 @@ defmodule Bamboo.Email do
             headers: %{},
             attachments: [],
             assigns: %{},
-            private: %{}
+            private: %{},
+            response: nil
 
   alias Bamboo.{Email, Attachment}
 

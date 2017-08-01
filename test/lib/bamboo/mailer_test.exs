@@ -1,10 +1,12 @@
 defmodule Bamboo.MailerTest do
   use ExUnit.Case
   alias Bamboo.Email
+  import Bamboo.Response, only: [local_response: 0]
 
   defmodule FooAdapter do
     def deliver(email, config) do
       send(:mailer_test, {:deliver, email, config})
+      local_response()
     end
 
     def handle_config(config), do: config
@@ -15,6 +17,7 @@ defmodule Bamboo.MailerTest do
   defmodule CustomConfigAdapter do
     def deliver(email, config) do
       send(:mailer_test, {:deliver, email, config})
+      local_response()
     end
 
     def handle_config(config) do
@@ -115,7 +118,9 @@ defmodule Bamboo.MailerTest do
 
     returned_email = FooMailer.deliver_now(email)
 
-    assert returned_email == Bamboo.Mailer.normalize_addresses(email)
+    assert returned_email == email
+    |> Bamboo.Mailer.normalize_addresses
+    |> put_local_response
     assert_received {:deliver, %Bamboo.Email{}, config}
 
     config_with_default_strategy =
@@ -166,19 +171,31 @@ defmodule Bamboo.MailerTest do
   test "deliver_later/1 calls deliver on the adapter" do
     email = new_email()
 
-    FooMailer.deliver_later(email)
+    delivered_email = FooMailer.deliver_later(email)
 
-    assert_receive {:deliver, delivered_email, _config}
-    assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
+    assert_receive {:deliver, email, _config}
+    assert delivered_email == email |> Bamboo.Mailer.normalize_addresses
+  end
+
+  test "deliver_now/1 returns a response within the email" do
+    address = {"Someone", "foo@bar.com"}
+    email = new_email(to: address, cc: address, bcc: address)
+
+    delivered_email = FooMailer.deliver_now(email)
+    %Bamboo.Email{response: response} = delivered_email
+    %Bamboo.Response{body: response_body} = response
+
+    assert_received {:deliver, _email, _}
+    assert response_body == local_response().body
   end
 
   test "deliver_now/1 wraps the recipients in a list" do
     address = {"Someone", "foo@bar.com"}
     email = new_email(to: address, cc: address, bcc: address)
 
-    FooMailer.deliver_now(email)
+    delivered_email = FooMailer.deliver_now(email)
 
-    assert_received {:deliver, delivered_email, _}
+    assert_received {:deliver, _email, _}
     assert delivered_email.to == [address]
     assert delivered_email.cc == [address]
     assert delivered_email.bcc == [address]
@@ -188,10 +205,10 @@ defmodule Bamboo.MailerTest do
     address = "foo@bar.com"
     email = new_email(from: address, to: address, cc: address, bcc: address)
 
-    FooMailer.deliver_now(email)
+    delivered_email = FooMailer.deliver_now(email)
 
     converted_address = {nil, address}
-    assert_received {:deliver, delivered_email, _}
+    assert_received {:deliver, _email, _}
     assert delivered_email.from == converted_address
     assert delivered_email.to == [converted_address]
     assert delivered_email.cc == [converted_address]
@@ -202,10 +219,10 @@ defmodule Bamboo.MailerTest do
     user = %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
     email = new_email(from: user, to: user, cc: user, bcc: user)
 
-    FooMailer.deliver_now(email)
+    delivered_email = FooMailer.deliver_now(email)
 
     converted_recipient = {user.first_name, user.email}
-    assert_received {:deliver, delivered_email, _}
+    assert_received {:deliver, _email, _}
     assert delivered_email.from == {"#{user.first_name} (MyApp)", user.email}
     assert delivered_email.to == [converted_recipient]
     assert delivered_email.cc == [converted_recipient]
@@ -259,6 +276,10 @@ defmodule Bamboo.MailerTest do
     assert_raise RuntimeError, ~r/cannot call Bamboo.Mailer/, fn ->
       Bamboo.Mailer.deliver_later(email)
     end
+  end
+
+  defp put_local_response(%Bamboo.Email{} = email) do
+    %{email | response: local_response()}
   end
 
   defp new_email(attrs \\ []) do

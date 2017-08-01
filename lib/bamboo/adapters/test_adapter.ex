@@ -19,10 +19,13 @@ defmodule Bamboo.TestAdapter do
 
   @behaviour Bamboo.Adapter
 
+  import Bamboo.Response, only: [local_response: 0]
+
   @doc false
   def deliver(email, _config) do
     email = clean_assigns(email)
     send(test_process(), {:delivered_email, email})
+    local_response()
   end
 
   defp test_process do

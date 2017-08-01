@@ -33,6 +33,7 @@ defmodule Bamboo.Adapter do
       end
   """
 
-  @callback deliver(%Bamboo.Email{}, %{}) :: any
+  @type response :: Bamboo.Response.t
+  @callback deliver(%Bamboo.Email{}, %{}) :: response
   @callback handle_config(map) :: map
 end
