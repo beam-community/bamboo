@@ -41,6 +41,7 @@ to open an issue or a PR if you'd like to add a new adapter to the list.
 * `Bamboo.PostageAppAdapter` - See [GBH/bamboo_postageapp](https://github.com/GBH/bamboo_postageapp).
 * `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
 * `Bamboo.SendcloudAdapter` - See [linjunpop/bamboo_sendcloud](https://github.com/linjunpop/bamboo_sendcloud).
+* `Bamboo.AliyunAdapter` - See [linjunpop/bamboo_aliyun](https://github.com/linjunpop/bamboo_aliyun).
 * `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
 * `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
 
