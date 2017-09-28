@@ -52,4 +52,7 @@ defmodule Bamboo.TestAdapter do
   def clean_assigns(email) do
     %{email | assigns: :assigns_removed_for_testing}
   end
+
+  @doc false
+  def supports_attachments?, do: true
 end

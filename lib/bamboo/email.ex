@@ -92,7 +92,7 @@ defmodule Bamboo.Email do
       assigns: %{},
       private: %{}
 
-  alias Bamboo.Email
+  alias Bamboo.{Email, Attachment}
 
   @address_functions ~w(from to cc bcc)a
   @attribute_pipe_functions ~w(reply_to subject text_body html_body)a
@@ -205,7 +205,33 @@ defmodule Bamboo.Email do
   end
 
   @doc ~S"""
-  Adds an attachment to the email
+  Adds an data attachment to the email
+
+  ## Example
+    put_attachment(email, %Bamboo.Attachment{})
+
+  Requires the fields filename and data of the %Bamboo.Attachment{} struct to be set.
+
+  ## Example
+    def create(conn, params) do
+      #...
+      email
+      |> put_attachment(%Bamboo.Attachment{filname: "event.ics", data: "BEGIN:VCALENDAR..."})
+      #...
+    end
+  """
+  def put_attachment(%__MODULE__{attachments: _}, %Attachment{filename: nil} = attachment) do
+    raise "You must provide a filename for the attachment, instead got: #{inspect attachment}"
+  end
+  def put_attachment(%__MODULE__{attachments: _}, %Attachment{data: nil} = attachment) do
+    raise "The attachment must contain data, instead got: #{inspect attachment}"
+  end
+  def put_attachment(%__MODULE__{attachments: attachments} = email, %Attachment{} = attachment) do
+    %{email | attachments: [attachment | attachments]}
+  end
+
+  @doc ~S"""
+  Adds an file attachment to the email
 
   ## Example
     put_attachment(email, path, opts \\ [])
