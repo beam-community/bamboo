@@ -27,7 +27,7 @@ defmodule Bamboo.Attachment do
 
   defp determine_content_type(path) do
     if Code.ensure_loaded?(Plug) do
-      Plug.MIME.path(path)
+      MIME.from_path(path)
     else
       "application/octet-stream"
     end
