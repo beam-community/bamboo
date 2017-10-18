@@ -127,10 +127,10 @@ defmodule MyApp.Email do
 end
 
 # In a controller or some other module
-Email.welcome_email |> Mailer.deliver_now
+MyApp.Email.welcome_email |> MyApp.Mailer.deliver_now
 
 # You can also deliver emails in the background with Mailer.deliver_later
-Email.welcome_email |> Mailer.deliver_later
+MyApp.Email.welcome_email |> MyApp.Mailer.deliver_later
 ```
 
 ## Delivering Emails in the Background
@@ -236,7 +236,7 @@ defmodule MyApp.Registration do
     # Unit testing is easy since the email is just a struct
     user = new_user
 
-    email = Email.welcome_email(user)
+    email = MyApp.Email.welcome_email(user)
 
     assert email.to == user
     # The =~ checks that the html_body contains the text on the right
