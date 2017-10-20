@@ -219,7 +219,9 @@ vars, templates, and scheduling emails to send in the future. See
 
 SendGrid offers extra features on top of regular SMTP email like transactional
 templates with substitution tags. See
-[Bamboo.SendGridHelper](https://hexdocs.pm/bamboo/Bamboo.SendgridHelper.html).
+[Bamboo.SendgridHelper](https://hexdocs.pm/bamboo/Bamboo.SendgridHelper.html)
+([Bamboo.SendGridHelper](https://github.com/thoughtbot/bamboo/blob/master/lib/bamboo/adapters/send_grid_helper.ex)
+if you're on master).
 
 ## Testing
 
