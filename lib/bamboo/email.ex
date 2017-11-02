@@ -70,6 +70,7 @@ defmodule Bamboo.Email do
     to: address_list,
     cc: address_list,
     bcc: address_list,
+    reply_to: nil | String.t,
     subject: nil | String.t,
     html_body: nil | String.t,
     text_body: nil | String.t,
@@ -82,6 +83,7 @@ defmodule Bamboo.Email do
       to: nil,
       cc: nil,
       bcc: nil,
+      reply_to: nil,
       subject: nil,
       html_body: nil,
       text_body: nil,
@@ -93,7 +95,7 @@ defmodule Bamboo.Email do
   alias Bamboo.{Email, Attachment}
 
   @address_functions ~w(from to cc bcc)a
-  @attribute_pipe_functions ~w(subject text_body html_body)a
+  @attribute_pipe_functions ~w(reply_to subject text_body html_body)a
 
   @doc """
   Used to create a new email
