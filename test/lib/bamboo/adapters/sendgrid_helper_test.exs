@@ -11,16 +11,7 @@ defmodule Bamboo.SendGridHelperTest do
 
   test "with_template/2 adds the correct template", %{email: email} do
     email = email |> with_template(@template_id)
-    assert email.private["x-smtpapi"] == %{
-        "filters" => %{
-          "templates" => %{
-            "settings" => %{
-              "enable" => 1,
-              "template_id" => @template_id
-            }
-          }
-        }
-      }
+    assert email.private[:send_grid_template] == %{template_id: @template_id}
   end
 
   test "with_template/2 raises on non-UUID `template_id`", %{email: email} do
@@ -32,13 +23,13 @@ defmodule Bamboo.SendGridHelperTest do
   test "with_template/2 uses the last specified template", %{email: email} do
     last_template_id = "355d0197-ecf5-4268-aa8b-2c0502aec406"
     email = email |> with_template(@template_id) |> with_template(last_template_id)
-    assert email.private["x-smtpapi"]["filters"]["templates"]["settings"]["template_id"] == last_template_id
+    assert email.private[:send_grid_template][:template_id] == last_template_id
   end
 
   test "substitute/3 adds the specified tags", %{email: email} do
     email = email |> substitute("%name%", "Jon Snow") |> substitute("%location%", "Westeros")
-    assert email.private["x-smtpapi"] == %{
-        "sub" => %{
+    assert email.private[:send_grid_template] == %{
+        substitutions: %{
           "%name%" => ["Jon Snow"],
           "%location%" => ["Westeros"]
         }
@@ -53,19 +44,12 @@ defmodule Bamboo.SendGridHelperTest do
 
   test "is structured correctly", %{email: email} do
     email = email |> with_template(@template_id) |> substitute("%name%", "Jon Snow")
-    assert email.private["x-smtpapi"] == %{
-        "filters" => %{
-          "templates" => %{
-            "settings" => %{
-              "enable" => 1,
-              "template_id" => @template_id
-            }
-          }
-        },
-        "sub" => %{
-          "%name%" => ["Jon Snow"]
-        }
+    assert email.private[:send_grid_template] == %{
+      template_id: @template_id,
+      substitutions: %{
+        "%name%" => ["Jon Snow"]
       }
+    }
   end
 
   test "is non-dependent on function call ordering", %{email: email} do
