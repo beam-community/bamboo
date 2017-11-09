@@ -56,6 +56,9 @@ defmodule Bamboo.SendGridAdapter do
     end
   end
 
+  @doc false
+  def supports_attachments?, do: true
+
   defp get_key(config) do
     case Map.get(config, :api_key) do
       nil -> raise_api_key_error(config)
@@ -88,6 +91,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_subject(email)
     |> put_content(email)
     |> put_template_id(email)
+    |> put_attachments(email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -162,6 +166,20 @@ defmodule Bamboo.SendGridAdapter do
     Map.put(body, :substitutions, substitutions)
   end
   defp put_template_substitutions(body, _), do: body
+
+  defp put_attachments(body, %Email{attachments: []}), do: body
+  defp put_attachments(body, %Email{attachments: attachments}) do
+    transformed = attachments
+    |> Enum.reverse
+    |> Enum.map(fn(attachment) ->
+      %{
+        filename: attachment.filename,
+        type: attachment.content_type,
+        content: Base.encode64(attachment.data)
+      }
+    end)
+    Map.put(body, :attachments, transformed)
+  end
 
   defp ensure_content_provided(%{content: []} = body, email) do
     put_content(body, %Email{email | text_body: " "})
