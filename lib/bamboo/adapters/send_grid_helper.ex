@@ -20,6 +20,7 @@ defmodule Bamboo.SendGridHelper do
   Specify a custom argument values that are specific to the entire send that will be carried along with the email and its activity data.
   Substitutions are not made on custom arguments within SendGrid.
   The combined total size of these custom arguments may not exceed 10,000 bytes.
+  Custom args must be a `String.t`.
 
   ## Example
 
@@ -27,10 +28,14 @@ defmodule Bamboo.SendGridHelper do
       |> with_custom_args("userId", "12345")
   """
   def with_custom_args(email, arg_name, arg_value) do
-    custom_args = Map.get(email.private, @custom_args, %{})
-    |> Map.put(arg_name, arg_value)
-    email
-    |> Email.put_private(@custom_args, custom_args)
+    if is_binary(arg_name) and is_binary(arg_value) do
+      custom_args = Map.get(email.private, @custom_args, %{})
+      |> Map.put(arg_name, arg_value)
+      email
+      |> Email.put_private(@custom_args, custom_args)
+    else
+      raise "expected the both arg_name and arg_value parameters to be of type binary, got #{arg_name}:#{arg_value}"
+    end
   end
 
   @doc """

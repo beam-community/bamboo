@@ -15,6 +15,18 @@ defmodule Bamboo.SendGridHelperTest do
     assert email.private[:custom_args][elem(@custom_user_arg, 0)] == elem(@custom_user_arg, 1)
   end
 
+  test "with_custom_args/3 raises on non-string arg_name", %{email: email} do
+    assert_raise RuntimeError, fn ->
+      email |> with_custom_args(123, elem(@custom_user_arg, 1))
+    end
+  end
+
+  test "with_custom_args/3 raises on non-string arg_value", %{email: email} do
+    assert_raise RuntimeError, fn ->
+      email |> with_custom_args(elem(@custom_user_arg, 0), 123)
+    end
+  end
+
   test "with_template/2 adds the correct template", %{email: email} do
     email = email |> with_template(@template_id)
     assert email.private[:send_grid_template] == %{template_id: @template_id}
