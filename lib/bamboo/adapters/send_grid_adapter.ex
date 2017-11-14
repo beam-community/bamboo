@@ -92,6 +92,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_content(email)
     |> put_template_id(email)
     |> put_attachments(email)
+    |> put_custom_args(email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -180,6 +181,12 @@ defmodule Bamboo.SendGridAdapter do
     end)
     Map.put(body, :attachments, transformed)
   end
+
+  defp put_custom_args(body, %Email{private: %{custom_args: args}}) do
+    body
+    |> Map.put(:custom_args, args)
+  end
+  defp put_custom_args(body, _), do: body  
 
   defp ensure_content_provided(%{content: []} = body, email) do
     put_content(body, %Email{email | text_body: " "})

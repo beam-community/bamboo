@@ -14,6 +14,24 @@ defmodule Bamboo.SendGridHelper do
 
   @id_size 36
   @field_name :send_grid_template
+  @custom_args :custom_args
+
+  @doc """
+  Specify a custom argument values that are specific to the entire send that will be carried along with the email and its activity data.
+  Substitutions are not made on custom arguments within SendGrid.
+  The combined total size of these custom arguments may not exceed 10,000 bytes.
+
+  ## Example
+
+      email
+      |> with_custom_args("userId", "12345")
+  """
+  def with_custom_args(email, arg_name, arg_value) do
+    custom_args = Map.get(email.private, @custom_args, %{})
+    |> Map.put(arg_name, arg_value)
+    email
+    |> Email.put_private(@custom_args, custom_args)
+  end
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution

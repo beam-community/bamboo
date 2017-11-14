@@ -4,9 +4,15 @@ defmodule Bamboo.SendGridHelperTest do
   import Bamboo.SendGridHelper
 
   @template_id "80509523-83de-42b6-a2bf-54b7513bd2aa"
-
+  @custom_user_arg {"userId", "123"}
   setup do
     {:ok, email: Bamboo.Email.new_email()}
+  end
+
+  test "with_custom_args/3 adds the correct property", %{email: email} do
+    email = email |> with_custom_args(elem(@custom_user_arg, 0), elem(@custom_user_arg, 1))
+    assert email.private[:custom_args] != nil
+    assert email.private[:custom_args][elem(@custom_user_arg, 0)] == elem(@custom_user_arg, 1)
   end
 
   test "with_template/2 adds the correct template", %{email: email} do
