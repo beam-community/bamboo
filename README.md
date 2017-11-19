@@ -35,7 +35,7 @@ to open an issue or a PR if you'd like to add a new adapter to the list.
 * `Bamboo.MailgunAdapter` - Ships with Bamboo. Thanks to [@princemaple].
 * `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
 * `Bamboo.MandrillAdapter` - Ships with Bamboo.
-* `Bamboo.SendGridAdapter` - Ships with Bamboo.
+* `Bamboo.SendgridAdapter` - Ships with Bamboo.
 * `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
 * `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
 * `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
