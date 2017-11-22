@@ -79,6 +79,7 @@ defmodule Bamboo.Mailer do
 
       defp build_config, do: Bamboo.Mailer.build_config(__MODULE__, unquote(otp_app))
 
+      @spec deliver(Bamboo.Email.t) :: no_return()
       def deliver(_email) do
         raise """
         you called deliver/1, but it has been renamed to deliver_now/1 to add clarity.
