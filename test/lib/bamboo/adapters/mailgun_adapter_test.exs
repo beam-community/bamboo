@@ -78,7 +78,7 @@ defmodule Bamboo.MailgunAdapterTest do
     assert request_path == "/test.tt/messages"
   end
 
-  test "deliver/2 sends from, subject, text body, html body, headers and attachment" do
+  test "deliver/2 sends from, subject, text body, html body, headers" do
     email = new_email(
       from: "from@foo.com",
       subject: "My Subject",
@@ -92,22 +92,45 @@ defmodule Bamboo.MailgunAdapterTest do
 
     assert_receive {:fake_mailgun, %{params: params, req_headers: headers}}
 
+    assert params["from"] == elem(email.from, 1)
+    assert params["subject"] == email.subject
+    assert params["text"] == email.text_body
+    assert params["html"] == email.html_body
+    assert params["h:X-My-Header"] == "my_header_value"
+
+    hashed_token = Base.encode64("api:" <> @config.api_key)
+    assert {"authorization", "Basic #{hashed_token}"} in headers
+  end
+  
+  # We keep two seperate tests, with and without attachment, because the output produced by the adapter changes a lot. (MIME multipart body instead of JSON)
+  test "deliver/2 sends from, subject, text body, html body, headers and attachment" do
+    attachement_source_path = Path.join(__DIR__, "../../../support/attachment.txt")
+    email = new_email(
+      from: "from@foo.com",
+      subject: "My Subject",
+      text_body: "TEXT BODY",
+      html_body: "HTML BODY",
+    )
+    |> Email.put_header("X-My-Header", "my_header_value")
+    |> Email.put_attachment(attachement_source_path)
+
+    MailgunAdapter.deliver(email, @config)
+
+    assert_receive {:fake_mailgun, %{params: params, req_headers: headers}}
+
     assert MailgunAdapter.supports_attachments?
     assert params["from"] == elem(email.from, 1)
     assert params["subject"] == email.subject
     assert params["text"] == email.text_body
     assert params["html"] == email.html_body
     assert params["h:X-My-Header"] == "my_header_value"
-    assert params["attachments"] == [
-      %{
-        "type" => "text/plain",
-        "name" => "attachment.txt",
-        "content" => "VGVzdCBBdHRhY2htZW50Cg=="
-      }
-    ]
+
+    assert %Plug.Upload{content_type: content_type, filename: filename, path: download_path} = params["attachment"]
+    assert content_type == "application/octet-stream"
+    assert filename == "attachment.txt"
+    assert File.read!(download_path) == File.read!(attachement_source_path)
 
     hashed_token = Base.encode64("api:" <> @config.api_key)
-
     assert {"authorization", "Basic #{hashed_token}"} in headers
   end
 

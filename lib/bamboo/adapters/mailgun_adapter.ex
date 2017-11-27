@@ -111,15 +111,15 @@ defmodule Bamboo.MailgunAdapter do
   defp prepare_file(%Attachment{path: nil} = attachment) do
     {"", attachment.data,
      {"form-data",
-      [{~s/"name"/, ~s/"attachment"/},
-       {~s/"filename"/, ~s/"#{attachment.filename}"/}]},
+      [{"name", ~s/"attachment"/},
+       {"filename", ~s/"#{attachment.filename}"/}]},
      []}
   end
   defp prepare_file(%Attachment{} = attachment) do
     {"", attachment.data,
      {"form-data",
-      [{~s/"name"/, ~s/"attachment"/},
-       {~s/"filename"/, ~s/"#{attachment.filename}"/}]},
+      [{"name", ~s/"attachment"/},
+       {"filename", ~s/"#{attachment.filename}"/}]},
      []}
   end
 
