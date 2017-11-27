@@ -27,4 +27,9 @@ defmodule Bamboo.SentEmailViewerPlug.Helper do
   def format_text(text_body) do
     String.replace(text_body, "\n", "<br>")
   end
+
+  def format_email_address({nil, address}), do: address
+  def format_email_address({name, address}) do
+    "#{name}&lt;#{address}&gt;"
+  end
 end

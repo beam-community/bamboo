@@ -16,7 +16,7 @@ defmodule Bamboo.Attachment do
   def new(path, opts \\ [])
   if Code.ensure_loaded?(Plug) do
     def new(%Plug.Upload{filename: filename, content_type: content_type, path: path}, opts), do:
-      new(path, Dict.merge([filename: filename, content_type: content_type], opts))
+      new(path, Keyword.merge([filename: filename, content_type: content_type], opts))
   end
   def new(path, opts) do
     filename = opts[:filename] || Path.basename(path)
@@ -27,7 +27,7 @@ defmodule Bamboo.Attachment do
 
   defp determine_content_type(path) do
     if Code.ensure_loaded?(Plug) do
-      Plug.MIME.path(path)
+      MIME.from_path(path)
     else
       "application/octet-stream"
     end

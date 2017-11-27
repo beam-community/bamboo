@@ -78,7 +78,7 @@ defmodule Bamboo.MailgunAdapterTest do
     assert request_path == "/test.tt/messages"
   end
 
-  test "deliver/2 sends from, subject, text body, html body, headers" do
+  test "deliver/2 sends from, subject, text body, html body, headers and custom vars" do
     email = new_email(
       from: "from@foo.com",
       subject: "My Subject",
@@ -86,7 +86,7 @@ defmodule Bamboo.MailgunAdapterTest do
       html_body: "HTML BODY",
     )
     |> Email.put_header("X-My-Header", "my_header_value")
-    |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
+    |> Email.put_private(:mailgun_custom_vars, %{my_custom_var: 42, other_custom_var: 43})
 
     MailgunAdapter.deliver(email, @config)
 
@@ -97,13 +97,15 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["text"] == email.text_body
     assert params["html"] == email.html_body
     assert params["h:X-My-Header"] == "my_header_value"
+    assert params["v:my_custom_var"] == "42"
+    assert params["v:other_custom_var"] == "43"
 
     hashed_token = Base.encode64("api:" <> @config.api_key)
     assert {"authorization", "Basic #{hashed_token}"} in headers
   end
   
   # We keep two seperate tests, with and without attachment, because the output produced by the adapter changes a lot. (MIME multipart body instead of JSON)
-  test "deliver/2 sends from, subject, text body, html body, headers and attachment" do
+  test "deliver/2 sends from, subject, text body, html body, headers, custom vars and attachment" do
     attachement_source_path = Path.join(__DIR__, "../../../support/attachment.txt")
     email = new_email(
       from: "from@foo.com",
@@ -112,6 +114,7 @@ defmodule Bamboo.MailgunAdapterTest do
       html_body: "HTML BODY",
     )
     |> Email.put_header("X-My-Header", "my_header_value")
+    |> Email.put_private(:mailgun_custom_vars, %{my_custom_var: 42, other_custom_var: 43})
     |> Email.put_attachment(attachement_source_path)
 
     MailgunAdapter.deliver(email, @config)
@@ -124,6 +127,8 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["text"] == email.text_body
     assert params["html"] == email.html_body
     assert params["h:X-My-Header"] == "my_header_value"
+    assert params["v:my_custom_var"] == "42"
+    assert params["v:other_custom_var"] == "43"    
 
     assert %Plug.Upload{content_type: content_type, filename: filename, path: download_path} = params["attachment"]
     assert content_type == "application/octet-stream"

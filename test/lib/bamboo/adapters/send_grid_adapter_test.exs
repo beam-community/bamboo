@@ -35,8 +35,8 @@ defmodule Bamboo.SendGridAdapterTest do
       Plug.Adapters.Cowboy.shutdown __MODULE__
     end
 
-    post "/mail.send.json" do
-      case Map.get(conn.params, "from") do
+    post "/mail/send" do
+      case get_in(conn.params, ["from", "email"]) do
         "INVALID_EMAIL" -> conn |> send_resp(500, "Error!!") |> send_to_parent
         _ -> conn |> send_resp(200, "SENT") |> send_to_parent
       end
@@ -74,10 +74,10 @@ defmodule Bamboo.SendGridAdapterTest do
 
     assert_receive {:fake_sendgrid, %{request_path: request_path}}
 
-    assert request_path == "/mail.send.json"
+    assert request_path == "/mail/send"
   end
 
-  test "deliver/2 sends from, html and text body, subject, and headers" do
+  test "deliver/2 sends from, html and text body, subject, headers and attachment" do
     email = new_email(
       from: {"From", "from@foo.com"},
       subject: "My Subject",
@@ -85,17 +85,26 @@ defmodule Bamboo.SendGridAdapterTest do
       html_body: "HTML BODY",
     )
     |> Email.put_header("Reply-To", "reply@foo.com")
+    |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
 
     email |> SendGridAdapter.deliver(@config)
 
+    assert SendGridAdapter.supports_attachments?
     assert_receive {:fake_sendgrid, %{params: params, req_headers: headers}}
 
-    assert params["fromname"] == email.from |> elem(0)
-    assert params["from"] == email.from |> elem(1)
+    assert params["from"]["name"] == email.from |> elem(0)
+    assert params["from"]["email"] == email.from |> elem(1)
     assert params["subject"] == email.subject
-    assert params["text"] == email.text_body
-    assert params["html"] == email.html_body
+    assert Enum.member?(params["content"], %{"type" => "text/plain", "value" => email.text_body})
+    assert Enum.member?(params["content"], %{"type" => "text/html", "value" => email.html_body})
     assert Enum.member?(headers, {"authorization", "Bearer #{@config[:api_key]}"})
+    assert params["attachments"] == [
+      %{
+        "type" => "text/plain",
+        "filename" => "attachment.txt",
+        "content" => "VGVzdCBBdHRhY2htZW50Cg=="
+      }
+    ]
   end
 
   test "deliver/2 correctly formats recipients" do
@@ -108,12 +117,13 @@ defmodule Bamboo.SendGridAdapterTest do
     email |> SendGridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
-    assert params["to"] == ["to@bar.com", "noname@bar.com"]
-    assert params["toname"] == ["To", ""]
-    assert params["cc"] == ["cc@bar.com"]
-    assert params["ccname"] == ["CC"]
-    assert params["bcc"] == ["bcc@bar.com"]
-    assert params["bccname"] == ["BCC"]
+    addressees = List.first(params["personalizations"])
+    assert addressees["to"] == [
+      %{"name" => "To", "email" => "to@bar.com"},
+      %{"email" => "noname@bar.com"}
+    ]
+    assert addressees["cc"] == [%{"name" => "CC", "email" => "cc@bar.com"}]
+    assert addressees["bcc"] == [%{"name" => "BCC", "email" => "bcc@bar.com"}]
   end
 
   test "deliver/2 correctly handles templates" do
@@ -128,20 +138,10 @@ defmodule Bamboo.SendGridAdapterTest do
     |> SendGridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
-    assert params["text"] == " "
-    assert Poison.decode(params["x-smtpapi"]) == {:ok, %{
-        "sub" => %{
-          "%foo%" => ["bar"]
-        },
-        "filters" => %{
-          "templates" => %{
-            "settings" => %{
-              "enable" => 1,
-              "template_id" => "a4ca8ac9-3294-4eaf-8edc-335935192b8d"
-            }
-          }
-        }
-      }}
+    personalization = List.first(params["personalizations"])
+    assert params["content"] == [%{"type" => "text/plain", "value" => " "}]
+    assert params["template_id"] == "a4ca8ac9-3294-4eaf-8edc-335935192b8d"
+    assert personalization["substitutions"] == %{"%foo%" => ["bar"]}
   end
 
   test "deliver/2 correctly formats reply-to from headers" do
@@ -150,7 +150,15 @@ defmodule Bamboo.SendGridAdapterTest do
     email |> SendGridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
-    assert params["replyto"] == "foo@bar.com"
+    assert params["reply_to"] == %{"email" => "foo@bar.com"}
+  end
+
+  test "deliver/2 omits attachments key if no attachments" do
+    email = new_email()
+    email |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    refute Map.has_key?(params, "attachments")
   end
 
   test "raises if the response is not a success" do
