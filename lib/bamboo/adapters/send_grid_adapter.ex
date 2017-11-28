@@ -129,7 +129,8 @@ defmodule Bamboo.SendGridAdapter do
   end
   defp put_reply_to(body, _), do: body
 
-  defp put_subject(body, %Email{subject: subject}), do: Map.put(body, :subject, subject)
+  defp put_subject(body, %Email{subject: subject}) when not is_nil(subject), do: Map.put(body, :subject, subject)
+  defp put_subject(body, _), do: body
 
   defp put_content(body, email) do
     email_content = content(email)
