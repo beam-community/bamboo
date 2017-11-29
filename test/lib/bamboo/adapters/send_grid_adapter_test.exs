@@ -141,7 +141,7 @@ defmodule Bamboo.SendGridAdapterTest do
     personalization = List.first(params["personalizations"])
     refute Map.has_key?(params, "content")
     assert params["template_id"] == "a4ca8ac9-3294-4eaf-8edc-335935192b8d"
-    assert personalization["substitutions"] == %{"%foo%" => ["bar"]}
+    assert personalization["substitutions"] == %{"%foo%" => "bar"}
   end
 
   test "deliver/2 doesn't force a subject" do
