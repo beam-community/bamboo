@@ -149,14 +149,6 @@ defmodule Bamboo.MailgunAdapter do
     Map.put(body, :attachments, attachment_data)
   end
 
-  defp prepare_file(%Attachment{path: nil} = attachment) do
-    {"", attachment.data,
-     {"form-data",
-      [{"name", ~s/"attachment"/},
-       {"filename", ~s/"#{attachment.filename}"/}]},
-     []}
-  end
-  # what is this second case???
   defp prepare_file(%Attachment{} = attachment) do
     {"", attachment.data,
      {"form-data",

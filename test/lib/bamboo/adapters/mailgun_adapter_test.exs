@@ -104,7 +104,7 @@ defmodule Bamboo.MailgunAdapterTest do
     assert {"authorization", "Basic #{hashed_token}"} in headers
   end
   
-  # We keep two seperate tests, with and without attachment, because the output produced by the adapter changes a lot. (MIME multipart body instead of JSON)
+  # We keep two seperate tests, with and without attachment, because the output produced by the adapter changes a lot. (MIME multipart body instead of URL-encoded form)
   test "deliver/2 sends from, subject, text body, html body, headers, custom vars and attachment" do
     attachement_source_path = Path.join(__DIR__, "../../../support/attachment.txt")
     email = new_email(
