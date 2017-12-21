@@ -15,7 +15,7 @@ defmodule Bamboo.SendGridAdapter do
       # In config/config.exs, or config.prod.exs, etc.
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.SendGridAdapter,
-        api_key: "my_api_key"
+        api_key: "my_api_key" # or {:system, "SENDGRID_API_KEY"}
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
@@ -49,20 +49,23 @@ defmodule Bamboo.SendGridAdapter do
 
   @doc false
   def handle_config(config) do
-    if config[:api_key] in [nil, ""] do
-      raise_api_key_error(config)
-    else
-      config
-    end
+    # build the api key - will raise if there are errors
+    Map.merge(config, %{api_key: get_key(config)})
   end
 
   @doc false
   def supports_attachments?, do: true
 
   defp get_key(config) do
-    case Map.get(config, :api_key) do
-      nil -> raise_api_key_error(config)
-      key -> key
+    api_key = case Map.get(config, :api_key) do
+      {:system, var} -> System.get_env(var)
+      key            -> key
+    end
+
+    if api_key in [nil, ""] do
+      raise_api_key_error(config)
+    else
+      api_key
     end
   end
 
