@@ -17,7 +17,7 @@
 ### Breaking changes
 
 * Renamed `SendgridAdapter/Helper` to `SendGridAdapter/Helper` (https://github.com/thoughtbot/bamboo/commit/6b582f80781f0072bd4051084a3286991bfde2d0)
-* Change `assert_delivered_with` to `assert_delivered_email_with` (https://github.com/thoughtbot/bamboo/commit/9823793fbcd45c2a58ef9bd1e65e5d162625513e)
+* Change `assert_delivered_with` to `assert_email_delivered_with` (https://github.com/thoughtbot/bamboo/commit/9823793fbcd45c2a58ef9bd1e65e5d162625513e)
 * Renamed `EmailPreviewPlug` to `SentEmailViewerPlug` (https://github.com/thoughtbot/bamboo/commit/f3668458f13e0a018eebbe38681362144292cd25)
 
 ## 0.8.0
