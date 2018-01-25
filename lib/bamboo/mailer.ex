@@ -64,14 +64,14 @@ defmodule Bamboo.Mailer do
     quote bind_quoted: [opts: opts] do
 
       @spec deliver_now(Bamboo.Email.t) :: Bamboo.Email.t
-      def deliver_now(email) do
-        config = build_config()
+      def deliver_now(email, opts \\ []) do
+        config = Keyword.merge(build_config(), opts)
         Bamboo.Mailer.deliver_now(config.adapter, email, config)
       end
 
       @spec deliver_later(Bamboo.Email.t) :: Bamboo.Email.t
-      def deliver_later(email) do
-        config = build_config()
+      def deliver_later(email, opts \\ []) do
+        config = Keyword.merge(build_config(), opts)
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
 
