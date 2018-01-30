@@ -5,6 +5,7 @@ defmodule Bamboo.SendGridAdapterTest do
 
   @config %{adapter: SendGridAdapter, api_key: "123_abc"}
   @config_with_bad_key %{adapter: SendGridAdapter, api_key: nil}
+  @config_with_env_var_key %{adapter: SendGridAdapter, api_key: {:system, "SENDGRID_API"}}
 
   defmodule FakeSendgrid do
     use Plug.Router
@@ -66,6 +67,26 @@ defmodule Bamboo.SendGridAdapterTest do
 
     assert_raise ArgumentError, ~r/no API key set/, fn ->
       SendGridAdapter.handle_config(%{})
+    end
+  end
+
+  test "can read the api key from an ENV var" do
+    System.put_env("SENDGRID_API", "123_abc")
+
+    config = SendGridAdapter.handle_config(@config_with_env_var_key)
+
+    assert config[:api_key] == "123_abc"
+  end
+
+  test "raises if an invalid ENV var is used for the API key" do
+    System.delete_env("SENDGRID_API")
+
+    assert_raise ArgumentError, ~r/no API key set/, fn ->
+      new_email(from: "foo@bar.com") |> SendGridAdapter.deliver(@config_with_env_var_key)
+    end
+
+    assert_raise ArgumentError, ~r/no API key set/, fn ->
+      SendGridAdapter.handle_config(@config_with_env_var_key)
     end
   end
 
