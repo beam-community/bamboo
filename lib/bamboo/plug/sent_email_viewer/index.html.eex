@@ -175,8 +175,8 @@
           <p class="email-detail-body">
             <script>
             function adjustFrameHeight(iframe) {
-              var body = iframe.contentWindow.document.body;
-              iframe.style.height = (body.scrollHeight + body.offsetHeight - body.clientHeight) + "px";
+              var contentWindow = iframe.contentWindow;
+              iframe.style.height = (contentWindow.outerHeight) + "px";
             }
             </script>
             <iframe onload="adjustFrameHeight(this)" src="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/html" %>"></iframe>
