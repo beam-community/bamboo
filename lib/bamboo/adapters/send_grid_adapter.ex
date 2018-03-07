@@ -95,6 +95,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_content(email)
     |> put_template_id(email)
     |> put_attachments(email)
+    |> put_categories(email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -169,6 +170,12 @@ defmodule Bamboo.SendGridAdapter do
     Map.put(body, :substitutions, substitutions)
   end
   defp put_template_substitutions(body, _), do: body
+
+  defp put_categories(body, %Email{private: %{categories: categories}}) when is_list(categories) and length(categories) <= 10 do
+    body
+    |> Map.put(:categories, categories)
+  end
+  defp put_categories(body, _), do: body
 
   defp put_attachments(body, %Email{attachments: []}), do: body
   defp put_attachments(body, %Email{attachments: attachments}) do

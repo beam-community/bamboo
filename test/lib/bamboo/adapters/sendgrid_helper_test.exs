@@ -57,4 +57,26 @@ defmodule Bamboo.SendGridHelperTest do
     email_2 = email |> substitute("%name%", "Jon Snow") |> with_template(@template_id)
     assert email_1 == email_2
   end
+
+  test "with_categories/2 adds the correct property", %{email: email} do
+    email = email |> with_categories(["category-1"])
+    assert email.private[:categories] != nil
+    assert is_list(email.private[:categories])
+    assert length(email.private[:categories]) == 1
+  end
+
+  test "with_categories/2 concatenates multiple lists", %{email: email} do
+    email = email |> with_categories(["category-1"]) |> with_categories(["category-2", "category-3"])
+    assert length(email.private[:categories]) == 3
+  end
+
+  test "with_categories/2 removes duplicate entries", %{email: email} do
+    email = email |> with_categories(["category-1"]) |> with_categories(["category-2", "category-1"])
+    assert length(email.private[:categories]) == 2
+  end
+
+  test "with_categories/2 only sends the first 10 entries", %{email: email} do
+    email = email |> with_categories(["category-1", "category-2", "category-3", "category-4", "category-5", "category-6", "category-7", "category-8", "category-9", "category-10", "category-11"])
+    assert length(email.private[:categories]) == 10
+  end
 end
