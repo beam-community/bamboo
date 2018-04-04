@@ -122,6 +122,32 @@ defmodule Bamboo.MailerTest do
     assert config == config_with_default_strategy
   end
 
+  test "deliver_now/2 calls the adapter with the custom config merged into the base config" do
+    email = new_email(to: "foo@bar.com")
+
+    returned_email = FooMailer.deliver_now(email, %{foo: :baz})
+
+    assert returned_email == Bamboo.Mailer.normalize_addresses(email)
+    assert_received {:deliver, %Bamboo.Email{}, config}
+    config_with_default_strategy = Enum.into(@mailer_config, %{})
+      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+      |> Map.put(:foo, :baz)
+    assert config == config_with_default_strategy
+  end
+
+  test "deliver_now/2 calls the adapter with the custom config as keyword arguments" do
+    email = new_email(to: "foo@bar.com")
+
+    returned_email = FooMailer.deliver_now(email, foo: :baz)
+
+    assert returned_email == Bamboo.Mailer.normalize_addresses(email)
+    assert_received {:deliver, %Bamboo.Email{}, config}
+    config_with_default_strategy = Enum.into(@mailer_config, %{})
+      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+      |> Map.put(:foo, :baz)
+    assert config == config_with_default_strategy
+  end
+
   test "deliver_now/1 with no from address" do
     assert_raise Bamboo.EmptyFromAddressError, fn ->
       FooMailer.deliver_now(new_email(from: nil))
@@ -167,6 +193,41 @@ defmodule Bamboo.MailerTest do
 
     assert_receive {:deliver, delivered_email, _config}
     assert delivered_email == Bamboo.Mailer.normalize_addresses(email)
+  end
+
+  test "deliver_later/1 calls deliver with the default config" do
+    email = new_email()
+
+    FooMailer.deliver_later(email)
+
+    assert_receive {:deliver, delivered_email, config}
+    config_with_default_strategy = Enum.into(@mailer_config, %{})
+      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+    assert config == config_with_default_strategy
+  end
+
+  test "deliver_later/2 calls deliver with the custom config merged in" do
+    email = new_email()
+
+    FooMailer.deliver_later(email, %{foo: :baz})
+
+    assert_receive {:deliver, delivered_email, config}
+    config_with_default_strategy = Enum.into(@mailer_config, %{})
+      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+      |> Map.put(:foo, :baz)
+    assert config == config_with_default_strategy
+  end
+
+  test "deliver_later/2 calls deliver with the custom options merged in" do
+    email = new_email()
+
+    FooMailer.deliver_later(email, foo: :baz)
+
+    assert_receive {:deliver, delivered_email, config}
+    config_with_default_strategy = Enum.into(@mailer_config, %{})
+      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+      |> Map.put(:foo, :baz)
+    assert config == config_with_default_strategy
   end
 
   test "deliver_now/1 wraps the recipients in a list" do

@@ -2,7 +2,8 @@ defmodule Bamboo.Mailer do
   @moduledoc """
   Sets up mailers that make it easy to configure and swap adapters.
 
-  Adds `deliver_now/1` and `deliver_later/1` functions to the mailer module it is used by.
+  Adds `deliver_now/1`, `deliver_now/2`, `deliver_later/1`, and
+  `deliver_later/2` functions to the mailer module it is used by.
 
   ## Bamboo ships with the following adapters
 
@@ -63,15 +64,15 @@ defmodule Bamboo.Mailer do
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
 
-      @spec deliver_now(Bamboo.Email.t) :: Bamboo.Email.t
-      def deliver_now(email) do
-        config = build_config()
+      @spec deliver_now(Bamboo.Email.t, %{} | []) :: Bamboo.Email.t
+      def deliver_now(email, custom_config \\ %{}) do
+        config = build_config() |> Map.merge(Enum.into(custom_config, %{}))
         Bamboo.Mailer.deliver_now(config.adapter, email, config)
       end
 
-      @spec deliver_later(Bamboo.Email.t) :: Bamboo.Email.t
-      def deliver_later(email) do
-        config = build_config()
+      @spec deliver_later(Bamboo.Email.t, %{} | []) :: Bamboo.Email.t
+      def deliver_later(email, custom_config \\ %{}) do
+        config = build_config() |> Map.merge(Enum.into(custom_config, %{}))
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
 
@@ -95,8 +96,11 @@ defmodule Bamboo.Mailer do
 
   Call your mailer with `deliver_now/1` to send an email right away. Call
   `deliver_later/1` if you want to send in the background to speed things up.
+
+  Calling `deliver_now/2` with a set of custom options to override the default
+  adapter configuration.
   """
-  def deliver_now(_email) do
+  def deliver_now(_email, _options \\ []) do
     raise @cannot_call_directly_error
   end
 
@@ -108,8 +112,11 @@ defmodule Bamboo.Mailer do
   `Bamboo.TaskSupervisorStrategy` will be used. See
   `Bamboo.DeliverLaterStrategy` to learn how to change how emails are delivered
   with `deliver_later/1`.
+
+  Calling `deliver_later/2` with a set of custom options to override the default
+  adapter configuration.
   """
-  def deliver_later(_email) do
+  def deliver_later(_email, _options \\ []) do
     raise @cannot_call_directly_error
   end
 
