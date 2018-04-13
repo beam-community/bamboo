@@ -30,8 +30,8 @@ defmodule Bamboo.SendGridHelperTest do
     email = email |> substitute("%name%", "Jon Snow") |> substitute("%location%", "Westeros")
     assert email.private[:send_grid_template] == %{
         substitutions: %{
-          "%name%" => ["Jon Snow"],
-          "%location%" => ["Westeros"]
+          "%name%" => "Jon Snow",
+          "%location%" => "Westeros"
         }
       }
   end
@@ -47,7 +47,7 @@ defmodule Bamboo.SendGridHelperTest do
     assert email.private[:send_grid_template] == %{
       template_id: @template_id,
       substitutions: %{
-        "%name%" => ["Jon Snow"]
+        "%name%" => "Jon Snow"
       }
     }
   end

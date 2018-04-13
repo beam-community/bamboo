@@ -160,9 +160,21 @@ defmodule Bamboo.SendGridAdapterTest do
 
     assert_receive {:fake_sendgrid, %{params: params}}
     personalization = List.first(params["personalizations"])
-    assert params["content"] == [%{"type" => "text/plain", "value" => " "}]
+    refute Map.has_key?(params, "content")
     assert params["template_id"] == "a4ca8ac9-3294-4eaf-8edc-335935192b8d"
-    assert personalization["substitutions"] == %{"%foo%" => ["bar"]}
+    assert personalization["substitutions"] == %{"%foo%" => "bar"}
+  end
+
+  test "deliver/2 doesn't force a subject" do
+    email = new_email(
+      from: {"From", "from@foo.com"},
+    )
+
+    email
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    refute Map.has_key?(params, "subject")
   end
 
   test "deliver/2 correctly formats reply-to from headers" do

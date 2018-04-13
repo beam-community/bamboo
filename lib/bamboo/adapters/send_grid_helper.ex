@@ -83,8 +83,8 @@ defmodule Bamboo.SendGridHelper do
 
   defp add_substitution(template, tag, value) do
     template
-    |> Map.update(:substitutions, %{tag => [value]}, fn substitutions ->
-      Map.merge(substitutions, %{tag => [value]})
+    |> Map.update(:substitutions, %{tag => value}, fn substitutions ->
+      Map.merge(substitutions, %{tag => value})
     end)
   end
 end

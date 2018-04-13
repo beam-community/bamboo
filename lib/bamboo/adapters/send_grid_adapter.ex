@@ -133,10 +133,16 @@ defmodule Bamboo.SendGridAdapter do
   end
   defp put_reply_to(body, _), do: body
 
-  defp put_subject(body, %Email{subject: subject}), do: Map.put(body, :subject, subject)
+  defp put_subject(body, %Email{subject: subject}) when not is_nil(subject), do: Map.put(body, :subject, subject)
+  defp put_subject(body, _), do: body
 
   defp put_content(body, email) do
-    Map.put(body, :content, content(email))
+    email_content = content(email)
+    if not Enum.empty?(email_content) do
+      Map.put(body, :content, content(email))
+    else
+      body
+    end
   end
 
   defp content(email) do
@@ -155,14 +161,8 @@ defmodule Bamboo.SendGridAdapter do
     [%{type: "text/plain", value: text_body} | list]
   end
 
-  defp put_template_id(body, %Email{private: %{send_grid_template: %{template_id: template_id}}} = email) do
-    # SendGrid will error with empty content and subject, even while using templates.
-    # Sets default `text_body` and `subject` if neither are specified,
-    # allowing the consumer to neglect doing so themselves.
-    body
-    |> ensure_content_provided(email)
-    |> ensure_subject_provided(email)
-    |> Map.put(:template_id, template_id)
+  defp put_template_id(body, %Email{private: %{send_grid_template: %{template_id: template_id}}}) do
+    Map.put(body, :template_id, template_id)
   end
   defp put_template_id(body, _), do: body
 
@@ -190,16 +190,6 @@ defmodule Bamboo.SendGridAdapter do
     end)
     Map.put(body, :attachments, transformed)
   end
-
-  defp ensure_content_provided(%{content: []} = body, email) do
-    put_content(body, %Email{email | text_body: " "})
-  end
-  defp ensure_content_provided(body, _), do: body
-
-  defp ensure_subject_provided(%{subject: nil} = body, email) do
-    put_subject(body, %Email{email | subject: " "})
-  end
-  defp ensure_subject_provided(body, _), do: body
 
   defp put_addresses(body, _, []), do: body
   defp put_addresses(body, field, addresses), do: Map.put(body, field, Enum.map(addresses, &to_address/1))
