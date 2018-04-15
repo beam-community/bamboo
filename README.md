@@ -202,7 +202,7 @@ Bamboo comes with a handy plug for viewing emails sent in development. Now you
 don't have to look at the logs to get password resets, confirmation links, etc.
 Just open up the sent email viewer and click the link.
 
-See [Bamboo.SentEmailViewerPlug](https://hexdocs.pm/bamboo/Bamboo.SentEmailViewerPlug.html)
+See [Bamboo.SentEmail](https://hexdocs.pm/bamboo/Bamboo.SentEmail.html)
 
 Here is what it looks like:
 
@@ -218,7 +218,7 @@ vars, templates, and scheduling emails to send in the future. See
 
 SendGrid offers extra features on top of regular SMTP email like transactional
 templates with substitution tags. See
-[Bamboo.SendGridHelper](https://hexdocs.pm/bamboo/Bamboo.SendGridHelper.html).
+[Bamboo.SendGridHelper](https://hexdocs.pm/bamboo/Bamboo.SendgridHelper.html).
 
 ## Testing
 
