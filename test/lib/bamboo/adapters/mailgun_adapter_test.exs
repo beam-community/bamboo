@@ -4,6 +4,8 @@ defmodule Bamboo.MailgunAdapterTest do
   alias Bamboo.MailgunAdapter
 
   @config %{adapter: MailgunAdapter, api_key: "dummyapikey", domain: "test.tt"}
+  @config_with_env_var_key %{adapter: MailgunAdapter,
+    api_key: {:system, "MAILGUN_API_KEY"}, domain: {:system, "MAILGUN_DOMAIN"}}
 
   defmodule FakeMailgun do
     use Plug.Router
@@ -62,6 +64,19 @@ defmodule Bamboo.MailgunAdapterTest do
     :ok
   end
 
+  test "can read the settings from an ENV var" do
+    System.put_env("MAILGUN_API_KEY", "env_api_key")
+    System.put_env("MAILGUN_DOMAIN", "env_domain")
+
+    config = MailgunAdapter.handle_config(@config_with_env_var_key)
+
+    assert config[:api_key] == "env_api_key"
+    assert config[:domain] == "env_domain"
+
+    System.delete_env("MAILGUN_API_KEY")
+    System.delete_env("MAILGUN_DOMAIN")
+  end
+
   test "raises if the api key is nil" do
     assert_raise ArgumentError, ~r/no api_key set/, fn ->
       MailgunAdapter.handle_config(%{domain: "test.tt"})
@@ -72,6 +87,35 @@ defmodule Bamboo.MailgunAdapterTest do
     assert_raise ArgumentError, ~r/no domain set/, fn ->
       MailgunAdapter.handle_config(%{api_key: "dummyapikey"})
     end
+  end
+
+  test "raises if an invalid ENV var is used for the api_key" do
+    System.put_env("MAILGUN_DOMAIN", "env_domain")
+
+    assert_raise ArgumentError, ~r/no api_key set/, fn ->
+      new_email(from: "foo@bar.com") |> MailgunAdapter.deliver(@config_with_env_var_key)
+    end
+
+    assert_raise ArgumentError, ~r/no api_key set/, fn ->
+      MailgunAdapter.handle_config(@config_with_env_var_key)
+
+    end
+    System.delete_env("MAILGUN_DOMAIN")
+  end
+
+
+  test "raises if an invalid ENV var is used for the domain" do
+    System.put_env("MAILGUN_API_KEY", "env_api_key")
+
+    assert_raise ArgumentError, ~r/no domain set/, fn ->
+      new_email(from: "foo@bar.com") |> MailgunAdapter.deliver(@config_with_env_var_key)
+    end
+
+    assert_raise ArgumentError, ~r/no domain set/, fn ->
+      MailgunAdapter.handle_config(@config_with_env_var_key)
+
+    end
+    System.delete_env("MAILGUN_API_KEY")
   end
 
   test "deliver/2 sends the to the right url" do

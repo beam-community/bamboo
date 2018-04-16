@@ -10,8 +10,8 @@ defmodule Bamboo.MailgunAdapter do
       # In config/config.exs, or config.prod.exs, etc.
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.MailgunAdapter,
-        api_key: "my_api_key",
-        domain: "your.domain"
+        api_key: "my_api_key" # or {:system, "MAILGUN_API_KEY"},
+        domain: "your.domain" # or {:system, "MAILGUN_DOMAIN"}
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
@@ -28,13 +28,27 @@ defmodule Bamboo.MailgunAdapter do
 
   @doc false
   def handle_config(config) do
-    for setting <- [:api_key, :domain] do
-      if config[setting] in [nil, ""] do
-        raise_missing_setting_error(config, setting)
-      end
-    end
-
     config
+    |> Map.put(:api_key, get_setting(config, :api_key))
+    |> Map.put(:domain, get_setting(config, :domain))
+  end
+
+  defp get_setting(config, key) do
+    config[key]
+    |> case do
+      {:system, var} ->
+        System.get_env(var)
+
+      value ->
+        value
+    end
+    |> case do
+      value when value in [nil, ""] ->
+        raise_missing_setting_error(config, key)
+
+      value ->
+        value
+    end
   end
 
   defp raise_missing_setting_error(config, setting) do
@@ -49,6 +63,7 @@ defmodule Bamboo.MailgunAdapter do
 
   def deliver(email, config) do
     body = to_mailgun_body(email)
+    config = handle_config(config)
 
     case :hackney.post(full_uri(config), headers(email, config), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
