@@ -43,6 +43,8 @@ defmodule Bamboo.LocalAdapter do
 
   def handle_config(config), do: config
 
+  def supports_attachments?, do: true
+
   defp open_url_in_browser(url) when is_binary(url) do
     case :os.type() do
       {:unix, :darwin} -> System.cmd("open", [url])
