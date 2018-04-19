@@ -19,7 +19,7 @@ defmodule Bamboo.MailgunAdapterTest do
       Agent.start_link(fn -> Map.new end, name: __MODULE__)
       Agent.update(__MODULE__, &Map.put(&1, :parent, parent))
       port = get_free_port()
-      Application.put_env(:bamboo, :mailgun_base_uri, "http://localhost:#{port}/")
+      Application.put_env(:bamboo, :mailgun_base_uri, "http://localhost:#{port}")
       Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
     end
 
@@ -101,7 +101,41 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["v:other_custom_var"] == "43"
 
     hashed_token = Base.encode64("api:" <> @config.api_key)
+    assert {"authorization", "Basic #{hashed_token}"} in headers
+  end
+  
+  # We keep two seperate tests, with and without attachment, because the output produced by the adapter changes a lot. (MIME multipart body instead of URL-encoded form)
+  test "deliver/2 sends from, subject, text body, html body, headers, custom vars and attachment" do
+    attachement_source_path = Path.join(__DIR__, "../../../support/attachment.txt")
+    email = new_email(
+      from: "from@foo.com",
+      subject: "My Subject",
+      text_body: "TEXT BODY",
+      html_body: "HTML BODY",
+    )
+    |> Email.put_header("X-My-Header", "my_header_value")
+    |> Email.put_private(:mailgun_custom_vars, %{my_custom_var: 42, other_custom_var: 43})
+    |> Email.put_attachment(attachement_source_path)
 
+    MailgunAdapter.deliver(email, @config)
+
+    assert_receive {:fake_mailgun, %{params: params, req_headers: headers}}
+
+    assert MailgunAdapter.supports_attachments?
+    assert params["from"] == elem(email.from, 1)
+    assert params["subject"] == email.subject
+    assert params["text"] == email.text_body
+    assert params["html"] == email.html_body
+    assert params["h:X-My-Header"] == "my_header_value"
+    assert params["v:my_custom_var"] == "42"
+    assert params["v:other_custom_var"] == "43"    
+
+    assert %Plug.Upload{content_type: content_type, filename: filename, path: download_path} = params["attachment"]
+    assert content_type == "application/octet-stream"
+    assert filename == "attachment.txt"
+    assert File.read!(download_path) == File.read!(attachement_source_path)
+
+    hashed_token = Base.encode64("api:" <> @config.api_key)
     assert {"authorization", "Basic #{hashed_token}"} in headers
   end
 
@@ -115,9 +149,9 @@ defmodule Bamboo.MailgunAdapterTest do
     email |> MailgunAdapter.deliver(@config)
 
     assert_receive {:fake_mailgun, %{params: params}}
-    assert params["to"] == ["To <to@bar.com>", "noname@bar.com"]
-    assert params["cc"] == ["CC <cc@bar.com>"]
-    assert params["bcc"] == ["BCC <bcc@bar.com>"]
+    assert params["to"] == "To <to@bar.com>,noname@bar.com"
+    assert params["cc"] == "CC <cc@bar.com>"
+    assert params["bcc"] == "BCC <bcc@bar.com>"
   end
 
   test "raises if the response is not a success" do
