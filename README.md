@@ -32,6 +32,8 @@ The Bamboo.MandrillAdapter and Bamboo.SendGridAdapter **are being used in produc
 and have had no issues. It's also pretty simple to [create your own adapter]. Feel free
 to open an issue or a PR if you'd like to add a new adapter to the list.
 
+
+* `Bamboo.ConfigAdapter` - See [BinaryNoggin/bamboo_config_adapter](https://github.com/BinaryNoggin/bamboo_config_adapter) declare config at runtime.
 * `Bamboo.MailgunAdapter` - Ships with Bamboo. Thanks to [@princemaple].
 * `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
 * `Bamboo.MandrillAdapter` - Ships with Bamboo.
