@@ -33,7 +33,7 @@ defmodule Bamboo.SendGridAdapter do
 
   def deliver(email, config) do
     api_key = get_key(config)
-    body = email |> to_sendgrid_body |> Poison.encode!
+    body = email |> to_sendgrid_body(config) |> Poison.encode!
     url = [base_uri(), @send_message_path]
 
     case :hackney.post(url, headers(api_key), body, [:with_body]) do
@@ -86,7 +86,7 @@ defmodule Bamboo.SendGridAdapter do
     ]
   end
 
-  defp to_sendgrid_body(%Email{} = email) do
+  defp to_sendgrid_body(%Email{} = email, config) do
     %{}
     |> put_from(email)
     |> put_personalization(email)
@@ -96,6 +96,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_template_id(email)
     |> put_attachments(email)
     |> put_categories(email)
+    |> put_settings(config)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -144,6 +145,9 @@ defmodule Bamboo.SendGridAdapter do
       body
     end
   end
+
+  defp put_settings(body, %{sandbox: true}), do: Map.put(body, :mail_settings, %{sandbox: true})
+  defp put_settings(body, _), do: body
 
   defp content(email) do
     []
