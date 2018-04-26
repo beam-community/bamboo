@@ -103,7 +103,7 @@ defmodule Bamboo.SendGridAdapterTest do
       from: {"From", "from@foo.com"},
       subject: "My Subject",
       text_body: "TEXT BODY",
-      html_body: "HTML BODY",
+      html_body: "HTML BODY"
     )
     |> Email.put_header("Reply-To", "reply@foo.com")
     |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
@@ -132,7 +132,7 @@ defmodule Bamboo.SendGridAdapterTest do
     email = new_email(
       to: [{"To", "to@bar.com"}, {nil, "noname@bar.com"}],
       cc: [{"CC", "cc@bar.com"}],
-      bcc: [{"BCC", "bcc@bar.com"}],
+      bcc: [{"BCC", "bcc@bar.com"}]
     )
 
     email |> SendGridAdapter.deliver(@config)
@@ -150,7 +150,7 @@ defmodule Bamboo.SendGridAdapterTest do
   test "deliver/2 correctly handles templates" do
     email = new_email(
       from: {"From", "from@foo.com"},
-      subject: "My Subject",
+      subject: "My Subject"
     )
 
     email
@@ -167,7 +167,7 @@ defmodule Bamboo.SendGridAdapterTest do
 
   test "deliver/2 doesn't force a subject" do
     email = new_email(
-      from: {"From", "from@foo.com"},
+      from: {"From", "from@foo.com"}
     )
 
     email
