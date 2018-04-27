@@ -15,6 +15,7 @@ defmodule Bamboo.SendGridHelper do
   @id_size 36
   @field_name :send_grid_template
   @categories :categories
+  @asm_group_id :asm_group_id
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -58,10 +59,10 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   An array of category names for this email. A maximum of 10 categories can be assigned to an email.
-  Duplicate categories will be ignored and only unique entries will be sent. 
-  
+  Duplicate categories will be ignored and only unique entries will be sent.
+
   ## Example
- 
+
       email
       |> with_categories("campaign-12345")
   """
@@ -74,6 +75,23 @@ defmodule Bamboo.SendGridHelper do
   end
   def with_categories(email, categories) do
     raise "expected a list of category strings"
+  end
+
+  @doc """
+  An integer id for an ASM (Advanced Suppression Manager) group that this email should belong to.
+  This can be used to let receipients unsubscribe from only a certain type of communication.
+
+  ## Example
+
+      email
+      |> with_asm_group_id(1234)
+  """
+  def with_asm_group_id(email, asm_group_id) when is_integer(asm_group_id) do
+    email
+    |> Email.put_private(@asm_group_id, asm_group_id)
+  end
+  def with_asm_group_id(_email, asm_group_id) do
+    raise "expected the asm_group_id parameter to be an integer, got #{asm_group_id}"
   end
 
   defp set_template(template, template_id) do

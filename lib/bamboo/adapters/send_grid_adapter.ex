@@ -96,6 +96,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_template_id(email)
     |> put_attachments(email)
     |> put_categories(email)
+    |> put_asm_group_id(email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -176,6 +177,12 @@ defmodule Bamboo.SendGridAdapter do
     |> Map.put(:categories, categories)
   end
   defp put_categories(body, _), do: body
+
+  defp put_asm_group_id(body, %Email{private: %{asm_group_id: asm_group_id}}) when is_integer(asm_group_id) do
+    body
+    |> Map.put(:asm, %{group_id: asm_group_id})
+  end
+  defp put_asm_group_id(body, _), do: body
 
   defp put_attachments(body, %Email{attachments: []}), do: body
   defp put_attachments(body, %Email{attachments: attachments}) do
