@@ -14,6 +14,7 @@ defmodule Bamboo.SendGridHelper do
 
   @field_name :send_grid_template
   @categories :categories
+  @asm_group_id :asm_group_id
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -115,6 +116,24 @@ defmodule Bamboo.SendGridHelper do
 
   def add_dynamic_field(_email, field, _value),
     do: raise("expected the name parameter to be of type binary or atom, got #{field}")
+
+  @doc """
+  An integer id for an ASM (Advanced Suppression Manager) group that this email should belong to.
+  This can be used to let recipients unsubscribe from only a certain type of communication.
+
+  ## Example
+
+      email
+      |> with_asm_group_id(1234)
+  """
+  def with_asm_group_id(email, asm_group_id) when is_integer(asm_group_id) do
+    email
+    |> Email.put_private(@asm_group_id, asm_group_id)
+  end
+
+  def with_asm_group_id(_email, asm_group_id) do
+    raise "expected the asm_group_id parameter to be an integer, got #{asm_group_id}"
+  end
 
   defp set_template(template, template_id) do
     template

@@ -127,4 +127,15 @@ defmodule Bamboo.SendGridHelperTest do
 
     assert length(email.private[:categories]) == 10
   end
+
+  test "with_asm_group_id/2 adds the correct property", %{email: email} do
+    email = email |> with_asm_group_id(1234)
+    assert email.private[:asm_group_id] == 1234
+  end
+
+  test "with_asm_group_id/2 raises on non-integer id", %{email: email} do
+    assert_raise RuntimeError, fn ->
+      email |> with_asm_group_id("1234")
+    end
+  end
 end
