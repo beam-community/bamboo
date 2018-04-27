@@ -6,6 +6,7 @@ defmodule Bamboo.SendGridAdapterTest do
   @config %{adapter: SendGridAdapter, api_key: "123_abc"}
   @config_with_bad_key %{adapter: SendGridAdapter, api_key: nil}
   @config_with_env_var_key %{adapter: SendGridAdapter, api_key: {:system, "SENDGRID_API"}}
+  @config_with_sandbox_enabled %{adapter: SendGridAdapter, api_key: "123_abc", sandbox: true}
 
   defmodule FakeSendgrid do
     use Plug.Router
@@ -206,6 +207,14 @@ defmodule Bamboo.SendGridAdapterTest do
 
     assert_receive {:fake_sendgrid, %{params: params}}
     refute Map.has_key?(params, "attachments")
+  end
+
+  test "deliver/2 will set sandbox mode correctly" do
+    email = new_email()
+    email |> SendGridAdapter.deliver(@config_with_sandbox_enabled)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["mail_settings"]["sandbox"] == true
   end
 
   test "raises if the response is not a success" do
