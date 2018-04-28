@@ -29,12 +29,12 @@ defmodule Bamboo.MandrillAdapter do
 
   def deliver(email, config) do
     api_key = get_key(config)
-    params = email |> convert_to_mandrill_params(api_key) |> Poison.encode!()
+    params = email |> convert_to_mandrill_params(api_key) |> Bamboo.json_library().encode!()
     uri = [base_uri(), "/", api_path(email)]
 
     case :hackney.post(uri, headers(), params, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        filtered_params = params |> Poison.decode!() |> Map.put("key", "[FILTERED]")
+        filtered_params = params |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
         raise_api_error(@service_name, response, filtered_params)
 
       {:ok, status, headers, response} ->

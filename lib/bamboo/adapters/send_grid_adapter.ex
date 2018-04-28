@@ -37,12 +37,12 @@ defmodule Bamboo.SendGridAdapter do
 
   def deliver(email, config) do
     api_key = get_key(config)
-    body = email |> to_sendgrid_body(config) |> Poison.encode!()
+    body = email |> to_sendgrid_body(config) |> Bamboo.json_library().encode!()
     url = [base_uri(), @send_message_path]
 
     case :hackney.post(url, headers(api_key), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
-        filtered_params = body |> Poison.decode!() |> Map.put("key", "[FILTERED]")
+        filtered_params = body |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
         raise_api_error(@service_name, response, filtered_params)
 
       {:ok, status, headers, response} ->
