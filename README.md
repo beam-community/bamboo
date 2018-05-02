@@ -220,7 +220,7 @@ vars, templates, and scheduling emails to send in the future. See
 
 SendGrid offers extra features on top of regular SMTP email like transactional
 templates with substitution tags. See
-[Bamboo.SendGridHelper](https://hexdocs.pm/bamboo/Bamboo.SendGridHelper.html).
+[Bamboo.SendGridHelper](https://hexdocs.pm/bamboo/Bamboo.SendgridHelper.html).
 
 ## Testing
 
