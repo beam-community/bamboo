@@ -184,7 +184,7 @@ defmodule Bamboo.Phoenix do
       def text_and_html_email_layout do
         new_email
         # Will use MyApp.LayoutView with the email.html template for html emails
-        # and MyApp.LayoutView with the email.html template for text emails
+        # and MyApp.LayoutView with the email.text template for text emails
         |> put_layout({MyApp.LayoutView, :email})
       end
   """
