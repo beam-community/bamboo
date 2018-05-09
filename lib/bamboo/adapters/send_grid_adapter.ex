@@ -16,7 +16,7 @@ defmodule Bamboo.SendGridAdapter do
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.SendGridAdapter,
         api_key: "my_api_key" # or {:system, "SENDGRID_API_KEY"}
-        
+
       # To enable sandbox mode (e.g. in development or staging environments),
       # in config/dev.exs or config/prod.exs etc
       config :my_app, MyApp.Mailer, sandbox: true
@@ -205,6 +205,7 @@ defmodule Bamboo.SendGridAdapter do
   defp to_address({nil, address}), do: %{email: address}
   defp to_address({"", address}), do: %{email: address}
   defp to_address({name, address}), do: %{email: address, name: name}
+  defp to_address(address) when is_binary(address), do: %{email: address}
 
   defp base_uri do
     Application.get_env(:bamboo, :sendgrid_base_uri) || @default_base_uri

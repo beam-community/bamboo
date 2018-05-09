@@ -3,6 +3,10 @@ defmodule Bamboo.Test.User do
 end
 
 defimpl Bamboo.Formatter, for: Bamboo.Test.User do
+  def format_email_address(%Bamboo.Test.User{first_name: nil, email: email}, _opts) do
+    email
+  end
+
   def format_email_address(user, %{type: :from}) do
     {"#{user.first_name} (MyApp)", user.email}
   end

@@ -103,7 +103,7 @@ defmodule Bamboo.MailgunAdapterTest do
     hashed_token = Base.encode64("api:" <> @config.api_key)
     assert {"authorization", "Basic #{hashed_token}"} in headers
   end
-  
+
   # We keep two seperate tests, with and without attachment, because the output produced by the adapter changes a lot. (MIME multipart body instead of URL-encoded form)
   test "deliver/2 sends from, subject, text body, html body, headers, custom vars and attachment" do
     attachement_source_path = Path.join(__DIR__, "../../../support/attachment.txt")
@@ -128,7 +128,7 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["html"] == email.html_body
     assert params["h:X-My-Header"] == "my_header_value"
     assert params["v:my_custom_var"] == "42"
-    assert params["v:other_custom_var"] == "43"    
+    assert params["v:other_custom_var"] == "43"
 
     assert %Plug.Upload{content_type: content_type, filename: filename, path: download_path} = params["attachment"]
     assert content_type == "application/octet-stream"
@@ -152,6 +152,32 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["to"] == "To <to@bar.com>,noname@bar.com"
     assert params["cc"] == "CC <cc@bar.com>"
     assert params["bcc"] == "BCC <bcc@bar.com>"
+  end
+
+  test "deliver/2 correctly handles structs with custom protocols and name" do
+    user = %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
+    email = new_email(from: user, to: user, cc: user, bcc: user)
+
+    email |> MailgunAdapter.deliver(@config)
+
+    assert_receive {:fake_mailgun, %{params: params}}
+    assert params["from"] == "Paul (MyApp) <foo@bar.com>"
+    assert params["to"] == "Paul <foo@bar.com>"
+    assert params["cc"] == "Paul <foo@bar.com>"
+    assert params["bcc"] == "Paul <foo@bar.com>"
+  end
+
+  test "deliver/2 correctly handles structs with custom protocols and no name" do
+    user = %Bamboo.Test.User{first_name: nil, email: "foo@bar.com"}
+    email = new_email(from: user, to: user, cc: user, bcc: user)
+
+    email |> MailgunAdapter.deliver(@config)
+
+    assert_receive {:fake_mailgun, %{params: params}}
+    assert params["from"] == "foo@bar.com"
+    assert params["to"] == "foo@bar.com"
+    assert params["cc"] == "foo@bar.com"
+    assert params["bcc"] == "foo@bar.com"
   end
 
   test "raises if the response is not a success" do

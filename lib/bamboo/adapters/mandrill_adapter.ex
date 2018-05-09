@@ -84,10 +84,10 @@ defmodule Bamboo.MandrillAdapter do
   end
   defp maybe_put_template_params(params, _), do: params
 
-  defp message_params(email) do
+  defp message_params(%Bamboo.Email{from: {from_name, from_email}} = email) do
     %{
-      from_name: email.from |> elem(0),
-      from_email: email.from |> elem(1),
+      from_name: from_name,
+      from_email: from_email,
       to: recipients(email),
       subject: email.subject,
       text: email.text_body,
@@ -96,6 +96,9 @@ defmodule Bamboo.MandrillAdapter do
       attachments: attachments(email)
     }
     |> add_message_params(email)
+  end
+  defp message_params(%Bamboo.Email{from: from} = email) when is_binary(from) do
+    message_params(%Bamboo.Email{email | from: {nil, from}})
   end
 
   defp add_message_params(mandrill_message, %{private: %{message_params: message_params}}) do
@@ -125,12 +128,19 @@ defmodule Bamboo.MandrillAdapter do
   end
 
   defp add_recipients(recipients, new_recipients, type: recipient_type) do
-    Enum.reduce(new_recipients, recipients, fn(recipient, recipients) ->
-      recipients ++ [%{
-        name: recipient |> elem(0),
-        email: recipient |> elem(1),
-        type: recipient_type
-      }]
+    Enum.reduce(new_recipients, recipients, fn
+      ({name, email}, recipients) ->
+        recipients ++ [%{
+          name: name,
+          email: email,
+          type: recipient_type
+        }]
+      (email, recipients) when is_binary(email) ->
+        recipients ++ [%{
+          name: nil,
+          email: email,
+          type: recipient_type
+        }]
     end)
   end
 

@@ -116,6 +116,7 @@ defmodule Bamboo.MailgunAdapter do
   defp prepare_recipient({nil, address}), do: address
   defp prepare_recipient({"", address}), do: address
   defp prepare_recipient({name, address}), do: "#{name} <#{address}>"
+  defp prepare_recipient(address) when is_binary(address), do: address
 
   defp put_subject(body, %Email{subject: subject}), do: Map.put(body, :subject, subject)
 
@@ -124,13 +125,13 @@ defmodule Bamboo.MailgunAdapter do
 
   defp put_html(body, %Email{html_body: nil}), do: body
   defp put_html(body, %Email{html_body: html_body}), do: Map.put(body, :html, html_body)
-  
+
   defp put_headers(body, %Email{headers: headers}) do
     Enum.reduce(headers, body, fn({key, value}, acc) ->
       Map.put(acc, :"h:#{key}", value)
     end)
   end
-  
+
   defp put_custom_vars(body, %Email{private: private}) do
     custom_vars = Map.get(private, :mailgun_custom_vars, %{})
 
@@ -156,10 +157,10 @@ defmodule Bamboo.MailgunAdapter do
        {"filename", ~s/"#{attachment.filename}"/}]},
      []}
   end
-  
+
   @mailgun_message_fields ~w(from to cc bcc subject text html)a
   @internal_fields ~w(attachments)a
-  
+
   def filter_non_empty_mailgun_fields(body) do
     Enum.filter(body, fn({key, value}) ->
       # Key is a well known mailgun field (including header and custom var field) and its value is not empty

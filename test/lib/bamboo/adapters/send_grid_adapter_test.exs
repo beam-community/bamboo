@@ -148,6 +148,38 @@ defmodule Bamboo.SendGridAdapterTest do
     assert addressees["bcc"] == [%{"name" => "BCC", "email" => "bcc@bar.com"}]
   end
 
+  test "deliver/2 correctly handles structs with custom protocols and name" do
+    user = %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
+    email = new_email(from: user, to: user, cc: user, bcc: user)
+
+    email |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["from"] == %{"email" => "foo@bar.com", "name" => "Paul (MyApp)"}
+
+    params = List.first(params["personalizations"])
+
+    assert params["to"] == [%{"email" => "foo@bar.com", "name" => "Paul"}]
+    assert params["cc"] == [%{"email" => "foo@bar.com", "name" => "Paul"}]
+    assert params["bcc"] == [%{"email" => "foo@bar.com", "name" => "Paul"}]
+  end
+
+  test "deliver/2 correctly handles structs with custom protocols and no name" do
+    user = %Bamboo.Test.User{first_name: nil, email: "foo@bar.com"}
+    email = new_email(from: user, to: user, cc: user, bcc: user)
+
+    email |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["from"] == %{"email" => "foo@bar.com"}
+
+    params = List.first(params["personalizations"])
+
+    assert params["to"] == [%{"email" => "foo@bar.com"}]
+    assert params["cc"] == [%{"email" => "foo@bar.com"}]
+    assert params["bcc"] == [%{"email" => "foo@bar.com"}]
+  end
+
   test "deliver/2 correctly handles templates" do
     email = new_email(
       from: {"From", "from@foo.com"},

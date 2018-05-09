@@ -141,6 +141,38 @@ defmodule Bamboo.MandrillAdapterTest do
     ]
   end
 
+  test "deliver/2 correctly handles structs with custom protocols and name" do
+    user = %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
+    email = new_email(from: user, to: user, cc: user, bcc: user)
+
+    email |> MandrillAdapter.deliver(@config)
+
+    assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
+    assert message["from_email"] == "foo@bar.com"
+    assert message["from_name"] == "Paul (MyApp)"
+    assert message["to"] == [
+      %{"email" => "foo@bar.com", "name" => "Paul", "type" => "to"},
+      %{"email" => "foo@bar.com", "name" => "Paul", "type" => "cc"},
+      %{"email" => "foo@bar.com", "name" => "Paul", "type" => "bcc"}
+    ]
+  end
+
+  test "deliver/2 correctly handles structs with custom protocols and no name" do
+    user = %Bamboo.Test.User{first_name: nil, email: "foo@bar.com"}
+    email = new_email(from: user, to: user, cc: user, bcc: user)
+
+    email |> MandrillAdapter.deliver(@config)
+
+    assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
+    assert message["from_email"] == "foo@bar.com"
+    assert message["from_name"] == nil
+    assert message["to"] == [
+      %{"email" => "foo@bar.com", "name" => nil, "type" => "to"},
+      %{"email" => "foo@bar.com", "name" => nil, "type" => "cc"},
+      %{"email" => "foo@bar.com", "name" => nil, "type" => "bcc"}
+    ]
+  end
+
   test "deliver/2 adds extra params to the message " do
     email = new_email() |> MandrillHelper.put_param("important", true)
 
