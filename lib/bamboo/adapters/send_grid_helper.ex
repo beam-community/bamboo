@@ -72,7 +72,7 @@ defmodule Bamboo.SendGridHelper do
     email
     |> Email.put_private(@categories, Enum.slice(categories, 0, 10))
   end
-  def with_categories(email, categories) do
+  def with_categories(_email, _categories) do
     raise "expected a list of category strings"
   end
 
