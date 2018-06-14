@@ -5,7 +5,7 @@ defmodule Bamboo.SentEmailTest do
   import Bamboo.Email
 
   setup do
-    Bamboo.SentEmail.reset
+    Bamboo.SentEmail.reset()
     :ok
   end
 
@@ -32,7 +32,7 @@ defmodule Bamboo.SentEmailTest do
   test "gets an email by id" do
     pushed_email = SentEmail.push(new_email(subject: "Something"))
 
-    email = pushed_email |> SentEmail.get_id |> SentEmail.get
+    email = pushed_email |> SentEmail.get_id() |> SentEmail.get()
 
     assert %Bamboo.Email{subject: "Something"} = email
   end
@@ -42,8 +42,8 @@ defmodule Bamboo.SentEmailTest do
 
     id = SentEmail.get_id(pushed_email)
 
-    assert pushed_email == id |> String.upcase   |> SentEmail.get
-    assert pushed_email == id |> String.downcase |> SentEmail.get
+    assert pushed_email == id |> String.upcase() |> SentEmail.get()
+    assert pushed_email == id |> String.downcase() |> SentEmail.get()
   end
 
   test "returns nil when getting email with no matching id" do
@@ -57,7 +57,7 @@ defmodule Bamboo.SentEmailTest do
   end
 
   test "all/0 is empty if no emails have been sent" do
-    assert SentEmail.all == []
+    assert SentEmail.all() == []
   end
 
   test "one/0 returns an email if there is one email in the mailbox" do
@@ -65,12 +65,12 @@ defmodule Bamboo.SentEmailTest do
 
     SentEmail.push(email)
 
-    assert %Bamboo.Email{subject: "Something"} = SentEmail.one
+    assert %Bamboo.Email{subject: "Something"} = SentEmail.one()
   end
 
   test "one/0 raises if there are no emails in the mailbox" do
     assert_raise SentEmail.NoDeliveriesError, fn ->
-      SentEmail.one
+      SentEmail.one()
     end
   end
 
@@ -79,7 +79,7 @@ defmodule Bamboo.SentEmailTest do
     SentEmail.push(new_email())
 
     assert_raise SentEmail.DeliveriesError, fn ->
-      SentEmail.one
+      SentEmail.one()
     end
   end
 
@@ -88,19 +88,19 @@ defmodule Bamboo.SentEmailTest do
 
     SentEmail.push(email)
 
-    assert [%{subject: "Something"}] = SentEmail.all
-    assert has_id?(SentEmail.one)
+    assert [%{subject: "Something"}] = SentEmail.all()
+    assert has_id?(SentEmail.one())
   end
 
   defp has_id?(email) do
-    email |> SentEmail.get_id |> String.length == 16
+    email |> SentEmail.get_id() |> String.length() == 16
   end
 
   test "reset/0 removes all emails from the mailbox" do
     SentEmail.push(new_email())
 
-    SentEmail.reset
+    SentEmail.reset()
 
-    assert SentEmail.all == []
+    assert SentEmail.all() == []
   end
 end

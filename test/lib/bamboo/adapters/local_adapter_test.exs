@@ -7,7 +7,7 @@ defmodule Bamboo.LocalAdapterTest do
   @config %{}
 
   setup do
-    SentEmail.reset
+    SentEmail.reset()
     :ok
   end
 
@@ -16,6 +16,6 @@ defmodule Bamboo.LocalAdapterTest do
 
     email |> LocalAdapter.deliver(@config)
 
-    assert [%Bamboo.Email{subject: "This is my email"}] = SentEmail.all
+    assert [%Bamboo.Email{subject: "This is my email"}] = SentEmail.all()
   end
 end

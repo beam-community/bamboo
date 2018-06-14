@@ -16,16 +16,16 @@ defmodule Bamboo.MultiProcessTest do
   test "works when delivering emails from another process" do
     email = new_email(from: "jill@gmail.com", to: "bob@gmail.com")
 
-    Task.async fn ->
+    Task.async(fn ->
       TestMailer.deliver_now(email)
-    end
+    end)
 
-    assert_delivered_email email
+    assert_delivered_email(email)
   end
 
   test "refute_delivered_email with shared mode and with refute_timeout blank, raises an error" do
     assert_raise RuntimeError, ~r/set a timeout/, fn ->
-      refute_delivered_email new_email(from: "someone")
+      refute_delivered_email(new_email(from: "someone"))
     end
   end
 

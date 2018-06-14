@@ -63,32 +63,32 @@ defmodule Bamboo.Email do
       end
   """
 
-  @type address :: String.t | {String.t, String.t}
+  @type address :: String.t() | {String.t(), String.t()}
   @type address_list :: nil | address | [address] | any
 
   @type t :: %__MODULE__{
-    to: address_list,
-    cc: address_list,
-    bcc: address_list,
-    subject: nil | String.t,
-    html_body: nil | String.t,
-    text_body: nil | String.t,
-    headers: %{String.t => String.t},
-    assigns: %{atom => any},
-    private: %{atom => any}
-  }
+          to: address_list,
+          cc: address_list,
+          bcc: address_list,
+          subject: nil | String.t(),
+          html_body: nil | String.t(),
+          text_body: nil | String.t(),
+          headers: %{String.t() => String.t()},
+          assigns: %{atom => any},
+          private: %{atom => any}
+        }
 
   defstruct from: nil,
-      to: nil,
-      cc: nil,
-      bcc: nil,
-      subject: nil,
-      html_body: nil,
-      text_body: nil,
-      headers: %{},
-      attachments: [],
-      assigns: %{},
-      private: %{}
+            to: nil,
+            cc: nil,
+            bcc: nil,
+            subject: nil,
+            html_body: nil,
+            text_body: nil,
+            headers: %{},
+            attachments: [],
+            assigns: %{},
+            private: %{}
 
   alias Bamboo.{Email, Attachment}
 
@@ -107,7 +107,7 @@ defmodule Bamboo.Email do
       # Same as %Bamboo.Email{from: "support@myapp.com"}
       new_email(from: "support@myapp.com")
   """
-  @spec new_email(Enum.t) :: __MODULE__.t
+  @spec new_email(Enum.t()) :: __MODULE__.t()
   def new_email(attrs \\ []) do
     struct!(%__MODULE__{}, attrs)
   end
@@ -122,7 +122,7 @@ defmodule Bamboo.Email do
         new_email
         |> #{function_name}(["sally@example.com", "james@example.com"])
     """
-    @spec unquote(function_name)(__MODULE__.t, address_list) :: __MODULE__.t
+    @spec unquote(function_name)(__MODULE__.t(), address_list) :: __MODULE__.t()
     def unquote(function_name)(email, attr) do
       Map.put(email, unquote(function_name), attr)
     end
@@ -140,7 +140,7 @@ defmodule Bamboo.Email do
   @doc """
   Returns a list of all recipients (to, cc and bcc).
   """
-  @spec all_recipients(__MODULE__.t) :: [address] | no_return
+  @spec all_recipients(__MODULE__.t()) :: [address] | no_return
   def all_recipients(%Bamboo.Email{to: to, cc: cc, bcc: bcc} = email)
       when is_list(to) and is_list(cc) and is_list(bcc) do
     email.to ++ email.cc ++ email.bcc
@@ -148,7 +148,7 @@ defmodule Bamboo.Email do
 
   def all_recipients(email) do
     raise """
-    expected email with normalized recipients, got: #{inspect email}
+    expected email with normalized recipients, got: #{inspect(email)}
 
     Make sure to call Bamboo.Mailer.normalize_addresses
     """
@@ -166,11 +166,11 @@ defmodule Bamboo.Email do
 
       Bamboo.Email.get_address({"Paul", "paul@thoughtbot.com"}) # "paul@thoughtbot.com"
   """
-  @spec get_address(address) :: String.t | no_return
+  @spec get_address(address) :: String.t() | no_return
   def get_address({_name, address}), do: address
 
   def get_address(invalid_address) do
-    raise "expected an address as a 2 item tuple {name, address}, got: #{inspect invalid_address}"
+    raise "expected an address as a 2 item tuple {name, address}, got: #{inspect(invalid_address)}"
   end
 
   @doc """
@@ -180,7 +180,7 @@ defmodule Bamboo.Email do
 
       put_header(email, "Reply-To", "support@myapp.com")
   """
-  @spec put_header(__MODULE__.t, String.t, String.t) :: __MODULE__.t
+  @spec put_header(__MODULE__.t(), String.t(), String.t()) :: __MODULE__.t()
   def put_header(%__MODULE__{headers: headers} = email, header_name, value) do
     %{email | headers: Map.put(headers, header_name, value)}
   end
@@ -197,7 +197,7 @@ defmodule Bamboo.Email do
 
       put_private(email, :tags, "welcome-email")
   """
-  @spec put_private(__MODULE__.t, atom, any) :: __MODULE__.t
+  @spec put_private(__MODULE__.t(), atom, any) :: __MODULE__.t()
   def put_private(%Email{private: private} = email, key, value) do
     %{email | private: Map.put(private, key, value)}
   end
@@ -219,11 +219,13 @@ defmodule Bamboo.Email do
     end
   """
   def put_attachment(%__MODULE__{attachments: _}, %Attachment{filename: nil} = attachment) do
-    raise "You must provide a filename for the attachment, instead got: #{inspect attachment}"
+    raise "You must provide a filename for the attachment, instead got: #{inspect(attachment)}"
   end
+
   def put_attachment(%__MODULE__{attachments: _}, %Attachment{data: nil} = attachment) do
-    raise "The attachment must contain data, instead got: #{inspect attachment}"
+    raise "The attachment must contain data, instead got: #{inspect(attachment)}"
   end
+
   def put_attachment(%__MODULE__{attachments: attachments} = email, %Attachment{} = attachment) do
     %{email | attachments: [attachment | attachments]}
   end

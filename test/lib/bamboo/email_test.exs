@@ -5,15 +5,15 @@ defmodule Bamboo.EmailTest do
 
   test "new_email/1 returns an Email struct" do
     assert new_email() == %Bamboo.Email{
-      from: nil,
-      to: nil,
-      cc: nil,
-      bcc: nil,
-      subject: nil,
-      html_body: nil,
-      text_body: nil,
-      headers: %{}
-    }
+             from: nil,
+             to: nil,
+             cc: nil,
+             bcc: nil,
+             subject: nil,
+             html_body: nil,
+             text_body: nil,
+             headers: %{}
+           }
   end
 
   test "new_email/1 can override email attributes with lists or maps" do
@@ -23,7 +23,7 @@ defmodule Bamboo.EmailTest do
     assert email.subject == "Cool Email"
 
     email_attrs = [to: "foo@bar.com", subject: "Cool Email"]
-    email =  new_email(email_attrs)
+    email = new_email(email_attrs)
     assert email.to == "foo@bar.com"
     assert email.subject == "Cool Email"
   end
@@ -37,14 +37,15 @@ defmodule Bamboo.EmailTest do
   end
 
   test "returns list of all recipients" do
-    email = new_email(from: "foo", to: "to@foo.com", cc: "cc@foo.com", bcc: "bcc@foo.com")
-      |> Bamboo.Mailer.normalize_addresses
+    email =
+      new_email(from: "foo", to: "to@foo.com", cc: "cc@foo.com", bcc: "bcc@foo.com")
+      |> Bamboo.Mailer.normalize_addresses()
 
     assert all_recipients(email) == [
-      {nil, "to@foo.com"},
-      {nil, "cc@foo.com"},
-      {nil, "bcc@foo.com"},
-    ]
+             {nil, "to@foo.com"},
+             {nil, "cc@foo.com"},
+             {nil, "bcc@foo.com"}
+           ]
   end
 
   test "raises if emails are not normalized" do
@@ -55,7 +56,8 @@ defmodule Bamboo.EmailTest do
   end
 
   test "can pipe updates with functions" do
-    email = new_email()
+    email =
+      new_email()
       |> from("me@foo.com")
       |> to("to@example.com")
       |> cc("cc@example.com")
@@ -88,7 +90,9 @@ defmodule Bamboo.EmailTest do
     test "with no filename throws an error" do
       attachment = %Bamboo.Attachment{filename: nil, data: "content"}
 
-      msg = "You must provide a filename for the attachment, instead got: %Bamboo.Attachment{content_type: nil, data: \"content\", filename: nil, path: nil}"
+      msg =
+        "You must provide a filename for the attachment, instead got: %Bamboo.Attachment{content_type: nil, data: \"content\", filename: nil, path: nil}"
+
       assert_raise RuntimeError, msg, fn ->
         new_email() |> put_attachment(attachment)
       end
@@ -97,7 +101,9 @@ defmodule Bamboo.EmailTest do
     test "with no data throws an error" do
       attachment = %Bamboo.Attachment{filename: "attachment.docx", data: nil}
 
-      msg = "The attachment must contain data, instead got: %Bamboo.Attachment{content_type: nil, data: nil, filename: \"attachment.docx\", path: nil}"
+      msg =
+        "The attachment must contain data, instead got: %Bamboo.Attachment{content_type: nil, data: nil, filename: \"attachment.docx\", path: nil}"
+
       assert_raise RuntimeError, msg, fn ->
         new_email() |> put_attachment(attachment)
       end

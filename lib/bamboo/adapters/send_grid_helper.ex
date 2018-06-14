@@ -28,10 +28,13 @@ defmodule Bamboo.SendGridHelper do
   def with_template(email, template_id) do
     if byte_size(template_id) == @id_size do
       template = Map.get(email.private, @field_name, %{})
+
       email
       |> Email.put_private(@field_name, set_template(template, template_id))
     else
-      raise "expected the template_id parameter to be a UUID 36 characters long, got #{template_id}"
+      raise "expected the template_id parameter to be a UUID 36 characters long, got #{
+              template_id
+            }"
     end
   end
 
@@ -49,6 +52,7 @@ defmodule Bamboo.SendGridHelper do
   def substitute(email, tag, value) do
     if is_binary(tag) do
       template = Map.get(email.private, @field_name, %{})
+
       email
       |> Email.put_private(@field_name, add_substitution(template, tag, value))
     else
@@ -59,19 +63,22 @@ defmodule Bamboo.SendGridHelper do
   @doc """
   An array of category names for this email. A maximum of 10 categories can be assigned to an email.
   Duplicate categories will be ignored and only unique entries will be sent. 
-  
+
   ## Example
- 
+
       email
       |> with_categories("campaign-12345")
   """
   def with_categories(email, categories) when is_list(categories) do
-    categories = Map.get(email.private, @categories, []) ++ categories
-    |> MapSet.new
-    |> MapSet.to_list
+    categories =
+      (Map.get(email.private, @categories, []) ++ categories)
+      |> MapSet.new()
+      |> MapSet.to_list()
+
     email
     |> Email.put_private(@categories, Enum.slice(categories, 0, 10))
   end
+
   def with_categories(_email, _categories) do
     raise "expected a list of category strings"
   end

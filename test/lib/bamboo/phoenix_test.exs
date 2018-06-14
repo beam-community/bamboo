@@ -56,7 +56,7 @@ defmodule Bamboo.PhoenixTest do
   end
 
   test "render/2 allows setting a custom layout" do
-    email = Email.text_and_html_email_with_layout
+    email = Email.text_and_html_email_with_layout()
 
     assert email.html_body =~ "HTML layout"
     assert email.html_body =~ "HTML body"
@@ -65,7 +65,7 @@ defmodule Bamboo.PhoenixTest do
   end
 
   test "render/2 renders html and text emails" do
-    email = Email.text_and_html_email
+    email = Email.text_and_html_email()
 
     assert email.html_body =~ "HTML body"
     assert email.text_body =~ "TEXT body"
@@ -84,14 +84,14 @@ defmodule Bamboo.PhoenixTest do
   end
 
   test "render/2 renders html body if template extension is .html" do
-    email = Email.html_email
+    email = Email.html_email()
 
     assert email.html_body =~ "HTML body"
     assert email.text_body == nil
   end
 
   test "render/2 renders text body if template extension is .text" do
-    email = Email.text_email
+    email = Email.text_email()
 
     assert email.html_body == nil
     assert email.text_body =~ "TEXT body"
@@ -99,13 +99,13 @@ defmodule Bamboo.PhoenixTest do
 
   test "render/2 raises if template doesn't exist" do
     assert_raise Phoenix.Template.UndefinedError, fn ->
-      Email.no_template
+      Email.no_template()
     end
   end
 
   test "render/2 raises if you pass an invalid template extension" do
     assert_raise ArgumentError, ~r/must end in either ".html" or ".text"/, fn ->
-      Email.invalid_template
+      Email.invalid_template()
     end
   end
 

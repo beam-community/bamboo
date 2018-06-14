@@ -41,8 +41,8 @@ defmodule Bamboo.SentEmailViewerPlug do
   emails.
   """
 
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
   get "/" do
     if Enum.empty?(all_emails()) do
@@ -71,11 +71,11 @@ defmodule Bamboo.SentEmailViewerPlug do
   end
 
   defp all_emails do
-    SentEmail.all
+    SentEmail.all()
   end
 
   defp newest_email do
-    all_emails() |> List.first
+    all_emails() |> List.first()
   end
 
   defp render_no_emails(conn) do
@@ -92,8 +92,9 @@ defmodule Bamboo.SentEmailViewerPlug do
       conn: conn,
       base_path: base_path(conn),
       emails: all_emails(),
-      selected_email: email,
+      selected_email: email
     }
+
     send_html(conn, :ok, index(assigns))
   end
 
@@ -104,6 +105,7 @@ defmodule Bamboo.SentEmailViewerPlug do
   end
 
   defp base_path(%{script_name: []}), do: ""
+
   defp base_path(%{script_name: script_name}) do
     "/" <> Enum.join(script_name, "/")
   end
