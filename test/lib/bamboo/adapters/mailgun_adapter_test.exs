@@ -83,7 +83,7 @@ defmodule Bamboo.MailgunAdapterTest do
       from: "from@foo.com",
       subject: "My Subject",
       text_body: "TEXT BODY",
-      html_body: "HTML BODY",
+      html_body: "HTML BODY"
     )
     |> Email.put_header("X-My-Header", "my_header_value")
     |> Email.put_private(:mailgun_custom_vars, %{my_custom_var: 42, other_custom_var: 43})
@@ -103,7 +103,7 @@ defmodule Bamboo.MailgunAdapterTest do
     hashed_token = Base.encode64("api:" <> @config.api_key)
     assert {"authorization", "Basic #{hashed_token}"} in headers
   end
-  
+
   # We keep two seperate tests, with and without attachment, because the output produced by the adapter changes a lot. (MIME multipart body instead of URL-encoded form)
   test "deliver/2 sends from, subject, text body, html body, headers, custom vars and attachment" do
     attachement_source_path = Path.join(__DIR__, "../../../support/attachment.txt")
@@ -111,7 +111,7 @@ defmodule Bamboo.MailgunAdapterTest do
       from: "from@foo.com",
       subject: "My Subject",
       text_body: "TEXT BODY",
-      html_body: "HTML BODY",
+      html_body: "HTML BODY"
     )
     |> Email.put_header("X-My-Header", "my_header_value")
     |> Email.put_private(:mailgun_custom_vars, %{my_custom_var: 42, other_custom_var: 43})
@@ -143,7 +143,7 @@ defmodule Bamboo.MailgunAdapterTest do
     email = new_email(
       to: [{"To", "to@bar.com"}, {nil, "noname@bar.com"}],
       cc: [{"CC", "cc@bar.com"}],
-      bcc: [{"BCC", "bcc@bar.com"}],
+      bcc: [{"BCC", "bcc@bar.com"}]
     )
 
     email |> MailgunAdapter.deliver(@config)
