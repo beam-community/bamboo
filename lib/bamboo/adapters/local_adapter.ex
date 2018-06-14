@@ -53,5 +53,6 @@ defmodule Bamboo.LocalAdapter do
       {_, _} -> raise "Your os is not supported."
     end
   end
+
   defp open_url_in_browser(_url), do: raise("Only strings are supported as url")
 end

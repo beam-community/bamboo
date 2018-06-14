@@ -21,31 +21,33 @@ defmodule Bamboo.MandrillHelperTest do
       }
     ]
 
-    email = MandrillHelper.put_merge_vars new_email(), users, fn(user) ->
-      %{full_name: user.full_name}
-    end
+    email =
+      MandrillHelper.put_merge_vars(new_email(), users, fn user ->
+        %{full_name: user.full_name}
+      end)
 
-    assert email.private.message_params == %{"merge_vars" => [
-        %{
-          rcpt: "user1@example.com",
-          vars: [
-            %{
-              "name": "full_name",
-              "content": "User 1"
-            }
-          ]
-        },
-        %{
-          rcpt: "user2@example.com",
-          vars: [
-            %{
-              "name": "full_name",
-              "content": "User 2"
-            }
-          ]
-        }
-      ]
-    }
+    assert email.private.message_params == %{
+             "merge_vars" => [
+               %{
+                 rcpt: "user1@example.com",
+                 vars: [
+                   %{
+                     name: "full_name",
+                     content: "User 1"
+                   }
+                 ]
+               },
+               %{
+                 rcpt: "user2@example.com",
+                 vars: [
+                   %{
+                     name: "full_name",
+                     content: "User 2"
+                   }
+                 ]
+               }
+             ]
+           }
   end
 
   test "adds tags to mandrill emails" do
@@ -57,8 +59,16 @@ defmodule Bamboo.MandrillHelperTest do
   end
 
   test "adds template information to mandrill emails" do
-    email = new_email() |> MandrillHelper.template("welcome", [%{"name" => "example_name", "content" => "example_content"}])
-    assert email.private == %{template_name: "welcome", template_content: [%{"name" => "example_name", "content" => "example_content"}]}
+    email =
+      new_email()
+      |> MandrillHelper.template("welcome", [
+        %{"name" => "example_name", "content" => "example_content"}
+      ])
+
+    assert email.private == %{
+             template_name: "welcome",
+             template_content: [%{"name" => "example_name", "content" => "example_content"}]
+           }
 
     email = new_email() |> MandrillHelper.template("welcome")
     assert email.private == %{template_name: "welcome", template_content: []}

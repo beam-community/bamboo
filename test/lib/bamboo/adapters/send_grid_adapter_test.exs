@@ -11,19 +11,22 @@ defmodule Bamboo.SendGridAdapterTest do
   defmodule FakeSendgrid do
     use Plug.Router
 
-    plug Plug.Parsers,
+    plug(
+      Plug.Parsers,
       parsers: [:urlencoded, :multipart, :json],
       pass: ["*/*"],
       json_decoder: Poison
-    plug :match
-    plug :dispatch
+    )
+
+    plug(:match)
+    plug(:dispatch)
 
     def start_server(parent) do
-      Agent.start_link(fn -> Map.new end, name: __MODULE__)
+      Agent.start_link(fn -> Map.new() end, name: __MODULE__)
       Agent.update(__MODULE__, &Map.put(&1, :parent, parent))
       port = get_free_port()
       Application.put_env(:bamboo, :sendgrid_base_uri, "http://localhost:#{port}")
-      Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
+      Plug.Adapters.Cowboy.http(__MODULE__, [], port: port, ref: __MODULE__)
     end
 
     defp get_free_port do
@@ -34,7 +37,7 @@ defmodule Bamboo.SendGridAdapterTest do
     end
 
     def shutdown do
-      Plug.Adapters.Cowboy.shutdown __MODULE__
+      Plug.Adapters.Cowboy.shutdown(__MODULE__)
     end
 
     post "/mail/send" do
@@ -45,8 +48,8 @@ defmodule Bamboo.SendGridAdapterTest do
     end
 
     defp send_to_parent(conn) do
-      parent = Agent.get(__MODULE__, fn(set) -> Map.get(set, :parent) end)
-      send parent, {:fake_sendgrid, conn}
+      parent = Agent.get(__MODULE__, fn set -> Map.get(set, :parent) end)
+      send(parent, {:fake_sendgrid, conn})
       conn
     end
   end
@@ -54,9 +57,9 @@ defmodule Bamboo.SendGridAdapterTest do
   setup do
     FakeSendgrid.start_server(self())
 
-    on_exit fn ->
-      FakeSendgrid.shutdown
-    end
+    on_exit(fn ->
+      FakeSendgrid.shutdown()
+    end)
 
     :ok
   end
@@ -100,18 +103,19 @@ defmodule Bamboo.SendGridAdapterTest do
   end
 
   test "deliver/2 sends from, html and text body, subject, headers and attachment" do
-    email = new_email(
-      from: {"From", "from@foo.com"},
-      subject: "My Subject",
-      text_body: "TEXT BODY",
-      html_body: "HTML BODY"
-    )
-    |> Email.put_header("Reply-To", "reply@foo.com")
-    |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject",
+        text_body: "TEXT BODY",
+        html_body: "HTML BODY"
+      )
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
 
     email |> SendGridAdapter.deliver(@config)
 
-    assert SendGridAdapter.supports_attachments?
+    assert SendGridAdapter.supports_attachments?()
     assert_receive {:fake_sendgrid, %{params: params, req_headers: headers}}
 
     assert params["from"]["name"] == email.from |> elem(0)
@@ -120,39 +124,44 @@ defmodule Bamboo.SendGridAdapterTest do
     assert Enum.member?(params["content"], %{"type" => "text/plain", "value" => email.text_body})
     assert Enum.member?(params["content"], %{"type" => "text/html", "value" => email.html_body})
     assert Enum.member?(headers, {"authorization", "Bearer #{@config[:api_key]}"})
+
     assert params["attachments"] == [
-      %{
-        "type" => "text/plain",
-        "filename" => "attachment.txt",
-        "content" => "VGVzdCBBdHRhY2htZW50Cg=="
-      }
-    ]
+             %{
+               "type" => "text/plain",
+               "filename" => "attachment.txt",
+               "content" => "VGVzdCBBdHRhY2htZW50Cg=="
+             }
+           ]
   end
 
   test "deliver/2 correctly formats recipients" do
-    email = new_email(
-      to: [{"To", "to@bar.com"}, {nil, "noname@bar.com"}],
-      cc: [{"CC", "cc@bar.com"}],
-      bcc: [{"BCC", "bcc@bar.com"}]
-    )
+    email =
+      new_email(
+        to: [{"To", "to@bar.com"}, {nil, "noname@bar.com"}],
+        cc: [{"CC", "cc@bar.com"}],
+        bcc: [{"BCC", "bcc@bar.com"}]
+      )
 
     email |> SendGridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
     addressees = List.first(params["personalizations"])
+
     assert addressees["to"] == [
-      %{"name" => "To", "email" => "to@bar.com"},
-      %{"email" => "noname@bar.com"}
-    ]
+             %{"name" => "To", "email" => "to@bar.com"},
+             %{"email" => "noname@bar.com"}
+           ]
+
     assert addressees["cc"] == [%{"name" => "CC", "email" => "cc@bar.com"}]
     assert addressees["bcc"] == [%{"name" => "BCC", "email" => "bcc@bar.com"}]
   end
 
   test "deliver/2 correctly handles templates" do
-    email = new_email(
-      from: {"From", "from@foo.com"},
-      subject: "My Subject"
-    )
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
 
     email
     |> Bamboo.SendGridHelper.with_template("a4ca8ac9-3294-4eaf-8edc-335935192b8d")
@@ -167,9 +176,7 @@ defmodule Bamboo.SendGridAdapterTest do
   end
 
   test "deliver/2 doesn't force a subject" do
-    email = new_email(
-      from: {"From", "from@foo.com"}
-    )
+    email = new_email(from: {"From", "from@foo.com"})
 
     email
     |> SendGridAdapter.deliver(@config)
@@ -221,6 +228,6 @@ defmodule Bamboo.SendGridAdapterTest do
 
   defp new_email(attrs \\ []) do
     attrs = Keyword.merge([from: "foo@bar.com", to: []], attrs)
-    Email.new_email(attrs) |> Bamboo.Mailer.normalize_addresses
+    Email.new_email(attrs) |> Bamboo.Mailer.normalize_addresses()
   end
 end

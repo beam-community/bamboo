@@ -42,20 +42,22 @@ defmodule Bamboo.TestAdapterTest do
     sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
     unsent_email = new_email(from: "foo@bar.com")
 
-    sent_email |> TestMailer.deliver_now
+    sent_email |> TestMailer.deliver_now()
 
-    assert_delivered_email sent_email
-    refute_delivered_email unsent_email
+    assert_delivered_email(sent_email)
+    refute_delivered_email(unsent_email)
 
-    sent_email |> TestMailer.deliver_now
+    sent_email |> TestMailer.deliver_now()
+
     assert_raise ExUnit.AssertionError, fn ->
-      assert_delivered_email %{sent_email | to: "oops"}
+      assert_delivered_email(%{sent_email | to: "oops"})
     end
 
-    sent_email |> TestMailer.deliver_now
+    sent_email |> TestMailer.deliver_now()
     assert_email_delivered_with(from: {nil, "foo@bar.com"})
 
-    sent_email |> TestMailer.deliver_now
+    sent_email |> TestMailer.deliver_now()
+
     assert_raise ExUnit.AssertionError, fn ->
       assert_email_delivered_with(from: "oops")
     end
@@ -65,12 +67,12 @@ defmodule Bamboo.TestAdapterTest do
     sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
     try do
-      assert_delivered_email %{sent_email | to: "oops"}
+      assert_delivered_email(%{sent_email | to: "oops"})
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "0 emails delivered"
     else
-      _ -> flunk "assert_delivered_email should failed"
+      _ -> flunk("assert_delivered_email should failed")
     end
   end
 
@@ -86,13 +88,13 @@ defmodule Bamboo.TestAdapterTest do
     sent_email |> TestMailer.deliver_now()
 
     try do
-      assert_delivered_email %{sent_email | to: "oops"}
+      assert_delivered_email(%{sent_email | to: "oops"})
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "no matching emails"
         assert error.message =~ sent_email.from
     else
-      _ -> flunk "assert_delivered_email should failed"
+      _ -> flunk("assert_delivered_email should failed")
     end
   end
 
@@ -101,64 +103,72 @@ defmodule Bamboo.TestAdapterTest do
 
     TestMailer.deliver_now(sent_email)
 
-    send self(), :not_an_email
+    send(self(), :not_an_email)
 
     try do
-      assert_delivered_email %{sent_email | to: "oops"}
+      assert_delivered_email(%{sent_email | to: "oops"})
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "no matching emails"
         refute error.message =~ ":not_an_email"
     else
-      _ -> flunk "assert_delivered_email should failed"
+      _ -> flunk("assert_delivered_email should failed")
     end
   end
 
   test "assert_email_delivered_with with no delivered emails" do
     try do
-      assert_email_delivered_with from: {nil, "foo@bar.com"}
+      assert_email_delivered_with(from: {nil, "foo@bar.com"})
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "0 emails delivered"
     else
-      _ -> flunk "assert_delivered_email should have failed"
+      _ -> flunk("assert_delivered_email should have failed")
     end
   end
 
   test "assert_email_delivered_with shows non-matching delivered email" do
     sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-    sent_email |> TestMailer.deliver_now
+    sent_email |> TestMailer.deliver_now()
 
     try do
-      assert_email_delivered_with to: "oops"
+      assert_email_delivered_with(to: "oops")
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "do not match"
         assert error.message =~ sent_email.from
     else
-      _ -> flunk "assert_delivered_email should have failed"
+      _ -> flunk("assert_delivered_email should have failed")
     end
   end
 
   test "assert_email_delivered_with allows regex matching" do
-    new_email(to: {nil, "foo@bar.com"}, from: {nil, "foo@bar.com"}, text_body: "I really like coffee")
-      |> TestMailer.deliver_now
+    new_email(
+      to: {nil, "foo@bar.com"},
+      from: {nil, "foo@bar.com"},
+      text_body: "I really like coffee"
+    )
+    |> TestMailer.deliver_now()
 
-    assert_email_delivered_with text_body: ~r/like/
+    assert_email_delivered_with(text_body: ~r/like/)
   end
 
   test "ensure assert_email_delivered_with regex matching doesn't provide a false positive" do
-    new_email(to: {nil, "foo@bar.com"}, from: {nil, "foo@bar.com"}, text_body: "I really like coffee")
-      |> TestMailer.deliver_now
+    new_email(
+      to: {nil, "foo@bar.com"},
+      from: {nil, "foo@bar.com"},
+      text_body: "I really like coffee"
+    )
+    |> TestMailer.deliver_now()
 
     try do
-      assert_email_delivered_with text_body: ~r/tea/
+      assert_email_delivered_with(text_body: ~r/tea/)
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "do not match"
     else
-      _ -> flunk "assert_email_delivered_with should have failed"
+      _ -> flunk("assert_email_delivered_with should have failed")
     end
   end
 
@@ -174,7 +184,7 @@ defmodule Bamboo.TestAdapterTest do
         assert error.message =~ "Unexpectedly delivered an email"
         assert error.message =~ sent_email.from
     else
-      _ -> flunk "assert_no_emails_delivered should failed"
+      _ -> flunk("assert_no_emails_delivered should failed")
     end
   end
 
@@ -184,13 +194,13 @@ defmodule Bamboo.TestAdapterTest do
     TestMailer.deliver_now(sent_email)
 
     try do
-      refute_delivered_email sent_email
+      refute_delivered_email(sent_email)
     rescue
       error in [ExUnit.AssertionError] ->
         assert error.message =~ "Unexpectedly delivered a matching email"
         assert error.message =~ sent_email.from
     else
-      _ -> flunk "refute_delivered_email should failed"
+      _ -> flunk("refute_delivered_email should failed")
     end
   end
 
@@ -198,7 +208,7 @@ defmodule Bamboo.TestAdapterTest do
     assert_no_emails_delivered()
 
     sent_email = new_email(from: "foo@bar.com", to: "whoever")
-    sent_email |> TestMailer.deliver_now
+    sent_email |> TestMailer.deliver_now()
 
     assert_raise ExUnit.AssertionError, fn ->
       assert_no_emails_delivered()
@@ -206,21 +216,19 @@ defmodule Bamboo.TestAdapterTest do
   end
 
   test "assertion helpers format email addresses" do
-    user_that_needs_to_be_formatted =
-      %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
-    sent_email =
-      new_email(from: user_that_needs_to_be_formatted, to: "foo@bar.com")
+    user_that_needs_to_be_formatted = %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
+    sent_email = new_email(from: user_that_needs_to_be_formatted, to: "foo@bar.com")
 
-    sent_email |> TestMailer.deliver_now
+    sent_email |> TestMailer.deliver_now()
 
-    assert_delivered_email sent_email
+    assert_delivered_email(sent_email)
   end
 
   test "delivered emails have normalized assigns" do
     email = new_email(from: "foo@bar.com", to: "bar@baz.com", assigns: :anything)
 
-    email |> TestMailer.deliver_now
+    email |> TestMailer.deliver_now()
 
-    assert_delivered_email %{email | assigns: :assigns_removed_for_testing}
+    assert_delivered_email(%{email | assigns: :assigns_removed_for_testing})
   end
 end

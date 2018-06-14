@@ -7,15 +7,15 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   defmodule AppRouter do
     use Plug.Router
 
-    plug :match
-    plug :dispatch
+    plug(:match)
+    plug(:dispatch)
 
-    forward "/sent_emails/foo", to: Bamboo.SentEmailViewerPlug
-    forward "/", to: Bamboo.SentEmailViewerPlug
+    forward("/sent_emails/foo", to: Bamboo.SentEmailViewerPlug)
+    forward("/", to: Bamboo.SentEmailViewerPlug)
   end
 
   setup do
-    SentEmail.reset
+    SentEmail.reset()
     :ok
   end
 
@@ -30,8 +30,11 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     assert selected_sidebar_email_text(conn) =~ newest_email().subject
     assert showing_in_detail_pane?(conn, newest_email())
     refute showing_in_detail_pane?(conn, oldest_email())
+
     for email <- emails do
-      assert Floki.raw_html(sidebar(conn)) =~ ~s(href="/sent_emails/foo/#{SentEmail.get_id(email)}")
+      assert Floki.raw_html(sidebar(conn)) =~
+               ~s(href="/sent_emails/foo/#{SentEmail.get_id(email)}")
+
       assert Floki.text(sidebar(conn)) =~ email.subject
       assert Floki.text(sidebar(conn)) =~ Bamboo.Email.get_address(email.from)
     end
@@ -41,7 +44,16 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     mixed_to = ["to@bar.com", {"John", "john@gmail.com"}]
     mixed_cc = ["cc@bar.com", {"Paul", "paul@gmail.com"}]
     mixed_bcc = ["bcc@bar.com", {"Bob", "Bob@gmail.com"}]
-    email = normalize_and_push(:email, from: {"Me", "me@foo.com"}, to: mixed_to, cc: mixed_cc, bcc: mixed_bcc)
+
+    email =
+      normalize_and_push(
+        :email,
+        from: {"Me", "me@foo.com"},
+        to: mixed_to,
+        cc: mixed_cc,
+        bcc: mixed_bcc
+      )
+
     conn = conn(:get, "/sent_emails/foo")
 
     conn = AppRouter.call(conn, nil)
@@ -49,6 +61,7 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     assert conn.status == 200
     assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body =~ Bamboo.Email.get_address(email.from)
+
     for email_address <- Bamboo.Email.all_recipients(email) do
       assert conn.resp_body =~ Bamboo.Email.get_address(email_address)
     end
@@ -68,7 +81,15 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   end
 
   test "prints multiple headers in detail pane" do
-    email = normalize_and_push(:email, headers: %{"Reply-To" => ["reply-to1@example.com", "reply-to2@example.com"], "Foobar" => "foobar-header"})
+    email =
+      normalize_and_push(
+        :email,
+        headers: %{
+          "Reply-To" => ["reply-to1@example.com", "reply-to2@example.com"],
+          "Foobar" => "foobar-header"
+        }
+      )
+
     conn = conn(:get, "/sent_emails/foo")
 
     conn = AppRouter.call(conn, nil)
@@ -96,7 +117,7 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   end
 
   defp selected_sidebar_email_text(conn) do
-    sidebar(conn) |> Floki.find("a.selected-email") |> Floki.text
+    sidebar(conn) |> Floki.find("a.selected-email") |> Floki.text()
   end
 
   test "doesn't have double slash if forwarded at root" do
@@ -123,8 +144,8 @@ defmodule Bamboo.SentEmailViewerPlugTest do
 
   test "shows an email by id" do
     normalize_and_push_pair(:email)
-    selected_email_id = SentEmail.all |> Enum.at(0) |> SentEmail.get_id
-    unselected_email_id = SentEmail.all |> Enum.at(1) |> SentEmail.get_id
+    selected_email_id = SentEmail.all() |> Enum.at(0) |> SentEmail.get_id()
+    unselected_email_id = SentEmail.all() |> Enum.at(1) |> SentEmail.get_id()
     conn = conn(:get, "/sent_emails/foo/#{selected_email_id}")
 
     conn = AppRouter.call(conn, nil)
@@ -137,7 +158,7 @@ defmodule Bamboo.SentEmailViewerPlugTest do
 
   test "shows an email's html by id" do
     normalize_and_push_pair(:html_email)
-    selected_email_id = SentEmail.all |> Enum.at(0) |> SentEmail.get_id
+    selected_email_id = SentEmail.all() |> Enum.at(0) |> SentEmail.get_id()
     conn = conn(:get, "/sent_emails/foo/#{selected_email_id}/html")
 
     conn = AppRouter.call(conn, nil)
@@ -149,7 +170,7 @@ defmodule Bamboo.SentEmailViewerPlugTest do
 
   test "sends an empty body for html emails if html body is nil" do
     normalize_and_push_pair(:email, html_body: nil)
-    selected_email_id = SentEmail.all |> Enum.at(0) |> SentEmail.get_id
+    selected_email_id = SentEmail.all() |> Enum.at(0) |> SentEmail.get_id()
     conn = conn(:get, "/sent_emails/foo/#{selected_email_id}/html")
 
     conn = AppRouter.call(conn, nil)
@@ -170,11 +191,11 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   end
 
   defp newest_email do
-    SentEmail.all |> List.first
+    SentEmail.all() |> List.first()
   end
 
   defp oldest_email do
-    SentEmail.all |> List.last
+    SentEmail.all() |> List.last()
   end
 
   defp showing_in_detail_pane?(conn, email) do

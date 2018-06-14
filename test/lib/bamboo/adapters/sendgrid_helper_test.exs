@@ -28,12 +28,13 @@ defmodule Bamboo.SendGridHelperTest do
 
   test "substitute/3 adds the specified tags", %{email: email} do
     email = email |> substitute("%name%", "Jon Snow") |> substitute("%location%", "Westeros")
+
     assert email.private[:send_grid_template] == %{
-        substitutions: %{
-          "%name%" => "Jon Snow",
-          "%location%" => "Westeros"
-        }
-      }
+             substitutions: %{
+               "%name%" => "Jon Snow",
+               "%location%" => "Westeros"
+             }
+           }
   end
 
   test "substitute/3 raises on non-binary tag", %{email: email} do
@@ -44,12 +45,13 @@ defmodule Bamboo.SendGridHelperTest do
 
   test "is structured correctly", %{email: email} do
     email = email |> with_template(@template_id) |> substitute("%name%", "Jon Snow")
+
     assert email.private[:send_grid_template] == %{
-      template_id: @template_id,
-      substitutions: %{
-        "%name%" => "Jon Snow"
-      }
-    }
+             template_id: @template_id,
+             substitutions: %{
+               "%name%" => "Jon Snow"
+             }
+           }
   end
 
   test "is non-dependent on function call ordering", %{email: email} do
@@ -66,17 +68,36 @@ defmodule Bamboo.SendGridHelperTest do
   end
 
   test "with_categories/2 concatenates multiple lists", %{email: email} do
-    email = email |> with_categories(["category-1"]) |> with_categories(["category-2", "category-3"])
+    email =
+      email |> with_categories(["category-1"]) |> with_categories(["category-2", "category-3"])
+
     assert length(email.private[:categories]) == 3
   end
 
   test "with_categories/2 removes duplicate entries", %{email: email} do
-    email = email |> with_categories(["category-1"]) |> with_categories(["category-2", "category-1"])
+    email =
+      email |> with_categories(["category-1"]) |> with_categories(["category-2", "category-1"])
+
     assert length(email.private[:categories]) == 2
   end
 
   test "with_categories/2 only sends the first 10 entries", %{email: email} do
-    email = email |> with_categories(["category-1", "category-2", "category-3", "category-4", "category-5", "category-6", "category-7", "category-8", "category-9", "category-10", "category-11"])
+    email =
+      email
+      |> with_categories([
+        "category-1",
+        "category-2",
+        "category-3",
+        "category-4",
+        "category-5",
+        "category-6",
+        "category-7",
+        "category-8",
+        "category-9",
+        "category-10",
+        "category-11"
+      ])
+
     assert length(email.private[:categories]) == 10
   end
 end

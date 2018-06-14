@@ -61,7 +61,7 @@ defprotocol Bamboo.Formatter do
 
   @type opts :: %{type: :from | :to | :cc | :bcc}
 
-  @spec format_email_address(any, opts) :: Bamboo.Email.address
+  @spec format_email_address(any, opts) :: Bamboo.Email.address()
   def format_email_address(data, opts)
 end
 
@@ -86,7 +86,7 @@ end
 defimpl Bamboo.Formatter, for: Map do
   def format_email_address(invalid_address, _opts) do
     raise ArgumentError, """
-    The format of the address was invalid. Got #{inspect invalid_address}.
+    The format of the address was invalid. Got #{inspect(invalid_address)}.
 
     Expected a string, e.g. "foo@bar.com", a 2 item tuple {name, address}, or
     something that implements the Bamboo.Formatter protocol.

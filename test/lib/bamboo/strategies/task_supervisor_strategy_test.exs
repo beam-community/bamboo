@@ -3,7 +3,7 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
 
   defmodule FakeAdapter do
     def deliver(_email, _config) do
-      send :task_supervisor_strategy_test, :delivered
+      send(:task_supervisor_strategy_test, :delivered)
     end
   end
 
@@ -14,7 +14,7 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
 
     Bamboo.TaskSupervisorStrategy.deliver_later(
       FakeAdapter,
-      Bamboo.Email.new_email,
+      Bamboo.Email.new_email(),
       @mailer_config
     )
 
@@ -23,7 +23,7 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
 
   test "child_spec raises error about removal" do
     assert_raise RuntimeError, ~r/Bamboo.TaskSupervisorStrategy.child_spec/, fn ->
-      Bamboo.TaskSupervisorStrategy.child_spec
+      Bamboo.TaskSupervisorStrategy.child_spec()
     end
   end
 end

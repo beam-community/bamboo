@@ -7,9 +7,9 @@ defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
   # suitable for development.
 
   def run(_) do
-    Mix.Task.run "app.start"
+    Mix.Task.run("app.start")
     {:ok, _} = Application.ensure_all_started(:cowboy)
-    Plug.Adapters.Cowboy.http Bamboo.SentEmailViewerPlug, [], port: 4003
+    Plug.Adapters.Cowboy.http(Bamboo.SentEmailViewerPlug, [], port: 4003)
 
     for index <- 0..5 do
       Bamboo.Email.new_email(
@@ -35,11 +35,11 @@ defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
         Me
         """
       )
-      |> Bamboo.Mailer.normalize_addresses
-      |> Bamboo.SentEmail.push
+      |> Bamboo.Mailer.normalize_addresses()
+      |> Bamboo.SentEmail.push()
     end
 
-    IO.puts "Running sent email viewer on port 4003"
+    IO.puts("Running sent email viewer on port 4003")
     no_halt()
   end
 
@@ -48,6 +48,6 @@ defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
   end
 
   defp iex_running? do
-    Code.ensure_loaded?(IEx) && IEx.started?
+    Code.ensure_loaded?(IEx) && IEx.started?()
   end
 end
