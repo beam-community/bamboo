@@ -183,9 +183,9 @@
           </p>
 
           <h3 class="email-detail-body-label">Text Body</h3>
-          <p class="email-detail-body">
-            <%= Bamboo.SentEmailViewerPlug.Helper.format_text(@selected_email.text_body) %>
-          </p>
+          <pre class="email-detail-body">
+            <%= @selected_email.text_body %>
+          </pre>
         </section>
       </section>
     </main>
