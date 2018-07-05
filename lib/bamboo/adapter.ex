@@ -30,9 +30,12 @@ defmodule Bamboo.Adapter do
             raise "smtp_username is required in config, got #{inspect config}"
           end
         end
+        
+        def supports_attachments?, do: true 
       end
   """
 
   @callback deliver(%Bamboo.Email{}, %{}) :: any
   @callback handle_config(map) :: map
+  @callback supports_attachments? :: boolean
 end
