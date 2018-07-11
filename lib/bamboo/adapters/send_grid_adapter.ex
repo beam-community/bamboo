@@ -195,6 +195,10 @@ defmodule Bamboo.SendGridAdapter do
 
   defp put_template_substitutions(body, _), do: body
 
+  defp put_custom_args(body, %Email{private: %{custom_args: custom_args}})
+       when length(custom_args) <= 0,
+       do: body
+
   defp put_custom_args(body, %Email{
          private: %{custom_args: custom_args}
        }) do
