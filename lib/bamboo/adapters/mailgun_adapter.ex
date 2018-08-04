@@ -103,7 +103,7 @@ defmodule Bamboo.MailgunAdapter do
   defp put_reply_to(body, %Email{headers: %{"reply-to" => nil}}), do: body
 
   defp put_reply_to(body, %Email{headers: %{"reply-to" => address}}),
-    do: Map.put(body, "h:Reply-To", address)
+    do: Map.put(body, :"h:Reply-To", address)
 
   defp put_reply_to(body, %Email{headers: _headers}), do: body
 
@@ -174,13 +174,15 @@ defmodule Bamboo.MailgunAdapter do
   end
 
   defp encode_body(%{attachments: attachments} = body) do
-    {:multipart,
-     body
-     # Drop the remaining non-Mailgun fields
-     |> Map.drop(@internal_fields)
-     |> Enum.map(fn {k, v} -> {to_string(k), to_string(v)} end)
-     # Append the attachement parts
-     |> Kernel.++(attachments)}
+    {
+      :multipart,
+      # Drop the remaining non-Mailgun fields
+      # Append the attachement parts
+      body
+      |> Map.drop(@internal_fields)
+      |> Enum.map(fn {k, v} -> {to_string(k), to_string(v)} end)
+      |> Kernel.++(attachments)
+    }
   end
 
   defp encode_body(body_without_attachments), do: Plug.Conn.Query.encode(body_without_attachments)
