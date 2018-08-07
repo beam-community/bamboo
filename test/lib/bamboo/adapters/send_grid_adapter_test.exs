@@ -134,6 +134,29 @@ defmodule Bamboo.SendGridAdapterTest do
            ]
   end
 
+  test "deliver/2 correctly custom args" do
+    email = new_email()
+
+    email
+    |> Email.put_private(:custom_args, %{post_code: "123"})
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    personalization = List.first(params["personalizations"])
+    assert personalization["custom_args"] == %{"post_code" => "123"}
+  end
+
+  test "deliver/2 without custom args" do
+    email = new_email()
+
+    email
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    personalization = List.first(params["personalizations"])
+    assert personalization["custom_args"] == nil
+  end
+
   test "deliver/2 correctly formats recipients" do
     email =
       new_email(
