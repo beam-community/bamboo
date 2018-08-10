@@ -82,22 +82,8 @@ defmodule Bamboo.SendGridHelper do
   def with_categories(_email, _categories) do
     raise "expected a list of category strings"
   end
-
-  defp set_template(template, template_id) do
-    template
-    |> Map.merge(%{template_id: template_id})
-  end
-
-  defp add_substitution(template, tag, value) do
-    template
-    |> Map.update(:substitutions, %{tag => value}, fn substitutions ->
-      Map.merge(substitutions, %{tag => value})
-    end)
-  end
   
-  
-  
-    @doc """
+      @doc """
   Add a property to the list of dynamic template data in the SendGrid template.
   This will be added to the request as:
   
@@ -135,6 +121,19 @@ defmodule Bamboo.SendGridHelper do
       raise "expected the name parameter to be of type binary, got #{name}"
     end
   end
+
+  defp set_template(template, template_id) do
+    template
+    |> Map.merge(%{template_id: template_id})
+  end
+
+  defp add_substitution(template, tag, value) do
+    template
+    |> Map.update(:substitutions, %{tag => value}, fn substitutions ->
+      Map.merge(substitutions, %{tag => value})
+    end)
+  end
+  
   
   defp add_dynamic_data(template, name, value) do
     template
