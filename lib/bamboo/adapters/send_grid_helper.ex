@@ -94,4 +94,52 @@ defmodule Bamboo.SendGridHelper do
       Map.merge(substitutions, %{tag => value})
     end)
   end
+  
+  
+  
+    @doc """
+  Add a property to the list of dynamic template data in the SendGrid template.
+  This will be added to the request as:
+  
+  
+  ...
+   "personalizations":[  
+      {  
+         "to":[  
+            {  
+               "email":"example@sendgrid.net"
+            }
+         ],
+         "dynamic_template_data":{  
+            "total":"$ 239.85",
+         }
+      }
+   ],
+  ...
+  
+
+  The tag can be of any type since SendGrid allows you to use Handelbars in its templates
+
+  ## Example
+
+      email
+      |> add_data("name", "Jon Snow")
+  """
+  def add_dynamic_data(email, name, value) do
+    if is_binary(name) do
+      template = Map.get(email.private, @field_name, %{})
+
+      email
+      |> Email.put_private(@field_name, add_dynamic_data(template, name, value))
+    else
+      raise "expected the name parameter to be of type binary, got #{name}"
+    end
+  end
+  
+  defp add_dynamic_data(template, name, value) do
+    template
+    |> Map.update(:dynamic_template_data, %{name => value}, fn dynamic_data ->
+      Map.merge(dynamic_data, %{name => value})
+    end)
+  end
 end
