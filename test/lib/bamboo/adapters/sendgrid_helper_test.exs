@@ -68,9 +68,9 @@ defmodule Bamboo.SendGridHelperTest do
 
     email =
       email
-      |> dynamic_field("name", "Jon Snow")
-      |> dynamic_field("location", "Westeros")
-      |> dynamic_field("user", user)
+      |> add_dynamic_field("name", "Jon Snow")
+      |> add_dynamic_field("location", "Westeros")
+      |> add_dynamic_field("user", user)
 
     assert email.private[:send_grid_template] == %{
              dynamic_template_data: %{
@@ -84,7 +84,7 @@ defmodule Bamboo.SendGridHelperTest do
   test "dynamic_field/3 should work with atoms", %{email: email} do
     email =
       email
-      |> dynamic_field(:name, "Jon Snow")
+      |> add_dynamic_field(:name, "Jon Snow")
 
     assert email.private[:send_grid_template] == %{
              dynamic_template_data: %{

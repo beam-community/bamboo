@@ -111,17 +111,17 @@ defmodule Bamboo.SendGridHelper do
       email
       |> add_data("name", "Jon Snow")
   """
-  def dynamic_field(email, field, value) when is_atom(field),
-    do: dynamic_field(email, Atom.to_string(field), value)
+  def add_dynamic_field(email, field, value) when is_atom(field),
+    do: add_dynamic_field(email, Atom.to_string(field), value)
 
-  def dynamic_field(email, field, value) when is_binary(field) do
+  def add_dynamic_field(email, field, value) when is_binary(field) do
     template = Map.get(email.private, @field_name, %{})
 
     email
-    |> Email.put_private(@field_name, add_dynamic_data(template, field, value))
+    |> Email.put_private(@field_name, add_dynamic_field_to_template(template, field, value))
   end
 
-  def dynamic_field(_email, field, _value),
+  def add_dynamic_field(_email, field, _value),
     do: raise("expected the name parameter to be of type binary or atom, got #{field}")
 
   defp set_template(template, template_id) do
@@ -136,7 +136,7 @@ defmodule Bamboo.SendGridHelper do
     end)
   end
 
-  defp add_dynamic_data(template, field, value) do
+  defp add_dynamic_field_to_template(template, field, value) do
     template
     |> Map.update(:dynamic_template_data, %{field => value}, fn dynamic_data ->
       Map.merge(dynamic_data, %{field => value})
