@@ -14,12 +14,6 @@ defmodule Bamboo.SendGridHelperTest do
     assert email.private[:send_grid_template] == %{template_id: @template_id}
   end
 
-  test "with_template/2 raises on non-UUID `template_id`", %{email: email} do
-    assert_raise RuntimeError, fn ->
-      email |> with_template("not a UUID")
-    end
-  end
-
   test "with_template/2 uses the last specified template", %{email: email} do
     last_template_id = "355d0197-ecf5-4268-aa8b-2c0502aec406"
     email = email |> with_template(@template_id) |> with_template(last_template_id)
