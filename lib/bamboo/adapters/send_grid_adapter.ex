@@ -16,7 +16,7 @@ defmodule Bamboo.SendGridAdapter do
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.SendGridAdapter,
         api_key: "my_api_key" # or {:system, "SENDGRID_API_KEY"}
-        
+
       # To enable sandbox mode (e.g. in development or staging environments),
       # in config/dev.exs or config/prod.exs etc
       config :my_app, MyApp.Mailer, sandbox: true
@@ -119,6 +119,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_to(email)
     |> put_cc(email)
     |> put_bcc(email)
+    |> put_custom_args(email)
     |> put_template_substitutions(email)
   end
 
@@ -193,6 +194,18 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_template_substitutions(body, _), do: body
+
+  defp put_custom_args(body, %Email{private: %{custom_args: custom_args}})
+       when is_nil(custom_args) or length(custom_args) == 0,
+       do: body
+
+  defp put_custom_args(body, %Email{
+         private: %{custom_args: custom_args}
+       }) do
+    Map.put(body, :custom_args, custom_args)
+  end
+
+  defp put_custom_args(body, _), do: body
 
   defp put_categories(body, %Email{private: %{categories: categories}})
        when is_list(categories) and length(categories) <= 10 do
