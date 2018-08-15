@@ -61,18 +61,16 @@ config :my_app, MyApp.Mailer,
 
 1.  Add bamboo to your list of dependencies in `mix.exs`:
 
-
 ```elixir
 def deps do
   # Get from hex
-  [{:bamboo, "~> 1.0"}]
+  [{:bamboo, "~> 1.1"}]
   # Or use the latest from master
   [{:bamboo, github: "thoughtbot/bamboo"}]
 end
 ```
 
 2.  Ensure bamboo is started before your application:
-
 
 ```elixir
 def application do
