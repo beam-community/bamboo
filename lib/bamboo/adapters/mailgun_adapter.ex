@@ -50,7 +50,7 @@ defmodule Bamboo.MailgunAdapter do
   def deliver(email, config) do
     body = to_mailgun_body(email)
 
-    case :hackney.post(full_uri(config), headers(email, config), body, [:with_body]) do
+    case :hackney.post(full_uri(config.domain), headers(email, config), body, [:with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
         raise_api_error(@service_name, response, body)
 
@@ -65,9 +65,14 @@ defmodule Bamboo.MailgunAdapter do
   @doc false
   def supports_attachments?, do: true
 
-  defp full_uri(config) do
-    Application.get_env(:bamboo, :mailgun_base_uri, @base_uri) <>
-      "/" <> config.domain <> "/messages"
+  defp full_uri(<<"http", _rest :: binary>> = url) do
+    suffix = "/messages"
+    if String.ends_with?(url, suffix), do: url, else: "#{url}#{suffix}"
+  end
+
+  defp full_uri(domain) do
+    base_uri = Application.get_env(:bamboo, :mailgun_base_uri, @base_uri)
+    "#{base_uri}/#{domain}/messages"
   end
 
   defp headers(%Email{} = email, config) do

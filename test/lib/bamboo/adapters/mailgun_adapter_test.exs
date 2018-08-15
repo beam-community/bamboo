@@ -74,6 +74,26 @@ defmodule Bamboo.MailgunAdapterTest do
     end
   end
 
+  test "deliver/2 sends the email using the given url (complete)" do
+    base_uri = Application.get_env(:bamboo, :mailgun_base_uri)
+    config = Map.put(@config, :domain, "#{base_uri}/test.tt/messages")
+    new_email() |> MailgunAdapter.deliver(config)
+
+    assert_receive {:fake_mailgun, %{request_path: request_path}}
+
+    assert request_path == "/test.tt/messages"
+  end
+
+  test "deliver/2 sends the email adding the suffix /messages to the given url" do
+    base_uri = Application.get_env(:bamboo, :mailgun_base_uri)
+    config = Map.put(@config, :domain, "#{base_uri}/test.tt")
+    new_email() |> MailgunAdapter.deliver(config)
+
+    assert_receive {:fake_mailgun, %{request_path: request_path}}
+
+    assert request_path == "/test.tt/messages"
+  end
+
   test "deliver/2 sends the to the right url" do
     new_email() |> MailgunAdapter.deliver(@config)
 
