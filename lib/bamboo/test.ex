@@ -256,7 +256,7 @@ defmodule Bamboo.Test do
 
         #{inspect(params_given)}
 
-      Email recieved:
+      Email received:
 
         #{inspect(params_received)}
     """
