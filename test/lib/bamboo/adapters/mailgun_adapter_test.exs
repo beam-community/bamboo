@@ -3,7 +3,7 @@ defmodule Bamboo.MailgunAdapterTest do
   alias Bamboo.Email
   alias Bamboo.MailgunAdapter
 
-  @config %{adapter: MailgunAdapter, api_key: "dummyapikey", domain: "test.tt"}
+  @config %{adapter: MailgunAdapter, api_key: "dummyapikey", domain: "test.tt", base_uri: ""}
 
   defmodule FakeMailgun do
     use Plug.Router
@@ -72,6 +72,21 @@ defmodule Bamboo.MailgunAdapterTest do
     assert_raise ArgumentError, ~r/no domain set/, fn ->
       MailgunAdapter.handle_config(%{api_key: "dummyapikey"})
     end
+  end
+
+  test "see if defaults base_uri is set" do
+    assert MailgunAdapter.handle_config(%{
+             api_key: "dummyapikey",
+             domain: "test.tt"
+           }).base_uri == "https://api.mailgun.net/v3"
+  end
+
+  test "see if given base_uri is set" do
+    assert MailgunAdapter.handle_config(%{
+             api_key: "dummyapikey",
+             domain: "test.tt",
+             base_uri: "https://api.eu.mailgun.net/v3"
+           }).base_uri == "https://api.eu.mailgun.net/v3"
   end
 
   test "deliver/2 sends the to the right url" do
