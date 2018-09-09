@@ -120,6 +120,21 @@ defmodule Bamboo.MailgunAdapterTest do
     System.delete_env("MAILGUN_API_KEY")
   end
 
+  test "see if defaults base_uri is set" do
+    assert MailgunAdapter.handle_config(%{
+             api_key: "dummyapikey",
+             domain: "test.tt"
+           }).base_uri == "https://api.mailgun.net/v3"
+  end
+
+  test "see if given base_uri is set" do
+    assert MailgunAdapter.handle_config(%{
+             api_key: "dummyapikey",
+             domain: "test.tt",
+             base_uri: "https://api.eu.mailgun.net/v3"
+           }).base_uri == "https://api.eu.mailgun.net/v3"
+  end
+
   test "deliver/2 sends the to the right url" do
     new_email() |> MailgunAdapter.deliver(@config)
 

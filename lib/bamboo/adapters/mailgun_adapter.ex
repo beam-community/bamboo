@@ -11,7 +11,8 @@ defmodule Bamboo.MailgunAdapter do
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.MailgunAdapter,
         api_key: "my_api_key" # or {:system, "MAILGUN_API_KEY"},
-        domain: "your.domain" # or {:system, "MAILGUN_DOMAIN"}
+        domain: "your.domain" # or {:system, "MAILGUN_DOMAIN"},
+        base_url: "https://api.eu.mailgun.net/v3" # Optional
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
@@ -20,7 +21,6 @@ defmodule Bamboo.MailgunAdapter do
   """
 
   @service_name "Mailgun"
-  @base_uri "https://api.mailgun.net/v3"
   @behaviour Bamboo.Adapter
 
   alias Bamboo.{Email, Attachment}
@@ -81,8 +81,8 @@ defmodule Bamboo.MailgunAdapter do
   def supports_attachments?, do: true
 
   defp full_uri(config) do
-    Application.get_env(:bamboo, :mailgun_base_uri, @base_uri) <>
-      "/" <> config.domain <> "/messages"
+    base_uri = Application.get_env(:bamboo, :mailgun_base_uri, config.base_uri)
+    base_uri <> "/" <> config.domain <> "/messages"
   end
 
   defp headers(%Email{} = email, config) do
