@@ -103,6 +103,7 @@ defmodule Bamboo.Phoenix do
 
   defmacro __using__(view: view_module) do
     verify_phoenix_dep()
+
     quote do
       import Bamboo.Email
       import Bamboo.Phoenix, except: [render: 3]
@@ -120,9 +121,10 @@ defmodule Bamboo.Phoenix do
       end
     end
   end
+
   defmacro __using__(opts) do
     raise ArgumentError, """
-    expected Bamboo.Phoenix to have a view set, instead got: #{inspect opts}.
+    expected Bamboo.Phoenix to have a view set, instead got: #{inspect(opts)}.
 
     Please set a view e.g. use Bamboo.Phoenix, view: MyApp.MyView
     """
@@ -131,7 +133,7 @@ defmodule Bamboo.Phoenix do
   defp verify_phoenix_dep do
     unless Code.ensure_loaded?(Phoenix) do
       raise "You tried to use Bamboo.Phoenix, but Phoenix module is not loaded. " <>
-      "Please add phoenix to your dependencies."
+              "Please add phoenix to your dependencies."
     end
   end
 
@@ -184,7 +186,7 @@ defmodule Bamboo.Phoenix do
       def text_and_html_email_layout do
         new_email
         # Will use MyApp.LayoutView with the email.html template for html emails
-        # and MyApp.LayoutView with the email.html template for text emails
+        # and MyApp.LayoutView with the email.text template for text emails
         |> put_layout({MyApp.LayoutView, :email})
       end
   """
@@ -212,9 +214,11 @@ defmodule Bamboo.Phoenix do
   end
 
   defp put_default_layouts(%{private: private} = email) do
-    private = private
+    private =
+      private
       |> Map.put_new(:html_layout, false)
       |> Map.put_new(:text_layout, false)
+
     %{email | private: private}
   end
 
@@ -253,10 +257,15 @@ defmodule Bamboo.Phoenix do
     cond do
       String.ends_with?(template, ".html") ->
         email |> Map.put(:html_body, render_html(email, template))
+
       String.ends_with?(template, ".text") ->
         email |> Map.put(:text_body, render_text(email, template))
-      true -> raise ArgumentError, """
-        Template name must end in either ".html" or ".text". Template name was #{inspect template}
+
+      true ->
+        raise ArgumentError, """
+        Template name must end in either ".html" or ".text". Template name was #{
+          inspect(template)
+        }
 
         If you would like to render both and html and text template,
         use an atom without an extension instead.
@@ -269,9 +278,9 @@ defmodule Bamboo.Phoenix do
     assigns = Map.put(email.assigns, :layout, email.private.html_layout)
 
     Phoenix.View.render_to_string(
-    email.private.view_module,
-    template,
-    assigns
+      email.private.view_module,
+      template,
+      assigns
     )
   end
 
@@ -279,9 +288,9 @@ defmodule Bamboo.Phoenix do
     assigns = Map.put(email.assigns, :layout, email.private.text_layout)
 
     Phoenix.View.render_to_string(
-    email.private.view_module,
-    template,
-    assigns
+      email.private.view_module,
+      template,
+      assigns
     )
   end
 end

@@ -1,27 +1,26 @@
+<p align="left"><img src="https://user-images.githubusercontent.com/22394/39895001-b13a9c9a-5476-11e8-9c58-f5fc5f09b697.png" alt="bamboo" height="120px"></p>
 
-
-Bamboo [![Circle CI](https://circleci.com/gh/thoughtbot/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtbot/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/thoughtbot/bamboo/badge.png?branch=master)](https://coveralls.io/github/thoughtbot/bamboo?branch=master)
-========
+# Bamboo [![Circle CI](https://circleci.com/gh/thoughtbot/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtbot/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/thoughtbot/bamboo/badge.png?branch=master)](https://coveralls.io/github/thoughtbot/bamboo?branch=master)
 
 > **This README follows master, which may not be the currently published version!** Use
-[the docs for the published version of Bamboo](https://hexdocs.pm/bamboo/readme.html).
+> [the docs for the published version of Bamboo](https://hexdocs.pm/bamboo/readme.html).
 
 **Bamboo is part of the [thoughtbot Elixir family][elixir-phoenix] of projects.**
 
 Flexible and easy to use email for Elixir.
 
-* **Adapter based** so it can be used with Mandrill, SMTP, or whatever else you want. Comes with a Mandrill adapter out of the box.
-* **Deliver emails in the background**. Most of the time you don't want or need to wait for the email to send. Bamboo makes it easy with Mailer.deliver_later
-* **Easy to format recipients**. You can do `new_email(to: Repo.one(User))` and Bamboo can format the User struct if you implement Bamboo.Formatter.
-* **Works out of the box with Phoenix**. Use views and layouts to make rendering email easy.
-* **Very composable**. Emails are just a Bamboo.Email struct and can be manipulated with plain functions.
-* **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
-* **Easy to test delivery in integration tests**. Helpers are provided to make testing easy and robust.
-* **View sent emails during development**. Bamboo comes with a plug that can be used in your router to view sent emails.
+- **Adapter based** so it can be used with Mandrill, SMTP, or whatever else you want. Comes with a Mandrill adapter out of the box.
+- **Deliver emails in the background**. Most of the time you don't want or need to wait for the email to send. Bamboo makes it easy with Mailer.deliver_later
+- **Easy to format recipients**. You can do `new_email(to: Repo.one(User))` and Bamboo can format the User struct if you implement Bamboo.Formatter.
+- **Works out of the box with Phoenix**. Use views and layouts to make rendering email easy.
+- **Very composable**. Emails are just a Bamboo.Email struct and can be manipulated with plain functions.
+- **Easy to unit test**. Because delivery is separated from email creation, no special functions are needed, just assert against fields on the email.
+- **Easy to test delivery in integration tests**. Helpers are provided to make testing easy and robust.
+- **View sent emails during development**. Bamboo comes with a plug that can be used in your router to view sent emails.
 
 See the [docs] for the most up to date information.
 
-We designed Bamboo to be simple and powerful. If you run into *anything* that is
+We designed Bamboo to be simple and powerful. If you run into _anything_ that is
 less than exceptional, or you just need some help, please open an issue.
 
 [docs]: https://hexdocs.pm/bamboo/readme.html
@@ -32,18 +31,18 @@ The Bamboo.MandrillAdapter and Bamboo.SendGridAdapter **are being used in produc
 and have had no issues. It's also pretty simple to [create your own adapter]. Feel free
 to open an issue or a PR if you'd like to add a new adapter to the list.
 
-
-* `Bamboo.ConfigAdapter` - See [BinaryNoggin/bamboo_config_adapter](https://github.com/BinaryNoggin/bamboo_config_adapter) declare config at runtime.
-* `Bamboo.MailgunAdapter` - Ships with Bamboo. Thanks to [@princemaple].
-* `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
-* `Bamboo.MandrillAdapter` - Ships with Bamboo.
-* `Bamboo.SendGridAdapter` - Ships with Bamboo.
-* `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
-* `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
-* `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
-* `Bamboo.SendcloudAdapter` - See [linjunpop/bamboo_sendcloud](https://github.com/linjunpop/bamboo_sendcloud).
-* `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
-* `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
+- `Bamboo.ConfigAdapter` - See [BinaryNoggin/bamboo_config_adapter](https://github.com/BinaryNoggin/bamboo_config_adapter) declare config at runtime.
+- `Bamboo.MailgunAdapter` - Ships with Bamboo. Thanks to [@princemaple].
+- `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
+- `Bamboo.MandrillAdapter` - Ships with Bamboo.
+- `Bamboo.SendGridAdapter` - Ships with Bamboo.
+- `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
+- `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
+- `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
+- `Bamboo.SendcloudAdapter` - See [linjunpop/bamboo_sendcloud](https://github.com/linjunpop/bamboo_sendcloud).
+- `Bamboo.SesAdapter` - See [kalys/bamboo_ses](https://github.com/kalys/bamboo_ses).
+- `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
+- `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
 
 [@princemaple]: https://github.com/princemaple
 
@@ -60,24 +59,24 @@ config :my_app, MyApp.Mailer,
 
 ## Installation
 
-1. Add bamboo to your list of dependencies in `mix.exs`:
+1.  Add bamboo to your list of dependencies in `mix.exs`:
 
-  ```elixir
-  def deps do
-    # Get from hex
-    [{:bamboo, "~> 0.8"}]
-    # Or use the latest from master
-    [{:bamboo, github: "thoughtbot/bamboo"}]
-  end
-  ```
+```elixir
+def deps do
+  # Get from hex
+  [{:bamboo, "~> 1.1"}]
+  # Or use the latest from master
+  [{:bamboo, github: "thoughtbot/bamboo"}]
+end
+```
 
-2. Ensure bamboo is started before your application:
+2.  Ensure bamboo is started before your application:
 
-  ```elixir
-  def application do
-    [applications: [:bamboo]]
-  end
-  ```
+```elixir
+def application do
+  [applications: [:bamboo]]
+end
+```
 
 ## Getting Started
 
@@ -85,7 +84,7 @@ config :my_app, MyApp.Mailer,
 
 > It is a wonderful introduction to sending and testing emails with Bamboo. It also covers some of the ways that Bamboo helps catch errors, how some of the internals work, and how to format recipients with the Bamboo.Formatter protocol.
 
-[free Bamboo screencast from DailyDrip]: https://www.dailydrip.com/topics/elixir/drips/bamboo-email
+[free bamboo screencast from dailydrip]: https://www.dailydrip.com/topics/elixir/drips/bamboo-email
 
 Bamboo breaks email creation and email sending into two separate modules. This
 is done to make testing easier and to make emails easy to pipe/compose.
@@ -189,8 +188,8 @@ new_email(to: users)
 To circumvent this, Bamboo has a `Bamboo.Formatter` protocol.
 See the [Bamboo.Email] and [Bamboo.Formatter docs] for more info and examples.
 
-[Bamboo.Email]: https://hexdocs.pm/bamboo/Bamboo.Email.html
-[Bamboo.Formatter docs]: https://hexdocs.pm/bamboo/Bamboo.Formatter.html
+[bamboo.email]: https://hexdocs.pm/bamboo/Bamboo.Email.html
+[bamboo.formatter docs]: https://hexdocs.pm/bamboo/Bamboo.Formatter.html
 
 ## Using Phoenix Views and Layouts
 
@@ -258,7 +257,7 @@ end
 See documentation for [Bamboo.Test] for more examples, and remember to use
 Bamboo.TestAdapter.
 
-[Bamboo.Test]: https://hexdocs.pm/bamboo/Bamboo.Test.html
+[bamboo.test]: https://hexdocs.pm/bamboo/Bamboo.Test.html
 
 ## About thoughtbot
 

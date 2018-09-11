@@ -18,17 +18,15 @@ defmodule Bamboo.SentEmailViewerPlug.Helper do
   end
 
   def format_headers(values) when is_binary(values), do: values
+
   def format_headers(values) when is_list(values) do
     Enum.join(values, ", ")
   end
+
   def format_headers(values), do: inspect(values)
 
-  def format_text(nil), do: ""
-  def format_text(text_body) do
-    String.replace(text_body, "\n", "<br>")
-  end
-
   def format_email_address({nil, address}), do: address
+
   def format_email_address({name, address}) do
     "#{name}&lt;#{address}&gt;"
   end

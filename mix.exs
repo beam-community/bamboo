@@ -4,26 +4,29 @@ defmodule Bamboo.Mixfile do
   @project_url "https://github.com/paulcsmith/bamboo"
 
   def project do
-    [app: :bamboo,
-     version: "1.0.0-rc.2",
-     elixir: "~> 1.2",
-     source_url: @project_url,
-     homepage_url: @project_url,
-     compilers: compilers(Mix.env),
-     test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: ["coveralls": :test, "coveralls.circle": :test],
-     elixirc_paths: elixirc_paths(Mix.env),
-     description: "Straightforward, powerful, and adapter based Elixir email library." <>
-     " Works with Mandrill, Mailgun, SendGrid, SparkPost, Postmark, in-memory, and test.",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     package: package(),
-     docs: [main: "readme", extras: ["README.md"]],
-     deps: deps()]
+    [
+      app: :bamboo,
+      version: "1.1.0",
+      elixir: "~> 1.2",
+      source_url: @project_url,
+      homepage_url: @project_url,
+      compilers: compilers(Mix.env()),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test, "coveralls.circle": :test],
+      elixirc_paths: elixirc_paths(Mix.env()),
+      description:
+        "Straightforward, powerful, and adapter based Elixir email library." <>
+          " Works with Mandrill, Mailgun, SendGrid, SparkPost, Postmark, in-memory, and test.",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      package: package(),
+      docs: [main: "readme", extras: ["README.md"]],
+      deps: deps()
+    ]
   end
 
-  defp compilers(:test), do: [:phoenix] ++ Mix.compilers
-  defp compilers(_), do: Mix.compilers
+  defp compilers(:test), do: [:phoenix] ++ Mix.compilers()
+  defp compilers(_), do: Mix.compilers()
 
   # Configuration for the OTP application
   #
@@ -50,16 +53,16 @@ defmodule Bamboo.Mixfile do
   defp deps do
     [
       {:plug, "~> 1.0"},
-      {:ex_machina, "~> 1.0", only: :test},
+      {:ex_machina, "~> 2.2", only: :test},
       {:cowboy, "~> 1.0", only: [:test, :dev]},
       {:phoenix, "~> 1.1", only: :test},
       {:phoenix_html, "~> 2.2", only: :test},
       {:excoveralls, "~> 0.4", only: :test},
       {:floki, "~> 0.8", only: :test},
-      {:ex_doc, "~> 0.9", only: :dev},
+      {:ex_doc, "~> 0.19", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:hackney, "~> 1.7"},
-      {:poison, ">= 1.5.0"},
+      {:hackney, ">= 1.13.0"},
+      {:poison, ">= 1.5.0"}
     ]
   end
 end

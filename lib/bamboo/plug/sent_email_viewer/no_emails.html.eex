@@ -61,6 +61,13 @@
           does not persist emails so whenever you restart the server the list
           will be cleared.
         </li>
+
+        <li>
+          <strong>You're running multiple OS-level BEAM processes.</strong>
+          Sent emails are stored in memory. If you have more than one OS-level
+          process running, like "mix phx.server" in one terminal and "iex -S mix"
+          in another, emails sent in the latter won't be visible in the former.
+        </li>
       </ul>
     </main>
   </body>

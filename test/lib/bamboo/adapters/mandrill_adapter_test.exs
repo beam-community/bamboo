@@ -10,19 +10,22 @@ defmodule Bamboo.MandrillAdapterTest do
   defmodule FakeMandrill do
     use Plug.Router
 
-    plug Plug.Parsers,
+    plug(
+      Plug.Parsers,
       parsers: [:urlencoded, :multipart, :json],
       pass: ["*/*"],
       json_decoder: Poison
-    plug :match
-    plug :dispatch
+    )
+
+    plug(:match)
+    plug(:dispatch)
 
     def start_server(parent) do
-      Agent.start_link(fn -> Map.new end, name: __MODULE__)
+      Agent.start_link(fn -> Map.new() end, name: __MODULE__)
       Agent.update(__MODULE__, &Map.put(&1, :parent, parent))
       port = get_free_port()
       Application.put_env(:bamboo, :mandrill_base_uri, "http://localhost:#{port}")
-      Plug.Adapters.Cowboy.http __MODULE__, [], port: port, ref: __MODULE__
+      Plug.Adapters.Cowboy.http(__MODULE__, [], port: port, ref: __MODULE__)
     end
 
     defp get_free_port do
@@ -33,7 +36,7 @@ defmodule Bamboo.MandrillAdapterTest do
     end
 
     def shutdown do
-      Plug.Adapters.Cowboy.shutdown __MODULE__
+      Plug.Adapters.Cowboy.shutdown(__MODULE__)
     end
 
     post "/api/1.0/messages/send.json" do
@@ -51,8 +54,8 @@ defmodule Bamboo.MandrillAdapterTest do
     end
 
     defp send_to_parent(conn) do
-      parent = Agent.get(__MODULE__, fn(set) -> Map.get(set, :parent) end)
-      send parent, {:fake_mandrill, conn}
+      parent = Agent.get(__MODULE__, fn set -> Map.get(set, :parent) end)
+      send(parent, {:fake_mandrill, conn})
       conn
     end
   end
@@ -60,9 +63,9 @@ defmodule Bamboo.MandrillAdapterTest do
   setup do
     FakeMandrill.start_server(self())
 
-    on_exit fn ->
-      FakeMandrill.shutdown
-    end
+    on_exit(fn ->
+      FakeMandrill.shutdown()
+    end)
 
     :ok
   end
@@ -94,18 +97,19 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 sends from, html and text body, subject, headers and attachment" do
-    email = new_email(
-      from: {"From", "from@foo.com"},
-      subject: "My Subject",
-      text_body: "TEXT BODY",
-      html_body: "HTML BODY",
-    )
-    |> Email.put_header("Reply-To", "reply@foo.com")
-    |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject",
+        text_body: "TEXT BODY",
+        html_body: "HTML BODY"
+      )
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
 
     email |> MandrillAdapter.deliver(@config)
 
-    assert MandrillAdapter.supports_attachments?
+    assert MandrillAdapter.supports_attachments?()
     assert_receive {:fake_mandrill, %{params: params}}
     assert params["key"] == @config[:api_key]
     message = params["message"]
@@ -115,30 +119,33 @@ defmodule Bamboo.MandrillAdapterTest do
     assert message["text"] == email.text_body
     assert message["html"] == email.html_body
     assert message["headers"] == email.headers
+
     assert message["attachments"] == [
-      %{
-        "type" => "text/plain",
-        "name" => "attachment.txt",
-        "content" => "VGVzdCBBdHRhY2htZW50Cg=="
-      }
-    ]
+             %{
+               "type" => "text/plain",
+               "name" => "attachment.txt",
+               "content" => "VGVzdCBBdHRhY2htZW50Cg=="
+             }
+           ]
   end
 
   test "deliver/2 correctly formats recipients" do
-    email = new_email(
-      to: [{"To", "to@bar.com"}],
-      cc: [{"CC", "cc@bar.com"}],
-      bcc: [{"BCC", "bcc@bar.com"}],
-    )
+    email =
+      new_email(
+        to: [{"To", "to@bar.com"}],
+        cc: [{"CC", "cc@bar.com"}],
+        bcc: [{"BCC", "bcc@bar.com"}]
+      )
 
     email |> MandrillAdapter.deliver(@config)
 
     assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
+
     assert message["to"] == [
-      %{"name" => "To", "email" => "to@bar.com", "type" => "to"},
-      %{"name" => "CC", "email" => "cc@bar.com", "type" => "cc"},
-      %{"name" => "BCC", "email" => "bcc@bar.com", "type" => "bcc"}
-    ]
+             %{"name" => "To", "email" => "to@bar.com", "type" => "to"},
+             %{"name" => "CC", "email" => "cc@bar.com", "type" => "cc"},
+             %{"name" => "BCC", "email" => "bcc@bar.com", "type" => "bcc"}
+           ]
   end
 
   test "deliver/2 adds extra params to the message " do
@@ -155,19 +162,35 @@ defmodule Bamboo.MandrillAdapterTest do
 
     email |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: %{"template_name" => template_name, "template_content" => template_content}}}
+    assert_receive {:fake_mandrill,
+                    %{
+                      params: %{
+                        "template_name" => template_name,
+                        "template_content" => template_content
+                      }
+                    }}
+
     assert template_name == "hello"
     assert template_content == []
   end
 
   test "deliver/2 puts template name and content" do
-    email = new_email() |> MandrillHelper.template("hello", [
-      %{name: 'example name', content: 'example content'}
-    ])
+    email =
+      new_email()
+      |> MandrillHelper.template("hello", [
+        %{name: 'example name', content: 'example content'}
+      ])
 
     email |> MandrillAdapter.deliver(@config)
 
-    assert_receive {:fake_mandrill, %{params: %{"template_name" => template_name, "template_content" => template_content}}}
+    assert_receive {:fake_mandrill,
+                    %{
+                      params: %{
+                        "template_name" => template_name,
+                        "template_content" => template_content
+                      }
+                    }}
+
     assert template_name == "hello"
     assert template_content == [%{"content" => 'example content', "name" => 'example name'}]
   end
@@ -190,6 +213,6 @@ defmodule Bamboo.MandrillAdapterTest do
 
   defp new_email(attrs \\ []) do
     attrs = Keyword.merge([from: "foo@bar.com", to: []], attrs)
-    Email.new_email(attrs) |> Bamboo.Mailer.normalize_addresses
+    Email.new_email(attrs) |> Bamboo.Mailer.normalize_addresses()
   end
 end

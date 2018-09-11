@@ -193,11 +193,12 @@ defmodule Bamboo.Test do
   defmacro assert_email_delivered_with(email_params) do
     quote bind_quoted: [email_params: email_params] do
       import ExUnit.Assertions
-      assert_receive({:delivered_email, email}, 100, Bamboo.Test.flunk_no_emails_received)
+      assert_receive({:delivered_email, email}, 100, Bamboo.Test.flunk_no_emails_received())
 
-      recieved_email_params = email |> Map.from_struct
-      assert Enum.all?(email_params, fn({k, v}) -> do_match(recieved_email_params[k], v) end),
-        Bamboo.Test.flunk_attributes_do_not_match(email_params, recieved_email_params)
+      recieved_email_params = email |> Map.from_struct()
+
+      assert Enum.all?(email_params, fn {k, v} -> do_match(recieved_email_params[k], v) end),
+             Bamboo.Test.flunk_attributes_do_not_match(email_params, recieved_email_params)
     end
   end
 
@@ -216,23 +217,23 @@ defmodule Bamboo.Test do
     if Enum.empty?(delivered_emails()) do
       flunk_no_emails_received()
     else
-      flunk """
+      flunk("""
       There were no matching emails.
 
       No emails matched:
 
-        #{inspect email}
+        #{inspect(email)}
 
       Delivered emails:
 
       #{delivered_emails_as_list()}
-      """
+      """)
     end
   end
 
   @doc false
   def flunk_no_emails_received do
-    flunk """
+    flunk("""
     There were 0 emails delivered to this process.
 
     If you expected an email to be sent, try these ideas:
@@ -243,7 +244,7 @@ defmodule Bamboo.Test do
     to work across processes: use Bamboo.Test, shared: :true
     4) If you are writing an acceptance test through a headless browser, use
     shared mode as described in option 3.
-    """
+    """)
   end
 
   @doc false
@@ -253,11 +254,11 @@ defmodule Bamboo.Test do
 
       Parameters given:
 
-        #{inspect params_given}
+        #{inspect(params_given)}
 
-      Email recieved:
+      Email received:
 
-        #{inspect params_received}
+        #{inspect(params_received)}
     """
   end
 
@@ -274,7 +275,7 @@ defmodule Bamboo.Test do
   end
 
   defp add_asterisk(emails) do
-    Enum.map(emails, &" * #{inspect &1}")
+    Enum.map(emails, &" * #{inspect(&1)}")
   end
 
   @doc """
@@ -304,13 +305,13 @@ defmodule Bamboo.Test do
   end
 
   defp flunk_with_unexpected_email(email) do
-    flunk """
+    flunk("""
     Unexpectedly delivered an email when expected none to be delivered.
 
     Delivered email:
 
-      #{inspect email}
-    """
+      #{inspect(email)}
+    """)
   end
 
   @doc """
@@ -340,27 +341,28 @@ defmodule Bamboo.Test do
   end
 
   defp flunk_with_unexpected_matching_email(email) do
-    flunk """
+    flunk("""
     Unexpectedly delivered a matching email.
 
     Matched email that was delivered:
 
-      #{inspect email}
-    """
+      #{inspect(email)}
+    """)
   end
 
   defp refute_timeout do
     if using_shared_mode?() do
-      Application.get_env(:bamboo, :refute_timeout) || raise """
-      When using shared mode with Bamboo.Test, you must set a timeout. This
-      is because an email can be delivered after the assertion is called.
+      Application.get_env(:bamboo, :refute_timeout) ||
+        raise """
+        When using shared mode with Bamboo.Test, you must set a timeout. This
+        is because an email can be delivered after the assertion is called.
 
-          # Set this in your config, typically in config/test.exs
-          config :bamboo, :refute_timeout, 10
+            # Set this in your config, typically in config/test.exs
+            config :bamboo, :refute_timeout, 10
 
-      The value you set is up to you. Lower values will result in faster tests,
-      but may incorrectly pass if an email is delivered *after* the timeout.
-      """
+        The value you set is up to you. Lower values will result in faster tests,
+        but may incorrectly pass if an email is delivered *after* the timeout.
+        """
     else
       0
     end
@@ -373,7 +375,7 @@ defmodule Bamboo.Test do
   @doc false
   def normalize_for_testing(email) do
     email
-    |> Bamboo.Mailer.normalize_addresses
-    |> Bamboo.TestAdapter.clean_assigns
+    |> Bamboo.Mailer.normalize_addresses()
+    |> Bamboo.TestAdapter.clean_assigns()
   end
 end

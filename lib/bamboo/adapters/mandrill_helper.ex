@@ -31,6 +31,7 @@ defmodule Bamboo.MandrillHelper do
   def put_param(%Email{private: %{message_params: _}} = email, key, value) do
     put_in(email.private[:message_params][key], value)
   end
+
   def put_param(email, key, value) do
     email |> Email.put_private(:message_params, %{}) |> put_param(key, value)
   end
@@ -68,22 +69,23 @@ defmodule Bamboo.MandrillHelper do
       ])
   """
   def put_merge_vars(email, enumerable, fun) do
-    merge_vars = Enum.map(enumerable, fn(e) ->
-      %{
-        rcpt: e.email,
-        vars: merge_vars(e, fun)
-      }
-    end)
+    merge_vars =
+      Enum.map(enumerable, fn e ->
+        %{
+          rcpt: e.email,
+          vars: merge_vars(e, fun)
+        }
+      end)
 
     email |> put_param("merge_vars", merge_vars)
   end
 
   defp merge_vars(e, fun) do
     fun.(e)
-    |> Enum.map(fn({ key, value }) ->
+    |> Enum.map(fn {key, value} ->
       %{
-        "name": to_string(key),
-        "content": value
+        name: to_string(key),
+        content: value
       }
     end)
   end

@@ -62,14 +62,13 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-
-      @spec deliver_now(Bamboo.Email.t) :: Bamboo.Email.t
+      @spec deliver_now(Bamboo.Email.t()) :: Bamboo.Email.t()
       def deliver_now(email) do
         config = build_config()
         Bamboo.Mailer.deliver_now(config.adapter, email, config)
       end
 
-      @spec deliver_later(Bamboo.Email.t) :: Bamboo.Email.t
+      @spec deliver_later(Bamboo.Email.t()) :: Bamboo.Email.t()
       def deliver_later(email) do
         config = build_config()
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
@@ -123,6 +122,7 @@ defmodule Bamboo.Mailer do
       debug_sent(email, adapter)
       adapter.deliver(email, config)
     end
+
     email
   end
 
@@ -136,23 +136,24 @@ defmodule Bamboo.Mailer do
       debug_sent(email, adapter)
       config.deliver_later_strategy.deliver_later(adapter, email, config)
     end
+
     email
   end
 
   defp debug_sent(email, adapter) do
-    Logger.debug """
-    Sending email with #{inspect adapter}:
+    Logger.debug("""
+    Sending email with #{inspect(adapter)}:
 
-    #{inspect email, limit: :infinity}
-    """
+    #{inspect(email, limit: :infinity)}
+    """)
   end
 
   defp debug_unsent(email) do
-    Logger.debug """
+    Logger.debug("""
     Email was not sent because recipients are empty.
 
-    Full email - #{inspect email, limit: :infinity}
-    """
+    Full email - #{inspect(email, limit: :infinity)}
+    """)
   end
 
   defp validate_and_normalize(email, adapter) do
@@ -167,6 +168,7 @@ defmodule Bamboo.Mailer do
   end
 
   defp validate_attachment_support(%{attachments: []} = email, _adapter), do: email
+
   defp validate_attachment_support(email, adapter) do
     if function_exported?(adapter, :supports_attachments?, 0) && adapter.supports_attachments? do
       email
@@ -178,16 +180,18 @@ defmodule Bamboo.Mailer do
   defp validate_from_address(%{from: nil}) do
     raise Bamboo.EmptyFromAddressError, nil
   end
+
   defp validate_from_address(%{from: {_, nil}}) do
     raise Bamboo.EmptyFromAddressError, nil
   end
+
   defp validate_from_address(email), do: email
 
   defp validate_recipients(%Bamboo.Email{} = email) do
     if Enum.all?(
-      Enum.map([:to, :cc, :bcc], &Map.get(email, &1)),
-      &is_nil_recipient?/1
-    ) do
+         Enum.map([:to, :cc, :bcc], &Map.get(email, &1)),
+         &is_nil_recipient?/1
+       ) do
       raise Bamboo.NilRecipientsError, email
     else
       email
@@ -197,9 +201,11 @@ defmodule Bamboo.Mailer do
   defp is_nil_recipient?(nil), do: true
   defp is_nil_recipient?({_, nil}), do: true
   defp is_nil_recipient?([]), do: false
-  defp is_nil_recipient?([_|_] = recipients) do
+
+  defp is_nil_recipient?([_ | _] = recipients) do
     Enum.all?(recipients, &is_nil_recipient?/1)
   end
+
   defp is_nil_recipient?(_), do: false
 
   @doc """
@@ -209,11 +215,12 @@ defmodule Bamboo.Mailer do
   [Bamboo.Formatter] protocol.
   """
   def normalize_addresses(email) do
-    %{email |
-      from: format(email.from, :from),
-      to: format(List.wrap(email.to), :to),
-      cc: format(List.wrap(email.cc), :cc),
-      bcc: format(List.wrap(email.bcc), :bcc)
+    %{
+      email
+      | from: format(email.from, :from),
+        to: format(List.wrap(email.to), :to),
+        cc: format(List.wrap(email.cc), :cc),
+        bcc: format(List.wrap(email.bcc), :bcc)
     }
   end
 
@@ -223,7 +230,9 @@ defmodule Bamboo.Mailer do
 
   @doc false
   def parse_opts(mailer, opts) do
-    Logger.warn("#{__MODULE__}.parse_opts/2 has been deprecated. Use #{__MODULE__}.build_config/2")
+    Logger.warn(
+      "#{__MODULE__}.parse_opts/2 has been deprecated. Use #{__MODULE__}.build_config/2"
+    )
 
     otp_app = Keyword.fetch!(opts, :otp_app)
     build_config(mailer, otp_app)
@@ -232,7 +241,7 @@ defmodule Bamboo.Mailer do
   def build_config(mailer, otp_app) do
     otp_app
     |> Application.fetch_env!(mailer)
-    |> Map.new
+    |> Map.new()
     |> handle_adapter_config
   end
 
