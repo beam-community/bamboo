@@ -1,4 +1,52 @@
-## 1.0rc1
+## [Unreleased]
+
+### New Additions
+
+* Allow custom args for SendGrid (https://github.com/thoughtbot/bamboo/pull/413)
+
+### Fixes/Enhancements
+
+* Fix reply-to header being set as string for mailgun adapter (https://github.com/thoughtbot/bamboo/pull/421)
+
+## [1.1.0] - 2018-08-15
+
+### Fixes/Enhancements
+
+* Update hackney version requirement to 1.13.0
+* README improvements
+* Migrate circleci configuration to 2.0 (https://github.com/thoughtbot/bamboo/pull/411)
+
+## [1.0.0] - 2018-06-14
+
+### New Additions
+
+* Support attachments in SendGridAdapter (https://github.com/thoughtbot/bamboo/pull/294)
+* Mailgun attachment support (https://github.com/thoughtbot/bamboo/pull/341)
+* Bamboo logo (https://github.com/thoughtbot/bamboo/pull/388)
+
+### Fixes/Enhancements
+
+* Convert send_grid_adapter to SendGrid API v3 (https://github.com/thoughtbot/bamboo/pull/293)
+* Fix collapsing html email preview (https://github.com/thoughtbot/bamboo/pull/351)
+* Misc dependency version updates
+
+## [1.0.0-rc2] - 2017-11-03
+
+### New Additions
+
+* Add support to Mailgun adapter for using custom vars (https://github.com/thoughtbot/bamboo/pull/306)
+* Add option to open a browser window for every new email (https://github.com/thoughtbot/bamboo/pull/222)
+* Display Sender's name on the preview page (https://github.com/thoughtbot/bamboo/pull/277)
+
+### Fixes/Enhancements
+
+* Support file data in attachment struct + mailgun attachment support (https://github.com/thoughtbot/bamboo/pull/292)
+* Fix compilation warnings (https://github.com/thoughtbot/bamboo/pull/304)
+* Remove deprecated call (https://github.com/thoughtbot/bamboo/pull/321)
+* Differentiate master/published SendGridHelper link (https://github.com/thoughtbot/bamboo/pull/325)
+* Misc README improvements
+
+## [1.0.0-rc.1] - 2017-05-05
 
 ### New Additions
 
@@ -20,7 +68,7 @@
 * Change `assert_delivered_with` to `assert_email_delivered_with` (https://github.com/thoughtbot/bamboo/commit/9823793fbcd45c2a58ef9bd1e65e5d162625513e)
 * Renamed `EmailPreviewPlug` to `SentEmailViewerPlug` (https://github.com/thoughtbot/bamboo/commit/f3668458f13e0a018eebbe38681362144292cd25)
 
-## 0.8.0
+## [0.8.0] - 2017-01-06
 
 ### New Additions
 
@@ -44,7 +92,7 @@
 [#240]: https://github.com/thoughtbot/bamboo/pull/240
 [#241]: https://github.com/thoughtbot/bamboo/pull/241
 
-## 0.7.0
+## [0.7.0] - 2016-07-29
 
 ### New Additions
 
@@ -141,3 +189,11 @@
 
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
+
+[Unreleased]: https://github.com/thoughtbot/bamboo/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/thoughtbot/bamboo/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/thoughtbot/bamboo/compare/v1.0.0-rc2...v1.0.0
+[1.0.0-rc2]: https://github.com/thoughtbot/bamboo/compare/v1.0.0-rc.1...v1.0.0-rc2
+[1.0.0-rc.1]: https://github.com/thoughtbot/bamboo/compare/v0.8.0...v1.0.0-rc.1
+[0.8.0]: https://github.com/thoughtbot/bamboo/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/thoughtbot/bamboo/releases/tag/v0.7.0
