@@ -91,6 +91,7 @@ defmodule Bamboo.MailgunAdapterTest do
         html_body: "HTML BODY"
       )
       |> Email.put_header("X-My-Header", "my_header_value")
+      |> Email.put_header("Reply-To", "random@foo.com")
       |> Email.put_private(:mailgun_custom_vars, %{my_custom_var: 42, other_custom_var: 43})
 
     MailgunAdapter.deliver(email, @config)
@@ -104,6 +105,7 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["h:X-My-Header"] == "my_header_value"
     assert params["v:my_custom_var"] == "42"
     assert params["v:other_custom_var"] == "43"
+    assert params["h:Reply-To"] == "random@foo.com"
 
     hashed_token = Base.encode64("api:" <> @config.api_key)
     assert {"authorization", "Basic #{hashed_token}"} in headers
@@ -120,6 +122,7 @@ defmodule Bamboo.MailgunAdapterTest do
         text_body: "TEXT BODY",
         html_body: "HTML BODY"
       )
+      |> Email.put_header("Reply-To", "random@foo.com")
       |> Email.put_header("X-My-Header", "my_header_value")
       |> Email.put_private(:mailgun_custom_vars, %{my_custom_var: 42, other_custom_var: 43})
       |> Email.put_attachment(attachement_source_path)
@@ -136,6 +139,7 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["h:X-My-Header"] == "my_header_value"
     assert params["v:my_custom_var"] == "42"
     assert params["v:other_custom_var"] == "43"
+    assert params["h:Reply-To"] == "random@foo.com"
 
     assert %Plug.Upload{content_type: content_type, filename: filename, path: download_path} =
              params["attachment"]
@@ -162,6 +166,23 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["to"] == "To <to@bar.com>,noname@bar.com"
     assert params["cc"] == "CC <cc@bar.com>"
     assert params["bcc"] == "BCC <bcc@bar.com>"
+  end
+
+  test "deliver/2 correctly formats reply-to" do
+    email =
+      new_email(
+        from: "from@foo.com",
+        subject: "My Subject",
+        text_body: "TEXT BODY",
+        html_body: "HTML BODY"
+      )
+      |> Email.put_header("reply-to", "random@foo.com")
+
+    MailgunAdapter.deliver(email, @config)
+
+    assert_receive {:fake_mailgun, %{params: params}}
+
+    assert params["h:Reply-To"] == "random@foo.com"
   end
 
   test "raises if the response is not a success" do
