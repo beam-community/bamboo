@@ -80,7 +80,6 @@ defmodule Bamboo.SendGridHelper do
   Add a property to the list of dynamic template data in the SendGrid template.
   This will be added to the request as:
 
-
   ...
    "personalizations":[
       {
