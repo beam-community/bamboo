@@ -80,7 +80,7 @@ defmodule Bamboo.MailgunAdapter do
   defp content_type(%{}), do: "multipart/form-data"
 
   defp to_mailgun_body(email) do
-    %{}
+    []
     |> put_from(email)
     |> put_to(email)
     |> put_subject(email)
@@ -88,30 +88,21 @@ defmodule Bamboo.MailgunAdapter do
     |> put_text(email)
     |> put_cc(email)
     |> put_bcc(email)
-    |> put_reply_to(email)
-    |> put_attachments(email)
     |> put_headers(email)
     |> put_custom_vars(email)
     |> filter_non_empty_mailgun_fields
-    |> encode_body
+    |> encode_body(email)
   end
 
-  defp put_from(body, %Email{from: from}), do: Map.put(body, :from, prepare_recipient(from))
+  defp put_from(body, %Email{from: from}), do: [{:from, prepare_recipient(from)} | body]
 
-  defp put_to(body, %Email{to: to}), do: Map.put(body, :to, prepare_recipients(to))
-
-  defp put_reply_to(body, %Email{headers: %{"reply-to" => nil}}), do: body
-
-  defp put_reply_to(body, %Email{headers: %{"reply-to" => address}}),
-    do: Map.put(body, :"h:Reply-To", address)
-
-  defp put_reply_to(body, %Email{headers: _headers}), do: body
+  defp put_to(body, %Email{to: to}), do: [{:to, prepare_recipients(to)} | body]
 
   defp put_cc(body, %Email{cc: []}), do: body
-  defp put_cc(body, %Email{cc: cc}), do: Map.put(body, :cc, prepare_recipients(cc))
+  defp put_cc(body, %Email{cc: cc}), do: [{:cc, prepare_recipients(cc)} | body]
 
   defp put_bcc(body, %Email{bcc: []}), do: body
-  defp put_bcc(body, %Email{bcc: bcc}), do: Map.put(body, :bcc, prepare_recipients(bcc))
+  defp put_bcc(body, %Email{bcc: bcc}), do: [{:bcc, prepare_recipients(bcc)} | body]
 
   defp prepare_recipients(recipients) do
     recipients
@@ -123,17 +114,17 @@ defmodule Bamboo.MailgunAdapter do
   defp prepare_recipient({"", address}), do: address
   defp prepare_recipient({name, address}), do: "#{name} <#{address}>"
 
-  defp put_subject(body, %Email{subject: subject}), do: Map.put(body, :subject, subject)
+  defp put_subject(body, %Email{subject: subject}), do: [{:subject, subject} | body]
 
   defp put_text(body, %Email{text_body: nil}), do: body
-  defp put_text(body, %Email{text_body: text_body}), do: Map.put(body, :text, text_body)
+  defp put_text(body, %Email{text_body: text_body}), do: [{:text, text_body} | body]
 
   defp put_html(body, %Email{html_body: nil}), do: body
-  defp put_html(body, %Email{html_body: html_body}), do: Map.put(body, :html, html_body)
+  defp put_html(body, %Email{html_body: html_body}), do: [{:html, html_body} | body]
 
   defp put_headers(body, %Email{headers: headers}) do
     Enum.reduce(headers, body, fn {key, value}, acc ->
-      Map.put(acc, :"h:#{key}", value)
+      [{"h:#{key}", value} | acc]
     end)
   end
 
@@ -141,19 +132,17 @@ defmodule Bamboo.MailgunAdapter do
     custom_vars = Map.get(private, :mailgun_custom_vars, %{})
 
     Enum.reduce(custom_vars, body, fn {key, value}, acc ->
-      Map.put(acc, :"v:#{key}", value)
+      [{"v:#{key}", value} | acc]
     end)
   end
 
-  defp put_attachments(body, %Email{attachments: []}), do: body
+  defp put_attachments(body, []), do: body
 
-  defp put_attachments(body, %Email{attachments: attachments}) do
-    attachment_data =
-      attachments
-      |> Enum.reverse()
-      |> Enum.map(&prepare_file(&1))
-
-    Map.put(body, :attachments, attachment_data)
+  defp put_attachments(body, attachments) do
+    attachments
+    |> Enum.reverse()
+    |> Enum.map(&prepare_file(&1))
+    |> Enum.concat(body)
   end
 
   defp prepare_file(%Attachment{} = attachment) do
@@ -162,28 +151,25 @@ defmodule Bamboo.MailgunAdapter do
   end
 
   @mailgun_message_fields ~w(from to cc bcc subject text html)a
-  @internal_fields ~w(attachments)a
 
   def filter_non_empty_mailgun_fields(body) do
     Enum.filter(body, fn {key, value} ->
       # Key is a well known mailgun field (including header and custom var field) and its value is not empty
-      (key in @mailgun_message_fields || key in @internal_fields ||
-         String.starts_with?(Atom.to_string(key), ["h:", "v:"])) && !(value in [nil, "", []])
+      (key in @mailgun_message_fields || String.starts_with?(key, ["h:", "v:"])) &&
+        !(value in [nil, "", []])
     end)
-    |> Enum.into(%{})
   end
 
-  defp encode_body(%{attachments: attachments} = body) do
+  defp encode_body(body, %Email{attachments: attachments}) do
     {
       :multipart,
-      # Drop the remaining non-Mailgun fields
-      # Append the attachement parts
       body
-      |> Map.drop(@internal_fields)
       |> Enum.map(fn {k, v} -> {to_string(k), to_string(v)} end)
-      |> Kernel.++(attachments)
+      # Append the attachement parts
+      |> put_attachments(attachments)
     }
   end
 
-  defp encode_body(body_without_attachments), do: Plug.Conn.Query.encode(body_without_attachments)
+  defp encode_body(body_without_attachments, _),
+    do: Plug.Conn.Query.encode(body_without_attachments)
 end

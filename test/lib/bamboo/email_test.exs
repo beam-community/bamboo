@@ -12,7 +12,7 @@ defmodule Bamboo.EmailTest do
              subject: nil,
              html_body: nil,
              text_body: nil,
-             headers: %{}
+             headers: []
            }
   end
 
@@ -70,7 +70,7 @@ defmodule Bamboo.EmailTest do
     assert email.cc == "cc@example.com"
     assert email.bcc == "bcc@foo.com"
     assert email.subject == "Flexible Emails"
-    assert email.headers["Reply-To"] == "reply@foo.com"
+    assert {"Reply-To", "reply@foo.com"} in email.headers
   end
 
   test "put_private/3 puts a key and value in the private attribute" do

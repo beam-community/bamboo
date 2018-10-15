@@ -97,7 +97,7 @@ defmodule Bamboo.MandrillAdapter do
       subject: email.subject,
       text: email.text_body,
       html: email.html_body,
-      headers: email.headers,
+      headers: email.headers |> Enum.into(%{}),
       attachments: attachments(email)
     }
     |> add_message_params(email)

@@ -118,7 +118,7 @@ defmodule Bamboo.MandrillAdapterTest do
     assert message["subject"] == email.subject
     assert message["text"] == email.text_body
     assert message["html"] == email.html_body
-    assert message["headers"] == email.headers
+    assert message["headers"] == email.headers |> Enum.into(%{})
 
     assert message["attachments"] == [
              %{
