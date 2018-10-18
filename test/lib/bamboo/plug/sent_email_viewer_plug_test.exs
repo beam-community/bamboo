@@ -113,7 +113,7 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     assert conn.status == 200
     assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
     assert conn.resp_body =~ "SomeHeader"
-    assert conn.resp_body =~ "%{\"Some\" => \"Header\"}"
+    assert conn.resp_body =~ "%{&quot;Some&quot; =&gt; &quot;Header&quot;}"
   end
 
   defp selected_sidebar_email_text(conn) do

@@ -1,5 +1,6 @@
 defmodule Bamboo.SentEmailViewerPlug.Helper do
   import Bamboo.SentEmail
+  alias Plug.HTML
 
   @moduledoc false
 
@@ -17,13 +18,21 @@ defmodule Bamboo.SentEmailViewerPlug.Helper do
     |> Enum.join(", ")
   end
 
-  def format_headers(values) when is_binary(values), do: values
-
-  def format_headers(values) when is_list(values) do
-    Enum.join(values, ", ")
+  def format_headers(values) when is_binary(values) do
+    HTML.html_escape(values)
   end
 
-  def format_headers(values), do: inspect(values)
+  def format_headers(values) when is_list(values) do
+    values
+    |> Enum.join(", ")
+    |> HTML.html_escape()
+  end
+
+  def format_headers(values) do
+    values
+    |> inspect()
+    |> HTML.html_escape()
+  end
 
   def format_email_address({nil, address}), do: address
 
