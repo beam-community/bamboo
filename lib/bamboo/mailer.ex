@@ -141,19 +141,23 @@ defmodule Bamboo.Mailer do
   end
 
   defp debug_sent(email, adapter) do
-    Logger.debug("""
-    Sending email with #{inspect(adapter)}:
+    Logger.debug(fn ->
+      """
+      Sending email with #{inspect(adapter)}:
 
-    #{inspect(email, limit: :infinity)}
-    """)
+      #{inspect(email, limit: :infinity)}
+      """
+    end)
   end
 
   defp debug_unsent(email) do
-    Logger.debug("""
-    Email was not sent because recipients are empty.
+    Logger.debug(fn ->
+      """
+      Email was not sent because recipients are empty.
 
-    Full email - #{inspect(email, limit: :infinity)}
-    """)
+      Full email - #{inspect(email, limit: :infinity)}
+      """
+    end)
   end
 
   defp validate_and_normalize(email, adapter) do
