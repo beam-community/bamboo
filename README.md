@@ -221,6 +221,20 @@ SendGrid offers extra features on top of regular SMTP email like transactional
 templates with substitution tags. See
 [Bamboo.SendGridHelper](https://hexdocs.pm/bamboo/Bamboo.SendGridHelper.html).
 
+## JSON support
+
+Postgrex comes with JSON support out of the box via the [Poison](https://github.com/devinus/poison) library. To use it, add `:poison` to your dependencies:
+
+```elixir
+{:poison, ">= 1.5.0"}
+```
+
+You can customize it to use another library via the `:json_library` configuration:
+
+```elixir
+config :bamboo, :json_library, SomeOtherLib
+```
+
 ## Testing
 
 You can use the Bamboo.TestAdapter along with [Bamboo.Test] to make testing your

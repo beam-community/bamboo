@@ -41,4 +41,8 @@ defmodule Bamboo do
     opts = [strategy: :one_for_one, name: Bamboo.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
+  def json_library do
+    Application.get_env(:bamboo, :json_library, Poison)
+  end
 end
