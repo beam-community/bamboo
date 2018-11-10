@@ -14,12 +14,6 @@ defmodule Bamboo.SendGridHelperTest do
     assert email.private[:send_grid_template] == %{template_id: @template_id}
   end
 
-  test "with_template/2 raises on non-UUID `template_id`", %{email: email} do
-    assert_raise RuntimeError, fn ->
-      email |> with_template("not a UUID")
-    end
-  end
-
   test "with_template/2 uses the last specified template", %{email: email} do
     last_template_id = "355d0197-ecf5-4268-aa8b-2c0502aec406"
     email = email |> with_template(@template_id) |> with_template(last_template_id)
@@ -58,6 +52,39 @@ defmodule Bamboo.SendGridHelperTest do
     email_1 = email |> with_template(@template_id) |> substitute("%name%", "Jon Snow")
     email_2 = email |> substitute("%name%", "Jon Snow") |> with_template(@template_id)
     assert email_1 == email_2
+  end
+
+  test "dynamic_field/3 adds the specified fields", %{email: email} do
+    user = %{
+      name: "Jon Snow",
+      email: "thekinginthenorth@thestarks.com"
+    }
+
+    email =
+      email
+      |> add_dynamic_field("name", "Jon Snow")
+      |> add_dynamic_field("location", "Westeros")
+      |> add_dynamic_field("user", user)
+
+    assert email.private[:send_grid_template] == %{
+             dynamic_template_data: %{
+               "name" => "Jon Snow",
+               "location" => "Westeros",
+               "user" => user
+             }
+           }
+  end
+
+  test "dynamic_field/3 should work with atoms", %{email: email} do
+    email =
+      email
+      |> add_dynamic_field(:name, "Jon Snow")
+
+    assert email.private[:send_grid_template] == %{
+             dynamic_template_data: %{
+               "name" => "Jon Snow"
+             }
+           }
   end
 
   test "with_categories/2 adds the correct property", %{email: email} do

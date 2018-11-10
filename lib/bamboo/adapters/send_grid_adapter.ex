@@ -121,6 +121,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_bcc(email)
     |> put_custom_args(email)
     |> put_template_substitutions(email)
+    |> put_dynamic_template_data(email)
   end
 
   defp put_to(body, %Email{to: to}) do
@@ -194,6 +195,15 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_template_substitutions(body, _), do: body
+  
+  
+  defp put_dynamic_template_data(body, %Email{
+         private: %{send_grid_template: %{dynamic_template_data: dynamic_template_data}}
+       }) do
+    Map.put(body, :dynamic_template_data, dynamic_template_data)
+  end
+
+  defp put_dynamic_template_data(body, _), do: body
 
   defp put_custom_args(body, %Email{private: %{custom_args: custom_args}})
        when is_nil(custom_args) or length(custom_args) == 0,

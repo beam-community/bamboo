@@ -12,7 +12,6 @@ defmodule Bamboo.SendGridHelper do
 
   alias Bamboo.Email
 
-  @id_size 36
   @field_name :send_grid_template
   @categories :categories
 
@@ -26,16 +25,10 @@ defmodule Bamboo.SendGridHelper do
       |> with_template("80509523-83de-42b6-a2bf-54b7513bd2aa")
   """
   def with_template(email, template_id) do
-    if byte_size(template_id) == @id_size do
-      template = Map.get(email.private, @field_name, %{})
+    template = Map.get(email.private, @field_name, %{})
 
-      email
-      |> Email.put_private(@field_name, set_template(template, template_id))
-    else
-      raise "expected the template_id parameter to be a UUID 36 characters long, got #{
-              template_id
-            }"
-    end
+    email
+    |> Email.put_private(@field_name, set_template(template, template_id))
   end
 
   @doc """
@@ -62,7 +55,7 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   An array of category names for this email. A maximum of 10 categories can be assigned to an email.
-  Duplicate categories will be ignored and only unique entries will be sent. 
+  Duplicate categories will be ignored and only unique entries will be sent.
 
   ## Example
 
@@ -83,6 +76,46 @@ defmodule Bamboo.SendGridHelper do
     raise "expected a list of category strings"
   end
 
+  @doc """
+  Add a property to the list of dynamic template data in the SendGrid template.
+  This will be added to the request as:
+
+  ...
+   "personalizations":[
+      {
+         "to":[
+            {
+               "email":"example@sendgrid.net"
+            }
+         ],
+         "dynamic_template_data":{
+            "total":"$ 239.85",
+         }
+      }
+   ],
+  ...
+
+
+  The tag can be of any type since SendGrid allows you to use Handelbars in its templates
+
+  ## Example
+
+      email
+      |> add_data("name", "Jon Snow")
+  """
+  def add_dynamic_field(email, field, value) when is_atom(field),
+    do: add_dynamic_field(email, Atom.to_string(field), value)
+
+  def add_dynamic_field(email, field, value) when is_binary(field) do
+    template = Map.get(email.private, @field_name, %{})
+
+    email
+    |> Email.put_private(@field_name, add_dynamic_field_to_template(template, field, value))
+  end
+
+  def add_dynamic_field(_email, field, _value),
+    do: raise("expected the name parameter to be of type binary or atom, got #{field}")
+
   defp set_template(template, template_id) do
     template
     |> Map.merge(%{template_id: template_id})
@@ -92,6 +125,13 @@ defmodule Bamboo.SendGridHelper do
     template
     |> Map.update(:substitutions, %{tag => value}, fn substitutions ->
       Map.merge(substitutions, %{tag => value})
+    end)
+  end
+
+  defp add_dynamic_field_to_template(template, field, value) do
+    template
+    |> Map.update(:dynamic_template_data, %{field => value}, fn dynamic_data ->
+      Map.merge(dynamic_data, %{field => value})
     end)
   end
 end
