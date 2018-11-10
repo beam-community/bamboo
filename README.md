@@ -223,7 +223,7 @@ templates with substitution tags. See
 
 ## JSON support
 
-Postgrex comes with JSON support out of the box via the [Poison](https://github.com/devinus/poison) library. To use it, add `:poison` to your dependencies:
+Bamboo comes with JSON support out of the box via the [Poison](https://github.com/devinus/poison) library. To use it, add `:poison` to your dependencies:
 
 ```elixir
 {:poison, ">= 1.5.0"}
