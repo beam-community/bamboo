@@ -230,7 +230,7 @@ defmodule Bamboo.SendGridAdapterTest do
     email |> SendGridAdapter.deliver(@config_with_sandbox_enabled)
 
     assert_receive {:fake_sendgrid, %{params: params}}
-    assert params["mail_settings"]["sandbox"] == true
+    assert params["mail_settings"]["sandbox_mode"]["enable"] == true
   end
 
   test "raises if the response is not a success" do

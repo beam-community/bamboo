@@ -161,7 +161,9 @@ defmodule Bamboo.SendGridAdapter do
     end
   end
 
-  defp put_settings(body, %{sandbox: true}), do: Map.put(body, :mail_settings, %{sandbox: true})
+  defp put_settings(body, %{sandbox: true}),
+    do: Map.put(body, :mail_settings, %{sandbox_mode: %{enable: true}})
+
   defp put_settings(body, _), do: body
 
   defp content(email) do
