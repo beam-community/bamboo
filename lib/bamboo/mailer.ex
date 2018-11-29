@@ -145,7 +145,7 @@ defmodule Bamboo.Mailer do
       """
       Sending email with #{inspect(adapter)}:
 
-      #{inspect(email, limit: :infinity)}
+      #{inspect(email, limit: 150)}
       """
     end)
   end
@@ -155,7 +155,7 @@ defmodule Bamboo.Mailer do
       """
       Email was not sent because recipients are empty.
 
-      Full email - #{inspect(email, limit: :infinity)}
+      Full email - #{inspect(email, limit: 150)}
       """
     end)
   end

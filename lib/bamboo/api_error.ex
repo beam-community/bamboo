@@ -47,11 +47,11 @@ defmodule Bamboo.ApiError do
 
     Here is the response:
 
-    #{inspect(response, limit: :infinity)}
+    #{inspect(response, limit: 150)}
 
     Here are the params we sent:
 
-    #{inspect(params, limit: :infinity)}
+    #{inspect(params, limit: 150)}
     """
 
     message =
