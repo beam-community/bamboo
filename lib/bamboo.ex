@@ -23,7 +23,7 @@ defmodule Bamboo do
       message = """
       All recipients were set to nil. Must specify at least one recipient.
 
-      Full email - #{inspect(email, limit: :infinity)}
+      Full email - #{inspect(email, limit: 150)}
       """
 
       %NilRecipientsError{message: message}
