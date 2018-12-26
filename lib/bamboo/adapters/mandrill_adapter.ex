@@ -19,13 +19,10 @@ defmodule Bamboo.MandrillAdapter do
       end
   """
 
-  @service_name "Mandrill"
   @default_base_uri "https://mandrillapp.com"
   @send_message_path "api/1.0/messages/send.json"
   @send_message_template_path "api/1.0/messages/send-template.json"
   @behaviour Bamboo.Adapter
-
-  import Bamboo.ApiError
 
   def deliver(email, config) do
     api_key = get_key(config)
@@ -33,15 +30,11 @@ defmodule Bamboo.MandrillAdapter do
     uri = [base_uri(), "/", api_path(email)]
 
     case :hackney.post(uri, headers(), params, [:with_body]) do
-      {:ok, status, _headers, response} when status > 299 ->
-        filtered_params = params |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
-        raise_api_error(@service_name, response, filtered_params)
-
       {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
+        {:ok, %{status_code: status, headers: headers, body: response}}
 
-      {:error, reason} ->
-        raise_api_error(inspect(reason))
+      resp ->
+        resp
     end
   end
 

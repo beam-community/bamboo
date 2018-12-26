@@ -62,7 +62,7 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      @spec deliver_now(Bamboo.Email.t()) :: Bamboo.Email.t()
+      @spec deliver_now(Bamboo.Email.t()) :: {:ok, Bamboo.Email.t()} | {:error, any()}
       def deliver_now(email) do
         config = build_config()
         Bamboo.Mailer.deliver_now(config.adapter, email, config)
@@ -96,7 +96,7 @@ defmodule Bamboo.Mailer do
   `deliver_later/1` if you want to send in the background to speed things up.
   """
   def deliver_now(_email) do
-    raise @cannot_call_directly_error
+    {:error, @cannot_call_directly_error}
   end
 
   @doc """
@@ -109,7 +109,7 @@ defmodule Bamboo.Mailer do
   with `deliver_later/1`.
   """
   def deliver_later(_email) do
-    raise @cannot_call_directly_error
+    {:error, @cannot_call_directly_error}
   end
 
   @doc false
@@ -118,12 +118,11 @@ defmodule Bamboo.Mailer do
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
       debug_unsent(email)
+      {:error, :empty_recipients}
     else
       debug_sent(email, adapter)
       adapter.deliver(email, config)
     end
-
-    email
   end
 
   @doc false
@@ -132,12 +131,11 @@ defmodule Bamboo.Mailer do
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
       debug_unsent(email)
+      {:error, :empty_recipients}
     else
       debug_sent(email, adapter)
       config.deliver_later_strategy.deliver_later(adapter, email, config)
     end
-
-    email
   end
 
   defp debug_sent(email, adapter) do

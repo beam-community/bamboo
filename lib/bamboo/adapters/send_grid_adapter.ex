@@ -27,13 +27,11 @@ defmodule Bamboo.SendGridAdapter do
       end
   """
 
-  @service_name "SendGrid"
   @default_base_uri "https://sendgrid.com/v3/"
   @send_message_path "/mail/send"
   @behaviour Bamboo.Adapter
 
   alias Bamboo.Email
-  import Bamboo.ApiError
 
   def deliver(email, config) do
     api_key = get_key(config)
@@ -41,15 +39,11 @@ defmodule Bamboo.SendGridAdapter do
     url = [base_uri(), @send_message_path]
 
     case :hackney.post(url, headers(api_key), body, [:with_body]) do
-      {:ok, status, _headers, response} when status > 299 ->
-        filtered_params = body |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
-        raise_api_error(@service_name, response, filtered_params)
-
       {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
+        {:ok, %{status_code: status, headers: headers, body: response}}
 
-      {:error, reason} ->
-        raise_api_error(inspect(reason))
+      resp ->
+        resp
     end
   end
 
@@ -197,8 +191,7 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_template_substitutions(body, _), do: body
-  
-  
+
   defp put_dynamic_template_data(body, %Email{
          private: %{send_grid_template: %{dynamic_template_data: dynamic_template_data}}
        }) do

@@ -113,7 +113,7 @@ defmodule Bamboo.MailerTest do
   test "deliver_now/1 calls the adapter with the email and config as a map" do
     email = new_email(to: "foo@bar.com")
 
-    returned_email = FooMailer.deliver_now(email)
+    {:deliver, returned_email, _config} = FooMailer.deliver_now(email)
 
     assert returned_email == Bamboo.Mailer.normalize_addresses(email)
     assert_received {:deliver, %Bamboo.Email{}, config}
@@ -249,16 +249,11 @@ defmodule Bamboo.MailerTest do
     end
   end
 
-  test "raises an error if deliver_now or deliver_later is called directly" do
+  test "returns an error if deliver_now or deliver_later is called directly" do
     email = new_email(from: %{foo: :bar})
 
-    assert_raise RuntimeError, ~r/cannot call Bamboo.Mailer/, fn ->
-      Bamboo.Mailer.deliver_now(email)
-    end
-
-    assert_raise RuntimeError, ~r/cannot call Bamboo.Mailer/, fn ->
-      Bamboo.Mailer.deliver_later(email)
-    end
+    {:error, error} = Bamboo.Mailer.deliver_now(email)
+    assert String.contains?(error, "cannot call Bamboo.Mailer")
   end
 
   defp new_email(attrs \\ []) do

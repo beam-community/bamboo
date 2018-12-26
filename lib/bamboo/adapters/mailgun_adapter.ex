@@ -19,12 +19,10 @@ defmodule Bamboo.MailgunAdapter do
       end
   """
 
-  @service_name "Mailgun"
   @base_uri "https://api.mailgun.net/v3"
   @behaviour Bamboo.Adapter
 
   alias Bamboo.{Email, Attachment}
-  import Bamboo.ApiError
 
   @doc false
   def handle_config(config) do
@@ -51,14 +49,11 @@ defmodule Bamboo.MailgunAdapter do
     body = to_mailgun_body(email)
 
     case :hackney.post(full_uri(config), headers(email, config), body, [:with_body]) do
-      {:ok, status, _headers, response} when status > 299 ->
-        raise_api_error(@service_name, response, body)
-
       {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
+        {:ok, %{status_code: status, headers: headers, body: response}}
 
-      {:error, reason} ->
-        raise_api_error(inspect(reason))
+      resp ->
+        resp
     end
   end
 

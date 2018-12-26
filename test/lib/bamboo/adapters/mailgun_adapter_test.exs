@@ -185,12 +185,10 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["h:Reply-To"] == "random@foo.com"
   end
 
-  test "raises if the response is not a success" do
+  test "returns error status if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.ApiError, fn ->
-      email |> MailgunAdapter.deliver(@config)
-    end
+    {:ok, %{status_code: 500, body: "Error!!"}} = MailgunAdapter.deliver(email, @config)
   end
 
   defp new_email(attrs \\ []) do

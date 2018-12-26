@@ -233,20 +233,10 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["mail_settings"]["sandbox_mode"]["enable"] == true
   end
 
-  test "raises if the response is not a success" do
+  test "returns error status if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.ApiError, fn ->
-      email |> SendGridAdapter.deliver(@config)
-    end
-  end
-
-  test "removes api key from error output" do
-    email = new_email(from: "INVALID_EMAIL")
-
-    assert_raise Bamboo.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
-      email |> SendGridAdapter.deliver(@config)
-    end
+    {:ok, %{status_code: 500, body: "Error!!"}} = SendGridAdapter.deliver(email, @config)
   end
 
   defp new_email(attrs \\ []) do
