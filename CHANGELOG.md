@@ -1,12 +1,17 @@
-## [Unreleased]
+## [1.2.0] - 2019-01-30
 
 ### New Additions
 
 * Allow custom args for SendGrid (https://github.com/thoughtbot/bamboo/pull/413)
+* Added support for dynamic template data in Sendgrid ((https://github.com/thoughtbot/bamboo/pull/426)
 
 ### Fixes/Enhancements
 
+* Make JSON library configurable (https://github.com/thoughtbot/bamboo/374)
 * Fix reply-to header being set as string for mailgun adapter (https://github.com/thoughtbot/bamboo/pull/421)
+* Fix HTML escaping in headers (https://github.com/thoughtbot/bamboo/437)
+* Fix Sendgrid sandbox mode (https://github.com/thoughtbot/bamboo/442)
+* Lazily render debug logs (https://github.com/thoughtbot/bamboo/438)
 
 ## [1.1.0] - 2018-08-15
 
@@ -153,7 +158,7 @@
 
 * `Bamboo.Test.assert_no_emails_sent` has been renamed to
   `assert_no_emails_delivered` ([#109])
-* Since `Bamboo.TaskSupervisorStrategy` is started automatically,    
+* Since `Bamboo.TaskSupervisorStrategy` is started automatically,
   `Bamboo.TaskSupervisorStrategy.child_spec` has been removed. Please remove
   the call to that function from your `lib/my_app.ex` file.
 
@@ -190,7 +195,8 @@
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
-[Unreleased]: https://github.com/thoughtbot/bamboo/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/thoughtbot/bamboo/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/thoughtbot/bamboo/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/thoughtbot/bamboo/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/thoughtbot/bamboo/compare/v1.0.0-rc2...v1.0.0
 [1.0.0-rc2]: https://github.com/thoughtbot/bamboo/compare/v1.0.0-rc.1...v1.0.0-rc2
