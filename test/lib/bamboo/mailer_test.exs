@@ -30,6 +30,16 @@ defmodule Bamboo.MailerTest do
     def handle_config(config), do: config
   end
 
+  defmodule ResponseAdapter do
+    def deliver(email, config) do
+      send(:mailer_test, %{body: "", headers: [{}], status_code: 202})
+    end
+
+    def handle_config(config), do: config
+
+    def supports_attachments?, do: true
+  end
+
   @custom_config adapter: CustomConfigAdapter, foo: :bar
 
   Application.put_env(:bamboo, __MODULE__.CustomConfigMailer, @custom_config)
@@ -51,6 +61,14 @@ defmodule Bamboo.MailerTest do
   Application.put_env(:bamboo, __MODULE__.FooMailer, @mailer_config)
 
   defmodule FooMailer do
+    use Bamboo.Mailer, otp_app: :bamboo
+  end
+
+  @response_config adapter: ResponseAdapter, foo: :bar
+
+  Application.put_env(:bamboo, __MODULE__.ResponseMailer, @response_config)
+
+  defmodule ResponseMailer do
     use Bamboo.Mailer, otp_app: :bamboo
   end
 
@@ -123,6 +141,34 @@ defmodule Bamboo.MailerTest do
       |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
 
     assert config == config_with_default_strategy
+  end
+
+  test "deliver_info/1 calls and retruns the dafault adapter response" do
+    email = new_email(to: "foo@bar.com")
+
+    {status, returned_email, config} = FooMailer.deliver_info(email)
+
+    assert returned_email == Bamboo.Mailer.normalize_addresses(email)
+    assert status == :deliver
+    %{adapter: adapter, deliver_later_strategy: deliver_later_strategy} = config
+    assert adapter == FooAdapter
+    assert deliver_later_strategy = Bamboo.TaskSupervisorStrategy
+    assert_received {:deliver, %Bamboo.Email{}, config}
+
+    config_with_default_strategy =
+      Enum.into(@mailer_config, %{})
+      |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
+
+    assert config == config_with_default_strategy
+  end
+
+  test "deliver_info/1 calls and retruns the mocked http adapter response" do
+    email = new_email(to: "foo@bar.com")
+
+    %{body: body, headers: headers, status_code: 202} = ResponseMailer.deliver_info(email)
+    assert body == ""
+    assert headers == [{}]
+    assert_received %{body: "", headers: [{}], status_code: 202}
   end
 
   test "deliver_now/1 with no from address" do
@@ -249,7 +295,7 @@ defmodule Bamboo.MailerTest do
     end
   end
 
-  test "raises an error if deliver_now or deliver_later is called directly" do
+  test "raises an error if deliver_now or deliver_later deliver_info is called directly" do
     email = new_email(from: %{foo: :bar})
 
     assert_raise RuntimeError, ~r/cannot call Bamboo.Mailer/, fn ->
@@ -258,6 +304,10 @@ defmodule Bamboo.MailerTest do
 
     assert_raise RuntimeError, ~r/cannot call Bamboo.Mailer/, fn ->
       Bamboo.Mailer.deliver_later(email)
+    end
+
+    assert_raise RuntimeError, ~r/cannot call Bamboo.Mailer/, fn ->
+      Bamboo.Mailer.deliver_info(email)
     end
   end
 

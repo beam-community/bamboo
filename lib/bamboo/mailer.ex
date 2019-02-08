@@ -20,7 +20,7 @@ defmodule Bamboo.Mailer do
 
       # Somewhere in your application. Maybe lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
-        # Adds deliver_now/1 and deliver_later/1
+        # Adds deliver_now/1, deliver_later/1, and deliver_info/1
         use Bamboo.Mailer, otp_app: :my_app
       end
 
@@ -74,6 +74,12 @@ defmodule Bamboo.Mailer do
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
 
+      @spec deliver_info(any()) :: no_return()
+      def deliver_info(email) do
+        config = build_config()
+        Bamboo.Mailer.deliver_info(config.adapter, email, config)
+      end
+
       otp_app = Keyword.fetch!(opts, :otp_app)
 
       defp build_config, do: Bamboo.Mailer.build_config(__MODULE__, unquote(otp_app))
@@ -96,6 +102,16 @@ defmodule Bamboo.Mailer do
   `deliver_later/1` if you want to send in the background to speed things up.
   """
   def deliver_now(_email) do
+    raise @cannot_call_directly_error
+  end
+
+  @doc """
+  Deliver an email right away and return the response from the adapter
+
+  Call your mailer with `deliver_info/1` to send an email right away. Call
+  `deliver_later/1` if you want to send in the background to speed things up.
+  """
+  def deliver_info(_email) do
     raise @cannot_call_directly_error
   end
 
@@ -138,6 +154,18 @@ defmodule Bamboo.Mailer do
     end
 
     email
+  end
+
+  @doc false
+  def deliver_info(adapter, email, config) do
+    email = email |> validate_and_normalize(adapter)
+
+    if email.to == [] && email.cc == [] && email.bcc == [] do
+      debug_unsent(email)
+    else
+      debug_sent(email, adapter)
+      adapter.deliver(email, config)
+    end
   end
 
   defp debug_sent(email, adapter) do
