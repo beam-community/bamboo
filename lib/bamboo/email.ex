@@ -75,7 +75,8 @@ defmodule Bamboo.Email do
           text_body: nil | String.t(),
           headers: %{String.t() => String.t()},
           assigns: %{atom => any},
-          private: %{atom => any}
+          private: %{atom => any},
+          response: nil | %{atom => any}
         }
 
   defstruct from: nil,
@@ -88,7 +89,8 @@ defmodule Bamboo.Email do
             headers: %{},
             attachments: [],
             assigns: %{},
-            private: %{}
+            private: %{},
+            response: nil
 
   alias Bamboo.{Email, Attachment}
 

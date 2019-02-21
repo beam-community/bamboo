@@ -118,12 +118,12 @@ defmodule Bamboo.Mailer do
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
       debug_unsent(email)
+      email
     else
       debug_sent(email, adapter)
-      adapter.deliver(email, config)
+      response = adapter.deliver(email, config)
+      maybe_merge_response(email, response)
     end
-
-    email
   end
 
   @doc false
@@ -139,6 +139,12 @@ defmodule Bamboo.Mailer do
 
     email
   end
+
+  defp maybe_merge_response(email, %{status_code: _, headers: _, body: _} = response) do
+    %{email | response: response}
+  end
+
+  defp maybe_merge_response(email, _), do: email
 
   defp debug_sent(email, adapter) do
     Logger.debug(fn ->

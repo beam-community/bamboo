@@ -12,6 +12,14 @@ defmodule Bamboo.MailerTest do
     def supports_attachments?, do: true
   end
 
+  defmodule ResponseAdapter do
+    def deliver(_email, _config) do
+      send(:mailer_test, %{status_code: 202, headers: [%{}], body: ""})
+    end
+
+    def handle_config(config), do: config
+  end
+
   defmodule CustomConfigAdapter do
     def deliver(email, config) do
       send(:mailer_test, {:deliver, email, config})
@@ -51,6 +59,14 @@ defmodule Bamboo.MailerTest do
   Application.put_env(:bamboo, __MODULE__.FooMailer, @mailer_config)
 
   defmodule FooMailer do
+    use Bamboo.Mailer, otp_app: :bamboo
+  end
+
+  @response_config adapter: ResponseAdapter, foo: :bar
+
+  Application.put_env(:bamboo, __MODULE__.ResponseAdapterMailer, @response_config)
+
+  defmodule ResponseAdapterMailer do
     use Bamboo.Mailer, otp_app: :bamboo
   end
 
@@ -123,6 +139,14 @@ defmodule Bamboo.MailerTest do
       |> Map.put(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
 
     assert config == config_with_default_strategy
+  end
+
+  test "deliver_now/1 returns the email with the response if there is a conforming one" do
+    email = new_email(to: "foo@bar.com")
+
+    %Email{response: response} = ResponseAdapterMailer.deliver_now(email)
+
+    assert %{body: _, headers: _, status_code: _} = response
   end
 
   test "deliver_now/1 with no from address" do
