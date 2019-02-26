@@ -2,6 +2,7 @@ defmodule Bamboo.SentEmailViewerPlug do
   use Plug.Router
   require EEx
   alias Bamboo.SentEmail
+  alias Bamboo.SentEmailViewerPlug.Helper
 
   no_emails_template = Path.join(__DIR__, "no_emails.html.eex")
   EEx.function_from_file(:defp, :no_emails, no_emails_template)
@@ -70,12 +71,32 @@ defmodule Bamboo.SentEmailViewerPlug do
     end
   end
 
+  get "/api/all.json" do
+    data =
+      all_emails()
+      |> Enum.map(&Helper.format_json_email/1)
+
+    conn
+    |> send_json(:ok, data)
+  end
+
+  post "/api/reset.json" do
+    reset_emails()
+
+    conn
+    |> send_json(:ok, %{ok: true})
+  end
+
   defp all_emails do
     SentEmail.all()
   end
 
   defp newest_email do
     all_emails() |> List.first()
+  end
+
+  defp reset_emails do
+    SentEmail.reset()
   end
 
   defp render_no_emails(conn) do
@@ -101,6 +122,14 @@ defmodule Bamboo.SentEmailViewerPlug do
   defp send_html(conn, status, body) do
     conn
     |> Plug.Conn.put_resp_content_type("text/html")
+    |> send_resp(status, body)
+  end
+
+  defp send_json(conn, status, data) do
+    body = data |> Bamboo.json_library().encode!()
+
+    conn
+    |> Plug.Conn.put_resp_content_type("application/json")
     |> send_resp(status, body)
   end
 

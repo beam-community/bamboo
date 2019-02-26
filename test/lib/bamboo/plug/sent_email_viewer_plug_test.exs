@@ -190,6 +190,34 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     assert conn.resp_body =~ "Email not found"
   end
 
+  test "list emails over API" do
+    normalize_and_push_pair(:html_email)
+    conn = conn(:get, "/api/all.json")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert {"content-type", "application/json; charset=utf-8"} in conn.resp_headers
+
+    json = Bamboo.json_library().decode!(conn.resp_body)
+
+    first_email = json |> Enum.at(0)
+    assert first_email["html_body"] == "<p>ohai!</p>"
+  end
+
+  test "reset emails over API" do
+    normalize_and_push_pair(:html_email)
+    conn = conn(:post, "/api/reset.json")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert {"content-type", "application/json; charset=utf-8"} in conn.resp_headers
+
+    json = Bamboo.json_library().decode!(conn.resp_body)
+    assert json == %{"ok" => true}
+  end
+
   defp newest_email do
     SentEmail.all() |> List.first()
   end

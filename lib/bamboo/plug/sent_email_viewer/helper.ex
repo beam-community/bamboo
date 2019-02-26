@@ -39,4 +39,14 @@ defmodule Bamboo.SentEmailViewerPlug.Helper do
   def format_email_address({name, address}) do
     "#{name}&lt;#{address}&gt;"
   end
+
+  def format_json_email(email) do
+    email
+    |> Map.update(:from, nil, &format_json_email_address/1)
+    |> Map.take([:to, :cc, :bcc, :subject, :text_body, :html_body, :headers, :attachments])
+  end
+
+  defp format_json_email_address({name, address}) do
+    [name, address]
+  end
 end
