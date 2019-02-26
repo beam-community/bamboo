@@ -220,7 +220,7 @@ defmodule Bamboo.MailerTest do
     end
   end
 
-  test "raises if all receipients are nil" do
+  test "raises if all recipients are nil" do
     assert_raise Bamboo.NilRecipientsError, fn ->
       new_email(to: nil, cc: nil, bcc: nil) |> FooMailer.deliver_now()
     end

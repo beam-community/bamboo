@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
 
   @moduledoc false
 
-  # This coud be used in the future by the public, but right now it's only
+  # This could be used in the future by the public, but right now it's only
   # suitable for development.
 
   def run(_) do

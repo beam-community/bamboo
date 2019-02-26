@@ -96,7 +96,7 @@ defmodule Bamboo.SendGridHelper do
   ...
 
 
-  The tag can be of any type since SendGrid allows you to use Handelbars in its templates
+  The tag can be of any type since SendGrid allows you to use Handlebars in its templates
 
   ## Example
 

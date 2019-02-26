@@ -214,7 +214,7 @@ defmodule Bamboo.Email do
     def create(conn, params) do
       #...
       email
-      |> put_attachment(%Bamboo.Attachment{filname: "event.ics", data: "BEGIN:VCALENDAR..."})
+      |> put_attachment(%Bamboo.Attachment{filename: "event.ics", data: "BEGIN:VCALENDAR..."})
       #...
     end
   """
