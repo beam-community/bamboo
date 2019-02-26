@@ -241,13 +241,13 @@ You can use the Bamboo.TestAdapter along with [Bamboo.Test] to make testing your
 emails straightforward.
 
 ```elixir
-# Using the mailer from the Getting Started section
-defmodule MyApp.Registration do
+defmodule MyApp.RegistrationTest do
   use ExUnit.Case
   use Bamboo.Test
+  alias MyApp.Email
 
+  # Unit testing is easy since the email is just a struct
   test "welcome email" do
-    # Unit testing is easy since the email is just a struct
     user = new_user
 
     email = Email.welcome_email(user)
@@ -257,13 +257,13 @@ defmodule MyApp.Registration do
     assert email.html_body =~ "Thanks for joining"
   end
 
+  # Integration test with the helpers from Bamboo.Test
   test "after registering, the user gets a welcome email" do
-    # Integration test with the helpers from Bamboo.Test
     user = new_user
 
-    MyApp.Register(user)
+    MyApp.Registration.create(user)
 
-    assert_delivered_email MyApp.Email.welcome_email(user)
+    assert_delivered_email Email.welcome_email(user)
   end
 end
 ```
