@@ -177,7 +177,7 @@ defmodule Bamboo.MailgunAdapter do
     {
       :multipart,
       # Drop the remaining non-Mailgun fields
-      # Append the attachement parts
+      # Append the attachment parts
       body
       |> Map.drop(@internal_fields)
       |> Enum.map(fn {k, v} -> {to_string(k), to_string(v)} end)

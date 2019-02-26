@@ -197,7 +197,7 @@ defmodule Bamboo.Phoenix do
   end
 
   @doc """
-  Sets an assign for the email. These will be availabe when rendering the email
+  Sets an assign for the email. These will be available when rendering the email
   """
   def assign(%{assigns: assigns} = email, key, value) do
     %{email | assigns: Map.put(assigns, key, value)}

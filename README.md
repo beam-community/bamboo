@@ -10,7 +10,7 @@
 Flexible and easy to use email for Elixir.
 
 - **Adapter based** so it can be used with Mandrill, SMTP, or whatever else you want. Comes with a Mandrill adapter out of the box.
-- **Deliver emails in the background**. Most of the time you don't want or need to wait for the email to send. Bamboo makes it easy with Mailer.deliver_later
+- **Deliver emails in the background**. Most of the time you don't want or need to wait for the email to send. Bamboo makes it easy with Mailer.deliver_later.
 - **Easy to format recipients**. You can do `new_email(to: Repo.one(User))` and Bamboo can format the User struct if you implement Bamboo.Formatter.
 - **Works out of the box with Phoenix**. Use views and layouts to make rendering email easy.
 - **Very composable**. Emails are just a Bamboo.Email struct and can be manipulated with plain functions.
@@ -117,7 +117,7 @@ defmodule MyApp.Email do
     )
 
     # or pipe using Bamboo.Email functions
-    new_email
+    new_email()
     |> to("foo@example.com")
     |> from("me@example.com")
     |> subject("Welcome!!!")
@@ -152,7 +152,7 @@ defmodule MyApp.Email do
   import Bamboo.Phoenix
 
   def welcome_email do
-    base_email
+    base_email()
     |> to("foo@bar.com")
     |> subject("Welcome!!!")
     |> put_header("Reply-To", "someone@example.com")
@@ -162,7 +162,7 @@ defmodule MyApp.Email do
 
   defp base_email do
     # Here you can set a default from, default headers, etc.
-    new_email
+    new_email()
     |> from("myapp@example.com")
     |> put_html_layout({MyApp.LayoutView, "email.html"})
     |> put_text_layout({MyApp.LayoutView, "email.text"})
@@ -195,7 +195,7 @@ See the [Bamboo.Email] and [Bamboo.Formatter docs] for more info and examples.
 
 Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can
 use Phoenix views and layouts with Bamboo. See
-[Bamboo.Phoenix](https://hexdocs.pm/bamboo/Bamboo.Phoenix.html)
+[Bamboo.Phoenix](https://hexdocs.pm/bamboo/Bamboo.Phoenix.html).
 
 ## Viewing Sent Emails
 
@@ -203,7 +203,7 @@ Bamboo comes with a handy plug for viewing emails sent in development. Now you
 don't have to look at the logs to get password resets, confirmation links, etc.
 Just open up the sent email viewer and click the link.
 
-See [Bamboo.SentEmailViewerPlug](https://hexdocs.pm/bamboo/Bamboo.SentEmailViewerPlug.html)
+See [Bamboo.SentEmailViewerPlug](https://hexdocs.pm/bamboo/Bamboo.SentEmailViewerPlug.html).
 
 Here is what it looks like:
 
@@ -241,13 +241,13 @@ You can use the Bamboo.TestAdapter along with [Bamboo.Test] to make testing your
 emails straightforward.
 
 ```elixir
-# Using the mailer from the Getting Started section
-defmodule MyApp.Registration do
+defmodule MyApp.RegistrationTest do
   use ExUnit.Case
   use Bamboo.Test
+  alias MyApp.Email
 
+  # Unit testing is easy since the email is just a struct
   test "welcome email" do
-    # Unit testing is easy since the email is just a struct
     user = new_user
 
     email = Email.welcome_email(user)
@@ -257,13 +257,13 @@ defmodule MyApp.Registration do
     assert email.html_body =~ "Thanks for joining"
   end
 
+  # Integration test with the helpers from Bamboo.Test
   test "after registering, the user gets a welcome email" do
-    # Integration test with the helpers from Bamboo.Test
     user = new_user
 
-    MyApp.Register(user)
+    MyApp.Registration.create(user)
 
-    assert_delivered_email MyApp.Email.welcome_email(user)
+    assert_delivered_email Email.welcome_email(user)
   end
 end
 ```
