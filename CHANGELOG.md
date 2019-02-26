@@ -7,11 +7,11 @@
 
 ### Fixes/Enhancements
 
-* Make JSON library configurable (https://github.com/thoughtbot/bamboo/374)
+* Make JSON library configurable (https://github.com/thoughtbot/bamboo/pull/374)
 * Fix reply-to header being set as string for mailgun adapter (https://github.com/thoughtbot/bamboo/pull/421)
-* Fix HTML escaping in headers (https://github.com/thoughtbot/bamboo/437)
-* Fix Sendgrid sandbox mode (https://github.com/thoughtbot/bamboo/442)
-* Lazily render debug logs (https://github.com/thoughtbot/bamboo/438)
+* Fix HTML escaping in headers (https://github.com/thoughtbot/bamboo/pull/437)
+* Fix Sendgrid sandbox mode (https://github.com/thoughtbot/bamboo/pull/442)
+* Lazily render debug logs (https://github.com/thoughtbot/bamboo/pull/438)
 
 ## [1.1.0] - 2018-08-15
 
