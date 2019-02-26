@@ -2,7 +2,7 @@ defmodule Bamboo.Email do
   @moduledoc """
   Contains functions for composing emails.
 
-  Bamboo separates composing emails from delivering them. This separation emails
+  Bamboo separates composing emails from delivering them. This separation makes emails
   easy to test and makes things like using a default layout, or a default from
   address easy to do. This module is for creating emails. To actually send them,
   use [Bamboo.Mailer](Bamboo.Mailer.html).
