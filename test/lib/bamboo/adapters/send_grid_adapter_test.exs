@@ -198,6 +198,20 @@ defmodule Bamboo.SendGridAdapterTest do
     assert personalization["substitutions"] == %{"%foo%" => "bar"}
   end
 
+  test "deliver/2 correctly handles an asm_group_id" do
+    email = new_email(
+      from: {"From", "from@foo.com"},
+      subject: "My Subject",
+    )
+
+    email
+    |> Bamboo.SendGridHelper.with_asm_group_id(1234)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["asm"]["group_id"] == 1234
+  end
+
   test "deliver/2 doesn't force a subject" do
     email = new_email(from: {"From", "from@foo.com"})
 
