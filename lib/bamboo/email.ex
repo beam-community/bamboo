@@ -203,20 +203,22 @@ defmodule Bamboo.Email do
   end
 
   @doc ~S"""
-  Adds an data attachment to the email
+  Adds a data attachment to the email
 
   ## Example
-    put_attachment(email, %Bamboo.Attachment{})
+
+      put_attachment(email, %Bamboo.Attachment{})
 
   Requires the fields filename and data of the %Bamboo.Attachment{} struct to be set.
 
   ## Example
-    def create(conn, params) do
-      #...
-      email
-      |> put_attachment(%Bamboo.Attachment{filename: "event.ics", data: "BEGIN:VCALENDAR..."})
-      #...
-    end
+
+      def create(conn, params) do
+        #...
+        email
+        |> put_attachment(%Bamboo.Attachment{filename: "event.ics", data: "BEGIN:VCALENDAR..."})
+        #...
+      end
   """
   def put_attachment(%__MODULE__{attachments: _}, %Attachment{filename: nil} = attachment) do
     raise "You must provide a filename for the attachment, instead got: #{inspect(attachment)}"
@@ -231,22 +233,24 @@ defmodule Bamboo.Email do
   end
 
   @doc ~S"""
-  Adds an file attachment to the email
+  Adds a file attachment to the email
 
   ## Example
-    put_attachment(email, path, opts \\ [])
+
+      put_attachment(email, path, opts \\ [])
 
   Accepts `filename: <name>` and `content_type: <type>` options.
 
   If you are using Plug, it accepts a Plug.Upload struct
 
   ## Example
-    def create(conn, params) do
-      #...
-      email
-      |> put_attachment(params["file"])
-      #...
-    end
+
+      def create(conn, params) do
+        #...
+        email
+        |> put_attachment(params["file"])
+        #...
+      end
   """
   def put_attachment(%__MODULE__{attachments: attachments} = email, path, opts \\ []) do
     %{email | attachments: [Bamboo.Attachment.new(path, opts) | attachments]}
