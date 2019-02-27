@@ -8,6 +8,7 @@ defmodule Bamboo.Attachment do
   Creates a new Attachment
 
   Examples:
+  
     Bamboo.Attachment.new("/path/to/attachment.png")
     Bamboo.Attachment.new("/path/to/attachment.png", filename: "image.png")
     Bamboo.Attachment.new("/path/to/attachment.png", filename: "image.png", content_type: "image/png")
