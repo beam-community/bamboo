@@ -199,10 +199,11 @@ defmodule Bamboo.SendGridAdapterTest do
   end
 
   test "deliver/2 correctly handles an asm_group_id" do
-    email = new_email(
-      from: {"From", "from@foo.com"},
-      subject: "My Subject",
-    )
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
 
     email
     |> Bamboo.SendGridHelper.with_asm_group_id(1234)
