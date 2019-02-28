@@ -15,6 +15,7 @@ defmodule Bamboo.SendGridHelper do
   @field_name :send_grid_template
   @categories :categories
   @asm_group_id :asm_group_id
+  @bypass_list_management :bypass_list_management
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -133,6 +134,15 @@ defmodule Bamboo.SendGridHelper do
 
   def with_asm_group_id(_email, asm_group_id) do
     raise "expected the asm_group_id parameter to be an integer, got #{asm_group_id}"
+  end
+
+  def with_bypass_list_management(email, enabled) when is_boolean(enabled) do
+    email
+    |> Email.put_private(@bypass_list_management, enabled)
+  end
+
+  def with_bypass_list_management(_email, enabled) do
+    raise "expected bypass_list_management parameter to be a boolean, got #{enabled}"
   end
 
   defp set_template(template, template_id) do

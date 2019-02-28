@@ -212,6 +212,21 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["asm"]["group_id"] == 1234
   end
 
+  test "deliver/2 correctly handles a bypass_list_management" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_bypass_list_management(true)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["filters"]["bypass_list_management"]["settings"]["enable"] == 1
+  end
+
   test "deliver/2 doesn't force a subject" do
     email = new_email(from: {"From", "from@foo.com"})
 

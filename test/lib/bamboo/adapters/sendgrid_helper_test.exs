@@ -138,4 +138,15 @@ defmodule Bamboo.SendGridHelperTest do
       email |> with_asm_group_id("1234")
     end
   end
+
+  test "with_bypass_list_management/2 add the correct property", %{email: email} do
+    email = email |> with_bypass_list_management(true)
+    assert email.private[:bypass_list_management] == true
+  end
+
+  test "with_bypass_list_management/2 raises on non-boolean parameter", %{email: email} do
+    assert_raise RuntimeError, fn ->
+      email |> with_bypass_list_management(1)
+    end
+  end
 end
