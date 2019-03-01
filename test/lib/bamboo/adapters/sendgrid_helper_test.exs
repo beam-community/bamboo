@@ -139,7 +139,7 @@ defmodule Bamboo.SendGridHelperTest do
     end
   end
 
-  test "with_bypass_list_management/2 add the correct property", %{email: email} do
+  test "with_bypass_list_management/2 adds the correct property", %{email: email} do
     email = email |> with_bypass_list_management(true)
     assert email.private[:bypass_list_management] == true
   end
