@@ -105,6 +105,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_categories(email)
     |> put_settings(config)
     |> put_asm_group_id(email)
+    |> put_bypass_list_management(email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -234,6 +235,21 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_asm_group_id(body, _), do: body
+
+  defp put_bypass_list_management(body, %Email{private: %{bypass_list_management: enabled}})
+       when is_boolean(enabled) do
+    value = if enabled, do: 1, else: 0
+
+    filters_map =
+      body
+      |> Map.get(:filters, %{})
+      |> Map.put(:bypass_list_management, %{settings: %{enable: value}})
+
+    body
+    |> Map.put(:filters, filters_map)
+  end
+
+  defp put_bypass_list_management(body, _), do: body
 
   defp put_attachments(body, %Email{attachments: []}), do: body
 
