@@ -187,8 +187,9 @@ defmodule Bamboo.Test do
   ## Example
 
       email = new_email(text_body: "I love coffee")
-      assert_email_delivered_with(email, text_body: ~r/love/) # Will pass
-      assert_email_delivered_with(email, text_body: ~r/like/) # Will fail
+      email |> MyApp.Mailer.deliver
+      assert_email_delivered_with(text_body: ~r/love/) # Will pass
+      assert_email_delivered_with(text_body: ~r/like/) # Will fail
   """
   defmacro assert_email_delivered_with(email_params) do
     quote bind_quoted: [email_params: email_params] do
