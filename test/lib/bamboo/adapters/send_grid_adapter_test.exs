@@ -228,6 +228,64 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["filters"]["bypass_list_management"]["settings"]["enable"] == 1
   end
 
+  test "deliver/2 correctly handles with_google_analytics that's enabled with no utm_params" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_google_analytics(true)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["tracking_settings"]["ganalytics"]["enable"] == true
+  end
+
+  test "deliver/2 correctly handles with_google_analytics that's disabled with no utm_params" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_google_analytics(false)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["tracking_settings"]["ganalytics"]["enable"] == false
+  end
+
+  test "deliver/2 correctly handles with_google_analytics that's enabled with utm_params" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    utm_params = %{
+      utm_source: "source",
+      utm_medium: "medium",
+      utm_campaign: "campaign",
+      utm_term: "term",
+      utm_content: "content"
+    }
+
+    email
+    |> Bamboo.SendGridHelper.with_google_analytics(true, utm_params)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["tracking_settings"]["ganalytics"]["enable"] == true
+    assert params["tracking_settings"]["ganalytics"]["utm_source"] == "source"
+    assert params["tracking_settings"]["ganalytics"]["utm_medium"] == "medium"
+    assert params["tracking_settings"]["ganalytics"]["utm_campaign"] == "campaign"
+    assert params["tracking_settings"]["ganalytics"]["utm_term"] == "term"
+    assert params["tracking_settings"]["ganalytics"]["utm_content"] == "content"
+  end
+
   test "deliver/2 doesn't force a subject" do
     email = new_email(from: {"From", "from@foo.com"})
 
