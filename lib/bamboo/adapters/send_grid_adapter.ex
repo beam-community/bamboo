@@ -238,15 +238,13 @@ defmodule Bamboo.SendGridAdapter do
 
   defp put_bypass_list_management(body, %Email{private: %{bypass_list_management: enabled}})
        when is_boolean(enabled) do
-    value = if enabled, do: 1, else: 0
-
-    filters_map =
+    mail_settings =
       body
-      |> Map.get(:filters, %{})
-      |> Map.put(:bypass_list_management, %{settings: %{enable: value}})
+      |> Map.get(:mail_settings, %{})
+      |> Map.put(:bypass_list_management, %{enable: enabled})
 
     body
-    |> Map.put(:filters, filters_map)
+    |> Map.put(:mail_settings, mail_settings)
   end
 
   defp put_bypass_list_management(body, _), do: body
