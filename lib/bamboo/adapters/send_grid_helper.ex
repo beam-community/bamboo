@@ -140,12 +140,8 @@ defmodule Bamboo.SendGridHelper do
   A boolean setting to instruct SendGrid to bypass list management for this
   email. If enabled, SendGrid will ignore any email supression (such as
   unsubscriptions, bounces, spam filters) for this email. This is useful for
-  emails that users must receive, such as Terms of Service updates, or
+  emails that all users must receive, such as Terms of Service updates, or
   password resets.
-
-  More details in the [SendGrid documentation][1].
-
-  [1]: https://sendgrid.com/docs/API_Reference/SMTP_API/apps.html#bypass_list_management)
 
   ## Example
 

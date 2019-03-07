@@ -225,7 +225,7 @@ defmodule Bamboo.SendGridAdapterTest do
     |> SendGridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
-    assert params["filters"]["bypass_list_management"]["settings"]["enable"] == 1
+    assert params["mail_settings"]["bypass_list_management"]["enable"] == true
   end
 
   test "deliver/2 doesn't force a subject" do
@@ -261,6 +261,17 @@ defmodule Bamboo.SendGridAdapterTest do
 
     assert_receive {:fake_sendgrid, %{params: params}}
     assert params["mail_settings"]["sandbox_mode"]["enable"] == true
+  end
+
+  test "deliver/2 with sandbox mode enabled, does not overwrite other mail_settings" do
+    email = new_email()
+    email
+    |> Bamboo.SendGridHelper.with_bypass_list_management(true)
+    |> SendGridAdapter.deliver(@config_with_sandbox_enabled)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["mail_settings"]["sandbox_mode"]["enable"] == true
+    assert params["mail_settings"]["bypass_list_management"]["enable"] == true
   end
 
   test "raises if the response is not a success" do
