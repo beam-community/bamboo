@@ -4,6 +4,13 @@ defmodule Bamboo.Attachment do
 
   defstruct filename: nil, content_type: nil, path: nil, data: nil
 
+  @type t() :: %__MODULE__{
+    path: nil | String.t(),
+    filename: nil | String.t(),
+    content_type: nil | String.t(),
+    data: nil | binary()
+  }
+
   @doc ~S"""
   Creates a new Attachment
 
