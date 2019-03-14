@@ -265,6 +265,7 @@ defmodule Bamboo.SendGridAdapterTest do
 
   test "deliver/2 with sandbox mode enabled, does not overwrite other mail_settings" do
     email = new_email()
+
     email
     |> Bamboo.SendGridHelper.with_bypass_list_management(true)
     |> SendGridAdapter.deliver(@config_with_sandbox_enabled)

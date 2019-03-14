@@ -4,8 +4,11 @@ defmodule Bamboo.MailgunAdapterTest do
   alias Bamboo.MailgunAdapter
 
   @config %{adapter: MailgunAdapter, api_key: "dummyapikey", domain: "test.tt"}
-  @config_with_env_var_key %{adapter: MailgunAdapter,
-    api_key: {:system, "MAILGUN_API_KEY"}, domain: {:system, "MAILGUN_DOMAIN"}}
+  @config_with_env_var_key %{
+    adapter: MailgunAdapter,
+    api_key: {:system, "MAILGUN_API_KEY"},
+    domain: {:system, "MAILGUN_DOMAIN"}
+  }
 
   defmodule FakeMailgun do
     use Plug.Router
@@ -98,11 +101,10 @@ defmodule Bamboo.MailgunAdapterTest do
 
     assert_raise ArgumentError, ~r/no api_key set/, fn ->
       MailgunAdapter.handle_config(@config_with_env_var_key)
-
     end
+
     System.delete_env("MAILGUN_DOMAIN")
   end
-
 
   test "raises if an invalid ENV var is used for the domain" do
     System.put_env("MAILGUN_API_KEY", "env_api_key")
@@ -113,8 +115,8 @@ defmodule Bamboo.MailgunAdapterTest do
 
     assert_raise ArgumentError, ~r/no domain set/, fn ->
       MailgunAdapter.handle_config(@config_with_env_var_key)
-
     end
+
     System.delete_env("MAILGUN_API_KEY")
   end
 
