@@ -298,9 +298,14 @@ Once we've decided how to move forward with a pull request:
     $ cd bamboo
     $ mix deps.get
     $ mix test
+    $ mix format
 
 Once you've made your additions and `mix test` passes, go ahead and open a PR!
 
+We run the test suite as well as formatter checks on CI. Make sure you are using
+the Elixir version defined in the `.tool-versions` file to have consistent
+formatting with what's being run on CI.
+ 
 ## Thanks!
 
 Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
