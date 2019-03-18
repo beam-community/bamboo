@@ -149,4 +149,59 @@ defmodule Bamboo.SendGridHelperTest do
       email |> with_bypass_list_management(1)
     end
   end
+
+  test "with_google_analytics/2 with Map utm_params", %{email: email} do
+    utm_params = %{
+      utm_source: "source",
+      utm_medium: "medium",
+      utm_campaign: "campaign",
+      utm_term: "term",
+      utm_content: "content"
+    }
+
+    email = email |> with_google_analytics(true, utm_params)
+
+    assert email.private[:google_analytics_enabled] == true
+    assert email.private[:google_analytics_utm_params] == utm_params
+  end
+
+  test "with_google_analytics/2 with Keyword utm_params", %{email: email} do
+    utm_params_keyword = [
+      utm_source: "source",
+      utm_medium: "medium",
+      utm_campaign: "campaign",
+      utm_term: "term",
+      utm_content: "content"
+    ]
+
+    utm_params_map = %{
+      utm_campaign: "campaign",
+      utm_content: "content",
+      utm_medium: "medium",
+      utm_source: "source",
+      utm_term: "term"
+    }
+
+    email = email |> with_google_analytics(true, utm_params_keyword)
+
+    assert email.private[:google_analytics_enabled] == true
+    assert email.private[:google_analytics_utm_params] == utm_params_map
+  end
+
+  test "with_google_analytics/2 with enabled set false", %{email: email} do
+    email = email |> with_google_analytics(false)
+
+    assert email.private[:google_analytics_enabled] == false
+    assert email.private[:google_analytics_utm_params] == %{}
+  end
+
+  test "with_google_analytics/2 raises on non-boolean enabled parameter", %{email: email} do
+    utm_params = %{
+      utm_source: "source"
+    }
+
+    assert_raise RuntimeError, fn ->
+      email |> with_google_analytics(1, utm_params)
+    end
+  end
 end

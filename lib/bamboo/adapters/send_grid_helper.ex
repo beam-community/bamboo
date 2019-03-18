@@ -175,19 +175,27 @@ defmodule Bamboo.SendGridHelper do
       |> with_google_analytics(true, %{utm_source: "email", utm_campaign: "campaign"})
 
       email
+      |> with_google_analytics(true, utm_source: "email", utm_campaign: "campaign")
+
+      email
       |> with_google_analytics(false)
   """
   def with_google_analytics(email, enabled, utm_params \\ %{})
-  def with_google_analytics(email, enabled, utm_params) when is_boolean(enabled) and is_map(utm_params) do
-    utm_params = utm_params |> Map.take(@allowed_google_analytics_utm_params)
+
+  def with_google_analytics(email, enabled, utm_params)
+      when is_boolean(enabled) do
+    utm_params =
+      utm_params
+      |> Enum.into(%{})
+      |> Map.take(@allowed_google_analytics_utm_params)
 
     email
     |> Email.put_private(@google_analytics_enabled, enabled)
     |> Email.put_private(@google_analytics_utm_params, utm_params)
   end
 
-  def with_google_analytics(_email, enabled, utm_params) do
-    raise "expected with_google_analytics parameters to be a boolean (got #{enabled}) and a map (got #{utm_params})"
+  def with_google_analytics(_email, _enabled, _utm_params) do
+    raise "expected with_google_analytics enabled parameters to be a boolean"
   end
 
   defp set_template(template, template_id) do
