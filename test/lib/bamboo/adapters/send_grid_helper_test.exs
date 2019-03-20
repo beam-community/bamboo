@@ -54,7 +54,7 @@ defmodule Bamboo.SendGridHelperTest do
     assert email_1 == email_2
   end
 
-  test "dynamic_field/3 adds the specified fields", %{email: email} do
+  test "add_dynamic_field/3 adds the specified fields", %{email: email} do
     user = %{
       name: "Jon Snow",
       email: "thekinginthenorth@thestarks.com"
@@ -75,7 +75,7 @@ defmodule Bamboo.SendGridHelperTest do
            }
   end
 
-  test "dynamic_field/3 should work with atoms", %{email: email} do
+  test "add_dynamic_field/3 should work with atoms", %{email: email} do
     email =
       email
       |> add_dynamic_field(:name, "Jon Snow")

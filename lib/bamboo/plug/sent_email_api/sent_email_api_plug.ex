@@ -59,10 +59,10 @@ defmodule Bamboo.SentEmailApiPlug do
   }
   ```
 
-  Email addresses are returned in array pairs, with the first element as the
+  Email addresses are returned in list pairs, with the first element as the
   name, and the second as the email address. The first element can be `null`
   if the address didn't specify a name. The `to`, `cc` and `bcc` fields are
-  returned as arrays of these pairs.
+  returned as lists of these pairs.
   """
 
   plug(:match)

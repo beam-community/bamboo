@@ -222,7 +222,7 @@ defmodule Bamboo.MailgunAdapterTest do
         text_body: "TEXT BODY",
         html_body: "HTML BODY"
       )
-      |> Email.put_header("reply-to", "random@foo.com")
+      |> Email.put_header("Reply-To", "random@foo.com")
 
     MailgunAdapter.deliver(email, @config)
 

@@ -110,7 +110,7 @@ defmodule Bamboo.SendGridAdapterTest do
         text_body: "TEXT BODY",
         html_body: "HTML BODY"
       )
-      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Email.put_header("reply-to", "reply@foo.com")
       |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
 
     email |> SendGridAdapter.deliver(@config)

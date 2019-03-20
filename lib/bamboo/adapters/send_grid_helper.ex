@@ -56,13 +56,13 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  An array of category names for this email. A maximum of 10 categories can be assigned to an email.
+  A list of category names for this email. A maximum of 10 categories can be assigned to an email.
   Duplicate categories will be ignored and only unique entries will be sent.
 
   ## Example
 
       email
-      |> with_categories("campaign-12345")
+      |> with_categories(["campaign-12345"])
   """
   def with_categories(email, categories) when is_list(categories) do
     categories =
@@ -103,7 +103,7 @@ defmodule Bamboo.SendGridHelper do
   ## Example
 
       email
-      |> add_data("name", "Jon Snow")
+      |> add_dynamic_field("name", "Jon Snow")
   """
   def add_dynamic_field(email, field, value) when is_atom(field),
     do: add_dynamic_field(email, Atom.to_string(field), value)
@@ -138,7 +138,7 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   A boolean setting to instruct SendGrid to bypass list management for this
-  email. If enabled, SendGrid will ignore any email supression (such as
+  email. If enabled, SendGrid will ignore any email suppression (such as
   unsubscriptions, bounces, spam filters) for this email. This is useful for
   emails that all users must receive, such as Terms of Service updates, or
   password resets.
