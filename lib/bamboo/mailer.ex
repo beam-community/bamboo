@@ -64,9 +64,9 @@ defmodule Bamboo.Mailer do
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
       @spec deliver_now(Bamboo.Email.t()) :: Bamboo.Email.t()
-      def deliver_now(email) do
+      def deliver_now(email, opts \\ []) do
         config = build_config()
-        Bamboo.Mailer.deliver_now(config.adapter, email, config)
+        Bamboo.Mailer.deliver_now(config.adapter, email, config, opts)
       end
 
       @spec deliver_later(Bamboo.Email.t()) :: Bamboo.Email.t()
@@ -114,7 +114,21 @@ defmodule Bamboo.Mailer do
   end
 
   @doc false
-  def deliver_now(adapter, email, config) do
+  def deliver_now(adapter, email, config, response: true) do
+    email = email |> validate_and_normalize(adapter)
+
+    if email.to == [] && email.cc == [] && email.bcc == [] do
+      debug_unsent(email)
+      email
+    else
+      debug_sent(email, adapter)
+      response = adapter.deliver(email, config)
+      {response, email}
+    end
+  end
+
+  @doc false
+  def deliver_now(adapter, email, config, _opts) do
     email = email |> validate_and_normalize(adapter)
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
