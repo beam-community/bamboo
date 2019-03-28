@@ -95,8 +95,15 @@ defmodule Bamboo.Mailer do
 
   Call your mailer with `deliver_now/1` to send an email right away. Call
   `deliver_later/1` if you want to send in the background.
+
+  Pass in an argument of `response: true` if you need access to the response
+  from delivering the email. This returns a tuple of the response from calling
+  `deliver` with your adapter and the `Email` struct. This is useful if you need
+  access to any data sent back from your email provider in the response.
+
+      Email.welcome_email |> Mailer.deliver_now(response: true)
   """
-  def deliver_now(_email) do
+  def deliver_now(_email, opts \\ []) do
     raise @cannot_call_directly_error
   end
 
