@@ -2,10 +2,10 @@ defmodule Bamboo.Test do
   import ExUnit.Assertions
 
   @moduledoc """
-  Helpers for testing email delivery
+  Helpers for testing email delivery.
 
-  Use these helpers with Bamboo.TestAdapter to test email delivery. Typically
-  you'll want to **unit test emails first**. Then in integration tests use
+  Use these helpers with `Bamboo.TestAdapter` to test email delivery. Typically
+  you'll want to **unit test emails first**. Then, in integration tests, use
   helpers from this module to test whether that email was delivered.
 
   ## Note on sending from other processes
@@ -73,7 +73,7 @@ defmodule Bamboo.Test do
   """
 
   @doc """
-  Imports Bamboo.Test and Bamboo.Formatter.format_email_address/2
+  Imports `Bamboo.Test` and `Bamboo.Formatter.format_email_address/2`
 
   `Bamboo.Test` and the `Bamboo.TestAdapter` work by sending a message to the
   current process when an email is delivered. The process mailbox is then

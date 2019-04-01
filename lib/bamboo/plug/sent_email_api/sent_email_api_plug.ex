@@ -3,12 +3,13 @@ defmodule Bamboo.SentEmailApiPlug do
   alias Bamboo.SentEmail
 
   @moduledoc """
-  A plug that can be used in your router to expose delivered emails over a
-  JSON API. This is useful for an integration test runner that doesn't have
+  A plug that exposes delivered emails over a JSON API.
+
+  This is useful for an integration test runner that doesn't have
   access to the `Bamboo.Test` helpers, but needs to be able to assert that
   emails have been delivered.
 
-  You must use the `Bamboo.LocalAdapter`, or no emails will be available.
+  You must use the `Bamboo.LocalAdapter` or no emails will be available.
 
   ## Using with Plug or Phoenix
 

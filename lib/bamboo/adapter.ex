@@ -2,13 +2,13 @@ defmodule Bamboo.Adapter do
   @moduledoc ~S"""
   Behaviour for creating Bamboo adapters
 
-  All recipients in the Bamboo.Email struct will be normalized to a 2 item tuple
-  of {name, address} when deliver through your mailer. For example,
-  `email.from |> elem(0)` would return the name and `email.from |> elem(1)`
-  would return the email address.
+  All recipients in the `Bamboo.Email` struct will be normalized to a two item
+  tuple of `{name, address}` when delivered through your mailer. For example,
+  `elem(email.from, 0)` would return the name and `elem(email.from, 1)` would
+  return the email address.
 
   For more in-depth examples check out the
-  [adapters in Bamboo](https://github.com/paulcsmith/bamboo/tree/master/lib/bamboo/adapters).
+  [adapters in Bamboo](https://github.com/thoughtbot/bamboo/tree/master/lib/bamboo/adapters).
 
   ## Example
 
@@ -27,11 +27,11 @@ defmodule Bamboo.Adapter do
           if Map.get(config, :smtp_username) do
             config
           else
-            raise "smtp_username is required in config, got #{inspect config}"
+            raise "smtp_username is required in config, got #{inspect(config)}"
           end
         end
-        
-        def supports_attachments?, do: true 
+
+        def supports_attachments?, do: true
       end
   """
 

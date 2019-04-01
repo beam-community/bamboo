@@ -1,55 +1,56 @@
 defmodule Bamboo.Mailer do
   @moduledoc """
-  Sets up mailers that make it easy to configure and swap adapters.
+  Functions for delivering emails using adapters and delivery strategies.
 
-  Adds `deliver_now/1` and `deliver_later/1` functions to the mailer module it is used by.
+  Adds `deliver_now/1` and `deliver_later/1` functions to the mailer module it
+  is used by.
 
-  ## Bamboo ships with the following adapters
+  Bamboo [ships with several adapters][available-adapters]. It is also possible
+  to create your own adapter.
 
-  * `Bamboo.MandrillAdapter`
-  * `Bamboo.LocalAdapter`
-  * `Bamboo.TestAdapter`
-  * or create your own with `Bamboo.Adapter`
+  See the ["Getting Started" section of the README][getting-started] for an
+  example of how to set up and configure a mailer for use.
+
+  [available-adapters]: https://github.com/thoughtbot/bamboo/tree/master/lib/bamboo/adapters
+  [getting-started]: https://hexdocs.pm/bamboo/readme.html#getting-started
 
   ## Example
 
-      # In your config/config.exs file
-      config :my_app, MyApp.Mailer,
-        adapter: Bamboo.MandrillAdapter,
-        api_key: "my_api_key"
+  Creating a Mailer is as simple as defining a module in your application and
+  using the `Bamboo.Mailer`.
 
-      # Somewhere in your application. Maybe lib/my_app/mailer.ex
+      # some/path/within/your/app/mailer.ex
       defmodule MyApp.Mailer do
-        # Adds deliver_now/1 and deliver_later/1
         use Bamboo.Mailer, otp_app: :my_app
       end
 
-      # Set up your emails
+  The mailer requires some configuration within your application.
+
+      # config/config.exs
+      config :my_app, MyApp.Mailer,
+        adapter: Bamboo.MandrillAdapter, # Specify your preferred adapter
+        api_key: "my_api_key" # Specify adapter-specific configuration
+
+  Also you will want to define an email module for building email structs that
+  your mailer can send. See [`Bamboo.Email`] for more information.
+
+      # some/path/within/your/app/email.ex
       defmodule MyApp.Email do
         import Bamboo.Email
 
         def welcome_email do
-          new_mail(
-            to: "foo@example.com",
-            from: "me@example.com",
-            subject: "Welcome!!!",
-            html_body: "<strong>WELCOME</strong>",
-            text_body: "WELCOME"
+          new_email(
+            to: "john@example.com",
+            from: "support@myapp.com",
+            subject: "Welcome to the app.",
+            html_body: "<strong>Thanks for joining!</strong>",
+            text_body: "Thanks for joining!"
           )
         end
       end
 
-      # In a Phoenix controller or some other module
-      defmodule MyApp.Foo do
-        alias MyApp.Email
-        alias MyApp.Mailer
-
-        def register_user do
-          # Create a user and whatever else is needed
-          # Could also have called Mailer.deliver_later
-          Email.welcome_email |> Mailer.deliver_now
-        end
-      end
+  You are now able to send emails with your mailer module where you sit fit
+  within your application.
   """
 
   @cannot_call_directly_error """
@@ -90,17 +91,17 @@ defmodule Bamboo.Mailer do
   end
 
   @doc """
-  Deliver an email right away
+  Deliver an email right away.
 
   Call your mailer with `deliver_now/1` to send an email right away. Call
-  `deliver_later/1` if you want to send in the background to speed things up.
+  `deliver_later/1` if you want to send in the background.
   """
   def deliver_now(_email) do
     raise @cannot_call_directly_error
   end
 
   @doc """
-  Deliver an email in the background
+  Deliver an email in the background.
 
   Call your mailer with `deliver_later/1` to send an email using the configured
   `deliver_later_strategy`. If no `deliver_later_strategy` is set,
@@ -215,8 +216,8 @@ defmodule Bamboo.Mailer do
   @doc """
   Wraps to, cc and bcc addresses in a list and normalizes email addresses.
 
-  Also formats the from address. Email normalization/formatting is done by the
-  [Bamboo.Formatter] protocol.
+  Also formats the from address. Email normalization/formatting is done by
+  implementations of the [Bamboo.Formatter] protocol.
   """
   def normalize_addresses(email) do
     %{

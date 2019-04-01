@@ -1,10 +1,10 @@
 defmodule Bamboo.DeliverLaterStrategy do
   @moduledoc """
-  Behaviour for delivering emails with `Bamboo.Mailer.deliver_later/1`
+  Behaviour for delivering emails with `Bamboo.Mailer.deliver_later/1`.
 
-  Use this behaviour to create strategies for delivering later. You could make a
-  strategy using a GenServer, a background job library or whatever else you
-  decide.
+  Use this behaviour to create strategies for background email delivery. You
+  could make a strategy using a GenServer, a background job library or whatever
+  else you decide.
 
   ## Bamboo ships with two strategies:
 
