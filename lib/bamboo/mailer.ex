@@ -97,8 +97,8 @@ defmodule Bamboo.Mailer do
   `deliver_later/1` if you want to send in the background.
 
   Pass in an argument of `response: true` if you need access to the response
-  from delivering the email. This returns a tuple of the response from calling
-  `deliver` with your adapter and the `Email` struct. This is useful if you need
+  from delivering the email. This returns a tuple of the `Email` struct and the
+  response from calling `deliver` with your adapter. This is useful if you need
   access to any data sent back from your email provider in the response.
 
       Email.welcome_email |> Mailer.deliver_now(response: true)
@@ -130,7 +130,7 @@ defmodule Bamboo.Mailer do
     else
       debug_sent(email, adapter)
       response = adapter.deliver(email, config)
-      {response, email}
+      {email, response}
     end
   end
 
