@@ -1,9 +1,9 @@
 defmodule Bamboo.SentEmail do
   @moduledoc """
-  Used for storing and retrieving sent emails when used with Bamboo.LocalAdapter
+  Used for storing and retrieving sent emails when used with `Bamboo.LocalAdapter`.
 
-  When emails are sent with the Bamboo.LocalAdapter, they are stored in
-  Bamboo.SentEmail. Use the functions in this module to store and retrieve the emails.
+  When emails are sent with the `Bamboo.LocalAdapter`, they are stored in
+  `Bamboo.SentEmail`. Use the functions in this module to store and retrieve the emails.
 
   Remember to start the Bamboo app by adding it to the app list in `mix.exs` or
   starting it with `Application.ensure_all_started(:bamboo)`
@@ -54,8 +54,8 @@ defmodule Bamboo.SentEmail do
   @doc """
   Gets the email's id.
 
-  The email must be an email that was sent with Bamboo.LocalAdapter or added
-  via SentEmail.push/1, otherwise the id will not have been set.
+  The email must be an email that was sent with `Bamboo.LocalAdapter` or added
+  via `Bamboo.SentEmail.push/1`, otherwise the id will not have been set.
   """
   def get_id(%Bamboo.Email{private: %{local_adapter_id: id}}) do
     id
@@ -100,10 +100,10 @@ defmodule Bamboo.SentEmail do
   end
 
   @doc """
-  Adds an email to the list of sent emails
+  Adds an email to the list of sent emails.
 
   Adds an email to the beginning of the sent emails list. Also gives the email
-  an id that can be fetched with SentEmail.get_id/1.
+  an id that can be fetched with `Bamboo.SentEmail.get_id/1`.
   """
   def push(email) do
     email = put_rand_id(email)

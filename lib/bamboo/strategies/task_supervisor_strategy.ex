@@ -2,7 +2,7 @@ defmodule Bamboo.TaskSupervisorStrategy do
   @behaviour Bamboo.DeliverLaterStrategy
 
   @moduledoc """
-  Default strategy. Sends an email in the background using Task.Supervisor
+  Default strategy. Sends an email in the background using `Task.Supervisor`.
 
   This is the default strategy when calling `deliver_later` because it is the
   simplest to get started with. This strategy uses a `Task.Supervisor` to monitor

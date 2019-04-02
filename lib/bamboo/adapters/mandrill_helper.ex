@@ -1,16 +1,17 @@
 defmodule Bamboo.MandrillHelper do
   @moduledoc """
-  Functions for using features specific to Mandrill e.g. tagging, merge vars, templates
+  Functions for using features specific to Mandrill (e.g. tagging, merge vars,
+  templates).
   """
 
   alias Bamboo.Email
 
   @doc """
-  Put extra message parameters that are used by Mandrill
+  Put extra message parameters that are used by Mandrill.
 
   Parameters set with this function are sent to Mandrill when used along with
-  the Bamboo.MandrillAdapter. You can set things like `important`, `merge_vars`,
-  and whatever else you need that the Mandrill API supports.
+  the `Bamboo.MandrillAdapter`. You can set things like `important`,
+  `merge_vars`, and whatever else you need that the Mandrill API supports.
 
   ## Example
 
@@ -37,7 +38,7 @@ defmodule Bamboo.MandrillHelper do
   end
 
   @doc """
-  Set merge_vars that are used by Mandrill
+  Set merge_vars that are used by Mandrill.
 
   ## Example
 

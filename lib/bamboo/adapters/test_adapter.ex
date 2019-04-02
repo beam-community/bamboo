@@ -1,6 +1,6 @@
 defmodule Bamboo.TestAdapter do
   @moduledoc """
-  Used for testing email delivery
+  Used for testing email delivery.
 
   No emails are sent, instead a message is sent to the current process and can
   be asserted on with helpers from `Bamboo.Test`.

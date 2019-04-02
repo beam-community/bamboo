@@ -3,15 +3,15 @@ defmodule Bamboo.LocalAdapter do
   Stores emails locally. Can be queried to see sent emails.
 
   Use this adapter for storing emails locally instead of sending them. Emails
-  are stored and can be read from `Bamboo.SentEmail`.
-  Typically this adapter is used in the dev environment so emails are not
-  delivered to real email addresses.
+  are stored and can be read from `Bamboo.SentEmail`. Typically this adapter is
+  used in the dev environment so emails are not delivered to real email
+  addresses.
 
-  You can use this adapter along with `Bamboo.SentEmailViewerPlug` to view emails
-  in the browser.
+  You can use this adapter along with `Bamboo.SentEmailViewerPlug` to view
+  emails in the browser.
 
-  If you want to open a new browser window for every new email, set the
-  option `open_email_in_browser_url` to your preview path.
+  If you want to open a new browser window for every new email, set the option
+  `open_email_in_browser_url` to your preview path.
 
   ## Example config
 
@@ -30,13 +30,13 @@ defmodule Bamboo.LocalAdapter do
 
   @behaviour Bamboo.Adapter
 
-  @doc "Adds email to Bamboo.SentEmail and opens it in new browser tab"
+  @doc "Adds email to `Bamboo.SentEmail` and opens it in new browser tab"
   def deliver(email, %{open_email_in_browser_url: open_email_in_browser_url}) do
     %{private: %{local_adapter_id: local_adapter_id}} = SentEmail.push(email)
     open_url_in_browser("#{open_email_in_browser_url}/#{local_adapter_id}")
   end
 
-  @doc "Adds email to Bamboo.SentEmail"
+  @doc "Adds email to `Bamboo.SentEmail`"
   def deliver(email, _config) do
     SentEmail.push(email)
   end

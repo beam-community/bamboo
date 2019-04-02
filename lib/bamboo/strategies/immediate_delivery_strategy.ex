@@ -1,8 +1,10 @@
 defmodule Bamboo.ImmediateDeliveryStrategy do
   @moduledoc """
-  Strategy for deliver_later that sends the email immediately.
+  Strategy for `Bamboo.Mailer.deliver_later/1` that sends the email
+  immediately.
 
-  This strategy is used and required by the `Bamboo.LocalAdapter` and `Bamboo.TestAdapter`.
+  This strategy is used and required by the `Bamboo.LocalAdapter` and
+  `Bamboo.TestAdapter`.
   """
 
   @behaviour Bamboo.DeliverLaterStrategy
