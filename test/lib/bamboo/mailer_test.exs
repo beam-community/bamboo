@@ -288,4 +288,45 @@ defmodule Bamboo.MailerTest do
     attrs = Keyword.merge([from: "foo@bar.com", to: "foo@bar.com"], attrs)
     Email.new_email(attrs)
   end
+
+  describe "normalize_headers/2 :list" do
+    test "transforms a single value to a tuple" do
+      email = new_email(headers: %{"Hero" => "mario", "villain" => "bowser"})
+
+      headers = Bamboo.Mailer.normalize_headers(email, :list)
+
+      assert {"Hero", "mario"} in headers
+      assert {"villain", "bowser"} in headers
+    end
+
+    test "transforms a list of values to a list of tuples" do
+      email = new_email(headers: %{"Hero" => ["luigi", "mario"], "villain" => "bowser"})
+
+      headers = Bamboo.Mailer.normalize_headers(email, :list)
+
+      assert {"Hero", "mario"} in headers
+      assert {"Hero", "luigi"} in headers
+      assert {"villain", "bowser"} in headers
+    end
+  end
+
+  describe "normalize_headers/2 :csv" do
+    test "transforms a single value to a tuple" do
+      email = new_email(headers: %{"Hero" => "mario", "villain" => "bowser"})
+
+      headers = Bamboo.Mailer.normalize_headers(email, :csv)
+
+      assert {"Hero", "mario"} in headers
+      assert {"villain", "bowser"} in headers
+    end
+
+    test "transforms a list of values to a comma separated string" do
+      email = new_email(headers: %{"Hero" => ["luigi", "mario"], "villain" => "bowser"})
+
+      headers = Bamboo.Mailer.normalize_headers(email, :csv)
+
+      assert {"Hero", "mario, luigi"} in headers
+      assert {"villain", "bowser"} in headers
+    end
+  end
 end

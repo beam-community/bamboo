@@ -181,16 +181,79 @@ defmodule Bamboo.Email do
     raise "expected an address as a 2 item tuple {name, address}, got: #{inspect(invalid_address)}"
   end
 
-  @doc """
-  Adds a header to the email
+  @doc ~S"""
+  Adds a header to the email.
+
+  By default, each header name accepts a single header value. Calling the
+  function again with the same name will replace the existing header value with
+  the new value provided. To provide more than one header value for the same
+  header name, send `:combine` as the final argument. In the event a single
+  header value is provided, the function acts in the same way as the default.
+  Subsequent calls, however, will make the header value a list and add to that
+  list, making the new value the list head.
 
   ## Example
 
-      put_header(email, "Reply-To", "support@myapp.com")
+  A header may be added for a header name and value. Subsequent calls replace
+  existing values for the same name.
+
+      iex> email = Email.new_email(headers: %{})
+      ...> Email.put_header(email, "Reply-To", "support@myapp.com")
+      %Bamboo.Email{headers: %{"Reply-To" => "support@myapp.com"}}
+
+      iex> email = Email.new_email(headers: %{"Reply-To" => "support@myapp.com"})
+      ...> Email.put_header(email, "Reply-To", "noreply@myapp.com")
+      %Bamboo.Email{headers: %{"Reply-To" => "noreply@myapp.com"}}
+
+      iex> email = Email.new_email(headers: %{})
+      ...> Email.put_header(email, "x-tag", ["foo", "bar"])
+      %Bamboo.Email{headers: %{"x-tag" => ["foo", "bar"]}}
+
+  Header values for the same header name may be combined into a list.
+
+      iex> email = Email.new_email(headers: %{})
+      ...> Email.put_header(email, "x-tag", "foo", :combine)
+      %Bamboo.Email{headers: %{"x-tag" => "foo"}}
+
+      iex> email = Email.new_email(headers: %{"x-tag" => "foo"})
+      ...> Email.put_header(email, "x-tag", "bar", :combine)
+      %Bamboo.Email{headers: %{"x-tag" => ["bar", "foo"]}}
+
+      iex> email = Email.new_email(headers: %{"x-tag" => "foo"})
+      ...> Email.put_header(email, "x-tag", "bar", :combine)
+      %Bamboo.Email{headers: %{"x-tag" => ["bar", "foo"]}}
+
+      iex> email = Email.new_email(headers: %{"x-tag" => ["bar", "foo"]})
+      ...> Email.put_header(email, "x-tag", "qux", :combine)
+      %Bamboo.Email{headers: %{"x-tag" => ["qux", "bar", "foo"]}}
+
+      iex> email = Email.new_email(headers: %{"x-tag" => ["foo"]})
+      ...> Email.put_header(email, "x-tag", ["bar", "qux" ], :combine)
+      %Bamboo.Email{headers: %{"x-tag" => ["bar", "qux", "foo"]}}
   """
-  @spec put_header(__MODULE__.t(), String.t(), String.t()) :: __MODULE__.t()
-  def put_header(%__MODULE__{headers: headers} = email, header_name, value) do
-    %{email | headers: Map.put(headers, header_name, value)}
+  @spec put_header(__MODULE__.t(), String.t(), String.t(), :replace | :combine) :: __MODULE__.t()
+  def put_header(email, name, value, on_conflict \\ :replace)
+
+  def put_header(email, _name, value, _) when not is_binary(value) and not is_list(value) do
+    email
+  end
+
+  def put_header(%__MODULE__{headers: headers} = email, name, value, on_conflict)
+      when on_conflict in [:replace, :combine] do
+    %{email | headers: update_header(headers, name, value, on_conflict)}
+  end
+
+  defp update_header(headers, name, value, :replace) do
+    Map.put(headers, name, value)
+  end
+
+  defp update_header(headers, name, value, :combine) do
+    Map.update(headers, name, value, fn
+      nil -> value
+      current_value when is_list(current_value) and is_list(value) -> value ++ current_value
+      current_value when is_list(current_value) -> [value | current_value]
+      current_value -> [value, current_value]
+    end)
   end
 
   @doc """

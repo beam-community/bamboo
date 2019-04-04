@@ -254,6 +254,41 @@ defmodule Bamboo.Mailer do
     Formatter.format_email_address(record, %{type: type})
   end
 
+  @doc ~S"""
+  Transforms map of headers to list of tuples.
+
+  Headers with list values are transformed, by default, into a single comma
+  separated string. Passing `:list` as the second argument, however, produces a
+  distinct tuple for every value in the header value list.
+  """
+  def normalize_headers(%{headers: _} = email) do
+    normalize_headers(email, :csv)
+  end
+
+  def normalize_headers(%{headers: headers}, :csv) do
+    Enum.reduce(headers, [], fn
+      {header_key, [_ | _] = header_value}, normalized ->
+        value_for_header = header_value |> Enum.reverse() |> Enum.join(", ")
+        [header_tuple(header_key, value_for_header) | normalized]
+
+      {header_key, header_value}, normalized ->
+        [header_tuple(header_key, header_value) | normalized]
+    end)
+  end
+
+  def normalize_headers(%{headers: headers}, :list) do
+    Enum.reduce(headers, [], fn
+      {header_key, [_ | _] = header_values}, normalized ->
+        value_for_header = Enum.map(header_values, &header_tuple(header_key, &1))
+        value_for_header ++ normalized
+
+      {header_key, header_value}, normalized ->
+        [header_tuple(header_key, header_value) | normalized]
+    end)
+  end
+
+  defp header_tuple(key, value), do: {to_string(key), value}
+
   @doc false
   def parse_opts(mailer, opts) do
     Logger.warn(
