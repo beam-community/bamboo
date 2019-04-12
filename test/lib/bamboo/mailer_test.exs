@@ -255,6 +255,35 @@ defmodule Bamboo.MailerTest do
     end
   end
 
+  describe "option to return response" do
+    defmodule ResponseAdapter do
+      def deliver(_email, _config) do
+        send(:mailer_test, %{status_code: 202, headers: [%{}], body: ""})
+      end
+
+      def handle_config(config), do: config
+    end
+
+    @tag adapter: ResponseAdapter
+    test "deliver_now/2 returns email and response when passing in response: true option" do
+      email = new_email(to: "foo@bar.com")
+
+      {email, response} = Mailer.deliver_now(email, response: true)
+
+      assert %Email{} = email
+      assert %{body: _, headers: _, status_code: _} = response
+    end
+
+    @tag adapter: ResponseAdapter
+    test "deliver_now/1 returns just email when not passing in response: true option" do
+      email = new_email(to: "foo@bar.com")
+
+      email = Mailer.deliver_now(email)
+
+      assert %Email{} = email
+    end
+  end
+
   defp new_email(attrs \\ []) do
     attrs = Keyword.merge([from: "foo@bar.com", to: "foo@bar.com"], attrs)
     Email.new_email(attrs)

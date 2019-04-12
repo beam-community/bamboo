@@ -63,10 +63,10 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      @spec deliver_now(Bamboo.Email.t()) :: Bamboo.Email.t()
-      def deliver_now(email) do
+      @spec deliver_now(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {any, Bamboo.Email.t()}
+      def deliver_now(email, opts \\ []) do
         config = build_config()
-        Bamboo.Mailer.deliver_now(config.adapter, email, config)
+        Bamboo.Mailer.deliver_now(config.adapter, email, config, opts)
       end
 
       @spec deliver_later(Bamboo.Email.t()) :: Bamboo.Email.t()
@@ -95,8 +95,15 @@ defmodule Bamboo.Mailer do
 
   Call your mailer with `deliver_now/1` to send an email right away. Call
   `deliver_later/1` if you want to send in the background.
+
+  Pass in an argument of `response: true` if you need access to the response
+  from delivering the email. This returns a tuple of the `Email` struct and the
+  response from calling `deliver` with your adapter. This is useful if you need
+  access to any data sent back from your email provider in the response.
+
+      Email.welcome_email |> Mailer.deliver_now(response: true)
   """
-  def deliver_now(_email) do
+  def deliver_now(_email, _opts \\ []) do
     raise @cannot_call_directly_error
   end
 
@@ -114,7 +121,21 @@ defmodule Bamboo.Mailer do
   end
 
   @doc false
-  def deliver_now(adapter, email, config) do
+  def deliver_now(adapter, email, config, response: true) do
+    email = email |> validate_and_normalize(adapter)
+
+    if email.to == [] && email.cc == [] && email.bcc == [] do
+      debug_unsent(email)
+      email
+    else
+      debug_sent(email, adapter)
+      response = adapter.deliver(email, config)
+      {email, response}
+    end
+  end
+
+  @doc false
+  def deliver_now(adapter, email, config, _opts) do
     email = email |> validate_and_normalize(adapter)
 
     if email.to == [] && email.cc == [] && email.bcc == [] do
