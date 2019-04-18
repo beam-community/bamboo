@@ -125,7 +125,8 @@ adapter itself.
 # config/config.exs
 config :my_app, MyApp.Mailer,
   adapter: Bamboo.MandrillAdapter,
-  api_key: "my_api_key"
+  api_key: "my_api_key",
+  region: "eu" # not required for US
 ```
 
 _Other adapter-specific configuration may be required. Be sure to check the
