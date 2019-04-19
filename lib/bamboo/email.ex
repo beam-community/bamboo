@@ -163,7 +163,7 @@ defmodule Bamboo.Email do
   end
 
   @doc """
-  Gets the just the email address from a normalized email address
+  Gets just the email address from a normalized email address
 
   Normalized email addresses are 2 item tuples {name, address}. This gets the
   address part of the tuple. Use this instead of calling `elem(address, 1)`
