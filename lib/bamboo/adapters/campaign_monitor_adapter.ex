@@ -188,7 +188,7 @@ defmodule Bamboo.CampaignMonitorAdapter do
   defp to_address({"", address}), do: address
   defp to_address({name, address}), do: "#{name} <#{address}>"
 
-  defp base_uri do 
+  defp base_uri do
     Application.get_env(:bamboo, :campaign_monitor_base_uri) || @default_base_uri
   end
 end

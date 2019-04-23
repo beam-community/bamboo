@@ -5,7 +5,11 @@ defmodule Bamboo.CampaignMonitorAdapterTest do
 
   @config %{adapter: CampaignMonitorAdapter, api_key: "123_abc", client_id: "client_123"}
   @config_with_bad_key %{adapter: CampaignMonitorAdapter, api_key: nil, client_id: nil}
-  @config_with_env_var_key %{adapter: CampaignMonitorAdapter, api_key: {:system, "CAMPAIGN_MONITOR_API_KEY"}, client_id: {:system, "CAMPAIGN_MONITOR_CLIENT_ID"}}
+  @config_with_env_var_key %{
+    adapter: CampaignMonitorAdapter,
+    api_key: {:system, "CAMPAIGN_MONITOR_API_KEY"},
+    client_id: {:system, "CAMPAIGN_MONITOR_CLIENT_ID"}
+  }
 
   defmodule FakeCampaignMonitor do
     use Plug.Router
@@ -133,7 +137,7 @@ defmodule Bamboo.CampaignMonitorAdapterTest do
     email |> CampaignMonitorAdapter.deliver(@config)
 
     assert_receive {:fake_campaign_monitor, %{params: params}}
-    
+
     assert params["To"] == ["To <to@bar.com>", "noname@bar.com"]
     assert params["BCC"] == ["BCC <bcc@bar.com>"]
     assert params["CC"] == ["CC <cc@bar.com>"]
@@ -155,7 +159,7 @@ defmodule Bamboo.CampaignMonitorAdapterTest do
     email |> CampaignMonitorAdapter.deliver(@config)
 
     assert_receive {:fake_campaign_monitor, %{params: params}}
-    assert params["ReplyTo"] == "foo@bar.com" 
+    assert params["ReplyTo"] == "foo@bar.com"
   end
 
   test "raises if the response is not a success" do
