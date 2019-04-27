@@ -32,6 +32,12 @@ defmodule Bamboo.AttachmentTest do
     assert attachment.content_type == "application/msword"
   end
 
+  test "create an attachment with a specified content id" do
+    path = Path.join(__DIR__, "../../support/attachment.docx")
+    attachment = Attachment.new(path, content_id: "DocAttachment1234")
+    assert attachment.content_id == "DocAttachment1234"
+  end
+
   test "create an attachment from a Plug Upload struct" do
     path = Path.join(__DIR__, "../../support/attachment.docx")
     upload = %Plug.Upload{filename: "test.docx", content_type: "application/msword", path: path}

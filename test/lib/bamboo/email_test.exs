@@ -91,7 +91,7 @@ defmodule Bamboo.EmailTest do
       attachment = %Bamboo.Attachment{filename: nil, data: "content"}
 
       msg =
-        "You must provide a filename for the attachment, instead got: %Bamboo.Attachment{content_type: nil, data: \"content\", filename: nil, path: nil}"
+        "You must provide a filename for the attachment, instead got: %Bamboo.Attachment{content_id: nil, content_type: nil, data: \"content\", filename: nil, path: nil}"
 
       assert_raise RuntimeError, msg, fn ->
         new_email() |> put_attachment(attachment)
@@ -102,7 +102,7 @@ defmodule Bamboo.EmailTest do
       attachment = %Bamboo.Attachment{filename: "attachment.docx", data: nil}
 
       msg =
-        "The attachment must contain data, instead got: %Bamboo.Attachment{content_type: nil, data: nil, filename: \"attachment.docx\", path: nil}"
+        "The attachment must contain data, instead got: %Bamboo.Attachment{content_id: nil, content_type: nil, data: nil, filename: \"attachment.docx\", path: nil}"
 
       assert_raise RuntimeError, msg, fn ->
         new_email() |> put_attachment(attachment)

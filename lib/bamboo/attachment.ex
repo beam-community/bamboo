@@ -8,7 +8,8 @@ defmodule Bamboo.Attachment do
           path: nil | String.t(),
           filename: nil | String.t(),
           content_type: nil | String.t(),
-          data: nil | binary()
+          data: nil | binary(),
+          content_id: nil | String.t()
         }
 
   @doc ~S"""
@@ -44,7 +45,14 @@ defmodule Bamboo.Attachment do
     content_type = opts[:content_type] || determine_content_type(path)
     content_id = opts[:content_id]
     data = File.read!(path)
-    %__MODULE__{path: path, data: data, filename: filename, content_type: content_type, content_id: content_id}
+
+    %__MODULE__{
+      path: path,
+      data: data,
+      filename: filename,
+      content_type: content_type,
+      content_id: content_id
+    }
   end
 
   defp determine_content_type(path) do
