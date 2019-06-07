@@ -360,6 +360,7 @@ add a new adapter to the list.
 - `Bamboo.ConfigAdapter` - See [BinaryNoggin/bamboo_config_adapter](https://github.com/BinaryNoggin/bamboo_config_adapter) declare config at runtime.
 - `Bamboo.MailgunAdapter` - Ships with Bamboo. Thanks to [@princemaple].
 - `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
+- `Bamboo.CampaignMonitorAdapter` - See [jackmarchant/bamboo_campaign_monitor](https://github.com/jackmarchant/bamboo_campaign_monitor).
 - `Bamboo.MandrillAdapter` - Ships with Bamboo.
 - `Bamboo.SendGridAdapter` - Ships with Bamboo.
 - `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
