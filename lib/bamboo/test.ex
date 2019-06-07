@@ -203,6 +203,26 @@ defmodule Bamboo.Test do
     end
   end
 
+  defmacro refute_email_delivered_with(email_params) do
+    quote bind_quoted: [email_params: email_params] do
+      import ExUnit.Assertions
+
+      received_email_params =
+        receive do
+          {:delivered_email, email} -> Map.from_struct(email)
+        after
+          100 -> []
+        end
+
+      if is_nil(received_email_params) do
+        refute false
+      else
+        refute Enum.any?(email_params, fn {k, v} -> do_match(received_email_params[k], v) end),
+              Bamboo.Test.flunk_attributes_match(email_params, received_email_params)
+      end
+    end
+  end
+
   @doc false
   def do_match(value1, value2 = %Regex{}) do
     Regex.match?(value2, value1)
@@ -252,6 +272,21 @@ defmodule Bamboo.Test do
   def flunk_attributes_do_not_match(params_given, params_received) do
     """
     The parameters given do not match.
+
+      Parameters given:
+
+        #{inspect(params_given)}
+
+      Email received:
+
+        #{inspect(params_received)}
+    """
+  end
+
+  @doc false
+  def flunk_attributes_match(params_given, params_received) do
+    """
+    The parameters given match.
 
       Parameters given:
 
