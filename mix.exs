@@ -62,7 +62,7 @@ defmodule Bamboo.Mixfile do
       {:ex_doc, "~> 0.19", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
       {:hackney, ">= 1.13.0"},
-      {:poison, ">= 1.5.0", optional: true}
+      {:jason, "~> 1.1.0", optional: true}
     ]
   end
 end
