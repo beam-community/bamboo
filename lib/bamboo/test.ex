@@ -218,7 +218,7 @@ defmodule Bamboo.Test do
         refute false
       else
         refute Enum.any?(email_params, fn {k, v} -> do_match(received_email_params[k], v) end),
-              Bamboo.Test.flunk_attributes_match(email_params, received_email_params)
+               Bamboo.Test.flunk_attributes_match(email_params, received_email_params)
       end
     end
   end
