@@ -247,6 +247,15 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["reply_to"] == %{"email" => "foo@bar.com"}
   end
 
+  test "deliver/2 correctly formats Reply-To from headers" do
+    email = new_email(headers: %{"Reply-To" => "foo@bar.com"})
+
+    email |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["reply_to"] == %{"email" => "foo@bar.com"}
+  end
+
   test "deliver/2 omits attachments key if no attachments" do
     email = new_email()
     email |> SendGridAdapter.deliver(@config)
