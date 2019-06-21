@@ -135,7 +135,7 @@ Now that you have configured Bamboo and defined your modules, you can deliver
 email in fitting places within your application.
 
 ```elixir
-defmodule MyApp.SomeControllerPerhaps
+defmodule MyApp.SomeControllerPerhaps do
   def send_welcome_email do
     Email.welcome_email()   # Create your email
     |> Mailer.deliver_now() # Send your email
