@@ -39,6 +39,7 @@ defmodule Bamboo.SendGridAdapter do
     api_key = get_key(config)
     body = email |> to_sendgrid_body(config) |> Bamboo.json_library().encode!()
     url = [base_uri(), @send_message_path]
+
     hackney_opts =
       Map.get(config, :hackney, [])
       |> Enum.concat([:with_body])

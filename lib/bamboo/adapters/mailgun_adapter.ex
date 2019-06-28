@@ -64,6 +64,7 @@ defmodule Bamboo.MailgunAdapter do
   def deliver(email, config) do
     body = to_mailgun_body(email)
     config = handle_config(config)
+
     hackney_opts =
       Map.get(config, :hackney, [])
       |> Enum.concat([:with_body])

@@ -31,6 +31,7 @@ defmodule Bamboo.MandrillAdapter do
     api_key = get_key(config)
     params = email |> convert_to_mandrill_params(api_key) |> Bamboo.json_library().encode!()
     uri = [base_uri(), "/", api_path(email)]
+
     hackney_opts =
       Map.get(config, :hackney, [])
       |> Enum.concat([:with_body])
