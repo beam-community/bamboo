@@ -11,7 +11,10 @@ defmodule Bamboo.MandrillAdapter do
       # In config/config.exs, or config/prod.exs, etc.
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.MandrillAdapter,
-        api_key: "my_api_key"
+        api_key: "my_api_key",
+        hackney: [
+          recv_timeout: 5 * 60 * 1000
+        ]
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do

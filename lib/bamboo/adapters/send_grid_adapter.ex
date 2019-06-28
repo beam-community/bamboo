@@ -15,7 +15,10 @@ defmodule Bamboo.SendGridAdapter do
       # In config/config.exs, or config.prod.exs, etc.
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.SendGridAdapter,
-        api_key: "my_api_key" # or {:system, "SENDGRID_API_KEY"}
+        api_key: "my_api_key", # or {:system, "SENDGRID_API_KEY"}
+        hackney: [
+          recv_timeout: 5 * 60 * 1000
+        ]
 
       # To enable sandbox mode (e.g. in development or staging environments),
       # in config/dev.exs or config/prod.exs etc
