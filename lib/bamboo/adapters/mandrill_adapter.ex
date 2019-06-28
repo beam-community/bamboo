@@ -31,8 +31,11 @@ defmodule Bamboo.MandrillAdapter do
     api_key = get_key(config)
     params = email |> convert_to_mandrill_params(api_key) |> Bamboo.json_library().encode!()
     uri = [base_uri(), "/", api_path(email)]
+    hackney_opts =
+      Map.get(config, :hackney, [])
+      |> Enum.concat([:with_body])
 
-    case :hackney.post(uri, headers(), params, [:with_body]) do
+    case :hackney.post(uri, headers(), params, hackney_opts) do
       {:ok, status, _headers, response} when status > 299 ->
         filtered_params =
           params |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")

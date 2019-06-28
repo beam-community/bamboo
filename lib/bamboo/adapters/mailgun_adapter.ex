@@ -64,8 +64,11 @@ defmodule Bamboo.MailgunAdapter do
   def deliver(email, config) do
     body = to_mailgun_body(email)
     config = handle_config(config)
+    hackney_opts =
+      Map.get(config, :hackney, [])
+      |> Enum.concat([:with_body])
 
-    case :hackney.post(full_uri(config), headers(email, config), body, [:with_body]) do
+    case :hackney.post(full_uri(config), headers(email, config), body, hackney_opts) do
       {:ok, status, _headers, response} when status > 299 ->
         raise_api_error(@service_name, response, body)
 
