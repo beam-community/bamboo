@@ -186,7 +186,6 @@ defmodule Bamboo.SendGridHelper do
       when is_boolean(enabled) do
     utm_params =
       utm_params
-      |> Enum.into(%{})
       |> Map.take(@allowed_google_analytics_utm_params)
 
     email
