@@ -175,9 +175,6 @@ defmodule Bamboo.SendGridHelper do
       |> with_google_analytics(true, %{utm_source: "email", utm_campaign: "campaign"})
 
       email
-      |> with_google_analytics(true, utm_source: "email", utm_campaign: "campaign")
-
-      email
       |> with_google_analytics(false)
   """
   def with_google_analytics(email, enabled, utm_params \\ %{})
@@ -194,7 +191,7 @@ defmodule Bamboo.SendGridHelper do
   end
 
   def with_google_analytics(_email, _enabled, _utm_params) do
-    raise "expected with_google_analytics enabled parameters to be a boolean"
+    raise "expected with_google_analytics enabled parameter to be a boolean"
   end
 
   defp set_template(template, template_id) do
