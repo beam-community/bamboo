@@ -159,7 +159,9 @@ defmodule Bamboo.MailgunAdapter do
   defp put_tag(body, %Email{private: %{:"o:tag" => tag}}), do: Map.put(body, :"o:tag", tag)
   defp put_tag(body, %Email{}), do: body
 
-  defp put_template(body, %Email{private: %{:template => template}}), do: Map.put(body, :template, template)
+  defp put_template(body, %Email{private: %{:template => template}}),
+    do: Map.put(body, :template, template)
+
   defp put_template(body, %Email{}), do: body
 
   defp put_custom_vars(body, %Email{private: private}) do
@@ -193,7 +195,8 @@ defmodule Bamboo.MailgunAdapter do
     Enum.filter(body, fn {key, value} ->
       # Key is a well known mailgun field (including header and custom var field) and its value is not empty
       (key in @mailgun_message_fields || key in @internal_fields ||
-         String.starts_with?(Atom.to_string(key), ["h:", "v:", "o:"])) && !(value in [nil, "", []])
+         String.starts_with?(Atom.to_string(key), ["h:", "v:", "o:"])) &&
+        !(value in [nil, "", []])
     end)
     |> Enum.into(%{})
   end

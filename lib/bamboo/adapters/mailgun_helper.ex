@@ -30,7 +30,6 @@ defmodule Bamboo.MailgunHelper do
     Email.put_private(email, :template, template_name)
   end
 
-
   @doc """
   When sending an email with `Bamboo.MailgunHelper.template/2` you can replace a handlebars variables using this function.
 
@@ -44,7 +43,7 @@ defmodule Bamboo.MailgunHelper do
     
   """
   def substitute_variables(email, key, value) do
-    substitute_variables(email, %{ key => value })
+    substitute_variables(email, %{key => value})
   end
 
   @doc """
@@ -61,5 +60,4 @@ defmodule Bamboo.MailgunHelper do
     custom_vars = Map.get(email.private, :mailgun_custom_vars, %{})
     Email.put_private(email, :mailgun_custom_vars, Map.merge(custom_vars, variables))
   end
-
 end
