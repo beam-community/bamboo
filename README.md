@@ -135,7 +135,7 @@ Now that you have configured Bamboo and defined your modules, you can deliver
 email in fitting places within your application.
 
 ```elixir
-defmodule MyApp.SomeControllerPerhaps
+defmodule MyApp.SomeControllerPerhaps do
   def send_welcome_email do
     Email.welcome_email()   # Create your email
     |> Mailer.deliver_now() # Send your email
@@ -283,11 +283,11 @@ templates with substitution tags. See [`Bamboo.SendGridHelper`].
 
 ## JSON support
 
-Bamboo comes with JSON support out of the box via the [Poison] library. To use
-it, add `:poison` to your dependencies:
+Bamboo comes with JSON support out of the box via the [Jason] library. To use
+it, add `:jason` to your dependencies:
 
 ```elixir
-{:poison, ">= 1.5.0"}
+{:jason, "~> 1.1.0"}
 ```
 
 You can customize it to use another library via the `:json_library`
@@ -430,5 +430,5 @@ Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
 [docs]: https://hexdocs.pm/bamboo/readme.html
 [exq]: https://github.com/akira/exq
 [free bamboo screencast from dailydrip]: https://www.dailydrip.com/topics/elixir/drips/bamboo-email
-[poison]: https://github.com/devinus/poison
+[jason]: https://github.com/michalmuskala/jason
 [toniq]: https://github.com/joakimk/toniq

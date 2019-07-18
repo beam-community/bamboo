@@ -149,7 +149,19 @@ defmodule Bamboo.SendGridAdapter do
     put_addresses(body, :bcc, bcc)
   end
 
+  defp put_reply_to(body, %Email{headers: %{"reply-to" => {name, email}}}) do
+    Map.put(body, :reply_to, %{email: email, name: name})
+  end
+
   defp put_reply_to(body, %Email{headers: %{"reply-to" => reply_to}}) do
+    Map.put(body, :reply_to, %{email: reply_to})
+  end
+
+  defp put_reply_to(body, %Email{headers: %{"Reply-To" => {name, email}}}) do
+    Map.put(body, :reply_to, %{email: email, name: name})
+  end
+
+  defp put_reply_to(body, %Email{headers: %{"Reply-To" => reply_to}}) do
     Map.put(body, :reply_to, %{email: reply_to})
   end
 

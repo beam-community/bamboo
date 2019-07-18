@@ -43,6 +43,6 @@ defmodule Bamboo do
   end
 
   def json_library do
-    Application.get_env(:bamboo, :json_library, Poison)
+    Application.get_env(:bamboo, :json_library, Jason)
   end
 end

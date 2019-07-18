@@ -59,10 +59,9 @@ defmodule Bamboo.Mixfile do
       {:phoenix_html, "~> 2.2", only: :test},
       {:excoveralls, "~> 0.4", only: :test},
       {:floki, "~> 0.8", only: :test},
-      {:ex_doc, "~> 0.19", only: :dev},
-      {:earmark, ">= 0.0.0", only: :dev},
+      {:ex_doc, "~> 0.20", only: :dev},
       {:hackney, ">= 1.13.0"},
-      {:poison, ">= 1.5.0", optional: true}
+      {:jason, "~> 1.1.0", optional: true}
     ]
   end
 end
