@@ -12,12 +12,32 @@ defmodule Bamboo.MailgunAdapter do
         adapter: Bamboo.MailgunAdapter,
         api_key: "my_api_key" # or {:system, "MAILGUN_API_KEY"},
         domain: "your.domain" # or {:system, "MAILGUN_DOMAIN"},
-        base_url: "https://api.eu.mailgun.net/v3" # Optional
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
         use Bamboo.Mailer, otp_app: :my_app
       end
+
+  ## API base URI configuration
+
+  Mailgun makes a difference in the API base URL between sender
+  domains from within the EU and outside.
+
+  By default, the base URL is set to `https://api.mailgun.net/v3`.
+  To override this globally, you can use the Application environment:
+
+      Application.put_env(:bamboo, :mailgun_base_uri, "https://api.eu.mailgun.net/v3")
+
+  However, for advanced configurations (for instance, for multi-tenant
+  setups where you pass in the adapter config when a mail is sent),
+  you might want to specify this on the adapter level:
+
+      config :my_app, MyApp.Mailer,
+        adapter: Bamboo.MailgunAdapter,
+        api_key: "my_api_key",
+        domain: "your.domain",
+        base_uri: "https://api.eu.mailgun.net/v3"
+
   """
 
   @service_name "Mailgun"
@@ -31,6 +51,11 @@ defmodule Bamboo.MailgunAdapter do
     config
     |> Map.put(:api_key, get_setting(config, :api_key))
     |> Map.put(:domain, get_setting(config, :domain))
+    |> Map.put_new(:base_uri, default_base_uri())
+  end
+
+  defp default_base_uri() do
+    Application.get_env(:bamboo, :mailgun_base_uri, "https://api.mailgun.net/v3")
   end
 
   defp get_setting(config, key) do
@@ -81,8 +106,7 @@ defmodule Bamboo.MailgunAdapter do
   def supports_attachments?, do: true
 
   defp full_uri(config) do
-    base_uri = Application.get_env(:bamboo, :mailgun_base_uri, config.base_uri)
-    base_uri <> "/" <> config.domain <> "/messages"
+    config.base_uri <> "/" <> config.domain <> "/messages"
   end
 
   defp headers(%Email{} = email, config) do
