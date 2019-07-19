@@ -106,6 +106,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_settings(config)
     |> put_asm_group_id(email)
     |> put_bypass_list_management(email)
+    |> put_google_analytics(email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -260,6 +261,20 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_bypass_list_management(body, _), do: body
+
+  defp put_google_analytics(body, %Email{private: %{google_analytics_enabled: enabled, google_analytics_utm_params: utm_params}}) do
+    ganalytics = %{enable: enabled} |> Map.merge(utm_params)
+
+    tracking_settings =
+      body
+      |> Map.get(:tracking_settings, %{})
+      |> Map.put(:ganalytics, ganalytics)
+
+    body
+    |> Map.put(:tracking_settings, tracking_settings)
+  end
+
+  defp put_google_analytics(body, _), do: body
 
   defp put_attachments(body, %Email{attachments: []}), do: body
 
