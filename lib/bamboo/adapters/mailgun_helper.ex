@@ -54,7 +54,7 @@ defmodule Bamboo.MailgunHelper do
 
   @doc """
   This behaves like `Bamboo.MailgunHelper.substitute_variables/3`, but
-  accepts a `Map` rather than a key,value pair.
+  accepts a `Map` rather than a key, value pair.
 
   ## Example
 
