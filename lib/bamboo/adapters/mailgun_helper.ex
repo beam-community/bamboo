@@ -1,39 +1,45 @@
 defmodule Bamboo.MailgunHelper do
   @moduledoc """
-  Functions for using features specific to Mailgun (e.g. tagging, templates).
+  Functions for using features specific to Mailgun
+  (e.g. tagging, templates).
   """
 
   alias Bamboo.Email
 
   @doc """
-  Add a tag to outgoing email to help categorize traffic based on some criteria, perhaps separate signup emails from password recovery emails or from user comments.
+  Add a tag to outgoing email to help categorize traffic based on some
+  criteria, perhaps separate signup emails from password recovery emails
+  or from user comments.
 
-  More details can be found in the [Mailgun documentation](https://documentation.mailgun.com/en/latest/user_manual.html#tagging)
+  More details can be found in the
+  [Mailgun documentation](https://documentation.mailgun.com/en/latest/user_manual.html#tagging)
 
   ## Example
 
       email
       |> MailgunHelper.tag("welcome-email")
   """
-  # If/when https://github.com/thoughtbot/bamboo/issues/469 is tackled, this can be extended
-  # to support multiple tags. If you make that change, note in the above doc that the API only supports 3 tags
   def tag(email, tag) do
     Email.put_private(email, :"o:tag", tag)
   end
 
   @doc """
-  Send an email using a template stored in Mailgun, rather than supplying a `Bamboo.Email.text_body/2` or a `Bamboo.Email.html_body/2`.
+  Send an email using a template stored in Mailgun, rather than supplying
+  a `Bamboo.Email.text_body/2` or a `Bamboo.Email.html_body/2`.
 
-  More details about templates can be found in the [Templates section of the Mailgun documentation](https://documentation.mailgun.com/en/latest/user_manual.html#templates).
+  More details about templates can be found in the
+  [Templates section of the Mailgun documentation](https://documentation.mailgun.com/en/latest/user_manual.html#templates).
   """
   def template(email, template_name) do
     Email.put_private(email, :template, template_name)
   end
 
   @doc """
-  When sending an email with `Bamboo.MailgunHelper.template/2` you can replace a handlebars variables using this function.
+  When sending an email with `Bamboo.MailgunHelper.template/2` you can
+  replace a handlebars variables using this function.
 
-  More details about templates can be found in the [Templates section of the Mailgun documentation](https://documentation.mailgun.com/en/latest/user_manual.html#templates).
+  More details about templates can be found in the
+  [Templates section of the Mailgun documentation](https://documentation.mailgun.com/en/latest/user_manual.html#templates).
 
   ## Example
 
@@ -47,7 +53,8 @@ defmodule Bamboo.MailgunHelper do
   end
 
   @doc """
-  This behaves like `Bamboo.MailgunHelper.substitute_variables/3`, but accepts a `Map` rather than a key,value pair.
+  This behaves like `Bamboo.MailgunHelper.substitute_variables/3`, but
+  accepts a `Map` rather than a key,value pair.
 
   ## Example
 

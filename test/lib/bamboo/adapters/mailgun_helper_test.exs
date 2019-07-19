@@ -3,12 +3,6 @@ defmodule Bamboo.MailgunHelperTest do
   import Bamboo.Email
   alias Bamboo.MailgunHelper
 
-  # These tests are based mostly on MandrillHelperTest, but seem fragile.
-  # They rely on internal structure used by the adapter and helper, and
-  # don't (AND CAN'T) look at the resulting email created by MailgunAdapter.to_mailgun_body()
-  # without major refactoring.
-  # This is better than nothing, though.
-
   test "tag/2 puts a tag in private" do
     email = new_email() |> MailgunHelper.tag("new-tag")
 
