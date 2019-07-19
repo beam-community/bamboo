@@ -159,7 +159,7 @@ defmodule Bamboo.MailgunAdapter do
   defp put_tag(body, %Email{private: %{:"o:tag" => tag}}), do: Map.put(body, :"o:tag", tag)
   defp put_tag(body, %Email{}), do: body
 
-  defp put_template(body, %Email{private: %{:template => template}}),
+  defp put_template(body, %Email{private: %{template: template}}),
     do: Map.put(body, :template, template)
 
   defp put_template(body, %Email{}), do: body
