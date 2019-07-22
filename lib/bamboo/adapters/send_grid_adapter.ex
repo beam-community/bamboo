@@ -262,7 +262,9 @@ defmodule Bamboo.SendGridAdapter do
 
   defp put_bypass_list_management(body, _), do: body
 
-  defp put_google_analytics(body, %Email{private: %{google_analytics_enabled: enabled, google_analytics_utm_params: utm_params}}) do
+  defp put_google_analytics(body, %Email{
+         private: %{google_analytics_enabled: enabled, google_analytics_utm_params: utm_params}
+       }) do
     ganalytics = %{enable: enabled} |> Map.merge(utm_params)
 
     tracking_settings =
