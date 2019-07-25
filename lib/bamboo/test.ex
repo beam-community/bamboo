@@ -216,7 +216,7 @@ defmodule Bamboo.Test do
       refute_email_delivered_with(subject: "something else") # Will pass
 
       email = Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver
-      refute_email_delivered_with(subject: ~r/some/") # Will fail
+      refute_email_delivered_with(subject: ~r/some/) # Will fail
   """
   defmacro refute_email_delivered_with(email_params) do
     quote bind_quoted: [email_params: email_params] do

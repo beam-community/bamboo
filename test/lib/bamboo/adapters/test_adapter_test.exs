@@ -173,34 +173,43 @@ defmodule Bamboo.TestAdapterTest do
   end
 
   test "refute_email_delivered_with when email does not match" do
-    new_email(
-      to: {nil, "foo@bar.com"},
-      from: {nil, "foo@bar.com"},
-      text_body: "I really like coffee"
-    )
-    |> TestMailer.deliver_now()
+    mail =
+      new_email(
+        to: [nil: "foo@bar.com"],
+        from: {nil, "baz@bar.com"},
+        subject: "coffee"
+      )
 
-    refute_email_delivered_with(text_body: ~r/tea/)
-    refute_email_delivered_with(to: "bla")
-    refute_email_delivered_with(to: "foo@baz.com")
-    refute_email_delivered_with(from: "foo@baz.com")
+    TestMailer.deliver_now(mail)
+    refute_email_delivered_with(subject: ~r/tea/)
+    refute_email_delivered_with(to: [nil: "something@else.com"])
   end
 
   test "refute_email_delivered_with when email matches" do
-    new_email(
-      to: {nil, "foo@bar.com"},
-      from: {nil, "foo@bar.com"},
-      text_body: "I really like coffee"
-    )
-    |> TestMailer.deliver_now()
+    mail =
+      new_email(
+        to: [nil: "foo@bar.com"],
+        from: {nil, "foo@bar.com"},
+        subject: "vodka",
+        text_body: "I really like coffee"
+      )
 
-    try do
-      refute_email_delivered_with(to: [nil: "foo@bar.com"])
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert error.message =~ "parameters given match"
-    else
-      _ -> flunk("refute_email_delivered_with should have failed")
+    TestMailer.deliver_now(mail)
+
+    assert_raise ExUnit.AssertionError, fn ->
+      refute_email_delivered_with(to: mail.to)
+    end
+
+    TestMailer.deliver_now(mail)
+
+    assert_raise ExUnit.AssertionError, fn ->
+      refute_email_delivered_with(subject: mail.subject)
+    end
+
+    TestMailer.deliver_now(mail)
+
+    assert_raise ExUnit.AssertionError, fn ->
+      refute_email_delivered_with(text_body: ~r/coffee/)
     end
   end
 
