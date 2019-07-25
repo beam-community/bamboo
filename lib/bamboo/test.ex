@@ -203,6 +203,21 @@ defmodule Bamboo.Test do
     end
   end
 
+  @doc """
+  Check that no email was sent with the given parameters
+
+  Similarly to `assert_email_delivered_with`, the assertion waits up to 100ms before
+  failing. Note that you need to send the email again if you want to make other
+  assertions after this, as this will receive the `{:delivered_email, email}` message.
+
+  ## Examples
+
+      Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver
+      refute_email_delivered_with(subject: "something else") # Will pass
+
+      email = Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver
+      refute_email_delivered_with(subject: ~r/some/") # Will fail
+  """
   defmacro refute_email_delivered_with(email_params) do
     quote bind_quoted: [email_params: email_params] do
       import ExUnit.Assertions
