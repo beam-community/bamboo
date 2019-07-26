@@ -1,3 +1,10 @@
+## Unreleased - DATE TBD
+
+### New Additions
+
+* Added support Mailgun templates
+* Added support for Mailgun tags
+
 ## [1.2.0] - 2019-01-30
 
 ### New Additions

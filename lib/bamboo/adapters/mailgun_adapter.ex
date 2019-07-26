@@ -5,6 +5,8 @@ defmodule Bamboo.MailgunAdapter do
   Use this adapter to send emails through Mailgun's API. Requires that an API
   key and a domain are set in the config.
 
+  See `Bamboo.MailgunHelper` for extra functions that can be used by Bamboo.MailgunAdapter (tagging, merge vars, etc.)
+
   ## Example config
 
       # In config/config.exs, or config.prod.exs, etc.
@@ -106,6 +108,8 @@ defmodule Bamboo.MailgunAdapter do
     |> put_reply_to(email)
     |> put_attachments(email)
     |> put_headers(email)
+    |> put_tag(email)
+    |> put_template(email)
     |> put_custom_vars(email)
     |> filter_non_empty_mailgun_fields
     |> encode_body
@@ -152,6 +156,14 @@ defmodule Bamboo.MailgunAdapter do
     end)
   end
 
+  defp put_tag(body, %Email{private: %{:"o:tag" => tag}}), do: Map.put(body, :"o:tag", tag)
+  defp put_tag(body, %Email{}), do: body
+
+  defp put_template(body, %Email{private: %{template: template}}),
+    do: Map.put(body, :template, template)
+
+  defp put_template(body, %Email{}), do: body
+
   defp put_custom_vars(body, %Email{private: private}) do
     custom_vars = Map.get(private, :mailgun_custom_vars, %{})
 
@@ -176,14 +188,15 @@ defmodule Bamboo.MailgunAdapter do
      {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
   end
 
-  @mailgun_message_fields ~w(from to cc bcc subject text html)a
+  @mailgun_message_fields ~w(from to cc bcc subject text html template)a
   @internal_fields ~w(attachments)a
 
   def filter_non_empty_mailgun_fields(body) do
     Enum.filter(body, fn {key, value} ->
       # Key is a well known mailgun field (including header and custom var field) and its value is not empty
       (key in @mailgun_message_fields || key in @internal_fields ||
-         String.starts_with?(Atom.to_string(key), ["h:", "v:"])) && !(value in [nil, "", []])
+         String.starts_with?(Atom.to_string(key), ["h:", "v:", "o:"])) &&
+        !(value in [nil, "", []])
     end)
     |> Enum.into(%{})
   end
