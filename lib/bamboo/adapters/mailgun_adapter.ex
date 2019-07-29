@@ -11,7 +11,7 @@ defmodule Bamboo.MailgunAdapter do
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.MailgunAdapter,
         api_key: "my_api_key" # or {:system, "MAILGUN_API_KEY"},
-        domain: "your.domain" # or {:system, "MAILGUN_DOMAIN"},
+        domain: "your.domain" # or {:system, "MAILGUN_DOMAIN"}
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
