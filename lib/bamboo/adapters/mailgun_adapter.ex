@@ -29,7 +29,7 @@ defmodule Bamboo.MailgunAdapter do
       Application.put_env(:bamboo, :mailgun_base_uri, "https://api.eu.mailgun.net/v3")
 
   However, for advanced configurations (for instance, for multi-tenant
-  setups where you pass in the adapter config when a mail is sent),
+  setups where you pass in the adapter config when an email is sent),
   you might want to specify this on the adapter level:
 
       config :my_app, MyApp.Mailer,
