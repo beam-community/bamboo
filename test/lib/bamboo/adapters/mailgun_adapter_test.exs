@@ -120,7 +120,7 @@ defmodule Bamboo.MailgunAdapterTest do
     System.delete_env("MAILGUN_API_KEY")
   end
 
-  test "see if defaults base_uri is set" do
+  test "see if default base_uri is set" do
     Application.delete_env(:bamboo, :mailgun_base_uri)
 
     assert MailgunAdapter.handle_config(%{
