@@ -6,6 +6,8 @@ defmodule Bamboo.MailgunHelper do
 
   alias Bamboo.Email
 
+  @mailgun_header_for_custom_vars "X-Mailgun-Variables"
+
   @doc """
   Add a tag to outgoing email to help categorize traffic based on some
   criteria, perhaps separate signup emails from password recovery emails
@@ -111,8 +113,17 @@ defmodule Bamboo.MailgunHelper do
       |> MailgunHelper.substitute_variables(%{ "greeting" => "Hello!", "password_reset_link" => "https://example.com/123" })
 
   """
-  def substitute_variables(email, variables = %{}) do
-    custom_vars = Map.get(email.private, :mailgun_custom_vars, %{})
-    Email.put_private(email, :mailgun_custom_vars, Map.merge(custom_vars, variables))
+  def substitute_variables(%Email{headers: headers} = email, variables = %{}) do
+    custom_vars =
+      headers
+      |> Map.get(@mailgun_header_for_custom_vars, "{}")
+      |> Bamboo.json_library().decode!()
+
+    variables =
+      custom_vars
+      |> Map.merge(variables)
+      |> Bamboo.json_library().encode!()
+
+    %{email | headers: Map.put(headers, @mailgun_header_for_custom_vars, variables)}
   end
 end
