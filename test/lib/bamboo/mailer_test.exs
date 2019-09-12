@@ -256,6 +256,7 @@ defmodule Bamboo.MailerTest do
 
     test "deliver_now/2 overrides Adapter config with the 'config:' option" do
       email = new_email(to: "foo@bar.com")
+
       override_config = %{
         foo: :baz,
         something: :new
@@ -270,6 +271,7 @@ defmodule Bamboo.MailerTest do
 
     test "deliver_later/2 overrides Adapter config with the 'config:' option" do
       email = new_email(to: "baz@qux.com")
+
       override_config = %{
         foo: :qux,
         something: :groovy
