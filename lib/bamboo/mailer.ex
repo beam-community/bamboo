@@ -77,13 +77,14 @@ defmodule Bamboo.Mailer do
 
       otp_app = Keyword.fetch!(opts, :otp_app)
 
-      defp build_config([config: dynamic_config_overrides]) do
+      defp build_config(config: dynamic_config_overrides) do
         Bamboo.Mailer.build_config(
           __MODULE__,
           unquote(otp_app),
           dynamic_config_overrides
         )
       end
+
       defp build_config(_) do
         Bamboo.Mailer.build_config(__MODULE__, unquote(otp_app))
       end
