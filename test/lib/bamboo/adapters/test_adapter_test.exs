@@ -54,6 +54,7 @@ defmodule Bamboo.TestAdapterTest do
     end
 
     sent_email |> TestMailer.deliver_now()
+    assert_email_delivered_with(from: "foo@bar.com")
     assert_email_delivered_with(from: {nil, "foo@bar.com"})
 
     sent_email |> TestMailer.deliver_now()

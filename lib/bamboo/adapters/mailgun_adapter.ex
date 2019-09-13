@@ -5,6 +5,8 @@ defmodule Bamboo.MailgunAdapter do
   Use this adapter to send emails through Mailgun's API. Requires that an API
   key and a domain are set in the config.
 
+  See `Bamboo.MailgunHelper` for extra functions that can be used by Bamboo.MailgunAdapter (tagging, merge vars, etc.)
+
   ## Example config
 
       # In config/config.exs, or config.prod.exs, etc.
@@ -20,10 +22,31 @@ defmodule Bamboo.MailgunAdapter do
       defmodule MyApp.Mailer do
         use Bamboo.Mailer, otp_app: :my_app
       end
+
+  ## API base URI configuration
+
+  Mailgun makes a difference in the API base URL between sender
+  domains from within the EU and outside.
+
+  By default, the base URL is set to `https://api.mailgun.net/v3`.
+  To override this globally, you can use the Application environment:
+
+      Application.put_env(:bamboo, :mailgun_base_uri, "https://api.eu.mailgun.net/v3")
+
+  However, for advanced configurations (for instance, for multi-tenant
+  setups where you pass in the adapter config when an email is sent),
+  you might want to specify this on the adapter level:
+
+      config :my_app, MyApp.Mailer,
+        adapter: Bamboo.MailgunAdapter,
+        api_key: "my_api_key",
+        domain: "your.domain",
+        base_uri: "https://api.eu.mailgun.net/v3"
+
   """
 
   @service_name "Mailgun"
-  @base_uri "https://api.mailgun.net/v3"
+  @default_base_uri "https://api.mailgun.net/v3"
   @behaviour Bamboo.Adapter
 
   alias Bamboo.{Email, Attachment}
@@ -34,6 +57,11 @@ defmodule Bamboo.MailgunAdapter do
     config
     |> Map.put(:api_key, get_setting(config, :api_key))
     |> Map.put(:domain, get_setting(config, :domain))
+    |> Map.put_new(:base_uri, base_uri())
+  end
+
+  defp base_uri() do
+    Application.get_env(:bamboo, :mailgun_base_uri, @default_base_uri)
   end
 
   defp get_setting(config, key) do
@@ -88,8 +116,7 @@ defmodule Bamboo.MailgunAdapter do
   def supports_attachments?, do: true
 
   defp full_uri(config) do
-    Application.get_env(:bamboo, :mailgun_base_uri, @base_uri) <>
-      "/" <> config.domain <> "/messages"
+    config.base_uri <> "/" <> config.domain <> "/messages"
   end
 
   defp headers(%Email{} = email, config) do
@@ -113,6 +140,8 @@ defmodule Bamboo.MailgunAdapter do
     |> put_reply_to(email)
     |> put_attachments(email)
     |> put_headers(email)
+    |> put_tag(email)
+    |> put_template(email)
     |> put_custom_vars(email)
     |> filter_non_empty_mailgun_fields
     |> encode_body
@@ -159,6 +188,14 @@ defmodule Bamboo.MailgunAdapter do
     end)
   end
 
+  defp put_tag(body, %Email{private: %{:"o:tag" => tag}}), do: Map.put(body, :"o:tag", tag)
+  defp put_tag(body, %Email{}), do: body
+
+  defp put_template(body, %Email{private: %{template: template}}),
+    do: Map.put(body, :template, template)
+
+  defp put_template(body, %Email{}), do: body
+
   defp put_custom_vars(body, %Email{private: private}) do
     custom_vars = Map.get(private, :mailgun_custom_vars, %{})
 
@@ -183,14 +220,15 @@ defmodule Bamboo.MailgunAdapter do
      {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
   end
 
-  @mailgun_message_fields ~w(from to cc bcc subject text html)a
+  @mailgun_message_fields ~w(from to cc bcc subject text html template)a
   @internal_fields ~w(attachments)a
 
   def filter_non_empty_mailgun_fields(body) do
     Enum.filter(body, fn {key, value} ->
       # Key is a well known mailgun field (including header and custom var field) and its value is not empty
       (key in @mailgun_message_fields || key in @internal_fields ||
-         String.starts_with?(Atom.to_string(key), ["h:", "v:"])) && !(value in [nil, "", []])
+         String.starts_with?(Atom.to_string(key), ["h:", "v:", "o:"])) &&
+        !(value in [nil, "", []])
     end)
     |> Enum.into(%{})
   end

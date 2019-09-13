@@ -182,6 +182,12 @@ defmodule Bamboo.Test do
       unsent_email = Bamboo.Email.new_email(subject: "something else")
       assert_email_delivered_with(subject: "something else") # Will fail
 
+  The function will use the Bamboo Formatter when checking email addresses.
+
+      email = Bamboo.Email.new_email(to: "someone@example.com")
+      email |> MyApp.Mailer.deliver
+      assert_email_delivered_with(to: "someone@example.com") # Will pass
+
   You can also pass a regex to match portions of an email.
 
   ## Example
@@ -198,19 +204,24 @@ defmodule Bamboo.Test do
 
       received_email_params = email |> Map.from_struct()
 
-      assert Enum.all?(email_params, fn {k, v} -> do_match(received_email_params[k], v) end),
+      assert Enum.all?(email_params, fn {k, v} -> do_match(received_email_params[k], v, k) end),
              Bamboo.Test.flunk_attributes_do_not_match(email_params, received_email_params)
     end
   end
 
   @doc false
-  def do_match(value1, value2 = %Regex{}) do
+  def do_match(value1, value2 = %Regex{}, _type) do
     Regex.match?(value2, value1)
   end
 
   @doc false
-  def do_match(value1, value2) do
-    value1 == value2
+  def do_match(value1, value2, type) do
+    value1 == value2 || value1 == format(value2, type)
+  end
+
+  @doc false
+  defp format(record, type) do
+    Bamboo.Formatter.format_email_address(record, %{type: type})
   end
 
   @doc false

@@ -1,3 +1,60 @@
+## [1.3.0] - 2019-08-02
+
+### New Additions
+* Add support for SendGrid's `asm_group_id` ([#457]) 
+* Add `SentEmailApiPlug` ([#456]) 
+* Add ability to bypass list management for SendGrid Adapter ([#458], [#463])
+* Add `supports_attachments?` to adapter behaviour ([#410])
+* Allow setting of Mailgun config from env ([#363])
+* Add option to `deliver_now` to return adapter response ([#466])
+* SendGrid Adapter Reply-To parameter updates ([#487])
+* Google Analytics settings for SendGrid Adapter ([#462])
+* Add support for Mailgun tags and templates ([#490])
+* Config driven `base_uri` for Mailgun Adapter ([#491])
+
+### Fixes/Enhancements
+* Fix typos and documentation ([#454], [#447], [#455], [#461], [#468], [#473], [#488])
+* Add additional adapters to README ([#446], [#480])
+* Add .t() spec type to `Bamboo.Attachment` ([#389])
+* Add Elixir code formatter ([#464])
+* Clarify changes and test phases in mailer test ([#465])
+* Restructure/update README ([#467])
+* Add Code of Conduct ([#471])
+* Replace Poison with Jason for json encoding/decoding ([#485])
+* Upgrade ex_doc ([#486])
+* Remove whitespaces inside `pre` tag in `SentEmailViewer` ([#493]) 
+* Use a formatter for `assert_email_delivered_with/1` ([#482])
+
+[#457]: https://github.com/thoughtbot/bamboo/pull/457
+[#456]: https://github.com/thoughtbot/bamboo/pull/456
+[#458]: https://github.com/thoughtbot/bamboo/pull/458
+[#463]: https://github.com/thoughtbot/bamboo/pull/463
+[#410]: https://github.com/thoughtbot/bamboo/pull/410
+[#363]: https://github.com/thoughtbot/bamboo/pull/363
+[#466]: https://github.com/thoughtbot/bamboo/pull/466
+[#487]: https://github.com/thoughtbot/bamboo/pull/487
+[#462]: https://github.com/thoughtbot/bamboo/pull/462
+[#490]: https://github.com/thoughtbot/bamboo/pull/490
+[#491]: https://github.com/thoughtbot/bamboo/pull/491
+[#454]: https://github.com/thoughtbot/bamboo/pull/454
+[#447]: https://github.com/thoughtbot/bamboo/pull/447
+[#455]: https://github.com/thoughtbot/bamboo/pull/455
+[#461]: https://github.com/thoughtbot/bamboo/pull/461
+[#468]: https://github.com/thoughtbot/bamboo/pull/468
+[#473]: https://github.com/thoughtbot/bamboo/pull/473
+[#488]: https://github.com/thoughtbot/bamboo/pull/488
+[#446]: https://github.com/thoughtbot/bamboo/pull/446
+[#480]: https://github.com/thoughtbot/bamboo/pull/480
+[#389]: https://github.com/thoughtbot/bamboo/pull/389
+[#464]: https://github.com/thoughtbot/bamboo/pull/464
+[#465]: https://github.com/thoughtbot/bamboo/pull/465
+[#467]: https://github.com/thoughtbot/bamboo/pull/467
+[#471]: https://github.com/thoughtbot/bamboo/pull/471
+[#485]: https://github.com/thoughtbot/bamboo/pull/485
+[#486]: https://github.com/thoughtbot/bamboo/pull/486
+[#493]: https://github.com/thoughtbot/bamboo/pull/493
+[#482]: https://github.com/thoughtbot/bamboo/pull/482
+
 ## [1.2.0] - 2019-01-30
 
 ### New Additions
@@ -195,7 +252,7 @@
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
-[Unreleased]: https://github.com/thoughtbot/bamboo/compare/v1.2.0...HEAD
+[1.3.0]: https://github.com/thoughtbot/bamboo/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/thoughtbot/bamboo/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/thoughtbot/bamboo/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/thoughtbot/bamboo/compare/v1.0.0-rc2...v1.0.0
