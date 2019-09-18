@@ -333,16 +333,20 @@ defmodule Bamboo.SendGridAdapterTest do
   end
 
   test "deliver/2 correctly sends headers" do
-    email = new_email(headers: %{
-      "In-Reply-To" => "message_id",
-      "References" => "message_id"
-    })
+    email =
+      new_email(
+        headers: %{
+          "In-Reply-To" => "message_id",
+          "References" => "message_id"
+        }
+      )
 
     email |> SendGridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
+
     assert params["headers"] ==
-      %{"In-Reply-To" => "message_id", "References" => "message_id"}
+             %{"In-Reply-To" => "message_id", "References" => "message_id"}
   end
 
   test "deliver/2 omits attachments key if no attachments" do
