@@ -167,9 +167,11 @@ defmodule Bamboo.SendGridAdapter do
   defp put_reply_to(body, _), do: body
 
   defp put_headers(body, %Email{headers: headers}) when is_map(headers) do
-    prepared_headers = Map.delete(headers, "reply-to")
+    headers_without_tuple_values =
+      Map.delete(headers, "reply-to")
+      |> Map.delete("Reply-To")
 
-    Map.put(body, :headers, prepared_headers)
+    Map.put(body, :headers, headers_without_tuple_values)
   end
 
   defp put_headers(body, _), do: body
