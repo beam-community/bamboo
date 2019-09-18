@@ -349,6 +349,24 @@ defmodule Bamboo.SendGridAdapterTest do
              %{"In-Reply-To" => "message_id", "References" => "message_id"}
   end
 
+  test "deliver/2 removes 'reply-to' and 'Reply-To' headers" do
+    email =
+      new_email(
+        headers: %{
+          "X-Custom-Header" => "ohai",
+          "Reply-To" => "something",
+          "reply-to" => {"a", "tuple"}
+        }
+      )
+
+    email |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+
+    refute Map.has_key?(params["headers"], "Reply-To")
+    refute Map.has_key?(params["headers"], "reply-to")
+  end
+
   test "deliver/2 omits attachments key if no attachments" do
     email = new_email()
     email |> SendGridAdapter.deliver(@config)
