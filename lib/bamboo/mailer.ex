@@ -281,8 +281,6 @@ defmodule Bamboo.Mailer do
   end
 
   def build_config(mailer, otp_app, optional_overrides \\ %{}) do
-    optional_overrides = Enum.into(optional_overrides, %{})
-
     otp_app
     |> Application.fetch_env!(mailer)
     |> Map.new()
