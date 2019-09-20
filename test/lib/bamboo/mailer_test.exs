@@ -277,7 +277,7 @@ defmodule Bamboo.MailerTest do
         something: :groovy
       }
 
-      Mailer.deliver_now(email, config: override_config)
+      Mailer.deliver_later(email, config: override_config)
 
       assert_received {:deliver, _email, config}
       assert config.foo == :qux
