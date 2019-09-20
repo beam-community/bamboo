@@ -10,6 +10,10 @@ defmodule Bamboo.SendGridAdapter do
 
       put_header("reply-to", "foo@bar.com")
 
+  To set arbitrary email headers, set them in the `headers` property of the [Bamboo.Email](Bamboo.Email) struct.
+  Note that some header names are reserved for use by Sendgrid. See
+  [here](https://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/index.html) for full list.
+
   ## Example config
 
       # In config/config.exs, or config.prod.exs, etc.
@@ -98,6 +102,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_from(email)
     |> put_personalization(email)
     |> put_reply_to(email)
+    |> put_headers(email)
     |> put_subject(email)
     |> put_content(email)
     |> put_template_id(email)
@@ -160,6 +165,17 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_reply_to(body, _), do: body
+
+  defp put_headers(body, %Email{headers: headers}) when is_map(headers) do
+    headers_without_tuple_values =
+      headers
+      |> Map.delete("reply-to")
+      |> Map.delete("Reply-To")
+
+    Map.put(body, :headers, headers_without_tuple_values)
+  end
+
+  defp put_headers(body, _), do: body
 
   defp put_subject(body, %Email{subject: subject}) when not is_nil(subject),
     do: Map.put(body, :subject, subject)
