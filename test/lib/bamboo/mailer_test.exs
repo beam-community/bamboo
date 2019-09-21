@@ -253,6 +253,36 @@ defmodule Bamboo.MailerTest do
       assert_received {:deliver, _email, config}
       assert config.custom_key == "Set by the adapter"
     end
+
+    test "deliver_now/2 overrides Adapter config with the 'config:' option" do
+      email = new_email(to: "foo@bar.com")
+
+      override_config = %{
+        foo: :baz,
+        something: :new
+      }
+
+      Mailer.deliver_now(email, config: override_config)
+
+      assert_received {:deliver, _email, config}
+      assert config.foo == :baz
+      assert config.something == :new
+    end
+
+    test "deliver_later/2 overrides Adapter config with the 'config:' option" do
+      email = new_email(to: "baz@qux.com")
+
+      override_config = %{
+        foo: :qux,
+        something: :groovy
+      }
+
+      Mailer.deliver_later(email, config: override_config)
+
+      assert_receive {:deliver, _email, config}
+      assert config.foo == :qux
+      assert config.something == :groovy
+    end
   end
 
   describe "option to return response" do

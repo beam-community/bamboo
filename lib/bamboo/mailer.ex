@@ -65,19 +65,29 @@ defmodule Bamboo.Mailer do
     quote bind_quoted: [opts: opts] do
       @spec deliver_now(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {any, Bamboo.Email.t()}
       def deliver_now(email, opts \\ []) do
-        config = build_config()
+        config = build_config(opts)
         Bamboo.Mailer.deliver_now(config.adapter, email, config, opts)
       end
 
       @spec deliver_later(Bamboo.Email.t()) :: Bamboo.Email.t()
-      def deliver_later(email) do
-        config = build_config()
+      def deliver_later(email, opts \\ []) do
+        config = build_config(opts)
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
 
       otp_app = Keyword.fetch!(opts, :otp_app)
 
-      defp build_config, do: Bamboo.Mailer.build_config(__MODULE__, unquote(otp_app))
+      defp build_config(config: dynamic_config_overrides) do
+        Bamboo.Mailer.build_config(
+          __MODULE__,
+          unquote(otp_app),
+          dynamic_config_overrides
+        )
+      end
+
+      defp build_config(_) do
+        Bamboo.Mailer.build_config(__MODULE__, unquote(otp_app))
+      end
 
       @spec deliver(any()) :: no_return()
       def deliver(_email) do
@@ -102,6 +112,12 @@ defmodule Bamboo.Mailer do
   access to any data sent back from your email provider in the response.
 
       Email.welcome_email |> Mailer.deliver_now(response: true)
+
+  Pass in an argument of `config: %{}` if you would like to dynamically override
+  any keys in your application's default Mailer configuration.
+
+      Email.welcome_email
+      |> Mailer.deliver_now(config: %{username: "Emma", smtp_port: 2525})
   """
   def deliver_now(_email, _opts \\ []) do
     raise @cannot_call_directly_error
@@ -116,7 +132,7 @@ defmodule Bamboo.Mailer do
   `Bamboo.DeliverLaterStrategy` to learn how to change how emails are delivered
   with `deliver_later/1`.
   """
-  def deliver_later(_email) do
+  def deliver_later(_email, _opts \\ []) do
     raise @cannot_call_directly_error
   end
 
@@ -264,10 +280,11 @@ defmodule Bamboo.Mailer do
     build_config(mailer, otp_app)
   end
 
-  def build_config(mailer, otp_app) do
+  def build_config(mailer, otp_app, optional_overrides \\ %{}) do
     otp_app
     |> Application.fetch_env!(mailer)
     |> Map.new()
+    |> Map.merge(optional_overrides)
     |> handle_adapter_config
   end
 
