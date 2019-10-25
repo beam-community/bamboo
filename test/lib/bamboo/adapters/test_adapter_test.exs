@@ -173,6 +173,47 @@ defmodule Bamboo.TestAdapterTest do
     end
   end
 
+  test "refute_email_delivered_with when email does not match" do
+    mail =
+      new_email(
+        to: [nil: "foo@bar.com"],
+        from: {nil, "baz@bar.com"},
+        subject: "coffee"
+      )
+
+    TestMailer.deliver_now(mail)
+    refute_email_delivered_with(subject: ~r/tea/)
+    refute_email_delivered_with(to: [nil: "something@else.com"])
+  end
+
+  test "refute_email_delivered_with when email matches" do
+    mail =
+      new_email(
+        to: [nil: "foo@bar.com"],
+        from: {nil, "foo@bar.com"},
+        subject: "vodka",
+        text_body: "I really like coffee"
+      )
+
+    TestMailer.deliver_now(mail)
+
+    assert_raise ExUnit.AssertionError, fn ->
+      refute_email_delivered_with(to: mail.to)
+    end
+
+    TestMailer.deliver_now(mail)
+
+    assert_raise ExUnit.AssertionError, fn ->
+      refute_email_delivered_with(subject: mail.subject)
+    end
+
+    TestMailer.deliver_now(mail)
+
+    assert_raise ExUnit.AssertionError, fn ->
+      refute_email_delivered_with(text_body: ~r/coffee/)
+    end
+  end
+
   test "assert_no_emails_delivered shows the delivered email" do
     sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
