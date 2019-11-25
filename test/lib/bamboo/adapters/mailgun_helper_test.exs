@@ -17,6 +17,26 @@ defmodule Bamboo.MailgunHelperTest do
     assert email.private == %{template: "welcome"}
   end
 
+  test "adds template version to mailgun emails" do
+    email = new_email() |> MailgunHelper.template_version("v2")
+    assert email.private == %{:"t:version" => "v2"}
+  end
+
+  test "enables template text" do
+    email = new_email() |> MailgunHelper.template_text(true)
+    assert email.private == %{:"t:text" => true}
+  end
+
+  test "disables template text" do
+    email = new_email() |> MailgunHelper.template_text(false)
+    assert email.private == %{:"t:text" => false}
+  end
+
+  test "disables template text with wrong arg" do
+    email = new_email() |> MailgunHelper.template_text("string")
+    assert email.private == %{:"t:text" => false}
+  end
+
   test "adds template substitution variables to mailgun emails" do
     email =
       new_email()
