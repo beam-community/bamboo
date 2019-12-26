@@ -24,6 +24,25 @@ defmodule Bamboo.MailgunHelper do
   end
 
   @doc """
+  Schedule an email to be delivered in the future.
+
+  More details can be found in the
+  [Mailgun documentation](https://documentation.mailgun.com/en/latest/user_manual.html#scheduling-delivery)
+
+  ## Example
+
+      one_hour_from_now =
+        DateTime.utc_now()
+        |> DateTime.add(3600)
+
+      email
+      |> MailgunHelper.deliverytime(one_hour_from_now)
+  """
+  def deliverytime(email, %DateTime{} = deliverytime) do
+    Email.put_private(email, :"o:deliverytime", DateTime.to_unix(deliverytime))
+  end
+
+  @doc """
   Send an email using a template stored in Mailgun, rather than supplying
   a `Bamboo.Email.text_body/2` or a `Bamboo.Email.html_body/2`.
 
@@ -46,7 +65,7 @@ defmodule Bamboo.MailgunHelper do
       email
       |> MailgunHelper.template("password-reset-email")
       |> MailgunHelper.substitute_variables("password_reset_link", "https://example.com/123")
-    
+
   """
   def substitute_variables(email, key, value) do
     substitute_variables(email, %{key => value})
@@ -61,7 +80,7 @@ defmodule Bamboo.MailgunHelper do
       email
       |> MailgunHelper.template("password-reset-email")
       |> MailgunHelper.substitute_variables(%{ "greeting" => "Hello!", "password_reset_link" => "https://example.com/123" })
-    
+
   """
   def substitute_variables(email, variables = %{}) do
     custom_vars = Map.get(email.private, :mailgun_custom_vars, %{})
