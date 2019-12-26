@@ -9,6 +9,13 @@ defmodule Bamboo.MailgunHelperTest do
     assert Map.get(Map.get(email, :private, %{}), :"o:tag", nil) == "new-tag"
   end
 
+  test "deliverytime/2 puts a deliverytime in private" do
+    email = new_email() |> MailgunHelper.deliverytime(~U[2015-01-23 23:50:07Z])
+
+    # DateTime.to_unix(~U[2015-01-23 23:50:07Z]) == 1_422_057_007
+    assert Map.get(Map.get(email, :private, %{}), :"o:deliverytime", nil) == 1_422_057_007
+  end
+
   test "adds template information to mailgun emails" do
     email =
       new_email()

@@ -134,6 +134,7 @@ defmodule Bamboo.MailgunAdapter do
     |> put_attachments(email)
     |> put_headers(email)
     |> put_tag(email)
+    |> put_deliverytime(email)
     |> put_template(email)
     |> put_custom_vars(email)
     |> filter_non_empty_mailgun_fields
@@ -183,6 +184,11 @@ defmodule Bamboo.MailgunAdapter do
 
   defp put_tag(body, %Email{private: %{:"o:tag" => tag}}), do: Map.put(body, :"o:tag", tag)
   defp put_tag(body, %Email{}), do: body
+
+  defp put_deliverytime(body, %Email{private: %{:"o:deliverytime" => deliverytime}}),
+    do: Map.put(body, :"o:deliverytime", deliverytime)
+
+  defp put_deliverytime(body, %Email{}), do: body
 
   defp put_template(body, %Email{private: %{template: template}}),
     do: Map.put(body, :template, template)
