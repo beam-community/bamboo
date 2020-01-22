@@ -357,20 +357,21 @@ Here is a list of adapters that either ship with Bamboo or have been made
 available by the community. Feel free to open an issue or a PR if you'd like to
 add a new adapter to the list.
 
-- `Bamboo.ConfigAdapter` - See [BinaryNoggin/bamboo_config_adapter](https://github.com/BinaryNoggin/bamboo_config_adapter) declare config at runtime.
+- `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
 - `Bamboo.MailgunAdapter` - Ships with Bamboo. Thanks to [@princemaple].
-- `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
-- `Bamboo.CampaignMonitorAdapter` - See [jackmarchant/bamboo_campaign_monitor](https://github.com/jackmarchant/bamboo_campaign_monitor).
 - `Bamboo.MandrillAdapter` - Ships with Bamboo.
 - `Bamboo.SendGridAdapter` - Ships with Bamboo.
-- `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
-- `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
+- `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
+- `Bamboo.CampaignMonitorAdapter` - See [jackmarchant/bamboo_campaign_monitor](https://github.com/jackmarchant/bamboo_campaign_monitor).
+- `Bamboo.ConfigAdapter` - See [BinaryNoggin/bamboo_config_adapter](https://github.com/BinaryNoggin/bamboo_config_adapter) declare config at runtime.
+- `Bamboo.FallbackAdapter` - See [fuelen/bamboo_fallback](https://github.com/fuelen/bamboo_fallback). Allows using multiple adapters.
+- `Bamboo.GmailAdapter` - See [parkerduckworth/bamboo_gmail](https://github.com/parkerduckworth/bamboo_gmail).
+- `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
 - `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
 - `Bamboo.SendcloudAdapter` - See [linjunpop/bamboo_sendcloud](https://github.com/linjunpop/bamboo_sendcloud).
 - `Bamboo.SesAdapter` - See [kalys/bamboo_ses](https://github.com/kalys/bamboo_ses).
-- `Bamboo.FallbackAdapter` - See [fuelen/bamboo_fallback](https://github.com/fuelen/bamboo_fallback). Allows using multiple adapters.
-- `Bamboo.LocalAdapter` - Ships with Bamboo. Stores email in memory. Great for local development.
-- `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
+- `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
+- `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
 
 ## Contributing
 
