@@ -258,6 +258,27 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["h:Reply-To"] == "random@foo.com"
   end
 
+  test "deliver/2 correctly formats template and template options" do
+    email =
+      new_email(
+        from: "from@foo.com",
+        subject: "My Subject",
+        text_body: "TEXT BODY",
+        html_body: "HTML BODY"
+      )
+      |> Email.put_private(:template, "my_template")
+      |> Email.put_private(:"t:version", "v2")
+      |> Email.put_private(:"t:text", true)
+
+    MailgunAdapter.deliver(email, @config)
+
+    assert_receive {:fake_mailgun, %{params: params}}
+
+    assert params["template"] == "my_template"
+    assert params["t:version"] == "v2"
+    assert params["t:text"] == "yes"
+  end
+
   test "raises if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 

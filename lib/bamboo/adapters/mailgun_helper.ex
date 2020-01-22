@@ -54,6 +54,35 @@ defmodule Bamboo.MailgunHelper do
   end
 
   @doc """
+  Use it to send a message to specific version of a template.
+
+  More details can be found in the
+  [Mailgun documentation](https://documentation.mailgun.com/en/latest/api-sending.html#sending)
+
+  ## Example
+
+      email
+      |> MailgunHelper.template("my-template")
+      |> MailgunHelper.template_version("v2")
+  """
+  def template_version(email, version), do: Email.put_private(email, :"t:version", version)
+
+  @doc """
+  Use it if you want to have rendered template in the text part of the
+  message in case of template sending.
+
+  More details can be found in the
+  [Mailgun documentation](https://documentation.mailgun.com/en/latest/api-sending.html#sending)
+
+  ## Example
+
+      email
+      |> MailgunHelper.template_text(true)
+  """
+  def template_text(email, true), do: Email.put_private(email, :"t:text", true)
+  def template_text(email, _), do: Email.put_private(email, :"t:text", false)
+
+  @doc """
   When sending an email with `Bamboo.MailgunHelper.template/2` you can
   replace a handlebars variables using this function.
 
