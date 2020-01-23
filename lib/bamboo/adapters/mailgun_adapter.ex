@@ -13,7 +13,10 @@ defmodule Bamboo.MailgunAdapter do
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.MailgunAdapter,
         api_key: "my_api_key" # or {:system, "MAILGUN_API_KEY"},
-        domain: "your.domain" # or {:system, "MAILGUN_DOMAIN"}
+        domain: "your.domain" # or {:system, "MAILGUN_DOMAIN"},
+        hackney_opts: [
+          recv_timeout: :timer.minutes(1)
+        ]
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
@@ -46,7 +49,7 @@ defmodule Bamboo.MailgunAdapter do
   @default_base_uri "https://api.mailgun.net/v3"
   @behaviour Bamboo.Adapter
 
-  alias Bamboo.{Email, Attachment}
+  alias Bamboo.{Email, Attachment, AdapterHelper}
   import Bamboo.ApiError
 
   @doc false
@@ -93,7 +96,12 @@ defmodule Bamboo.MailgunAdapter do
     body = to_mailgun_body(email)
     config = handle_config(config)
 
-    case :hackney.post(full_uri(config), headers(email, config), body, [:with_body]) do
+    case :hackney.post(
+           full_uri(config),
+           headers(email, config),
+           body,
+           AdapterHelper.hackney_opts(config)
+         ) do
       {:ok, status, _headers, response} when status > 299 ->
         raise_api_error(@service_name, response, body)
 

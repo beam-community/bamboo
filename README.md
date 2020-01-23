@@ -48,7 +48,7 @@ some of the internals work, and how to format recipients with the
 
 ## Installation
 
-To install Bamboo, add it to your list of dependencies in `mix.exs`. 
+To install Bamboo, add it to your list of dependencies in `mix.exs`.
 
 ```elixir
 def deps do
@@ -128,6 +128,21 @@ config :my_app, MyApp.Mailer,
   api_key: "my_api_key"
 ```
 
+Bamboo uses [Hackney](https://github.com/benoitc/hackney) for making requests.
+If you want to pass options to Hackney directly, such as controlling
+timeouts, you can use the `hackney_opts` key:
+
+```elixir
+# config/config.exs
+config :my_app, MyApp.Mailer,
+  adapter: Bamboo.MandrillAdapter,
+  api_key: "my_api_key",
+  hackney_opts: [
+    recv_timeout: :timer.minutes(1),
+    connect_timeout: :timer.minutes(1)
+  ]
+```
+
 _Other adapter-specific configuration may be required. Be sure to check the
 adapter's docs._
 
@@ -203,7 +218,7 @@ You can also create custom strategies by implementing the
 strategies for adding emails to a background processing queue such as [exq] or
 [toniq].
 
-## Composing with Pipes 
+## Composing with Pipes
 
 In addition to creating emails with keyword lists you can use pipe syntax to
 compose emails. This is particularly useful for providing defaults (e.g. from

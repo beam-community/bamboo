@@ -11,7 +11,10 @@ defmodule Bamboo.MandrillAdapter do
       # In config/config.exs, or config/prod.exs, etc.
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.MandrillAdapter,
-        api_key: "my_api_key"
+        api_key: "my_api_key",
+        hackney_opts: [
+          recv_timeout: :timer.minutes(1)
+        ]
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
       defmodule MyApp.Mailer do
@@ -25,6 +28,7 @@ defmodule Bamboo.MandrillAdapter do
   @send_message_template_path "api/1.0/messages/send-template.json"
   @behaviour Bamboo.Adapter
 
+  alias Bamboo.AdapterHelper
   import Bamboo.ApiError
 
   def deliver(email, config) do
@@ -32,7 +36,7 @@ defmodule Bamboo.MandrillAdapter do
     params = email |> convert_to_mandrill_params(api_key) |> Bamboo.json_library().encode!()
     uri = [base_uri(), "/", api_path(email)]
 
-    case :hackney.post(uri, headers(), params, [:with_body]) do
+    case :hackney.post(uri, headers(), params, AdapterHelper.hackney_opts(config)) do
       {:ok, status, _headers, response} when status > 299 ->
         filtered_params =
           params |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
