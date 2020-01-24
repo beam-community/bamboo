@@ -1,3 +1,26 @@
+## [1.4.0] - 2020-01-24
+
+### New Additions
+* Send headers in Sendgrid adapter ([#479])
+* Allow dynamic override of mailer config ([#497])
+* Implement Mailgun's `o:deliverytime` to schedule email delivery ([#511])
+* Add Mailgun template version and template text options ([#504])
+* Pass opts to hackney ([#498])
+* Add `content_id` for displaying attachments in HTML email ([#475])
+
+### Fixes/Enhancements
+* Add `refute_email_delivered_with` ([#484])
+* Add GmailAdapter to available adapters list ([#513])
+
+[#479]: https://github.com/thoughtbot/bamboo/pull/479
+[#497]: https://github.com/thoughtbot/bamboo/pull/497
+[#511]: https://github.com/thoughtbot/bamboo/pull/511
+[#504]: https://github.com/thoughtbot/bamboo/pull/504
+[#498]: https://github.com/thoughtbot/bamboo/pull/498
+[#475]: https://github.com/thoughtbot/bamboo/pull/475
+[#484]: https://github.com/thoughtbot/bamboo/pull/484
+[#513]: https://github.com/thoughtbot/bamboo/pull/513
+
 ## [1.3.0] - 2019-08-02
 
 ### New Additions
@@ -252,6 +275,7 @@
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[1.4.0]: https://github.com/thoughtbot/bamboo/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/thoughtbot/bamboo/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/thoughtbot/bamboo/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/thoughtbot/bamboo/compare/v1.0.0...v1.1.0
