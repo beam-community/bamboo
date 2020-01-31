@@ -204,6 +204,7 @@ defmodule Bamboo.SendGridHelper do
       email
       |> with_send_at(delivery_time)
   """
+  @spec with_send_at(%Email{}, %DateTime{} | integer()) :: %Email{}
   def with_send_at(email, %DateTime{} = time) do
     timestamp = DateTime.to_unix(time)
 
@@ -211,8 +212,13 @@ defmodule Bamboo.SendGridHelper do
     |> Email.put_private(@send_at_field, timestamp)
   end
 
+  def with_send_at(email, unix_timestamp) when is_integer(unix_timestamp) do
+    email
+    |> Email.put_private(@send_at_field, unix_timestamp)
+  end
+
   def with_send_at(_email, _time) do
-    raise "expected with_send_at time parameter to be a DateTime"
+    raise "expected with_send_at time parameter to be a DateTime or unix timestamp"
   end
 
   defp set_template(template, template_id) do
