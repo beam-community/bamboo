@@ -111,6 +111,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_template_id(email)
     |> put_attachments(email)
     |> put_categories(email)
+    |> put_send_at(email)
     |> put_settings(config)
     |> put_asm_group_id(email)
     |> put_bypass_list_management(email)
@@ -259,6 +260,13 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_categories(body, _), do: body
+
+  defp put_send_at(body, %Email{private: %{sendgrid_send_at: send_at_timestamp}}) do
+    body
+    |> Map.put(:send_at, send_at_timestamp)
+  end
+
+  defp put_send_at(body, _), do: body
 
   defp put_asm_group_id(body, %Email{private: %{asm_group_id: asm_group_id}})
        when is_integer(asm_group_id) do

@@ -19,6 +19,7 @@ defmodule Bamboo.SendGridHelper do
   @google_analytics_enabled :google_analytics_enabled
   @google_analytics_utm_params :google_analytics_utm_params
   @allowed_google_analytics_utm_params ~w(utm_source utm_medium utm_campaign utm_term utm_content)a
+  @send_at_field :sendgrid_send_at
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -188,6 +189,17 @@ defmodule Bamboo.SendGridHelper do
 
   def with_google_analytics(_email, _enabled, _utm_params) do
     raise "expected with_google_analytics enabled parameter to be a boolean"
+  end
+
+  def with_send_at(email, %DateTime{} = time) do
+    timestamp = DateTime.to_unix(time)
+
+    email
+    |> Email.put_private(@send_at_field, timestamp)
+  end
+
+  def with_send_at(_email, _time) do
+    raise "expected with_send_at time parameter to be a DateTime"
   end
 
   defp set_template(template, template_id) do
