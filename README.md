@@ -291,7 +291,7 @@ Mandrill offers extra features on top of regular SMTP email like tagging, merge
 vars, templates, and scheduling emails to send in the future. See
 [`Bamboo.MandrillHelper`].
 
-## SendGrid Specific Functionality (templates and substitution tags)
+## SendGrid Specific Functionality (templates, substitution tags, scheduled delivery, etc.)
 
 SendGrid offers extra features on top of regular SMTP email like transactional
 templates with substitution tags. See [`Bamboo.SendGridHelper`].

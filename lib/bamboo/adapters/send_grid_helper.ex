@@ -191,6 +191,19 @@ defmodule Bamboo.SendGridHelper do
     raise "expected with_google_analytics enabled parameter to be a boolean"
   end
 
+  @doc """
+  Schedule a time for SendGrid to deliver the email.
+
+  Note that if the time is in the past, SendGrid will immediately deliver the
+  email.
+
+  ## Example
+
+      {:ok, delivery_time, _} = DateTime.from_iso8601("2020-01-01T00:00:00Z")
+
+      email
+      |> with_send_at(delivery_time)
+  """
   def with_send_at(email, %DateTime{} = time) do
     timestamp = DateTime.to_unix(time)
 
