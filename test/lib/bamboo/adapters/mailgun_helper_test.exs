@@ -50,13 +50,14 @@ defmodule Bamboo.MailgunHelperTest do
       |> MailgunHelper.substitute_variables(%{"var2" => "val2", "var3" => "val3"})
       |> MailgunHelper.substitute_variables("var4", "val4")
 
-    assert email.private == %{
-             mailgun_custom_vars: %{
-               "var1" => "val1",
-               "var2" => "val2",
-               "var3" => "val3",
-               "var4" => "val4"
-             }
-           }
+    assert email.headers
+           |> Map.get("X-Mailgun-Variables")
+           |> Bamboo.json_library().decode!()
+           |> Map.equal?(%{
+             "var1" => "val1",
+             "var2" => "val2",
+             "var3" => "val3",
+             "var4" => "val4"
+           })
   end
 end
