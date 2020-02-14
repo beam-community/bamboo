@@ -19,6 +19,7 @@ defmodule Bamboo.SendGridHelper do
   @google_analytics_enabled :google_analytics_enabled
   @google_analytics_utm_params :google_analytics_utm_params
   @allowed_google_analytics_utm_params ~w(utm_source utm_medium utm_campaign utm_term utm_content)a
+  @send_at_field :sendgrid_send_at
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -188,6 +189,36 @@ defmodule Bamboo.SendGridHelper do
 
   def with_google_analytics(_email, _enabled, _utm_params) do
     raise "expected with_google_analytics enabled parameter to be a boolean"
+  end
+
+  @doc """
+  Schedule a time for SendGrid to deliver the email.
+
+  Note that if the time is in the past, SendGrid will immediately deliver the
+  email.
+
+  ## Example
+
+      {:ok, delivery_time, _} = DateTime.from_iso8601("2020-01-01T00:00:00Z")
+
+      email
+      |> with_send_at(delivery_time)
+  """
+  @spec with_send_at(%Email{}, %DateTime{} | integer()) :: %Email{}
+  def with_send_at(email, %DateTime{} = time) do
+    timestamp = DateTime.to_unix(time)
+
+    email
+    |> Email.put_private(@send_at_field, timestamp)
+  end
+
+  def with_send_at(email, unix_timestamp) when is_integer(unix_timestamp) do
+    email
+    |> Email.put_private(@send_at_field, unix_timestamp)
+  end
+
+  def with_send_at(_email, _time) do
+    raise "expected with_send_at time parameter to be a DateTime or unix timestamp"
   end
 
   defp set_template(template, template_id) do

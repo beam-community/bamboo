@@ -286,6 +286,21 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["tracking_settings"]["ganalytics"]["utm_content"] == "content"
   end
 
+  test "deliver/2 correctly handles a sendgrid_send_at timestamp" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_send_at(1_580_485_560)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["send_at"] == 1_580_485_560
+  end
+
   test "deliver/2 doesn't force a subject" do
     email = new_email(from: {"From", "from@foo.com"})
 

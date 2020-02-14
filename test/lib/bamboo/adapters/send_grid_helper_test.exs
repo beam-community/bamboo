@@ -181,4 +181,24 @@ defmodule Bamboo.SendGridHelperTest do
       email |> with_google_analytics(1, utm_params)
     end
   end
+
+  describe "with_send_at/2" do
+    test "adds the correct property for a DateTime input", %{email: email} do
+      {:ok, datetime, _} = DateTime.from_iso8601("2020-01-31T15:46:00Z")
+      email = email |> with_send_at(datetime)
+      assert email.private[:sendgrid_send_at] == 1_580_485_560
+    end
+
+    test "adds the correct property for an integer input", %{email: email} do
+      timestamp = 1_580_485_560
+      email = email |> with_send_at(timestamp)
+      assert email.private[:sendgrid_send_at] == 1_580_485_560
+    end
+
+    test "raises on incorrect input", %{email: email} do
+      assert_raise RuntimeError, fn ->
+        email |> with_send_at("truck")
+      end
+    end
+  end
 end
