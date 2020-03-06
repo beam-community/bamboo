@@ -103,7 +103,7 @@ defmodule Bamboo.MailgunAdapter do
            AdapterHelper.hackney_opts(config)
          ) do
       {:ok, status, _headers, response} when status > 299 ->
-        raise_api_error(@service_name, response, body)
+        raise_api_error(@service_name, response, URI.decode_query(body))
 
       {:ok, status, headers, response} ->
         %{status_code: status, headers: headers, body: response}
