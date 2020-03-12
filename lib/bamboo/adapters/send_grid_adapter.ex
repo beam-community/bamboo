@@ -43,7 +43,7 @@ defmodule Bamboo.SendGridAdapter do
   import Bamboo.ApiError
 
   def deliver(email, config) do
-    api_key = get_key(config)
+    api_key = _get_key(config)
     body = email |> to_sendgrid_body(config) |> Bamboo.json_library().encode!()
     url = [base_uri(), @send_message_path]
 
@@ -63,16 +63,22 @@ defmodule Bamboo.SendGridAdapter do
   @doc false
   def handle_config(config) do
     # build the api key - will raise if there are errors
-    Map.merge(config, %{api_key: get_key(config)})
+    Map.merge(config, %{api_key: _get_key(config)})
   end
 
   @doc false
   def supports_attachments?, do: true
 
-  defp get_key(config) do
+  @doc """
+    Private function prefixed with `_` for testability.
+    This handles getting the config key.
+  """
+  def _get_key(config) do
     api_key =
       case Map.get(config, :api_key) do
         {:system, var} -> System.get_env(var)
+        {module_name, method_name, args} -> apply(module_name, method_name, args)
+        fun when is_function(fun) -> fun.()
         key -> key
       end
 
