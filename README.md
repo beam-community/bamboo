@@ -302,7 +302,7 @@ Bamboo comes with JSON support out of the box via the [Jason] library. To use
 it, add `:jason` to your dependencies:
 
 ```elixir
-{:jason, "~> 1.1.0"}
+{:jason, "~> 1.2.0"}
 ```
 
 You can customize it to use another library via the `:json_library`
