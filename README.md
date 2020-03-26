@@ -38,14 +38,6 @@ See the [docs] for the most up to date information.
 We designed Bamboo to be simple and powerful. If you run into _anything_ that
 is less than exceptional, or you just need some help, please open an issue.
 
-**Do you like to learn by watching?**
-
-In addition to this guide, check out the [free Bamboo screencast from
-DailyDrip]. It is a wonderful introduction to sending and testing emails with
-Bamboo. It also covers some of the ways that Bamboo helps catch errors, how
-some of the internals work, and how to format recipients with the
-[`Bamboo.Formatter`] protocol.
-
 ## Installation
 
 To install Bamboo, add it to your list of dependencies in `mix.exs`.
