@@ -95,6 +95,7 @@ defmodule Bamboo.SendGridAdapter do
 
   defp headers(api_key) do
     [
+      {"Accept", "application/json"},
       {"Content-Type", "application/json"},
       {"Authorization", "Bearer #{api_key}"}
     ]
