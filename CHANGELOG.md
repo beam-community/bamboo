@@ -1,3 +1,20 @@
+## [1.5.0] - 2020-05-05
+
+### New Additions
+* Support SendGrid `send_at` field ([#519])
+
+### Fixes/Enhancements
+* Fix variable substitution for nested maps in Mailgun templates ([#496])
+* Relax Jason version constraint ([#531])
+* SendGrid requires an `Accept` header ([#529])
+* Remove dead link in README ([#527])
+
+[#519]: https://github.com/thoughtbot/bamboo/pull/519
+[#496]: https://github.com/thoughtbot/bamboo/pull/496
+[#531]: https://github.com/thoughtbot/bamboo/pull/531
+[#529]: https://github.com/thoughtbot/bamboo/pull/529
+[#527]: https://github.com/thoughtbot/bamboo/pull/527
+
 ## [1.4.0] - 2020-01-24
 
 ### New Additions
@@ -275,6 +292,7 @@
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[1.5.0]: https://github.com/thoughtbot/bamboo/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/thoughtbot/bamboo/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/thoughtbot/bamboo/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/thoughtbot/bamboo/compare/v1.1.0...v1.2.0

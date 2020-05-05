@@ -44,7 +44,7 @@ To install Bamboo, add it to your list of dependencies in `mix.exs`.
 
 ```elixir
 def deps do
-  [{:bamboo, "~> 1.4"}]
+  [{:bamboo, "~> 1.5"}]
 end
 ```
 
@@ -294,7 +294,7 @@ Bamboo comes with JSON support out of the box via the [Jason] library. To use
 it, add `:jason` to your dependencies:
 
 ```elixir
-{:jason, "~> 1.1.0"}
+{:jason, "~> 1.0"}
 ```
 
 You can customize it to use another library via the `:json_library`
@@ -415,7 +415,6 @@ to design, develop, and grow your product.
 ## Thanks!
 
 Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
-
 
 <!-- Links -->
 
