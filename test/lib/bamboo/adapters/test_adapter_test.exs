@@ -273,4 +273,23 @@ defmodule Bamboo.TestAdapterTest do
 
     assert_delivered_email(%{email | assigns: :assigns_removed_for_testing})
   end
+
+  test "assert_delivered_email_matches/1 with no delivered emails" do
+    try do
+      assert_delivered_email_matches(%{to: ["foo@bar.com"]})
+    rescue
+      error in [ExUnit.AssertionError] ->
+        assert %{} = error
+    else
+      _ -> flunk("assert_delivered_email should failed")
+    end
+  end
+
+  test "assert_delivered_email_matches/1 allows binding of variables for further testing" do
+    sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+    TestMailer.deliver_now(sent_email)
+
+    assert_delivered_email_matches(%{to: [{nil, email}]})
+    assert email == "foo@bar.com"
+  end
 end
