@@ -138,10 +138,16 @@ defmodule Bamboo.SendGridAdapter do
       |> put_dynamic_template_data(email)
       |> put_send_at(email)
 
-    additional_personalizations = Map.get(email.private, :additional_personalizations, [])
+    additional_personalizations =
+      email.private
+      |> Map.get(:additional_personalizations, [])
+      |> Enum.map(&build_personalization/1)
 
-    [base_personalization] ++
-      Enum.map(additional_personalizations, &build_personalization/1)
+    if base_personalization == %{} do
+      additional_personalizations
+    else
+      [base_personalization] ++ additional_personalizations
+    end
   end
 
   defp build_personalization(personalization = %{to: to}) do
@@ -150,6 +156,7 @@ defmodule Bamboo.SendGridAdapter do
     |> map_put_if(personalization, :bcc)
     |> map_put_if(personalization, :custom_args)
     |> map_put_if(personalization, :substitutions)
+    |> map_put_if(personalization, :subject)
     |> map_put_if(personalization, :send_at, &cast_time/1)
   end
 

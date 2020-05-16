@@ -436,9 +436,6 @@ defmodule Bamboo.SendGridAdapterTest do
 
     [got_personalization1, got_personalization2, got_personalization3] = personalizations
 
-    # TODO email-level defaults can be dropped from personalizations as they are
-    # inferred
-
     assert got_personalization1 == %{
              "bcc" => [%{"email" => "bcc@bar.com", "name" => "BCC"}],
              "cc" => [%{"email" => "cc@bar.com", "name" => "CC"}],
@@ -470,13 +467,56 @@ defmodule Bamboo.SendGridAdapterTest do
                  %{"email" => "to3@bar.com", "name" => "To3"}
                ],
                "cc" => [],
+               "subject" => "Custom subject",
                "send_at" => 1_580_485_561
              }
   end
 
-  # TODO set only via add_personalizations
+  test "deliver/2 handles setting params only via personalizations" do
+    base_personalization = %{
+      bcc: [%{"email" => "bcc@bar.com", "name" => "BCC"}],
+      subject: "Here is your email"
+    }
+
+    personalizations =
+      Enum.map(
+        [
+          %{to: "one@test.com"},
+          %{to: "two@test.com", send_at: 1_580_485_560}
+        ],
+        &Map.merge(base_personalization, &1)
+      )
+
+    email =
+      new_email()
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Bamboo.SendGridHelper.add_personalizations(personalizations)
+
+    email
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    personalizations = params["personalizations"]
+
+    [got_personalization1, got_personalization2] = personalizations
+
+    assert got_personalization1 == %{
+             "bcc" => [%{"email" => "bcc@bar.com", "name" => "BCC"}],
+             "subject" => "Here is your email",
+             "to" => "one@test.com"
+           }
+
+    assert got_personalization2 == %{
+             "bcc" => [%{"email" => "bcc@bar.com", "name" => "BCC"}],
+             "subject" => "Here is your email",
+             "to" => "two@test.com",
+             "send_at" => 1_580_485_560
+           }
+  end
+
   # TODO 'to' is required
-  # TODO exception on invadlid send_ta
+  # TODO exception on invadlid send_at
+  # TODO check handling of email address protocol
 
   test "deliver/2 will set sandbox mode correctly" do
     email = new_email()
