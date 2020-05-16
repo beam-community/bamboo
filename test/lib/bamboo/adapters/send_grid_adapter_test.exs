@@ -390,6 +390,94 @@ defmodule Bamboo.SendGridAdapterTest do
     refute Map.has_key?(params, "attachments")
   end
 
+  test "deliver/2 handles multiple personalizations" do
+    {:ok, dt, _} = DateTime.from_iso8601("2020-01-01 00:00:00Z")
+
+    personalization2 = %{
+      bcc: [%{"email" => "bcc2@bar.com", "name" => "BCC2"}],
+      cc: [%{"email" => "cc2@bar.com", "name" => "CC2"}],
+      custom_args: %{"post_code" => "223"},
+      substitutions: %{"%foo%" => "bar2"},
+      to: [
+        %{"email" => "to2@bar.com", "name" => "To2"},
+        %{"email" => "noname2@bar.com"}
+      ],
+      send_at: dt
+    }
+
+    personalization3 = %{
+      custom_args: %{"thinger" => "bob"},
+      to: [
+        %{"email" => "to3@bar.com", "name" => "To3"}
+      ],
+      cc: [],
+      subject: "Custom subject",
+      send_at: 1_580_485_561
+    }
+
+    email =
+      new_email(
+        to: [{"To", "to@bar.com"}, {nil, "noname@bar.com"}],
+        cc: [{"CC", "cc@bar.com"}],
+        subject: "My Subject",
+        bcc: [{"BCC", "bcc@bar.com"}]
+      )
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Bamboo.SendGridHelper.substitute("%foo%", "bar")
+      |> Bamboo.SendGridHelper.with_send_at(1_580_485_562)
+      |> Bamboo.SendGridHelper.add_personalizations([personalization2, personalization3])
+      |> Email.put_private(:custom_args, %{post_code: "123"})
+
+    email
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    personalizations = params["personalizations"]
+
+    [got_personalization1, got_personalization2, got_personalization3] = personalizations
+
+    # TODO email-level defaults can be dropped from personalizations as they are
+    # inferred
+
+    assert got_personalization1 == %{
+             "bcc" => [%{"email" => "bcc@bar.com", "name" => "BCC"}],
+             "cc" => [%{"email" => "cc@bar.com", "name" => "CC"}],
+             "custom_args" => %{"post_code" => "123"},
+             "substitutions" => %{"%foo%" => "bar"},
+             "to" => [
+               %{"email" => "to@bar.com", "name" => "To"},
+               %{"email" => "noname@bar.com"}
+             ],
+             "send_at" => 1_580_485_562
+           }
+
+    assert got_personalization2 == %{
+             "bcc" => [%{"email" => "bcc2@bar.com", "name" => "BCC2"}],
+             "cc" => [%{"email" => "cc2@bar.com", "name" => "CC2"}],
+             "custom_args" => %{"post_code" => "223"},
+             "substitutions" => %{"%foo%" => "bar2"},
+             "to" => [
+               %{"email" => "to2@bar.com", "name" => "To2"},
+               %{"email" => "noname2@bar.com"}
+             ],
+             "send_at" => 1_577_836_800
+           }
+
+    assert got_personalization3 ==
+             %{
+               "custom_args" => %{"thinger" => "bob"},
+               "to" => [
+                 %{"email" => "to3@bar.com", "name" => "To3"}
+               ],
+               "cc" => [],
+               "send_at" => 1_580_485_561
+             }
+  end
+
+  # TODO set only via add_personalizations
+  # TODO 'to' is required
+  # TODO exception on invadlid send_ta
+
   test "deliver/2 will set sandbox mode correctly" do
     email = new_email()
     email |> SendGridAdapter.deliver(@config_with_sandbox_enabled)

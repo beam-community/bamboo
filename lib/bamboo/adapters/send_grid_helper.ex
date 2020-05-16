@@ -18,6 +18,7 @@ defmodule Bamboo.SendGridHelper do
   @bypass_list_management :bypass_list_management
   @google_analytics_enabled :google_analytics_enabled
   @google_analytics_utm_params :google_analytics_utm_params
+  @additional_personalizations :additional_personalizations
   @allowed_google_analytics_utm_params ~w(utm_source utm_medium utm_campaign utm_term utm_content)a
   @send_at_field :sendgrid_send_at
 
@@ -219,6 +220,11 @@ defmodule Bamboo.SendGridHelper do
 
   def with_send_at(_email, _time) do
     raise "expected with_send_at time parameter to be a DateTime or unix timestamp"
+  end
+
+  def add_personalizations(email, personalizations) when is_list(personalizations) do
+    email
+    |> Email.put_private(@additional_personalizations, personalizations)
   end
 
   defp set_template(template, template_id) do

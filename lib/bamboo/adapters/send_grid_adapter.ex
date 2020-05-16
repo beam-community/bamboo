@@ -104,7 +104,7 @@ defmodule Bamboo.SendGridAdapter do
   defp to_sendgrid_body(%Email{} = email, config) do
     %{}
     |> put_from(email)
-    |> put_personalization(email)
+    |> put_personalizations(email)
     |> put_reply_to(email)
     |> put_headers(email)
     |> put_subject(email)
@@ -123,18 +123,45 @@ defmodule Bamboo.SendGridAdapter do
     Map.put(body, :from, to_address(from))
   end
 
-  defp put_personalization(body, email) do
-    Map.put(body, :personalizations, [personalization(email)])
+  defp put_personalizations(body, email) do
+    Map.put(body, :personalizations, personalizations(email))
   end
 
-  defp personalization(email) do
-    %{}
-    |> put_to(email)
-    |> put_cc(email)
-    |> put_bcc(email)
-    |> put_custom_args(email)
-    |> put_template_substitutions(email)
-    |> put_dynamic_template_data(email)
+  defp personalizations(email) do
+    base_personalization =
+      %{}
+      |> put_to(email)
+      |> put_cc(email)
+      |> put_bcc(email)
+      |> put_custom_args(email)
+      |> put_template_substitutions(email)
+      |> put_dynamic_template_data(email)
+      |> put_send_at(email)
+
+    additional_personalizations = Map.get(email.private, :additional_personalizations, [])
+
+    [base_personalization] ++
+      Enum.map(additional_personalizations, &build_personalization/1)
+  end
+
+  defp build_personalization(personalization = %{to: to}) do
+    %{to: to}
+    |> map_put_if(personalization, :cc)
+    |> map_put_if(personalization, :bcc)
+    |> map_put_if(personalization, :custom_args)
+    |> map_put_if(personalization, :substitutions)
+    |> map_put_if(personalization, :send_at, &cast_time/1)
+  end
+
+  defp build_personalization(_personalization) do
+    raise "Each personalization requires a 'to' field"
+  end
+
+  defp map_put_if(map_out, map_in, key, mapper \\ & &1) do
+    case Map.fetch(map_in, key) do
+      {:ok, value} -> Map.put(map_out, key, mapper.(value))
+      :error -> map_out
+    end
   end
 
   defp put_to(body, %Email{to: to}) do
@@ -334,5 +361,12 @@ defmodule Bamboo.SendGridAdapter do
 
   defp base_uri do
     Application.get_env(:bamboo, :sendgrid_base_uri) || @default_base_uri
+  end
+
+  defp cast_time(%DateTime{} = date_time), do: DateTime.to_unix(date_time)
+  defp cast_time(unix_timestamp) when is_integer(unix_timestamp), do: unix_timestamp
+
+  defp cast_time(_other) do
+    raise "expected send_at time parameter to be a DateTime or unix timestamp"
   end
 end
