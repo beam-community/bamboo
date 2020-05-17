@@ -157,6 +157,7 @@ defmodule Bamboo.SendGridAdapter do
     |> map_put_if(personalization, :custom_args)
     |> map_put_if(personalization, :substitutions)
     |> map_put_if(personalization, :subject)
+    |> map_put_if(personalization, :headers)
     |> map_put_if(personalization, :send_at, &cast_time/1)
   end
 

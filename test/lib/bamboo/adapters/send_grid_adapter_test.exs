@@ -400,6 +400,7 @@ defmodule Bamboo.SendGridAdapterTest do
       cc: [%{"email" => "cc2@bar.com", "name" => "CC2"}],
       custom_args: %{"post_code" => "223"},
       substitutions: %{"%foo%" => "bar2"},
+      headers: [%{"X-Fun-Header" => "Fun Value"}],
       to: [
         %{"email" => "to2@bar.com", "name" => "To2"},
         %{"email" => "noname2@bar.com"}
@@ -454,6 +455,7 @@ defmodule Bamboo.SendGridAdapterTest do
              "bcc" => [%{"email" => "bcc2@bar.com", "name" => "BCC2"}],
              "cc" => [%{"email" => "cc2@bar.com", "name" => "CC2"}],
              "custom_args" => %{"post_code" => "223"},
+             "headers" => [%{"X-Fun-Header" => "Fun Value"}],
              "substitutions" => %{"%foo%" => "bar2"},
              "to" => [
                %{"email" => "to2@bar.com", "name" => "To2"},
