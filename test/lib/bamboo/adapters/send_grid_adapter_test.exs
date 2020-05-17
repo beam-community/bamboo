@@ -3,6 +3,8 @@ defmodule Bamboo.SendGridAdapterTest do
   alias Bamboo.Email
   alias Bamboo.SendGridAdapter
 
+  alias Bamboo.Test.User
+
   @config %{adapter: SendGridAdapter, api_key: "123_abc"}
   @config_with_bad_key %{adapter: SendGridAdapter, api_key: nil}
   @config_with_env_var_key %{adapter: SendGridAdapter, api_key: {:system, "SENDGRID_API"}}
@@ -503,20 +505,82 @@ defmodule Bamboo.SendGridAdapterTest do
     assert got_personalization1 == %{
              "bcc" => [%{"email" => "bcc@bar.com", "name" => "BCC"}],
              "subject" => "Here is your email",
-             "to" => "one@test.com"
+             "to" => [%{"email" => "one@test.com"}]
            }
 
     assert got_personalization2 == %{
              "bcc" => [%{"email" => "bcc@bar.com", "name" => "BCC"}],
              "subject" => "Here is your email",
-             "to" => "two@test.com",
+             "to" => [%{"email" => "two@test.com"}],
              "send_at" => 1_580_485_560
            }
   end
 
-  # TODO 'to' is required
-  # TODO exception on invadlid send_at
-  # TODO check handling of email address protocol
+  test "deliver/2 personalizations require a 'to' field" do
+    email =
+      new_email()
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Bamboo.SendGridHelper.add_personalizations([%{subject: "This will fail"}])
+
+    assert_raise RuntimeError, ~r/'to' field/, fn ->
+      email
+      |> SendGridAdapter.deliver(@config)
+    end
+  end
+
+  test "deliver/2 personalization send_at field must be either DateTime or epoch timestamp" do
+    email =
+      new_email()
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Bamboo.SendGridHelper.add_personalizations([%{to: "foo@bar.com", send_at: "now"}])
+
+    assert_raise RuntimeError, ~r/'send_at' time/, fn ->
+      email
+      |> SendGridAdapter.deliver(@config)
+    end
+  end
+
+  test "deliver/2 correctly formats email addresses in personalizations" do
+    personalization = %{
+      to: "joe@bloe.com",
+      cc: [{"Baz", "baz@bang.com"}, %User{first_name: "fred", email: "me@flinstones.com"}],
+      bcc: [%{"email" => "bcc@bar.com", "name" => "BCC"}, {nil, "foo@bar.com"}],
+      subject: "Here is your email"
+    }
+
+    email =
+      new_email()
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Bamboo.SendGridHelper.add_personalizations([personalization])
+
+    email
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    [got_personalization] = params["personalizations"]
+
+    assert got_personalization == %{
+             "subject" => "Here is your email",
+             "to" => [%{"email" => "joe@bloe.com"}],
+             "cc" => [
+               %{"name" => "Baz", "email" => "baz@bang.com"},
+               %{"name" => "fred", "email" => "me@flinstones.com"}
+             ],
+             "bcc" => [%{"name" => "BCC", "email" => "bcc@bar.com"}, %{"email" => "foo@bar.com"}]
+           }
+  end
+
+  test "deliver/2 personalization address-as-map must contain at least an email field" do
+    email =
+      new_email()
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Bamboo.SendGridHelper.add_personalizations([%{to: %{"name" => "Lou"}, send_at: "now"}])
+
+    assert_raise RuntimeError, ~r/'email' field/, fn ->
+      email
+      |> SendGridAdapter.deliver(@config)
+    end
+  end
 
   test "deliver/2 will set sandbox mode correctly" do
     email = new_email()
