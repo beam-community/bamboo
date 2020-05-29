@@ -20,6 +20,7 @@ defmodule Bamboo.SendGridHelper do
   @google_analytics_utm_params :google_analytics_utm_params
   @allowed_google_analytics_utm_params ~w(utm_source utm_medium utm_campaign utm_term utm_content)a
   @send_at_field :sendgrid_send_at
+  @ip_pool_name_field :ip_pool_name
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -238,5 +239,18 @@ defmodule Bamboo.SendGridHelper do
     |> Map.update(:dynamic_template_data, %{field => value}, fn dynamic_data ->
       Map.merge(dynamic_data, %{field => value})
     end)
+  end
+
+  @doc """
+  Specify the ip pool name.
+
+  ## Example
+
+      email
+      |> with_ip_pool_name("my-ip-pool-name")
+  """
+  def with_ip_pool_name(email, ip_pool_name) do
+    email
+    |> Email.put_private(@ip_pool_name_field, ip_pool_name)
   end
 end
