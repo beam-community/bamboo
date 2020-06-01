@@ -117,6 +117,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_asm_group_id(email)
     |> put_bypass_list_management(email)
     |> put_google_analytics(email)
+    |> put_ip_pool_name(email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -422,4 +423,9 @@ defmodule Bamboo.SendGridAdapter do
       {name, address} -> %{email: address, name: name}
     end
   end
+
+  defp put_ip_pool_name(body, %Email{private: %{ip_pool_name: ip_pool_name}}),
+    do: Map.put(body, :ip_pool_name, ip_pool_name)
+
+  defp put_ip_pool_name(body, _), do: body
 end
