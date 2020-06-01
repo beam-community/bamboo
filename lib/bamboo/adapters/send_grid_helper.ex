@@ -18,6 +18,7 @@ defmodule Bamboo.SendGridHelper do
   @bypass_list_management :bypass_list_management
   @google_analytics_enabled :google_analytics_enabled
   @google_analytics_utm_params :google_analytics_utm_params
+  @additional_personalizations :additional_personalizations
   @allowed_google_analytics_utm_params ~w(utm_source utm_medium utm_campaign utm_term utm_content)a
   @send_at_field :sendgrid_send_at
   @ip_pool_name_field :ip_pool_name
@@ -220,6 +221,46 @@ defmodule Bamboo.SendGridHelper do
 
   def with_send_at(_email, _time) do
     raise "expected with_send_at time parameter to be a DateTime or unix timestamp"
+  end
+
+  @doc """
+  Add SendGrid personalizations
+
+  Each personalization can have the following fields: `to`, `cc`, `bcc`,
+  `subject`, `headers`, `substitutions`, `custom_args`, or `send_at`.
+
+  Settings from the top level of the email (e.g., `Email |> with_send_at`)
+  will not be applied to each personalization.  If you want multiple
+  personalizations with common properties, it is recommended to generate the
+  list from a common base value and simply do not set the corresponding
+  top-level fields.
+
+  ## Example:
+
+    base_personalization = %{
+      bcc: [%{"email" => "bcc@bar.com", "name" => "BCC"}],
+      subject: "Here is your email"
+    }
+
+    personalizations =
+      Enum.map(
+        [
+          %{to: "one@test.com"},
+          %{to: "two@test.com", send_at: 1_580_485_560}
+        ],
+        &Map.merge(base_personalization, &1)
+      )
+
+    email =
+      new_email()
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Bamboo.SendGridHelper.add_personalizations(personalizations)
+
+  """
+  @spec add_personalizations(Bamboo.Email.t(), [map]) :: Bamboo.Email.t()
+  def add_personalizations(email, personalizations) when is_list(personalizations) do
+    email
+    |> Email.put_private(@additional_personalizations, personalizations)
   end
 
   defp set_template(template, template_id) do
