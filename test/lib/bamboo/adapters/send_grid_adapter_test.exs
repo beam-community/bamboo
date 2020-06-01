@@ -198,6 +198,21 @@ defmodule Bamboo.SendGridAdapterTest do
     assert personalization["substitutions"] == %{"%foo%" => "bar"}
   end
 
+  test "deliver/2 correctly handles ip_pool_name" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_ip_pool_name("my-ip-pool-name")
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert Map.get(params, "ip_pool_name") == "my-ip-pool-name"
+  end
+
   test "deliver/2 correctly handles an asm_group_id" do
     email =
       new_email(

@@ -4,6 +4,7 @@ defmodule Bamboo.SendGridHelperTest do
   import Bamboo.SendGridHelper
 
   @template_id "80509523-83de-42b6-a2bf-54b7513bd2aa"
+  @ip_pool_name "my-ip-pool-name"
 
   setup do
     {:ok, email: Bamboo.Email.new_email()}
@@ -200,5 +201,10 @@ defmodule Bamboo.SendGridHelperTest do
         email |> with_send_at("truck")
       end
     end
+  end
+
+  test "with_ip_pool_name/2 adds the ip_pool_name", %{email: email} do
+    email = email |> with_ip_pool_name(@ip_pool_name)
+    assert email.private[:ip_pool_name] == @ip_pool_name
   end
 end
