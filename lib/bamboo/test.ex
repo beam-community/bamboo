@@ -166,6 +166,29 @@ defmodule Bamboo.Test do
   end
 
   @doc """
+  Checks whether an email was delivered matching the given pattern.
+
+  Must be used with the `Bamboo.TestAdapter` or this will never pass. This
+  allows the user to use their configured `assert_receive_timeout` for ExUnit,
+  and also to match any variables in their given pattern for use in further
+  assertions.
+
+  ## Examples
+
+      %{email: user_email, name: user_name} = user
+      MyApp.deliver_welcome_email(user)
+      assert_delivered_email_matches(%{to: [{_, ^user_email}], text_body: text_body})
+      assert text_body =~ "Welcome to MyApp, #\{user_name}"
+      assert text_body =~ "You can sign up at https://my_app.com/users/#\{user_name}"
+  """
+  defmacro assert_delivered_email_matches(email_pattern) do
+    quote do
+      require ExUnit.Assertions
+      ExUnit.Assertions.assert_receive({:delivered_email, unquote(email_pattern)})
+    end
+  end
+
+  @doc """
   Check whether an email's params are equal to the ones provided.
 
   Must be used with the `Bamboo.TestAdapter` or this will never pass. In case you
