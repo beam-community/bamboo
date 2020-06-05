@@ -44,8 +44,15 @@ defmodule Bamboo.MailgunAdapterTest do
 
     post "/test.tt/messages" do
       case Map.get(conn.params, "from") do
-        "INVALID_EMAIL" -> send_resp(conn, 500, "Error!!")
-        _ -> send_resp(conn, 200, "SENT")
+        "INVALID_EMAIL" ->
+          send_resp(
+            conn,
+            500,
+            "{\n \"message\": \"'from' parameter is not a valid address. please check documentation\"\n}"
+          )
+
+        _ ->
+          send_resp(conn, 200, "SENT")
       end
       |> send_to_parent
     end
@@ -282,9 +289,25 @@ defmodule Bamboo.MailgunAdapterTest do
   test "raises if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.ApiError, fn ->
-      email |> MailgunAdapter.deliver(@config)
-    end
+    assert_raise Bamboo.ApiError,
+                 ~r/.*%{.*\"from\" => \"INVALID_EMAIL\".*}/,
+                 fn ->
+                   email |> MailgunAdapter.deliver(@config)
+                 end
+  end
+
+  test "raises if the response is not a success with attachment" do
+    attachment_source_path = Path.join(__DIR__, "../../../support/attachment.txt")
+
+    email =
+      new_email(from: "INVALID_EMAIL")
+      |> Email.put_attachment(attachment_source_path)
+
+    assert_raise Bamboo.ApiError,
+                 ~r/.*{.*\"from\", \"INVALID_EMAIL\".*}/,
+                 fn ->
+                   email |> MailgunAdapter.deliver(@config)
+                 end
   end
 
   defp new_email(attrs \\ []) do
