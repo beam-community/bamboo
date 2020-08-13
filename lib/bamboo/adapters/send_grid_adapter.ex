@@ -35,7 +35,7 @@ defmodule Bamboo.SendGridAdapter do
   """
 
   @service_name "SendGrid"
-  @default_base_uri "https://sendgrid.com/v3/"
+  @default_base_uri "https://api.sendgrid.com/v3/"
   @send_message_path "/mail/send"
   @behaviour Bamboo.Adapter
 
