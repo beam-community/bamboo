@@ -6,7 +6,7 @@ defmodule Bamboo.Mixfile do
   def project do
     [
       app: :bamboo,
-      version: "1.4.0",
+      version: "1.5.0",
       elixir: "~> 1.2",
       source_url: @project_url,
       homepage_url: @project_url,
@@ -61,7 +61,7 @@ defmodule Bamboo.Mixfile do
       {:floki, "~> 0.8", only: :test},
       {:ex_doc, "~> 0.20", only: :dev},
       {:hackney, ">= 1.13.0"},
-      {:jason, "~> 1.1.0", optional: true}
+      {:jason, "~> 1.0", optional: true}
     ]
   end
 end
