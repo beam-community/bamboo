@@ -22,7 +22,6 @@ defmodule Bamboo.SendGridAdapter do
         api_key: "my_api_key"
           # or {:system, "SENDGRID_API_KEY"},
           # or {ModuleName, :method_name, []}
-          # or fn -> "a resolveable function" end
           # or &ModuleName.method_name/0
         hackney_opts: [
           recv_timeout: :timer.minutes(1)

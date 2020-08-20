@@ -65,7 +65,8 @@ defmodule Bamboo.SendGridAdapterTest do
   end
 
   @doc """
-  sendgrid secret example dynamic
+  This is a private function that is referenced in `Bamboo.SendGridAdapterTest`
+  to test the config usage example of having a dynamic key
   """
   def sendgrid_secret(), do: @good_api_key
 
