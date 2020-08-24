@@ -19,7 +19,9 @@ defmodule Bamboo.SendGridAdapter do
       # In config/config.exs, or config.prod.exs, etc.
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.SendGridAdapter,
-        api_key: "my_api_key" # or {:system, "SENDGRID_API_KEY"},
+        api_key: "my_api_key"
+          # or {:system, "SENDGRID_API_KEY"},
+          # or {ModuleName, :method_name, []}
         hackney_opts: [
           recv_timeout: :timer.minutes(1)
         ]
@@ -32,6 +34,7 @@ defmodule Bamboo.SendGridAdapter do
       defmodule MyApp.Mailer do
         use Bamboo.Mailer, otp_app: :my_app
       end
+
   """
 
   @service_name "SendGrid"
@@ -73,6 +76,8 @@ defmodule Bamboo.SendGridAdapter do
     api_key =
       case Map.get(config, :api_key) do
         {:system, var} -> System.get_env(var)
+        {module_name, method_name, args} -> apply(module_name, method_name, args)
+        fun when is_function(fun) -> fun.()
         key -> key
       end
 

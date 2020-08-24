@@ -2,13 +2,22 @@ defmodule Bamboo.SendGridAdapterTest do
   use ExUnit.Case
   alias Bamboo.Email
   alias Bamboo.SendGridAdapter
-
   alias Bamboo.Test.User
 
-  @config %{adapter: SendGridAdapter, api_key: "123_abc"}
+  @good_api_key "123_abc"
+  @config %{adapter: SendGridAdapter, api_key: @good_api_key}
   @config_with_bad_key %{adapter: SendGridAdapter, api_key: nil}
   @config_with_env_var_key %{adapter: SendGridAdapter, api_key: {:system, "SENDGRID_API"}}
-  @config_with_sandbox_enabled %{adapter: SendGridAdapter, api_key: "123_abc", sandbox: true}
+  @config_with_env_var_tuple %{
+    adapter: SendGridAdapter,
+    api_key: {Bamboo.SendGridAdapterTest, :sendgrid_secret, []}
+  }
+  @config_with_env_var_tuple_direct %{
+    adapter: SendGridAdapter,
+    api_key: &Bamboo.SendGridAdapterTest.sendgrid_secret/0
+  }
+
+  @config_with_sandbox_enabled %{adapter: SendGridAdapter, api_key: @good_api_key, sandbox: true}
 
   defmodule FakeSendgrid do
     use Plug.Router
@@ -56,6 +65,12 @@ defmodule Bamboo.SendGridAdapterTest do
     end
   end
 
+  @doc """
+  This is a private function that is referenced in `Bamboo.SendGridAdapterTest`
+  to test the config usage example of having a dynamic key
+  """
+  def sendgrid_secret(), do: @good_api_key
+
   setup do
     FakeSendgrid.start_server(self())
 
@@ -66,33 +81,44 @@ defmodule Bamboo.SendGridAdapterTest do
     :ok
   end
 
-  test "raises if the api key is nil" do
-    assert_raise ArgumentError, ~r/no API key set/, fn ->
-      new_email(from: "foo@bar.com") |> SendGridAdapter.deliver(@config_with_bad_key)
+  describe "API key section" do
+    test "raises if the api key is nil" do
+      assert_raise ArgumentError, ~r/no API key set/, fn ->
+        new_email(from: "foo@bar.com") |> SendGridAdapter.deliver(@config_with_bad_key)
+      end
+
+      assert_raise ArgumentError, ~r/no API key set/, fn ->
+        SendGridAdapter.handle_config(%{})
+      end
     end
 
-    assert_raise ArgumentError, ~r/no API key set/, fn ->
-      SendGridAdapter.handle_config(%{})
-    end
-  end
-
-  test "can read the api key from an ENV var" do
-    System.put_env("SENDGRID_API", "123_abc")
-
-    config = SendGridAdapter.handle_config(@config_with_env_var_key)
-
-    assert config[:api_key] == "123_abc"
-  end
-
-  test "raises if an invalid ENV var is used for the API key" do
-    System.delete_env("SENDGRID_API")
-
-    assert_raise ArgumentError, ~r/no API key set/, fn ->
-      new_email(from: "foo@bar.com") |> SendGridAdapter.deliver(@config_with_env_var_key)
+    test "can have a tuple resolution" do
+      config = SendGridAdapter.handle_config(@config_with_env_var_tuple)
+      assert config[:api_key] == @good_api_key
     end
 
-    assert_raise ArgumentError, ~r/no API key set/, fn ->
-      SendGridAdapter.handle_config(@config_with_env_var_key)
+    test "can have an anonymous function resolution" do
+      config = SendGridAdapter.handle_config(@config_with_env_var_tuple_direct)
+      assert config[:api_key] == @good_api_key
+    end
+
+    test "can read the api key from an ENV var" do
+      System.put_env("SENDGRID_API", @good_api_key)
+      config = SendGridAdapter.handle_config(@config_with_env_var_key)
+
+      assert config[:api_key] == @good_api_key
+    end
+
+    test "raises if an invalid ENV var is used for the API key" do
+      System.delete_env("SENDGRID_API")
+
+      assert_raise ArgumentError, ~r/no API key set/, fn ->
+        new_email(from: "foo@bar.com") |> SendGridAdapter.deliver(@config_with_env_var_key)
+      end
+
+      assert_raise ArgumentError, ~r/no API key set/, fn ->
+        SendGridAdapter.handle_config(@config_with_env_var_key)
+      end
     end
   end
 
