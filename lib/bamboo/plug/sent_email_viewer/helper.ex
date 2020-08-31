@@ -14,7 +14,7 @@ defmodule Bamboo.SentEmailViewerPlug.Helper do
 
   def email_addresses(email) do
     Bamboo.Email.all_recipients(email)
-    |> Enum.map(&Bamboo.Email.get_address/1)
+    |> Enum.map(&format_email_address/1)
     |> Enum.join(", ")
   end
 
