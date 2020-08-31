@@ -145,18 +145,22 @@
           <a
             class="email-summary <%= Bamboo.SentEmailViewerPlug.Helper.selected_email_class(email, @selected_email) %>"
             href="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(email)}" %>">
-            <span class="email-summary-subject truncate"><%= email.subject %></span>
+            <span class="email-summary-subject truncate" title="<%= Bamboo.SentEmailViewerPlug.Helper.format_subject(email.subject) %>">
+              <%= Bamboo.SentEmailViewerPlug.Helper.format_subject(email.subject) %>
+            </span>
             <span class="email-summary-recipients truncate">
               <%= Bamboo.SentEmailViewerPlug.Helper.format_email_address(email.from) %>
               to <%= Bamboo.SentEmailViewerPlug.Helper.email_addresses(email) %>
             </span>
-            <span class="email-summary-body-excerpt"><%= email.text_body %></span>
+            <span class="email-summary-body-excerpt">
+              <%= Bamboo.SentEmailViewerPlug.Helper.format_text_body(email.text_body) %>
+            </span>
           </a>
         <% end %>
       </aside>
       <section class="email-detail-pane">
         <section class="email-detail-hero">
-          <span class="email-detail-subject"><%= @selected_email.subject %></span>
+          <span class="email-detail-subject"><%= Bamboo.SentEmailViewerPlug.Helper.format_subject(@selected_email.subject) %></span>
           <span class="email-detail-recipients">
             From <strong><%= Bamboo.SentEmailViewerPlug.Helper.format_email_address(@selected_email.from) %></strong>
             to <strong><%= Bamboo.SentEmailViewerPlug.Helper.email_addresses(@selected_email) %></strong>
@@ -183,7 +187,7 @@
           </p>
 
           <h3 class="email-detail-body-label">Text Body</h3>
-          <pre class="email-detail-body"><%= @selected_email.text_body %></pre>
+          <pre class="email-detail-body"><%= Bamboo.SentEmailViewerPlug.Helper.format_text_body(@selected_email.text_body) %></pre>
         </section>
       </section>
     </main>
