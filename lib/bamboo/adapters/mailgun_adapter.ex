@@ -236,9 +236,16 @@ defmodule Bamboo.MailgunAdapter do
     Map.put(body, :attachments, attachment_data)
   end
 
-  defp prepare_file(%Attachment{} = attachment) do
+  defp prepare_file(%Attachment{content_id: nil} = attachment) do
     {"", attachment.data,
      {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
+  end
+
+  # At the time of writing, Mailgun did not support clients specifying content id.
+  # Instead, they set the content id to be the given filename.
+  defp prepare_file(%Attachment{} = attachment) do
+    {"", attachment.data,
+     {"form-data", [{"name", ~s/"inline"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
   end
 
   @mailgun_message_fields ~w(from to cc bcc subject text html template)a
