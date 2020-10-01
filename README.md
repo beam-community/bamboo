@@ -15,18 +15,15 @@ Flexible and easy to use email for Elixir.
 
 - **Built-in support for popular mail delivery services**. Bamboo ships with
   [adapters for several popular mail delivery services, including Mandrill,
-  Mailgun, and SendGrid][available-adapters]. It's also quite easy to write
-  your own delivery adapter if your platform isn't yet supported.
-- **Deliver emails in the background**. Most of the time you don't want or need
-  to wait for the email to send. Bamboo makes it easy with
+  Mailgun, and SendGrid][available-adapters]. It's also quite easy to write your delivery adapter if your platform isn't yet supported.
+- **Deliver emails in the background**. Most of the time you don't want or need to wait for the email to send. Bamboo makes it easy with
   `Mailer.deliver_later`.
 - **A functional approach to mail delivery**. Emails are created, manipulated,
-  and sent using plain functions. This makes composition a breeze and fits
-  naturally into your existing Elixir app.
+  and sent using plain functions. This makes composition a breeze and fits naturally into your existing Elixir app.
 - **Unit test with ease**. Bamboo separates email creation and email delivery
   allowing you to test by asserting against email fields without the need for
   special functions.
-- **Dead-simple integration tests**. Bamboo provides helper functions to make
+- **dead-simple integration tests**. Bamboo provides helper functions to make
   integration testing easy and robust.
 - **View sent emails during development**. Bamboo provides a plug you can use
   in your router to view sent emails.
@@ -109,7 +106,7 @@ defmodule MyApp.Mailer do
 end
 ```
 
-Your configuration will need to know your otp application, your mailer module,
+Your configuration will need to know your OTP application, your mailer module,
 the adapter you are using, and any additional configuration required by the
 adapter itself.
 
@@ -150,7 +147,7 @@ defmodule MyApp.SomeControllerPerhaps do
 end
 ```
 
-Your application is now set up to send email with Bamboo! :tada:
+Your application is now set up to send an email with Bamboo! :tada:
 
 ## Using Adapters
 
@@ -190,29 +187,29 @@ config :my_app, MyApp.Mailer,
 ```
 
 You can create new adapters for any environment by implementing the
-[`Bamboo.Adapter`] behaviour.
+[`Bamboo.Adapter`] behavior.
 
 ## Delivering Emails in the Background
 
-Often times you don't want to send email right away because it can block
+Often times you don't want to send an email right away because it can block
 process completion (e.g. a web request in Phoenix). Bamboo provides a
 `deliver_later` function on your mailers to send emails in the background. It
-also provides a [`Bamboo.DeliverLaterStrategy`] behaviour that you can
+also provides a [`Bamboo.DeliverLaterStrategy`] behavior that you can
 implement to tailor your background email sending.
 
 By default, `deliver_later`uses [`Bamboo.TaskSupervisorStrategy`]. This
-strategy sends the email right away, but does so in the background without
+strategy sends the email right away but does so in the background without
 linking to the calling process, so errors in the mailer won't bring down your
 app.
 
 You can also create custom strategies by implementing the
-[`Bamboo.DeliverLaterStrategy`] behaviour. For example, you could create
+[`Bamboo.DeliverLaterStrategy`] behavior. For example, you could create
 strategies for adding emails to a background processing queue such as [exq] or
 [toniq].
 
 ## Composing with Pipes
 
-In addition to creating emails with keyword lists you can use pipe syntax to
+In addition to creating emails with keyword lists, you can use pipe syntax to
 compose emails. This is particularly useful for providing defaults (e.g. from
 address, default layout, etc.)
 
@@ -241,7 +238,7 @@ end
 
 ## Handling Recipients
 
-The from, to, cc and bcc addresses can be a string or a 2 element tuple. What
+The from, to, cc, and bcc addresses can be a string or a 2 element tuple. What
 happens if you try to send to a list of `MyApp.User`s? Transforming your data
 structure each time you send an email would be a pain.
 
@@ -405,7 +402,7 @@ formatting with what's being run on CI.
 Bamboo is maintained and funded by thoughtbot, inc.
 The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 
-We love open source software, Elixir, and Phoenix. See [our other Elixir
+We love open-source software, Elixir, and Phoenix. See [our other Elixir
 projects][elixir-phoenix], or [hire our Elixir Phoenix development team][hire]
 to design, develop, and grow your product.
 
