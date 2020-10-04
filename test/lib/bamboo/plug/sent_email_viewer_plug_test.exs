@@ -120,6 +120,74 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     sidebar(conn) |> Floki.find("a.selected-email") |> Floki.text()
   end
 
+  test "shows attachment icon in sidebar for email with attachments" do
+    attachment = build(:attachment)
+    normalize_and_push(:email, attachments: [attachment])
+    conn = conn(:get, "/sent_emails/foo")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert sidebar(conn) |> Floki.find(".selected-email .email-attachment-icon") != []
+  end
+
+  test "does not show attachment icon in sidebar for email without attachments" do
+    normalize_and_push(:email)
+    conn = conn(:get, "/sent_emails/foo")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert sidebar(conn) |> Floki.find(".selected-email .email-attachment-icon") == []
+  end
+
+  test "does not show attachments if email has none" do
+    normalize_and_push(:email)
+    conn = conn(:get, "/sent_emails/foo")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert detail_pane_attachments_container(conn) == []
+  end
+
+  test "shows attachments if email has them" do
+    [attachment1, attachment2] = attachments = [build(:attachment), build(:attachment)]
+    normalize_and_push(:email, attachments: attachments)
+    conn = conn(:get, "/sent_emails/foo")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert showing_in_attachments_container?(conn, attachment1)
+    assert showing_in_attachments_container?(conn, attachment2)
+  end
+
+  test "handles attachment links" do
+    attachment = build(:attachment)
+    normalize_and_push(:email, attachments: [attachment])
+    selected_email_id = SentEmail.all() |> Enum.at(0) |> SentEmail.get_id()
+    conn = conn(:get, "/sent_emails/foo/#{selected_email_id}/attachments/0")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+
+    assert {"content-disposition", "inline; filename=\"#{attachment.filename}\""} in conn.resp_headers
+  end
+
+  test "shows error if attachment could not be found" do
+    normalize_and_push(:email)
+    selected_email_id = SentEmail.all() |> Enum.at(0) |> SentEmail.get_id()
+    conn = conn(:get, "/sent_emails/foo/#{selected_email_id}/attachments/0")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 404
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
+    assert conn.resp_body =~ "Email not found"
+  end
+
   test "doesn't have double slash if forwarded at root" do
     email = normalize_and_push(:email)
     conn = conn(:get, "/")
@@ -208,5 +276,13 @@ defmodule Bamboo.SentEmailViewerPlugTest do
 
   defp sidebar(conn) do
     conn.resp_body |> Floki.find(".email-sidebar")
+  end
+
+  defp detail_pane_attachments_container(conn) do
+    conn.resp_body |> Floki.find(".email-detail-pane .email-detail-attachments")
+  end
+
+  defp showing_in_attachments_container?(conn, attachment) do
+    Floki.text(detail_pane_attachments_container(conn)) =~ attachment.filename
   end
 end
