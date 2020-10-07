@@ -19,7 +19,7 @@ defmodule Bamboo.SendGridAdapter do
       # In config/config.exs, or config.prod.exs, etc.
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.SendGridAdapter,
-        api_key: "my_api_key"
+        api_key: "my_api_key",
           # or {:system, "SENDGRID_API_KEY"},
           # or {ModuleName, :method_name, []}
         hackney_opts: [
