@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
       Bamboo.Email.new_email(
         from: "me@gmail.com",
         to: "someone@foo.com",
-        subject: "#{index} - This is a long subject for testing truncation",
+        subject: "#{index} - <em>This</em> is a long subject for testing truncation",
         html_body: """
         Check different tag <strong>styling</strong>
 
@@ -32,7 +32,7 @@ defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
         long to see how it expands on to the next line
 
         Sincerely,
-        Me
+        Me and <em>html tag</em>
         """
       )
       |> Bamboo.Mailer.normalize_addresses()
