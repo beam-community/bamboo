@@ -3,6 +3,7 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   use Plug.Test
   import Bamboo.Factory
   alias Bamboo.SentEmail
+  alias Plug.HTML
 
   defmodule AppRouter do
     use Plug.Router
@@ -152,7 +153,9 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   end
 
   test "shows attachments if email has them" do
-    [attachment1, attachment2] = attachments = [build(:attachment), build(:attachment)]
+    [attachment1, attachment2] =
+      attachments = [build(:attachment), build(:attachment, filename: "<b>attach</b>.txt")]
+
     normalize_and_push(:email, attachments: attachments)
     conn = conn(:get, "/sent_emails/foo")
 

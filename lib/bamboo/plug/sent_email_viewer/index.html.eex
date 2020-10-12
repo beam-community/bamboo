@@ -220,7 +220,7 @@
                   attachment = Enum.at(@selected_email.attachments, index)
                   href = "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/attachments/#{index}"
                 %>
-                <li><a href="<%= href %>"><%= attachment.filename %></a></li>
+                <li><a href="<%= href %>"><%= Bamboo.SentEmailViewerPlug.Helper.format_attachment(attachment) %></a></li>
               <% end %>
               </ul>
             </span>
