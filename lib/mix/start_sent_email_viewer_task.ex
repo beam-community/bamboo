@@ -35,12 +35,31 @@ defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
         Me and <em>html tag</em>
         """
       )
+      |> add_attachments(index)
       |> Bamboo.Mailer.normalize_addresses()
       |> Bamboo.SentEmail.push()
     end
 
     IO.puts("Running sent email viewer on port 4003")
     no_halt()
+  end
+
+  defp add_attachments(email, count) do
+    # First attachment will be an image, others will be docx files.
+    Enum.reduce(count..0, email, fn
+      0, email ->
+        email
+
+      1, email ->
+        path = Path.join(__DIR__, "../../logo/logo.png")
+        label = "bamboo-logo"
+        Bamboo.Email.put_attachment(email, path, filename: "#{label}.png")
+
+      index, email ->
+        path = Path.join(__DIR__, "../../test/support/attachment.docx")
+        label = "attachment-#{index}"
+        Bamboo.Email.put_attachment(email, path, filename: "#{label}.docx")
+    end)
   end
 
   defp no_halt do

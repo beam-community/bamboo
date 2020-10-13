@@ -47,4 +47,8 @@ defmodule Bamboo.SentEmailViewerPlug.Helper do
   def format_email_address({name, address}) do
     "#{name} &lt;#{address}&gt;"
   end
+
+  def format_attachment(%{filename: filename}) do
+    HTML.html_escape(filename)
+  end
 end

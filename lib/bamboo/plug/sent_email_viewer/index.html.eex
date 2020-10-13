@@ -108,6 +108,41 @@
         padding: 10px 0;
       }
 
+      .email-attachment-icon::after {
+        content: '📎';
+        filter: grayscale(100%);
+      }
+
+      .email-detail-attachments {
+        display: flex;
+        align-items: center;
+        margin: 0.2em 0;
+      }
+
+      .email-detail-attachments-icon-container {
+        margin: 0 0.25em 0 0;
+      }
+
+      .email-detail-attachments ul {
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .email-detail-attachments ul li {
+        padding-right: 0.25em;
+      }
+
+      .email-detail-attachments ul li:not(:last-of-type)::after {
+        content: ',';
+      }
+
+      .email-detail-attachments ul li a {
+        font-weight: bold;
+      }
+
       .email-detail-bodies-container {
         border: 1px solid #eee;
         border-radius: 5px;
@@ -123,12 +158,14 @@
       }
 
       .email-detail-recipients,
-      .email-detail-headers {
+      .email-detail-headers,
+      .email-detail-attachments {
         color: #aaa;
       }
 
       .email-detail-recipients strong,
-      .email-detail-headers strong {
+      .email-detail-headers strong,
+      .email-detail-attachments a {
         color: #555;
       }
 
@@ -153,6 +190,7 @@
               to <%= Bamboo.SentEmailViewerPlug.Helper.email_addresses(email) %>
             </span>
             <span class="email-summary-body-excerpt">
+              <%= if Enum.count(email.attachments) > 0 do %><span class="email-attachment-icon"></span><% end %>
               <%= Bamboo.SentEmailViewerPlug.Helper.format_text_body(email.text_body) %>
             </span>
           </a>
@@ -172,6 +210,21 @@
               </div>
             <% end %>
           </span>
+          <% attachment_count = Enum.count(@selected_email.attachments) %>
+          <%= if  attachment_count > 0 do %>
+            <span class="email-detail-attachments">
+              <span class="email-detail-attachments-icon-container"><span class="email-attachment-icon"></span></span>
+              <ul>
+              <%= for index <- 0..attachment_count - 1 do %>
+                <%
+                  attachment = Enum.at(@selected_email.attachments, index)
+                  href = "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/attachments/#{index}"
+                %>
+                <li><a href="<%= href %>"><%= Bamboo.SentEmailViewerPlug.Helper.format_attachment(attachment) %></a></li>
+              <% end %>
+              </ul>
+            </span>
+          <% end %>
         </section>
 
         <section class="email-detail-bodies-container">
