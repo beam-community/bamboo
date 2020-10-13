@@ -1,3 +1,36 @@
+## [1.6.0]
+
+### New Additions
+
+* Allow specifying an IP Pool name for SendGrid ([#539])
+* Add SendGrid personalizations ([#535])
+* Specify dynamic SendGrid key in config ([#523])
+* Show attachments in sent email viewer ([#553])
+* Show recipient names in sent email viewer ([#547])
+* Add `assert_email_delivered_matches/1` to test functions ([#534])
+
+### Fixes/Enhancements
+
+* Fix passing both response: true and config options ([#538])
+* Escape HTML in preview email subject and text body ([#548])
+* Add space between name and email in mailviewer ([#546])
+* Use api.sendgrid.com instead of non-api version ([#545])
+* Docs fixes ([#554]), ([d1c06d])
+
+
+[#538]: https://github.com/thoughtbot/bamboo/pull/538
+[#539]: https://github.com/thoughtbot/bamboo/pull/539
+[#535]: https://github.com/thoughtbot/bamboo/pull/535
+[#523]: https://github.com/thoughtbot/bamboo/pull/523
+[#553]: https://github.com/thoughtbot/bamboo/pull/553
+[#547]: https://github.com/thoughtbot/bamboo/pull/547
+[#534]: https://github.com/thoughtbot/bamboo/pull/534
+[#548]: https://github.com/thoughtbot/bamboo/pull/548
+[#546]: https://github.com/thoughtbot/bamboo/pull/546
+[#554]: https://github.com/thoughtbot/bamboo/pull/554
+[#545]: https://github.com/thoughtbot/bamboo/pull/545
+[d1c06d]: https://github.com/thoughtbot/bamboo/commit/d1c06d63878d7d344346f958d07b91433db53937
+
 ## [1.5.0] - 2020-05-05
 
 ### New Additions
@@ -41,8 +74,8 @@
 ## [1.3.0] - 2019-08-02
 
 ### New Additions
-* Add support for SendGrid's `asm_group_id` ([#457]) 
-* Add `SentEmailApiPlug` ([#456]) 
+* Add support for SendGrid's `asm_group_id` ([#457])
+* Add `SentEmailApiPlug` ([#456])
 * Add ability to bypass list management for SendGrid Adapter ([#458], [#463])
 * Add `supports_attachments?` to adapter behaviour ([#410])
 * Allow setting of Mailgun config from env ([#363])
@@ -62,7 +95,7 @@
 * Add Code of Conduct ([#471])
 * Replace Poison with Jason for json encoding/decoding ([#485])
 * Upgrade ex_doc ([#486])
-* Remove whitespaces inside `pre` tag in `SentEmailViewer` ([#493]) 
+* Remove whitespaces inside `pre` tag in `SentEmailViewer` ([#493])
 * Use a formatter for `assert_email_delivered_with/1` ([#482])
 
 [#457]: https://github.com/thoughtbot/bamboo/pull/457
@@ -292,6 +325,7 @@
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[1.6.0]: https://github.com/thoughtbot/bamboo/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/thoughtbot/bamboo/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/thoughtbot/bamboo/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/thoughtbot/bamboo/compare/v1.2.0...v1.3.0
