@@ -40,7 +40,7 @@ defmodule Bamboo.Mixfile do
 
   defp package do
     [
-      maintainers: ["Paul Smith"],
+      maintainers: ["German Velasco"],
       licenses: ["MIT"],
       links: %{"GitHub" => @project_url}
     ]
