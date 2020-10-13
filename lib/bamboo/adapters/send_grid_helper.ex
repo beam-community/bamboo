@@ -88,7 +88,7 @@ defmodule Bamboo.SendGridHelper do
   Add a property to the list of dynamic template data in the SendGrid template.
   This will be added to the request as:
 
-  ...
+  ```
    "personalizations":[
       {
          "to":[
@@ -101,7 +101,7 @@ defmodule Bamboo.SendGridHelper do
          }
       }
    ],
-  ...
+  ```
 
 
   The tag can be of any type since SendGrid allows you to use Handlebars in its templates
