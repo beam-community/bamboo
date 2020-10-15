@@ -31,11 +31,9 @@ defmodule Bamboo do
   end
 
   def start(_type, _args) do
-    import Supervisor.Spec
-
     children = [
-      worker(Bamboo.SentEmail, []),
-      supervisor(Task.Supervisor, [[name: Bamboo.TaskSupervisorStrategy.supervisor_name()]])
+      Bamboo.SentEmail,
+      {Task.Supervisor, [name: Bamboo.TaskSupervisorStrategy.supervisor_name()]}
     ]
 
     opts = [strategy: :one_for_one, name: Bamboo.Supervisor]

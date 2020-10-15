@@ -9,6 +9,8 @@ defmodule Bamboo.SentEmail do
   starting it with `Application.ensure_all_started(:bamboo)`
   """
 
+  use Agent
+
   @id_length 16
 
   defmodule DeliveriesError do
@@ -47,7 +49,7 @@ defmodule Bamboo.SentEmail do
   end
 
   @doc "Starts the SentEmail Agent"
-  def start_link do
+  def start_link(_opts) do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
