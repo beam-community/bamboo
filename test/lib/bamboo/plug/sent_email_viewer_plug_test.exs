@@ -3,7 +3,6 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   use Plug.Test
   import Bamboo.Factory
   alias Bamboo.SentEmail
-  alias Plug.HTML
 
   defmodule AppRouter do
     use Plug.Router
@@ -274,15 +273,21 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   end
 
   defp detail_pane(conn) do
-    conn.resp_body |> Floki.find(".email-detail-pane")
+    conn.resp_body
+    |> Floki.parse_document!()
+    |> Floki.find(".email-detail-pane")
   end
 
   defp sidebar(conn) do
-    conn.resp_body |> Floki.find(".email-sidebar")
+    conn.resp_body
+    |> Floki.parse_document!()
+    |> Floki.find(".email-sidebar")
   end
 
   defp detail_pane_attachments_container(conn) do
-    conn.resp_body |> Floki.find(".email-detail-pane .email-detail-attachments")
+    conn.resp_body
+    |> Floki.parse_document!()
+    |> Floki.find(".email-detail-pane .email-detail-attachments")
   end
 
   defp showing_in_attachments_container?(conn, attachment) do
