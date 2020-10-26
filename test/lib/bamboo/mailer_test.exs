@@ -7,8 +7,8 @@ defmodule Bamboo.MailerTest do
   setup context do
     config =
       Keyword.merge(@mailer_config, [adapter: context[:adapter]], fn
-        _, v, nil -> v
-        _, _, v -> v
+        _key, default, nil -> default
+        _key, _default, override -> override
       end)
 
     Application.put_env(:bamboo, __MODULE__.Mailer, config)
