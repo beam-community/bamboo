@@ -37,7 +37,7 @@ defmodule Bamboo.LocalAdapter do
   end
 
   def deliver(email, _config) do
-    SentEmail.push(email)
+    {:ok, SentEmail.push(email)}
   end
 
   def handle_config(config), do: config
