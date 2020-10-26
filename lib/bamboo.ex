@@ -4,15 +4,13 @@ defmodule Bamboo do
   use Application
 
   defmodule EmptyFromAddressError do
-    defexception [:message]
+    defexception message: ~S"""
+                 The from address was empty. Set an address as a string, a 2 item tuple
+                 {name, address}, or something that implements the Bamboo.Formatter protocol.
+                 """
 
     def exception(_) do
-      %EmptyFromAddressError{
-        message: """
-        The from address was empty. Set an address as a string, a 2 item tuple
-        {name, address}, or something that implements the Bamboo.Formatter protocol.
-        """
-      }
+      %EmptyFromAddressError{}
     end
   end
 

@@ -63,17 +63,33 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      @spec deliver_now(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {any, Bamboo.Email.t()}
+      @spec deliver_now(Bamboo.Email.t(), Keyword.t()) ::
+              {:ok, Bamboo.Email.t()}
+              | {:ok, Bamboo.Email.t(), any}
+              | {:error, Exception.t() | String.t()}
       def deliver_now(email, opts \\ []) do
         {config, opts} = Keyword.split(opts, [:config])
         config = build_config(config)
         Bamboo.Mailer.deliver_now(config.adapter, email, config, opts)
       end
 
+      @spec deliver_now!(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {Bamboo.Email.t(), any}
+      def deliver_now!(email, opts \\ []) do
+        {config, opts} = Keyword.split(opts, [:config])
+        config = build_config(config)
+        Bamboo.Mailer.deliver_now!(config.adapter, email, config, opts)
+      end
+
       @spec deliver_later(Bamboo.Email.t()) :: Bamboo.Email.t()
       def deliver_later(email, opts \\ []) do
         config = build_config(opts)
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
+      end
+
+      @spec deliver_later!(Bamboo.Email.t()) :: Bamboo.Email.t()
+      def deliver_later!(email, opts \\ []) do
+        config = build_config(opts)
+        Bamboo.Mailer.deliver_later!(config.adapter, email, config)
       end
 
       otp_app = Keyword.fetch!(opts, :otp_app)
@@ -139,44 +155,61 @@ defmodule Bamboo.Mailer do
 
   @doc false
   def deliver_now(adapter, email, config, response: true) do
-    email = email |> validate_and_normalize(adapter)
-
-    if email.to == [] && email.cc == [] && email.bcc == [] do
-      debug_unsent(email)
-      email
-    else
-      debug_sent(email, adapter)
-      response = adapter.deliver(email, config)
-      {email, response}
+    with {:ok, email} <- validate_and_normalize(email, adapter) do
+      if email.to == [] && email.cc == [] && email.bcc == [] do
+        debug_unsent(email)
+        {:ok, email}
+      else
+        debug_sent(email, adapter)
+        response = adapter.deliver(email, config)
+        {:ok, email, response}
+      end
     end
   end
 
   @doc false
   def deliver_now(adapter, email, config, _opts) do
-    email = email |> validate_and_normalize(adapter)
+    with {:ok, email} <- validate_and_normalize(email, adapter) do
+      if email.to == [] && email.cc == [] && email.bcc == [] do
+        debug_unsent(email)
+      else
+        debug_sent(email, adapter)
+        adapter.deliver(email, config)
+      end
 
-    if email.to == [] && email.cc == [] && email.bcc == [] do
-      debug_unsent(email)
-    else
-      debug_sent(email, adapter)
-      adapter.deliver(email, config)
+      {:ok, email}
     end
+  end
 
-    email
+  @doc false
+  def deliver_now!(adapter, email, config, opts) do
+    case deliver_now(adapter, email, config, opts) do
+      {:ok, email, response} -> {email, response}
+      {:ok, email} -> email
+      {:error, error} -> raise error
+    end
   end
 
   @doc false
   def deliver_later(adapter, email, config) do
-    email = email |> validate_and_normalize(adapter)
+    with {:ok, email} <- validate_and_normalize(email, adapter) do
+      if email.to == [] && email.cc == [] && email.bcc == [] do
+        debug_unsent(email)
+      else
+        debug_sent(email, adapter)
+        config.deliver_later_strategy.deliver_later(adapter, email, config)
+      end
 
-    if email.to == [] && email.cc == [] && email.bcc == [] do
-      debug_unsent(email)
-    else
-      debug_sent(email, adapter)
-      config.deliver_later_strategy.deliver_later(adapter, email, config)
+      {:ok, email}
     end
+  end
 
-    email
+  @doc false
+  def deliver_later!(adapter, email, config) do
+    case deliver_later(adapter, email, config) do
+      {:ok, email} -> email
+      {:error, error} -> raise error
+    end
   end
 
   defp debug_sent(email, adapter) do
@@ -200,44 +233,48 @@ defmodule Bamboo.Mailer do
   end
 
   defp validate_and_normalize(email, adapter) do
-    email |> validate(adapter) |> normalize_addresses
+    case validate(email, adapter) do
+      :ok -> {:ok, normalize_addresses(email)}
+      error -> error
+    end
   end
 
   defp validate(email, adapter) do
-    email
-    |> validate_from_address
-    |> validate_recipients
-    |> validate_attachment_support(adapter)
+    with :ok <- validate_from_address(email),
+         :ok <- validate_recipients(email),
+         :ok <- validate_attachment_support(email, adapter) do
+      :ok
+    end
   end
 
-  defp validate_attachment_support(%{attachments: []} = email, _adapter), do: email
+  defp validate_attachment_support(%{attachments: []} = _email, _adapter), do: :ok
 
-  defp validate_attachment_support(email, adapter) do
+  defp validate_attachment_support(_email, adapter) do
     if function_exported?(adapter, :supports_attachments?, 0) && adapter.supports_attachments? do
-      email
+      :ok
     else
-      raise "the #{adapter} does not support attachments yet."
+      {:error, "the #{adapter} does not support attachments yet."}
     end
   end
 
   defp validate_from_address(%{from: nil}) do
-    raise Bamboo.EmptyFromAddressError, nil
+    {:error, %Bamboo.EmptyFromAddressError{}}
   end
 
   defp validate_from_address(%{from: {_, nil}}) do
-    raise Bamboo.EmptyFromAddressError, nil
+    {:error, %Bamboo.EmptyFromAddressError{}}
   end
 
-  defp validate_from_address(email), do: email
+  defp validate_from_address(_email), do: :ok
 
   defp validate_recipients(%Bamboo.Email{} = email) do
     if Enum.all?(
          Enum.map([:to, :cc, :bcc], &Map.get(email, &1)),
          &is_nil_recipient?/1
        ) do
-      raise Bamboo.NilRecipientsError, email
+      {:error, Bamboo.NilRecipientsError.exception(email)}
     else
-      email
+      :ok
     end
   end
 

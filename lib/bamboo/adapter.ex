@@ -35,7 +35,9 @@ defmodule Bamboo.Adapter do
       end
   """
 
-  @callback deliver(%Bamboo.Email{}, %{}) :: any
+  @type error :: Exception.t() | String.t()
+
+  @callback deliver(%Bamboo.Email{}, %{}) :: {:ok, any} | {:error, any}
   @callback handle_config(map) :: map
   @callback supports_attachments? :: boolean
 end
