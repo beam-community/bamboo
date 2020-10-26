@@ -7,7 +7,7 @@ defmodule Bamboo.Mixfile do
     [
       app: :bamboo,
       version: "1.6.0",
-      elixir: "~> 1.2",
+      elixir: "~> 1.6",
       source_url: @project_url,
       homepage_url: @project_url,
       compilers: compilers(Mix.env()),
