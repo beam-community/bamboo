@@ -14,7 +14,7 @@ defmodule Bamboo.LocalAdapterTest do
   test "sent emails has emails that were delivered synchronously" do
     email = new_email(subject: "This is my email")
 
-    email |> LocalAdapter.deliver(@config)
+    {:ok, _response} = email |> LocalAdapter.deliver(@config)
 
     assert [%Bamboo.Email{subject: "This is my email"}] = SentEmail.all()
   end
