@@ -271,7 +271,6 @@ defmodule Bamboo.MailgunAdapter do
 
   defp decode_body({:multipart, _} = multipart_body), do: multipart_body
 
-  defp decode_body(body) when is_binary(body) do
-    URI.decode_query(body)
-  end
+  defp decode_body(body_without_attachments) when is_binary(body_without_attachments),
+    do: Plug.Conn.Query.decode(body_without_attachments)
 end
