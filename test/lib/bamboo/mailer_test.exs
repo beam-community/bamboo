@@ -22,6 +22,17 @@ defmodule Bamboo.MailerTest do
   defmodule DefaultAdapter do
     def deliver(email, config) do
       send(:mailer_test, {:deliver, email, config})
+      {:ok, email}
+    end
+
+    def handle_config(config), do: config
+
+    def supports_attachments?, do: true
+  end
+
+  defmodule FailureAdapter do
+    def deliver(_email, _config) do
+      {:error, %Bamboo.ApiError{message: "invalid email"}}
     end
 
     def handle_config(config), do: config
@@ -36,6 +47,26 @@ defmodule Bamboo.MailerTest do
     {:ok, delivered_email} = Mailer.deliver_now(email)
 
     assert_received {:deliver, ^delivered_email, _}
+  end
+
+  @tag adapter: FailureAdapter
+  test "deliver_now/1 returns errors if adapter fails" do
+    address = "foo@bar.com"
+    email = new_email(from: address, to: address, cc: address, bcc: address)
+
+    {:error, %Bamboo.ApiError{}} = Mailer.deliver_now(email)
+
+    refute_received {:deliver, _, _}
+  end
+
+  @tag adapter: FailureAdapter
+  test "deliver_now!/1 raises errors if adapter fails" do
+    address = "foo@bar.com"
+    email = new_email(from: address, to: address, cc: address, bcc: address)
+
+    assert_raise Bamboo.ApiError, fn ->
+      Mailer.deliver_now!(email)
+    end
   end
 
   test "deliver_now!/1 returns email sent" do
@@ -246,7 +277,7 @@ defmodule Bamboo.MailerTest do
 
   describe "attachments" do
     defmodule AdapterWithoutAttachmentSupport do
-      def deliver(_email, _config), do: :noop
+      def deliver(_email, _config), do: {:ok, :noop}
 
       def handle_config(config), do: config
 
@@ -300,6 +331,7 @@ defmodule Bamboo.MailerTest do
     defmodule CustomConfigAdapter do
       def deliver(email, config) do
         send(:mailer_test, {:deliver, email, config})
+        {:ok, email}
       end
 
       def handle_config(config) do
@@ -351,9 +383,9 @@ defmodule Bamboo.MailerTest do
   describe "option to return response" do
     defmodule ResponseAdapter do
       def deliver(_email, _config) do
-        email = %{status_code: 202, headers: [%{}], body: ""}
-        send(:mailer_test, email)
-        email
+        response = %{status_code: 202, headers: [%{}], body: ""}
+        send(:mailer_test, response)
+        {:ok, response}
       end
 
       def handle_config(config), do: config

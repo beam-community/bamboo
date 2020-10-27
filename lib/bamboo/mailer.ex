@@ -161,8 +161,11 @@ defmodule Bamboo.Mailer do
         {:ok, email}
       else
         debug_sent(email, adapter)
-        response = adapter.deliver(email, config)
-        {:ok, email, response}
+
+        case adapter.deliver(email, config) do
+          {:ok, response} -> {:ok, email, response}
+          {:error, _} = error -> error
+        end
       end
     end
   end
@@ -172,12 +175,16 @@ defmodule Bamboo.Mailer do
     with {:ok, email} <- validate_and_normalize(email, adapter) do
       if email.to == [] && email.cc == [] && email.bcc == [] do
         debug_unsent(email)
+
+        {:ok, email}
       else
         debug_sent(email, adapter)
-        adapter.deliver(email, config)
-      end
 
-      {:ok, email}
+        case adapter.deliver(email, config) do
+          {:ok, _} -> {:ok, email}
+          {:error, _} = error -> error
+        end
+      end
     end
   end
 
