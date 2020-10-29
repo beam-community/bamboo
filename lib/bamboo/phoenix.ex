@@ -140,7 +140,6 @@ defmodule Bamboo.Phoenix do
     quote do
       import Bamboo.Email
       import Bamboo.Phoenix, except: [render: 3]
-      @email_view_module unquote(view_module)
 
       @doc """
       Render an Phoenix template and set the body on the email.
@@ -150,7 +149,7 @@ defmodule Bamboo.Phoenix do
       "welcome_email.text" or "welcome_email.html". Scroll to the top for more examples.
       """
       def render(email, template, assigns \\ []) do
-        Bamboo.Phoenix.render_email(@email_view_module, email, template, assigns)
+        Bamboo.Phoenix.render_email(unquote(view_module), email, template, assigns)
       end
     end
   end
