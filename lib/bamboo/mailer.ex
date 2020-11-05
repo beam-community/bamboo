@@ -63,7 +63,7 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      @spec deliver_now(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {any, Bamboo.Email.t()}
+      @spec deliver_now(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {Bamboo.Email.t(), any}
       def deliver_now(email, opts \\ []) do
         {config, opts} = Keyword.split(opts, [:config])
         config = build_config(config)
