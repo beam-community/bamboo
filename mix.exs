@@ -22,7 +22,7 @@ defmodule Bamboo.Mixfile do
       package: package(),
       docs: [main: "readme", extras: ["README.md"]],
       deps: deps(),
-      xref: [exclude: [IEx, ExMachina]]
+      xref: [exclude: [IEx]]
     ]
   end
 
