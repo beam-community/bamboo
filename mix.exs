@@ -21,7 +21,8 @@ defmodule Bamboo.Mixfile do
       start_permanent: Mix.env() == :prod,
       package: package(),
       docs: [main: "readme", extras: ["README.md"]],
-      deps: deps()
+      deps: deps(),
+      xref: [exclude: [IEx]]
     ]
   end
 
@@ -33,7 +34,7 @@ defmodule Bamboo.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :hackney],
+      extra_applications: [:logger, :eex],
       mod: {Bamboo, []}
     ]
   end
@@ -53,13 +54,14 @@ defmodule Bamboo.Mixfile do
   defp deps do
     [
       {:plug, "~> 1.0"},
-      {:ex_machina, "~> 2.2", only: :test},
+      {:mime, "~> 1.4"},
+      {:ex_machina, "~> 2.4", only: :test},
       {:cowboy, "~> 1.0", only: [:test, :dev]},
-      {:phoenix, "~> 1.1", only: :test},
+      {:phoenix, "~> 1.1", optional: true},
       {:phoenix_html, "~> 2.2", only: :test},
-      {:excoveralls, "~> 0.4", only: :test},
-      {:floki, "~> 0.8", only: :test},
-      {:ex_doc, "~> 0.20", only: :dev},
+      {:excoveralls, "~> 0.13", only: :test},
+      {:floki, "~> 0.29", only: :test},
+      {:ex_doc, "~> 0.23", only: :dev},
       {:hackney, ">= 1.13.0"},
       {:jason, "~> 1.0", optional: true}
     ]
