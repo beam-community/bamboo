@@ -4,6 +4,13 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
   defmodule FakeAdapter do
     def deliver(_email, _config) do
       send(:task_supervisor_strategy_test, :delivered)
+      {:ok, "response"}
+    end
+  end
+
+  defmodule FailureAdapter do
+    def deliver(_email, _config) do
+      {:error, "an error happened"}
     end
   end
 
@@ -19,6 +26,23 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
     )
 
     assert_receive :delivered
+  end
+
+  test "raises error if adapter returns error" do
+    Process.register(self(), :task_supervisor_strategy_test)
+
+    {:ok, pid} =
+      Bamboo.TaskSupervisorStrategy.deliver_later(
+        FailureAdapter,
+        Bamboo.Email.new_email(),
+        @mailer_config
+      )
+
+    ref = Process.monitor(pid)
+
+    assert_receive {:DOWN, ^ref, :process, _, error}
+    assert %RuntimeError{message: "an error happened"} = elem(error, 0)
+    refute_receive :delivered
   end
 
   test "child_spec raises error about removal" do
