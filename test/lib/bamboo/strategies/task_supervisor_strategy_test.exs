@@ -28,6 +28,7 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
     assert_receive :delivered
   end
 
+  @tag :capture_log
   test "raises error if adapter returns error" do
     Process.register(self(), :task_supervisor_strategy_test)
 
