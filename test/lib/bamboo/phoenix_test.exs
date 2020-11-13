@@ -53,6 +53,17 @@ defmodule Bamboo.PhoenixTest do
       new_email()
       |> render("template.foobar")
     end
+
+    def email_with_assigns do
+      new_email()
+      |> assign(:a, "a")
+      |> assign(:b, "b")
+      |> assign(:c, "c")
+    end
+
+    def email_with_many_assigns do
+      assign_many(new_email(), a: "a", b: "b", c: "c")
+    end
   end
 
   test "render/2 allows setting a custom layout" do
@@ -113,5 +124,14 @@ defmodule Bamboo.PhoenixTest do
     assert_raise RuntimeError, ~r/documentation only/, fn ->
       Bamboo.Phoenix.render(:foo, :foo, :foo)
     end
+  end
+
+  test "assign/3 will assign a variable for the email" do
+    assert %{assigns: %{a: "a", b: "b", c: "c"}} = Email.email_with_assigns()
+  end
+
+  test "assign_many/2 will assign many variables for the email" do
+    assert %{assigns: %{a: "a", b: "b", c: "c"}} =Email.email_with_many_assigns()
+    assert Email.email_with_assigns() == Email.email_with_many_assigns()
   end
 end

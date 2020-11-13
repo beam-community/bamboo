@@ -235,6 +235,13 @@ defmodule Bamboo.Phoenix do
     %{email | assigns: Map.put(assigns, key, value)}
   end
 
+  @doc """
+  Sets many assigns for the email at once. These weill be available when rendering the email
+  """
+  def assign_many(email, assigns) do
+    Enum.reduce(assigns, email, fn {key, value}, acc -> assign(acc, key, value) end)
+  end
+
   @doc false
   def render_email(view, email, template, assigns) do
     email
