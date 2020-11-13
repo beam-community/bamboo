@@ -131,7 +131,7 @@ defmodule Bamboo.PhoenixTest do
   end
 
   test "assign_many/2 will assign many variables for the email" do
-    assert %{assigns: %{a: "a", b: "b", c: "c"}} =Email.email_with_many_assigns()
+    assert %{assigns: %{a: "a", b: "b", c: "c"}} = Email.email_with_many_assigns()
     assert Email.email_with_assigns() == Email.email_with_many_assigns()
   end
 end
