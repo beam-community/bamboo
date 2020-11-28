@@ -12,12 +12,12 @@ defmodule Bamboo.Phoenix do
   _Set the text and HTML layout for an email._
 
       defmodule MyApp.Email do
-        use Bamboo.Phoenix, view: MyApp.EmailView
+        use Bamboo.Phoenix, view: MyAppWeb.EmailView
 
         def welcome_email do
           new_email()
-          |> put_text_layout({MyApp.LayoutView, "email.text"})
-          |> put_html_layout({MyApp.LayoutView, "email.html"})
+          |> put_text_layout({MyAppWeb.LayoutView, "email.text"})
+          |> put_html_layout({MyAppWeb.LayoutView, "email.html"})
           |> render(:welcome) # Pass atom to render html AND plain text templates
         end
       end
@@ -25,11 +25,11 @@ defmodule Bamboo.Phoenix do
   _Set both the text and HTML layout at the same time for an email._
 
       defmodule MyApp.Email do
-        use Bamboo.Phoenix, view: MyApp.EmailView
+        use Bamboo.Phoenix, view: MyAppWeb.EmailView
 
         def welcome_email do
           new_email()
-          |> put_layout({MyApp.LayoutView, :email})
+          |> put_layout({MyAppWeb.LayoutView, :email})
           |> render(:welcome)
         end
       end
@@ -37,7 +37,7 @@ defmodule Bamboo.Phoenix do
   _Render both text and html emails without layouts._
 
       defmodule MyApp.Email do
-        use Bamboo.Phoenix, view: MyApp.EmailView
+        use Bamboo.Phoenix, view: MyAppWeb.EmailView
 
         def welcome_email do
           new_email()
@@ -48,7 +48,7 @@ defmodule Bamboo.Phoenix do
   _Make assigns available to a template._
 
       defmodule MyApp.Email do
-        use Bamboo.Phoenix, view: MyApp.EmailView
+        use Bamboo.Phoenix, view: MyAppWeb.EmailView
 
         def welcome_email(user) do
           new_email()
@@ -60,11 +60,11 @@ defmodule Bamboo.Phoenix do
   _Make assigns available to a template during render call._
 
       defmodule MyApp.Email do
-        use Bamboo.Phoenix, view: MyApp.EmailView
+        use Bamboo.Phoenix, view: MyAppWeb.EmailView
 
         def welcome_email(user) do
           new_email()
-          |> put_html_layout({MyApp.LayoutView, "email.html"})
+          |> put_html_layout({MyAppWeb.LayoutView, "email.html"})
           |> render(:welcome, user: user)
         end
       end
@@ -72,7 +72,7 @@ defmodule Bamboo.Phoenix do
   _Render an email by passing the template string to render._
 
       defmodule MyApp.Email do
-        use Bamboo.Phoenix, view: MyApp.EmailView
+        use Bamboo.Phoenix, view: MyAppWeb.EmailView
 
         def html_email do
           new_email
@@ -87,9 +87,9 @@ defmodule Bamboo.Phoenix do
 
   ## HTML Layout Example
 
-      # web/email.ex
-      defmodule Myapp.Email do
-        use Bamboo.Phoenix, view: Myapp.EmailView
+      # my_app_web/email.ex
+      defmodule MyApp.Email do
+        use Bamboo.Phoenix, view: MyAppWeb.EmailView
 
         def sign_in_email(person) do
           base_email()
@@ -105,31 +105,31 @@ defmodule Bamboo.Phoenix do
           |> put_header("Reply-To", "editors@changelog.com")
           # This will use the "email.html.eex" file as a layout when rendering html emails.
           # Plain text emails will not use a layout unless you use `put_text_layout`
-          |> put_html_layout({Myapp.LayoutView, "email.html"})
+          |> put_html_layout({MyAppWeb.LayoutView, "email.html"})
         end
       end
 
-      # web/views/email_view.ex
-      defmodule Myapp.EmailView do
-        use Myapp.Web, :view
+      # my_app_web/views/email_view.ex
+      defmodule MyAppWeb.EmailView do
+        use MyAppWeb, :view
       end
 
-      # web/templates/layout/email.html.eex
+      # my_app_web/templates/layout/email.html.eex
       <html>
         <head>
-          <link rel="stylesheet" href="<%= static_url(Myapp.Endpoint, "/css/email.css") %>">
+          <link rel="stylesheet" href="<%= static_url(MyApp.Endpoint, "/css/email.css") %>">
         </head>
         <body>
           <%= render @view_module, @view_template, assigns %>
         </body>
       </html>
 
-      # web/templates/email/sign_in.html.eex
-      <p><%= link "Sign In", to: sign_in_url(Myapp.Endpoint, :create, @person) %></p>
+      # my_app_web/templates/email/sign_in.html.eex
+      <p><%= link "Sign In", to: sign_in_url(MyApp.Endpoint, :create, @person) %></p>
 
-      # web/templates/email/sign_in.text.eex
+      # my_app_web/templates/email/sign_in.text.eex
       # This will not be rendered within a layout because `put_text_layout` was not used.
-      Sign In: <%= sign_in_url(Myapp.Endpoint, :create, @person) %>
+      Sign In: <%= sign_in_url(MyApp.Endpoint, :create, @person) %>
   """
 
   import Bamboo.Email, only: [put_private: 3]
@@ -158,7 +158,7 @@ defmodule Bamboo.Phoenix do
     raise ArgumentError, """
     expected Bamboo.Phoenix to have a view set, instead got: #{inspect(opts)}.
 
-    Please set a view e.g. use Bamboo.Phoenix, view: MyApp.MyView
+    Please set a view e.g. use Bamboo.Phoenix, view: MyAppWeb.MyView
     """
   end
 
@@ -187,8 +187,8 @@ defmodule Bamboo.Phoenix do
 
       def html_email_layout do
         new_email
-        # Will use MyApp.LayoutView with email.html template when rendering html emails
-        |> put_html_layout({MyApp.LayoutView, "email.html"})
+        # Will use MyAppWeb.LayoutView with email.html template when rendering html emails
+        |> put_html_layout({MyAppWeb.LayoutView, "email.html"})
       end
   """
   def put_html_layout(email, layout) do
@@ -202,8 +202,8 @@ defmodule Bamboo.Phoenix do
 
       def text_email_layout do
         new_email
-        # Will use MyApp.LayoutView with email.text template when rendering text emails
-        |> put_text_layout({MyApp.LayoutView, "email.text"})
+        # Will use MyAppWeb.LayoutView with email.text template when rendering text emails
+        |> put_text_layout({MyAppWeb.LayoutView, "email.text"})
       end
   """
   def put_text_layout(email, layout) do
@@ -217,9 +217,9 @@ defmodule Bamboo.Phoenix do
 
       def text_and_html_email_layout do
         new_email
-        # Will use MyApp.LayoutView with the email.html template for html emails
-        # and MyApp.LayoutView with the email.text template for text emails
-        |> put_layout({MyApp.LayoutView, :email})
+        # Will use MyAppWeb.LayoutView with the email.html template for html emails
+        # and MyAppWeb.LayoutView with the email.text template for text emails
+        |> put_layout({MyAppWeb.LayoutView, :email})
       end
   """
   def put_layout(email, {layout, template}) do
