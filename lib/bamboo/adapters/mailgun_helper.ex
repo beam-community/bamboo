@@ -126,4 +126,25 @@ defmodule Bamboo.MailgunHelper do
 
     %{email | headers: Map.put(headers, @mailgun_header_for_custom_vars, variables)}
   end
+
+  @doc """
+  Adds Mailgun recipient variables to the outgoing email
+
+  More details can be found in the
+  [Mailgun documentation](https://documentation.mailgun.com/en/latest/user_manual.html#recipient-variables)
+
+  ## Example
+
+      variables = %{
+        "user1@example.com" => %{unique_id: "ABC123456789"},
+        "user2@example.com" => %{unique_id: "ZXY987654321"}
+      }
+
+      email
+      |> MailgunHelper.recipient_variables(variables)
+  """
+  def recipient_variables(email, value) when is_map(value) do
+    encoded_value = Bamboo.json_library().encode!(value)
+    Email.put_private(email, :mailgun_recipient_variables, encoded_value)
+  end
 end

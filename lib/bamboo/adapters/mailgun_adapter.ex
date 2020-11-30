@@ -147,6 +147,7 @@ defmodule Bamboo.MailgunAdapter do
     |> put_template_version(email)
     |> put_template_text(email)
     |> put_custom_vars(email)
+    |> put_recipient_variables(email)
     |> filter_non_empty_mailgun_fields
     |> encode_body
   end
@@ -225,6 +226,16 @@ defmodule Bamboo.MailgunAdapter do
     end)
   end
 
+  defp put_recipient_variables(body, %Email{private: private}) do
+    recipient_variables = Map.get(private, :mailgun_recipient_variables)
+
+    if recipient_variables do
+      Map.put(body, :"recipient-variables", recipient_variables)
+    else
+      body
+    end
+  end
+
   defp put_attachments(body, %Email{attachments: []}), do: body
 
   defp put_attachments(body, %Email{attachments: attachments}) do
@@ -241,7 +252,7 @@ defmodule Bamboo.MailgunAdapter do
      {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
   end
 
-  @mailgun_message_fields ~w(from to cc bcc subject text html template)a
+  @mailgun_message_fields ~w(from to cc bcc subject text html template recipient-variables)a
   @internal_fields ~w(attachments)a
 
   def filter_non_empty_mailgun_fields(body) do
