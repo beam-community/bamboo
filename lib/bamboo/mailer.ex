@@ -213,7 +213,8 @@ defmodule Bamboo.Mailer do
   defp validate_attachment_support(%{attachments: []} = email, _adapter), do: email
 
   defp validate_attachment_support(email, adapter) do
-    if function_exported?(adapter, :supports_attachments?, 0) && adapter.supports_attachments? do
+    if Code.ensure_loaded?(adapter) && function_exported?(adapter, :supports_attachments?, 0) &&
+         adapter.supports_attachments? do
       email
     else
       raise "the #{adapter} does not support attachments yet."
