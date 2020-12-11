@@ -70,6 +70,22 @@ defmodule Bamboo.SentEmailViewerPlug do
     end
   end
 
+  get "/:id/attachments/:index" do
+    with %Bamboo.Email{} = email <- SentEmail.get(id),
+         %Bamboo.Attachment{} = attachment <- Enum.at(email.attachments, String.to_integer(index)) do
+      conn
+      |> Plug.Conn.put_resp_header(
+        "content-disposition",
+        "inline; filename=\"#{attachment.filename}\""
+      )
+      |> Plug.Conn.put_resp_content_type(attachment.content_type)
+      |> send_resp(:ok, attachment.data)
+    else
+      _ ->
+        conn |> render_not_found
+    end
+  end
+
   defp all_emails do
     SentEmail.all()
   end

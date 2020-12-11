@@ -63,9 +63,10 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      @spec deliver_now(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {any, Bamboo.Email.t()}
+      @spec deliver_now(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {Bamboo.Email.t(), any}
       def deliver_now(email, opts \\ []) do
-        config = build_config(opts)
+        {config, opts} = Keyword.split(opts, [:config])
+        config = build_config(config)
         Bamboo.Mailer.deliver_now(config.adapter, email, config, opts)
       end
 
@@ -212,7 +213,8 @@ defmodule Bamboo.Mailer do
   defp validate_attachment_support(%{attachments: []} = email, _adapter), do: email
 
   defp validate_attachment_support(email, adapter) do
-    if function_exported?(adapter, :supports_attachments?, 0) && adapter.supports_attachments? do
+    if Code.ensure_loaded?(adapter) && function_exported?(adapter, :supports_attachments?, 0) &&
+         adapter.supports_attachments? do
       email
     else
       raise "the #{adapter} does not support attachments yet."
