@@ -103,6 +103,7 @@ defmodule Bamboo.MailgunAdapter do
            AdapterHelper.hackney_opts(config)
          ) do
       {:ok, status, _headers, response} when status > 299 ->
+        body = decode_body(body)
         raise_api_error(@service_name, response, body)
 
       {:ok, status, headers, response} ->
@@ -267,4 +268,9 @@ defmodule Bamboo.MailgunAdapter do
   end
 
   defp encode_body(body_without_attachments), do: Plug.Conn.Query.encode(body_without_attachments)
+
+  defp decode_body({:multipart, _} = multipart_body), do: multipart_body
+
+  defp decode_body(body_without_attachments) when is_binary(body_without_attachments),
+    do: Plug.Conn.Query.decode(body_without_attachments)
 end
