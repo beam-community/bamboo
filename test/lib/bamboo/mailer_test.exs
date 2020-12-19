@@ -179,7 +179,7 @@ defmodule Bamboo.MailerTest do
     end
   end
 
-  test "deliver_now/1 returns an error when recipient are empty lists" do
+  test "deliver_now/1 with empty recipient lists does not deliver email" do
     {:ok, email} = new_email(to: [], cc: [], bcc: []) |> Mailer.deliver_now()
     refute_received {:deliver, ^email, _}
 

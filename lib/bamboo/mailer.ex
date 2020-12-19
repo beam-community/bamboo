@@ -154,37 +154,30 @@ defmodule Bamboo.Mailer do
   end
 
   @doc false
-  def deliver_now(adapter, email, config, response: true) do
+  def deliver_now(adapter, email, config, opts) do
     with {:ok, email} <- validate_and_normalize(email, adapter) do
-      if email.to == [] && email.cc == [] && email.bcc == [] do
+      if empty_recipients?(email) do
         debug_unsent(email)
+
         {:ok, email}
       else
         debug_sent(email, adapter)
 
         case adapter.deliver(email, config) do
-          {:ok, response} -> {:ok, email, response}
+          {:ok, response} -> format_response(email, response, opts)
           {:error, _} = error -> error
         end
       end
     end
   end
 
-  @doc false
-  def deliver_now(adapter, email, config, _opts) do
-    with {:ok, email} <- validate_and_normalize(email, adapter) do
-      if email.to == [] && email.cc == [] && email.bcc == [] do
-        debug_unsent(email)
+  defp format_response(email, response, opts) do
+    put_response = Keyword.get(opts, :response, false)
 
-        {:ok, email}
-      else
-        debug_sent(email, adapter)
-
-        case adapter.deliver(email, config) do
-          {:ok, _} -> {:ok, email}
-          {:error, _} = error -> error
-        end
-      end
+    if put_response do
+      {:ok, email, response}
+    else
+      {:ok, email}
     end
   end
 
@@ -200,7 +193,7 @@ defmodule Bamboo.Mailer do
   @doc false
   def deliver_later(adapter, email, config) do
     with {:ok, email} <- validate_and_normalize(email, adapter) do
-      if email.to == [] && email.cc == [] && email.bcc == [] do
+      if empty_recipients?(email) do
         debug_unsent(email)
       else
         debug_sent(email, adapter)
@@ -217,6 +210,10 @@ defmodule Bamboo.Mailer do
       {:ok, email} -> email
       {:error, error} -> raise error
     end
+  end
+
+  defp empty_recipients?(email) do
+    email.to == [] && email.cc == [] && email.bcc == []
   end
 
   defp debug_sent(email, adapter) do
