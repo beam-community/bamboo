@@ -53,10 +53,10 @@ defmodule Bamboo.SendGridAdapter do
     case :hackney.post(url, headers(api_key), body, AdapterHelper.hackney_opts(config)) do
       {:ok, status, _headers, response} when status > 299 ->
         filtered_params = body |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
-        raise_api_error(@service_name, response, filtered_params)
+        {:error, build_api_error(@service_name, response, filtered_params)}
 
       {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
+        {:ok, %{status_code: status, headers: headers, body: response}}
 
       {:error, reason} ->
         raise_api_error(inspect(reason))
