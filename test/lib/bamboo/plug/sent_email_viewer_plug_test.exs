@@ -3,7 +3,6 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   use Plug.Test
   import Bamboo.Factory
   alias Bamboo.SentEmail
-  alias Plug.HTML
 
   defmodule AppRouter do
     use Plug.Router
