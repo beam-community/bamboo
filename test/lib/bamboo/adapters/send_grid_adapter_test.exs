@@ -571,10 +571,9 @@ defmodule Bamboo.SendGridAdapterTest do
       |> Email.put_header("Reply-To", "reply@foo.com")
       |> Bamboo.SendGridHelper.add_personalizations([%{subject: "This will fail"}])
 
-    assert_raise RuntimeError, ~r/'to' field/, fn ->
-      email
-      |> SendGridAdapter.deliver(@config)
-    end
+    {:error, error} = email |> SendGridAdapter.deliver(@config)
+
+    assert error.message =~ ~r/'to' field/
   end
 
   test "deliver/2 personalization send_at field must be either DateTime or epoch timestamp" do

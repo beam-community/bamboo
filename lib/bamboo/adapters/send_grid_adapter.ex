@@ -47,8 +47,16 @@ defmodule Bamboo.SendGridAdapter do
 
   def deliver(email, config) do
     api_key = get_key(config)
-    body = email |> to_sendgrid_body(config) |> Bamboo.json_library().encode!()
+
+    case build_sendgrid_body(email, config) do
+      {:error, _msg} = error -> error
+      body -> attempt_delivery(api_key, body, config)
+    end
+  end
+
+  defp attempt_delivery(api_key, body, config) do
     url = [base_uri(), @send_message_path]
+    body = body |> Bamboo.json_library().encode!()
 
     case :hackney.post(url, headers(api_key), body, AdapterHelper.hackney_opts(config)) do
       {:ok, status, _headers, response} when status > 299 ->
@@ -59,7 +67,7 @@ defmodule Bamboo.SendGridAdapter do
         {:ok, %{status_code: status, headers: headers, body: response}}
 
       {:error, reason} ->
-        raise_api_error(inspect(reason))
+        {:error, build_api_error(inspect(reason))}
     end
   end
 
@@ -106,23 +114,29 @@ defmodule Bamboo.SendGridAdapter do
     ]
   end
 
-  defp to_sendgrid_body(%Email{} = email, config) do
+  defp build_sendgrid_body(%Email{} = email, config) do
     %{}
-    |> put_from(email)
-    |> put_personalizations(email)
-    |> put_reply_to(email)
-    |> put_headers(email)
-    |> put_subject(email)
-    |> put_content(email)
-    |> put_template_id(email)
-    |> put_attachments(email)
-    |> put_categories(email)
-    |> put_send_at(email)
-    |> put_settings(config)
-    |> put_asm_group_id(email)
-    |> put_bypass_list_management(email)
-    |> put_google_analytics(email)
-    |> put_ip_pool_name(email)
+    |> put_in_body(&put_from/2, email)
+    |> put_in_body(&put_personalizations/2, email)
+    |> put_in_body(&put_reply_to/2, email)
+    |> put_in_body(&put_headers/2, email)
+    |> put_in_body(&put_subject/2, email)
+    |> put_in_body(&put_content/2, email)
+    |> put_in_body(&put_template_id/2, email)
+    |> put_in_body(&put_attachments/2, email)
+    |> put_in_body(&put_categories/2, email)
+    |> put_in_body(&put_send_at/2, email)
+    |> put_in_body(&put_settings/2, config)
+    |> put_in_body(&put_asm_group_id/2, email)
+    |> put_in_body(&put_bypass_list_management/2, email)
+    |> put_in_body(&put_google_analytics/2, email)
+    |> put_in_body(&put_ip_pool_name/2, email)
+  end
+
+  defp put_in_body({:error, _} = error, _fun, _email), do: error
+
+  defp put_in_body(body, fun, email) do
+    fun.(body, email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -130,30 +144,55 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_personalizations(body, email) do
-    Map.put(body, :personalizations, personalizations(email))
+    case personalizations(email) do
+      {:error, _} = error -> error
+      personalizations -> Map.put(body, :personalizations, personalizations)
+    end
   end
 
   defp personalizations(email) do
-    base_personalization =
-      %{}
-      |> put_to(email)
-      |> put_cc(email)
-      |> put_bcc(email)
-      |> put_custom_args(email)
-      |> put_template_substitutions(email)
-      |> put_dynamic_template_data(email)
-      |> put_send_at(email)
+    personalizations =
+      email
+      |> base_personalization()
+      |> combine_personalizations(additional_personalizations(email))
 
-    additional_personalizations =
-      email.private
-      |> Map.get(:additional_personalizations, [])
-      |> Enum.map(&build_personalization/1)
-
-    if base_personalization == %{} do
-      additional_personalizations
+    if error = any_error?(personalizations) do
+      error
     else
-      [base_personalization] ++ additional_personalizations
+      personalizations
     end
+  end
+
+  defp base_personalization(email) do
+    %{}
+    |> put_to(email)
+    |> put_cc(email)
+    |> put_bcc(email)
+    |> put_custom_args(email)
+    |> put_template_substitutions(email)
+    |> put_dynamic_template_data(email)
+    |> put_send_at(email)
+  end
+
+  defp additional_personalizations(email) do
+    email.private
+    |> Map.get(:additional_personalizations, [])
+    |> Enum.map(&build_personalization/1)
+  end
+
+  defp combine_personalizations(base, additional) do
+    if base == %{} do
+      additional
+    else
+      [base | additional]
+    end
+  end
+
+  defp any_error?(items) do
+    Enum.find(items, fn
+      {:error, _} -> true
+      _ -> false
+    end)
   end
 
   defp build_personalization(personalization = %{to: to}) do
@@ -168,7 +207,7 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp build_personalization(_personalization) do
-    raise "Each personalization requires a 'to' field"
+    {:error, build_api_error("Each personalization requires a 'to' field")}
   end
 
   defp map_put_if(map_out, map_in, key, mapper \\ & &1) do
