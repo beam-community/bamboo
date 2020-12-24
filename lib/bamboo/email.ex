@@ -71,7 +71,7 @@ defmodule Bamboo.Email do
       end
   """
 
-  @type address :: String.t() | {String.t(), String.t()}
+  @type address :: {String.t(), String.t()}
   @type address_list :: nil | address | [address] | any
 
   @type t :: %__MODULE__{
