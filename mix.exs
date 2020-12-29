@@ -62,7 +62,7 @@ defmodule Bamboo.Mixfile do
       {:excoveralls, "~> 0.13", only: :test},
       {:floki, "~> 0.29", only: :test},
       {:ex_doc, "~> 0.23", only: :dev},
-      {:hackney, ">= 1.13.0"},
+      {:hackney, ">= 1.15.2"},
       {:jason, "~> 1.0", optional: true}
     ]
   end
