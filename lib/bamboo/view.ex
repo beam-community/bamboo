@@ -101,8 +101,7 @@ defmodule Bamboo.View do
   end
 
   defp merge_assigns(%{assigns: email_assigns} = email, assigns) do
-    assigns = email_assigns |> Map.merge(Enum.into(assigns, %{}))
-    email |> Map.put(:assigns, assigns)
+    Map.put(email, :assigns, Map.merge(email_assigns, Enum.into(assigns, %{}))
   end
 
   defp render(email, template) when is_atom(template) do
@@ -124,10 +123,10 @@ defmodule Bamboo.View do
   defp render_text_or_html_email(email, template) do
     cond do
       String.ends_with?(template, ".html") ->
-        email |> Map.put(:html_body, render_html(email, template))
+        Map.put(email, :html_body, render_html(email, template))
 
       String.ends_with?(template, ".text") ->
-        email |> Map.put(:text_body, render_text(email, template))
+        Map.put(email, :text_body, render_text(email, template))
 
       true ->
         raise ArgumentError, """
@@ -161,8 +160,7 @@ defmodule Bamboo.View do
     contents = module.render_template(template, email.assigns)
 
     assigns =
-      email.assigns
-      |> Map.put(:inner_content, contents)
+      Map.put(email.assigns, :inner_content, contents)
 
     layout_view.render_template(layout_template, assigns)
   end
