@@ -101,7 +101,8 @@ defmodule Bamboo.View do
   end
 
   defp merge_assigns(%{assigns: email_assigns} = email, assigns) do
-    Map.put(email, :assigns, Map.merge(email_assigns, Enum.into(assigns, %{}))
+    assigns = Map.merge(email_assigns, Enum.into(assigns, %{}))
+    Map.put(email, :assigns, assigns)
   end
 
   defp render(email, template) when is_atom(template) do
@@ -159,8 +160,7 @@ defmodule Bamboo.View do
     module = email.private.view_module
     contents = module.render_template(template, email.assigns)
 
-    assigns =
-      Map.put(email.assigns, :inner_content, contents)
+    assigns = Map.put(email.assigns, :inner_content, contents)
 
     layout_view.render_template(layout_template, assigns)
   end

@@ -1,5 +1,5 @@
 defmodule Bamboo.TemplateTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   defmodule LayoutView do
     use Bamboo.View, path: "test/support/templates/layout"
