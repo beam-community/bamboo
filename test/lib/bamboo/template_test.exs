@@ -17,6 +17,27 @@ defmodule Bamboo.TemplateTest do
     end
   end
 
+  defmodule EmailWithLayout do
+    use Bamboo.Template,
+      view: EmailView,
+      html_layout: {LayoutView, "app.html"},
+      text_layout: {LayoutView, "app.text"}
+
+    def text_and_html_email do
+      new_email()
+      |> render(:text_and_html_email)
+    end
+  end
+
+  defmodule EmailNoView do
+    use Bamboo.Template
+
+    def no_view do
+      new_email()
+      |> render(:text_and_html_email)
+    end
+  end
+
   defmodule Email do
     use Bamboo.Template, view: EmailView
 
@@ -76,6 +97,15 @@ defmodule Bamboo.TemplateTest do
 
   test "render/2 allows setting a custom layout" do
     email = Email.text_and_html_email_with_layout()
+
+    assert email.html_body =~ "HTML layout"
+    assert email.html_body =~ "HTML body"
+    assert email.text_body =~ "TEXT layout"
+    assert email.text_body =~ "TEXT body"
+  end
+
+  test "render/2 uses default layout if given one" do
+    email = EmailWithLayout.text_and_html_email()
 
     assert email.html_body =~ "HTML layout"
     assert email.html_body =~ "HTML body"
@@ -145,6 +175,12 @@ defmodule Bamboo.TemplateTest do
   test "render raises if called directly" do
     assert_raise RuntimeError, ~r/documentation only/, fn ->
       Bamboo.Template.render(:foo, :foo, :foo)
+    end
+  end
+
+  test "render/2 raises an error if no view is specified" do
+    assert_raise ArgumentError, ~r/have a view set/, fn ->
+      EmailNoView.no_view()
     end
   end
 end

@@ -22,6 +22,20 @@ defmodule Bamboo.Template do
         end
       end
 
+  _You can optionally pass the html and text layouts when calling `use Bamboo.Template`_
+
+      defmodule MyApp.Email do
+        use Bamboo.Template,
+          view: MyApp.Email.AccountView
+          text_layout: {MyApp.Email.LayoutView, "email.text"},
+          html_layout: {MyApp.Email.LayoutView, "email.html"}
+
+        def welcome_email do
+          new_email()
+          |> render(:welcome) # Pass atom to render html AND plain text templates
+        end
+      end
+
   _Set both the text and HTML layout at the same time for an email._
 
       defmodule MyApp.Email do
@@ -64,7 +78,6 @@ defmodule Bamboo.Template do
 
         def welcome_email(user) do
           new_email()
-          |> put_html_layout({MyApp.Email.LayoutView, "email.html"})
           |> render(:welcome, user: user)
         end
       end
@@ -137,23 +150,26 @@ defmodule Bamboo.Template do
 
   import Bamboo.Email, only: [put_private: 3]
 
-  defmacro __using__(view: view_module) do
+  defmacro __using__(opts) do
+    view = Keyword.get(opts, :view, :unset)
+    html_layout = Keyword.get(opts, :html_layout, false)
+    text_layout = Keyword.get(opts, :text_layout, false)
+
     quote do
       import Bamboo.Email
       import Bamboo.Template, except: [render: 3]
 
       def render(email, template, assigns \\ []) do
-        Bamboo.View.render_email(unquote(view_module), email, template, assigns)
+        render_email(
+          unquote(view),
+          unquote(html_layout),
+          unquote(text_layout),
+          email,
+          template,
+          assigns
+        )
       end
     end
-  end
-
-  defmacro __using__(opts) do
-    raise ArgumentError, """
-    expected Bamboo.Template to have a view set, instead got: #{inspect(opts)}.
-
-    Please set a view e.g. use Bamboo.Template, view: MyEmailView
-    """
   end
 
   @doc """
@@ -267,5 +283,48 @@ defmodule Bamboo.Template do
   """
   def put_view(email, view) do
     email |> put_private(:view_module, view)
+  end
+
+  @doc false
+  def render_email(view, html_layout, text_layout, email, template, assigns) do
+    email
+    |> put_defaults(view, html_layout, text_layout)
+    |> merge_assigns(assigns)
+    |> render_template(template)
+  end
+
+  defp put_defaults(%{private: private} = email, view_module, html_layout, text_layout) do
+    private =
+      private
+      |> Map.put_new(:html_layout, html_layout)
+      |> Map.put_new(:text_layout, text_layout)
+      |> Map.put_new(:view_module, view_module)
+
+    %{email | private: private}
+  end
+
+  defp merge_assigns(%{assigns: email_assigns} = email, assigns) do
+    assigns = Map.merge(email_assigns, Enum.into(assigns, %{}))
+    Map.put(email, :assigns, assigns)
+  end
+
+  defp render_template(%{private: %{view_module: :unset}}, _template) do
+    raise ArgumentError, """
+    Expected Bamboo.Template to have a view set. Please set a view.
+
+    You can set it at the template level:
+
+      use Bamboo.Template, view: MyEmailView
+
+    or call it in your pipeline:
+
+      email
+      |> put_view(MyEmailView)
+      |> render("my_template.html")
+    """
+  end
+
+  defp render_template(email, template) do
+    Bamboo.View.render(email, template)
   end
 end

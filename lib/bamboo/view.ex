@@ -83,33 +83,11 @@ defmodule Bamboo.View do
   end
 
   @doc false
-  def render_email(view, email, template, assigns) do
-    email
-    |> put_defaults(view)
-    |> merge_assigns(assigns)
-    |> render(template)
-  end
-
-  defp put_defaults(%{private: private} = email, view_module) do
-    private =
-      private
-      |> Map.put_new(:html_layout, false)
-      |> Map.put_new(:text_layout, false)
-      |> Map.put_new(:view_module, view_module)
-
-    %{email | private: private}
-  end
-
-  defp merge_assigns(%{assigns: email_assigns} = email, assigns) do
-    assigns = Map.merge(email_assigns, Enum.into(assigns, %{}))
-    Map.put(email, :assigns, assigns)
-  end
-
-  defp render(email, template) when is_atom(template) do
+  def render(email, template) when is_atom(template) do
     render_html_and_text_emails(email, template)
   end
 
-  defp render(email, template) do
+  def render(email, template) do
     render_text_or_html_email(email, template)
   end
 
