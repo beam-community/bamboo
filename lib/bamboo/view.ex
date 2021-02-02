@@ -7,7 +7,7 @@ defmodule Bamboo.View do
   ## Example
 
       defmodule MyApp.EmailView do
-        use Bamboo.View, path: "/lib/my_app/email/templates"
+        use Bamboo.View, path: "lib/my_app/email/templates"
 
         def app_title do
           "My Super App"
@@ -52,7 +52,7 @@ defmodule Bamboo.View do
     raise ArgumentError, """
     expected Bamboo.View to have a path set, instead got: #{inspect(opts)}.
 
-    Please set a path where this view's template are defined e.g. use Bamboo.View, path: "/lib/my_app/email/templates/account"
+    Please set a path where this view's template are defined e.g. use Bamboo.View, path: "lib/my_app/email/templates/account"
     """
   end
 

@@ -124,7 +124,7 @@ defmodule Bamboo.Template do
 
       # lib/my_app/email/views/layout_view.ex
       defmodule MyApp.Email.LayoutView do
-        use Bamboo.View, path: "/lib/my_app/email/templates/layout"
+        use Bamboo.View, path: "lib/my_app/email/templates/layout"
       end
 
       # lib/my_app/email/templates/layout/email.html.eex
@@ -136,7 +136,7 @@ defmodule Bamboo.Template do
 
       # lib/my_app/email/views/account_view.ex
       defmodule MyApp.Email.AccountView do
-        use Bamboo.View, path: "/lib/my_app/email/templates/account"
+        use Bamboo.View, path: "lib/my_app/email/templates/account"
       end
 
       # lib/my_app/email/templates/account/welcome_email.html.eex
