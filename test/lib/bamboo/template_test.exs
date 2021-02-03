@@ -1,24 +1,49 @@
-defmodule Bamboo.PhoenixTest do
-  use ExUnit.Case
+defmodule Bamboo.TemplateTest do
+  use ExUnit.Case, async: true
 
-  defmodule PhoenixLayoutView do
-    use Phoenix.View, root: "test/support/templates", namespace: Bamboo.PhoenixLayoutView
+  defmodule LayoutView do
+    use Bamboo.View, path: "test/support/templates/layout"
+  end
+
+  defmodule AdminView do
+    use Bamboo.View, path: "test/support/templates/admin_email"
   end
 
   defmodule EmailView do
-    use Phoenix.View, root: "test/support/templates", namespace: Bamboo.EmailView
+    use Bamboo.View, path: "test/support/templates/email"
 
     def function_in_view do
-      "function used in Bamboo.TemplateTest but needed because template is compiled"
+      "Text in view"
+    end
+  end
+
+  defmodule EmailWithLayout do
+    use Bamboo.Template,
+      view: EmailView,
+      html_layout: {LayoutView, "app.html"},
+      text_layout: {LayoutView, "app.text"}
+
+    def text_and_html_email do
+      new_email()
+      |> render(:text_and_html_email)
+    end
+  end
+
+  defmodule EmailNoView do
+    use Bamboo.Template
+
+    def no_view do
+      new_email()
+      |> render(:text_and_html_email)
     end
   end
 
   defmodule Email do
-    use Bamboo.Phoenix, view: EmailView
+    use Bamboo.Template, view: EmailView
 
     def text_and_html_email_with_layout do
       new_email()
-      |> put_layout({PhoenixLayoutView, :app})
+      |> put_layout({LayoutView, :app})
       |> render(:text_and_html_email)
     end
 
@@ -48,6 +73,17 @@ defmodule Bamboo.PhoenixTest do
       |> render("text_email.text")
     end
 
+    def text_and_html_calling_view_function_email do
+      new_email()
+      |> render(:text_and_html_calling_view_function_email)
+    end
+
+    def text_and_html_from_different_view do
+      new_email()
+      |> put_view(AdminView)
+      |> render(:text_and_html_from_different_view)
+    end
+
     def no_template do
       new_email()
       |> render(:non_existent)
@@ -61,6 +97,15 @@ defmodule Bamboo.PhoenixTest do
 
   test "render/2 allows setting a custom layout" do
     email = Email.text_and_html_email_with_layout()
+
+    assert email.html_body =~ "HTML layout"
+    assert email.html_body =~ "HTML body"
+    assert email.text_body =~ "TEXT layout"
+    assert email.text_body =~ "TEXT body"
+  end
+
+  test "render/2 uses default layout if given one" do
+    email = EmailWithLayout.text_and_html_email()
 
     assert email.html_body =~ "HTML layout"
     assert email.html_body =~ "HTML body"
@@ -101,8 +146,22 @@ defmodule Bamboo.PhoenixTest do
     assert email.text_body =~ "TEXT body"
   end
 
+  test "render/2 can use functions in the view itself" do
+    email = Email.text_and_html_calling_view_function_email()
+
+    assert email.html_body =~ "Text in view"
+    assert email.text_body =~ "Text in view"
+  end
+
+  test "render/2 allows overriding view with put_view" do
+    email = Email.text_and_html_from_different_view()
+
+    assert email.html_body =~ "HTML from different view"
+    assert email.text_body =~ "TEXT from different view"
+  end
+
   test "render/2 raises if template doesn't exist" do
-    assert_raise Phoenix.Template.UndefinedError, fn ->
+    assert_raise Bamboo.View.UndefinedTemplateError, ~r/Could not render/, fn ->
       Email.no_template()
     end
   end
@@ -115,7 +174,13 @@ defmodule Bamboo.PhoenixTest do
 
   test "render raises if called directly" do
     assert_raise RuntimeError, ~r/documentation only/, fn ->
-      Bamboo.Phoenix.render(:foo, :foo, :foo)
+      Bamboo.Template.render(:foo, :foo, :foo)
+    end
+  end
+
+  test "render/2 raises an error if no view is specified" do
+    assert_raise ArgumentError, ~r/have a view set/, fn ->
+      EmailNoView.no_view()
     end
   end
 end
