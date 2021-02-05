@@ -1,3 +1,43 @@
+# Changelog
+
+Most changes for each Bamboo version are included here. For a
+complete changelog, see the git history for each version via the version links.
+
+**To see the dates a version was published see the [hex package page].**
+
+[hex package page]: https://hex.pm/packages/bamboo
+
+## [1.7.0] - 2021-02-05
+
+### New Additions
+
+* Introduce Bamboo.Template and Bamboo.View ([#576])
+* Add support for Mailgun recipient variables ([#566])
+
+#### Fixes/Enhancements
+
+* Update min version of hackney to 1.15.2 ([#575])
+* Fix Email.address() typespec ([#570])
+* Fix mailgun adapter error reporting ([#521])
+* Improve attachment support detection ([#567])
+* Update phoenix.ex docs ([#564])
+* Elixir 1.11 warnings ([#556])
+* fix: typespec in generated code ([#561])
+* Remove unneeded `@email_view_module` in Bamboo.Phoenix ([#559])
+* Relax formatter opts ([#557])
+
+[#576]: https://github.com/thoughtbot/bamboo/pull/576
+[#575]: https://github.com/thoughtbot/bamboo/pull/575
+[#570]: https://github.com/thoughtbot/bamboo/pull/570
+[#521]: https://github.com/thoughtbot/bamboo/pull/521
+[#567]: https://github.com/thoughtbot/bamboo/pull/567
+[#566]: https://github.com/thoughtbot/bamboo/pull/566
+[#564]: https://github.com/thoughtbot/bamboo/pull/564
+[#561]: https://github.com/thoughtbot/bamboo/pull/561
+[#559]: https://github.com/thoughtbot/bamboo/pull/559
+[#557]: https://github.com/thoughtbot/bamboo/pull/557
+[#556]: https://github.com/thoughtbot/bamboo/pull/556
+
 ## [1.6.0] - 2020-10-13
 
 ### New Additions
@@ -325,6 +365,7 @@
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[1.7.0]: https://github.com/thoughtbot/bamboo/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/thoughtbot/bamboo/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/thoughtbot/bamboo/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/thoughtbot/bamboo/compare/v1.3.0...v1.4.0
