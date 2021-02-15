@@ -233,7 +233,10 @@
             <script>
             function adjustFrameHeight(iframe) {
               var contentWindow = iframe.contentWindow;
-              iframe.style.height = (contentWindow.outerHeight) + "px";
+              var height = (contentWindow.outerHeight)
+                ? contentWindow.outerHeight
+                : contentWindow.screen.availHeight;
+              iframe.style.height = height + "px";
             }
             </script>
             <iframe onload="adjustFrameHeight(this)" src="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/html" %>"></iframe>
