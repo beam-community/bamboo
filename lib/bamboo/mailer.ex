@@ -352,16 +352,6 @@ defmodule Bamboo.Mailer do
     Formatter.format_email_address(record, %{type: type})
   end
 
-  @doc false
-  def parse_opts(mailer, opts) do
-    Logger.warn(
-      "#{__MODULE__}.parse_opts/2 has been deprecated. Use #{__MODULE__}.build_config/2"
-    )
-
-    otp_app = Keyword.fetch!(opts, :otp_app)
-    build_config(mailer, otp_app)
-  end
-
   def build_config(mailer, otp_app, optional_overrides \\ %{}) do
     otp_app
     |> Application.fetch_env!(mailer)

@@ -45,10 +45,4 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
     assert %RuntimeError{message: "an error happened"} = elem(error, 0)
     refute_receive :delivered
   end
-
-  test "child_spec raises error about removal" do
-    assert_raise RuntimeError, ~r/Bamboo.TaskSupervisorStrategy.child_spec/, fn ->
-      Bamboo.TaskSupervisorStrategy.child_spec()
-    end
-  end
 end
