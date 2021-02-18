@@ -109,7 +109,7 @@ defmodule MyApp.Mailer do
 end
 ```
 
-Your configuration will need to know your otp application, your mailer module,
+Your configuration will need to know your OTP application, your mailer module,
 the adapter you are using, and any additional configuration required by the
 adapter itself.
 
@@ -194,16 +194,15 @@ You can create new adapters for any environment by implementing the
 
 ## Delivering Emails in the Background
 
-Often times you don't want to send email right away because it can block
+Often times you don't want to send an email right away because it can block
 process completion (e.g. a web request in Phoenix). Bamboo provides a
 `deliver_later` function on your mailers to send emails in the background. It
 also provides a [`Bamboo.DeliverLaterStrategy`] behaviour that you can
 implement to tailor your background email sending.
 
-By default, `deliver_later`uses [`Bamboo.TaskSupervisorStrategy`]. This
-strategy sends the email right away, but does so in the background without
-linking to the calling process, so errors in the mailer won't bring down your
-app.
+By default, `deliver_later`uses [`Bamboo.TaskSupervisorStrategy`]. This strategy
+sends the email right away, but it does so in the background without linking to
+the calling process, so errors in the mailer won't bring down your app.
 
 You can also create custom strategies by implementing the
 [`Bamboo.DeliverLaterStrategy`] behaviour. For example, you could create
@@ -212,7 +211,7 @@ strategies for adding emails to a background processing queue such as [exq] or
 
 ## Composing with Pipes
 
-In addition to creating emails with keyword lists you can use pipe syntax to
+In addition to creating emails with keyword lists you, can use pipe syntax to
 compose emails. This is particularly useful for providing defaults (e.g. from
 address, default layout, etc.)
 
@@ -241,7 +240,7 @@ end
 
 ## Handling Recipients
 
-The from, to, cc and bcc addresses can be a string or a 2 element tuple. What
+The from, to, cc, and bcc addresses can be a string or a 2 element tuple. What
 happens if you try to send to a list of `MyApp.User`s? Transforming your data
 structure each time you send an email would be a pain.
 
@@ -405,7 +404,7 @@ formatting with what's being run on CI.
 Bamboo is maintained and funded by thoughtbot, inc.
 The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 
-We love open source software, Elixir, and Phoenix. See [our other Elixir
+We love open-source software, Elixir, and Phoenix. See [our other Elixir
 projects][elixir-phoenix], or [hire our Elixir Phoenix development team][hire]
 to design, develop, and grow your product.
 
