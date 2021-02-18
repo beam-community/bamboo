@@ -7,6 +7,20 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [1.7.1] - 2021-02-18
+
+#### Fixes/Enhancements
+
+* Show all senders in sent email viewer template ([#569])
+* Import ExUnit.Assertions in Bamboo.Test.assert_delivered_email_matches ([#578])
+* Fallback to screen.availHeight for iframe bug ([#579])
+* Small language updates to README ([5e35f5f])
+
+[#569]: https://github.com/thoughtbot/bamboo/pull/569
+[#578]: https://github.com/thoughtbot/bamboo/pull/578
+[#579]: https://github.com/thoughtbot/bamboo/pull/579
+[5e35f5f]: https://github.com/thoughtbot/bamboo/commit/5e35f5f
+
 ## [1.7.0] - 2021-02-05
 
 ### New Additions
@@ -365,6 +379,7 @@ complete changelog, see the git history for each version via the version links.
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[1.7.1]: https://github.com/thoughtbot/bamboo/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/thoughtbot/bamboo/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/thoughtbot/bamboo/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/thoughtbot/bamboo/compare/v1.4.0...v1.5.0
