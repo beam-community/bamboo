@@ -67,6 +67,28 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     end
   end
 
+  test "shows all senders" do
+    mixed_from = ["from@bar.com", {"John", "john@foo.com"}]
+
+    email =
+      normalize_and_push(
+        :email,
+        from: mixed_from,
+        to: {"Me", "me@foo.com"}
+      )
+
+    conn = conn(:get, "/sent_emails/foo")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
+
+    for email_address <- email.from do
+      assert conn.resp_body =~ Bamboo.Email.get_address(email_address)
+    end
+  end
+
   test "prints single header in detail pane" do
     email = normalize_and_push(:email, headers: %{"Reply-To" => "reply-to@example.com"})
     conn = conn(:get, "/sent_emails/foo")
