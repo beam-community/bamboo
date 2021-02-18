@@ -183,7 +183,7 @@ defmodule Bamboo.Test do
   """
   defmacro assert_delivered_email_matches(email_pattern) do
     quote do
-      require ExUnit.Assertions
+      import ExUnit.Assertions
       ExUnit.Assertions.assert_receive({:delivered_email, unquote(email_pattern)})
     end
   end
