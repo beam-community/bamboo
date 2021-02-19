@@ -7,6 +7,33 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.0.0] - 2021-02-19
+
+## Breaking Changes
+
+* Adds Mailer.deliver_now! and deliver_later! ([#571])
+* Extract Bamboo.Phoenix ([#581])
+* Remove deprecated code ([#580])
+
+Please see the [upgrade guide].
+
+#### Additions/Improvements
+
+* Update SendGrid Adapter to return ok/error tuple ([#572])
+* Update Mailgun.deliver to return ok/error tuples ([#573])
+* Update Mandrill to return ok/error tuples ([#574])
+* Adds upgrade guide to Bamboo 2.0 ([#582])
+
+[#571]: https://github.com/thoughtbot/bamboo/pull/571
+[#572]: https://github.com/thoughtbot/bamboo/pull/572
+[#573]: https://github.com/thoughtbot/bamboo/pull/573
+[#574]: https://github.com/thoughtbot/bamboo/pull/574
+[#580]: https://github.com/thoughtbot/bamboo/pull/580
+[#581]: https://github.com/thoughtbot/bamboo/pull/581
+[#582]: https://github.com/thoughtbot/bamboo/pull/582
+
+[upgrade guide]: https://github.com/thoughtbot/bamboo/blob/master/guides/upgrade_to_2_0.md
+
 ## [1.7.1] - 2021-02-18
 
 #### Fixes/Enhancements
@@ -379,6 +406,7 @@ complete changelog, see the git history for each version via the version links.
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[2.0.0]: https://github.com/thoughtbot/bamboo/compare/v1.7.1...v2.0.0
 [1.7.1]: https://github.com/thoughtbot/bamboo/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/thoughtbot/bamboo/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/thoughtbot/bamboo/compare/v1.5.0...v1.6.0
