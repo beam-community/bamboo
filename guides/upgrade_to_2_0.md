@@ -56,7 +56,7 @@ how Bamboo behaves prior to 2.0, there's a simple upgrade path. 👇
 
 ### Simple upgrade path
 
-`Bamboo.Mailer` comes with `deliver_now/2!` and `deliver_later/2!`. Those two
+`Bamboo.Mailer` comes with `deliver_now!/2` and `deliver_later!/2`. Those two
 functions mirror the behavior that `deliver_now/2` and `deliver_later/2` had
 before 2.0.
 
@@ -64,17 +64,17 @@ Hopefully, that makes for a simple upgrade path for those who don't want to
 handle the `{:ok, email}` and `{:error, error}` tuples. You only need to
 change:
 
-- `deliver_now/2` to `deliver_now/2!`, and
-- `deliver_later/2` to `deliver_later/2!`
+- `deliver_now/2` to `deliver_now!/2`, and
+- `deliver_later/2` to `deliver_later!/2`
 
-Note that `deliver_later/2!` will only raise email validation errors _before_
+Note that `deliver_later!/2` will only raise email validation errors _before_
 scheduling the email delivery. What happens after the delivery is scheduled
 depends on the [delivery strategy] you are using (e.g.
 `TaskSupervisorStrategy`).
 
 ### `TaskSupervisorStrategy`
 
-Regardless of whether you use `deliver_later/2` or `deliver_later/2!`, if you
+Regardless of whether you use `deliver_later/2` or `deliver_later!/2`, if you
 use the `TaskSupervisorStrategy` for delivering emails, it will continue to
 raise errors when emails fail to be delivered.
 
