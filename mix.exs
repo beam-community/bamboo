@@ -10,7 +10,6 @@ defmodule Bamboo.Mixfile do
       elixir: "~> 1.6",
       source_url: @project_url,
       homepage_url: @project_url,
-      compilers: compilers(Mix.env()),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test, "coveralls.circle": :test],
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -25,9 +24,6 @@ defmodule Bamboo.Mixfile do
       xref: [exclude: [IEx]]
     ]
   end
-
-  defp compilers(:test), do: [:phoenix] ++ Mix.compilers()
-  defp compilers(_), do: Mix.compilers()
 
   # Configuration for the OTP application
   #
@@ -57,8 +53,6 @@ defmodule Bamboo.Mixfile do
       {:mime, "~> 1.4"},
       {:ex_machina, "~> 2.4", only: :test},
       {:cowboy, "~> 1.0", only: [:test, :dev]},
-      {:phoenix, "~> 1.1", optional: true},
-      {:phoenix_html, "~> 2.2", only: :test},
       {:excoveralls, "~> 0.13", only: :test},
       {:floki, "~> 0.29", only: :test},
       {:ex_doc, "~> 0.23", only: :dev},
