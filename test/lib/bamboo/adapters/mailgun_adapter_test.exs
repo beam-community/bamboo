@@ -162,6 +162,12 @@ defmodule Bamboo.MailgunAdapterTest do
     assert request_path == "/test.tt/messages"
   end
 
+  test "deliver/2 returns an {:ok, response} tuple" do
+    {:ok, response} = new_email() |> MailgunAdapter.deliver(@config)
+
+    assert %{status_code: 200, headers: _, body: _} = response
+  end
+
   test "deliver/2 sends from, subject, text body, html body, headers, custom vars and recipient variables" do
     email =
       new_email(
@@ -293,28 +299,24 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["t:text"] == "yes"
   end
 
-  test "raises if the response is not a success" do
+  test "returns an error if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.ApiError,
-                 ~r/.*%{.*\"from\" => \"INVALID_EMAIL\".*}/,
-                 fn ->
-                   email |> MailgunAdapter.deliver(@config)
-                 end
+    {:error, %Bamboo.ApiError{} = error} = email |> MailgunAdapter.deliver(@config)
+
+    assert error.message =~ ~r/.*%{.*\"from\" => \"INVALID_EMAIL\".*}/
   end
 
-  test "raises if the response is not a success with attachment" do
+  test "returns an error if the response is not a success with attachment" do
     attachment_source_path = Path.join(__DIR__, "../../../support/attachment.txt")
 
     email =
       new_email(from: "INVALID_EMAIL")
       |> Email.put_attachment(attachment_source_path)
 
-    assert_raise Bamboo.ApiError,
-                 ~r/.*{.*\"from\", \"INVALID_EMAIL\".*}/,
-                 fn ->
-                   email |> MailgunAdapter.deliver(@config)
-                 end
+    {:error, %Bamboo.ApiError{} = error} = email |> MailgunAdapter.deliver(@config)
+
+    assert error.message =~ ~r/.*{.*\"from\", \"INVALID_EMAIL\".*}/
   end
 
   defp new_email(attrs \\ []) do

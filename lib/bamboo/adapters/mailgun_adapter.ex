@@ -104,13 +104,13 @@ defmodule Bamboo.MailgunAdapter do
          ) do
       {:ok, status, _headers, response} when status > 299 ->
         body = decode_body(body)
-        raise_api_error(@service_name, response, body)
+        {:error, build_api_error(@service_name, response, body)}
 
       {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
+        {:ok, %{status_code: status, headers: headers, body: response}}
 
       {:error, reason} ->
-        raise_api_error(inspect(reason))
+        {:error, build_api_error(inspect(reason))}
     end
   end
 
