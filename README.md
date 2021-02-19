@@ -262,8 +262,11 @@ examples.
 
 ## Using Phoenix Views and Layouts
 
-Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can
-use Phoenix views and layouts with Bamboo. See [`Bamboo.Phoenix`].
+Phoenix is not required to use Bamboo. But if you want to use Phoenix's views
+and layouts to render emails, see [`bamboo_phoenix`] and [`Bambooo.Phoenix`].
+
+[`bamboo_phoenix`]: https://github.com/thoughtbot/bamboo_phoenix
+[`Bambooo.Phoenix`]: https://hexdocs.pm/bamboo_phoenix/Bamboo.Phoenix.html
 
 ## Viewing Sent Emails
 
