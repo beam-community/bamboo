@@ -19,7 +19,7 @@ defmodule Bamboo.Mixfile do
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       package: package(),
-      docs: [main: "readme", extras: ["README.md"]],
+      docs: docs(),
       deps: deps(),
       xref: [exclude: [IEx]]
     ]
@@ -46,6 +46,16 @@ defmodule Bamboo.Mixfile do
   defp elixirc_paths(:test), do: elixirc_paths() ++ ["test/support"]
   defp elixirc_paths(_), do: elixirc_paths()
   defp elixirc_paths, do: ["lib"]
+
+  defp docs do
+    [
+      main: "readme",
+      extras: [
+        "README.md",
+        "guides/upgrade_to_2_0.md"
+      ]
+    ]
+  end
 
   defp deps do
     [
