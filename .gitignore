@@ -5,3 +5,5 @@
 /.elixir_ls
 erl_crash.dump
 *.ez
+/priv/plts/*.plt
+/priv/plts/*.plt.hash

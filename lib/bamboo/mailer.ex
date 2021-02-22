@@ -142,6 +142,7 @@ defmodule Bamboo.Mailer do
       Email.welcome_email
       |> Mailer.deliver_now(config: %{username: "Emma", smtp_port: 2525})
   """
+  @spec deliver_now(any()) :: no_return()
   def deliver_now(_email, _opts \\ []) do
     raise @cannot_call_directly_error
   end
@@ -156,6 +157,7 @@ defmodule Bamboo.Mailer do
 
   On failure, this function returns an error tuple: `{:error, error}`.
   """
+  @spec deliver_now!(any()) :: no_return()
   def deliver_now!(_email, _opts \\ []) do
     raise @cannot_call_directly_error
   end
@@ -174,6 +176,7 @@ defmodule Bamboo.Mailer do
 
   If the email is invalid, this function will return an `{:error, error}` tuple.
   """
+  @spec deliver_later(any()) :: no_return()
   def deliver_later(_email, _opts \\ []) do
     raise @cannot_call_directly_error
   end
@@ -188,6 +191,7 @@ defmodule Bamboo.Mailer do
 
   If the email is invalid, this function raises an error.
   """
+  @spec deliver_later!(any()) :: no_return()
   def deliver_later!(_email, _opts \\ []) do
     raise @cannot_call_directly_error
   end

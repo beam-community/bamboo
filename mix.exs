@@ -21,7 +21,13 @@ defmodule Bamboo.Mixfile do
       package: package(),
       docs: docs(),
       deps: deps(),
-      xref: [exclude: [IEx]]
+      xref: [exclude: [IEx]],
+      dialyzer: [
+        plt_add_deps: :app_tree,
+        ignore_warnings: "dialyzer.ignore-warnings.exs",
+        plt_add_apps: [:mix, :ex_unit, :iex],
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+      ]
     ]
   end
 
@@ -67,7 +73,8 @@ defmodule Bamboo.Mixfile do
       {:floki, "~> 0.29", only: :test},
       {:ex_doc, "~> 0.23", only: :dev},
       {:hackney, ">= 1.15.2"},
-      {:jason, "~> 1.0", optional: true}
+      {:jason, "~> 1.0", optional: true},
+      {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false}
     ]
   end
 end
