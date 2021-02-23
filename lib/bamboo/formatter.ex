@@ -56,7 +56,7 @@ defprotocol Bamboo.Formatter do
   """
 
   @doc ~S"""
-  Receives data and opts and returns a string or a two item tuple `{name, address}`
+  Receives data and opts and returns a string, a two item tuple `{name, address}`, or a list of either.
 
   opts is a map with the key `:type` and a value of
   `:from`, `:to`, `:cc` or `:bcc`. You can pattern match on this to customize
@@ -65,7 +65,7 @@ defprotocol Bamboo.Formatter do
 
   @type opts :: %{optional(:type) => :from | :to | :cc | :bcc}
 
-  @spec format_email_address(any, opts) :: Bamboo.Email.address()
+  @spec format_email_address(any, opts) :: Bamboo.Email.address_list()
   def format_email_address(data, opts)
 end
 
