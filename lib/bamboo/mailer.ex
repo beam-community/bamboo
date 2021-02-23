@@ -80,7 +80,8 @@ defmodule Bamboo.Mailer do
         Bamboo.Mailer.deliver_now!(config.adapter, email, config, opts)
       end
 
-      @spec deliver_later(Bamboo.Email.t()) :: Bamboo.Email.t()
+      @spec deliver_later(Bamboo.Email.t()) ::
+              {:ok, Bamboo.Email.t()} | {:error, Exception.t() | String.t()}
       def deliver_later(email, opts \\ []) do
         config = build_config(opts)
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
