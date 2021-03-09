@@ -33,7 +33,8 @@ defmodule Bamboo.LocalAdapter do
   @doc "Adds email to `Bamboo.SentEmail`, can automatically open it in new browser tab"
   def deliver(email, %{open_email_in_browser_url: open_email_in_browser_url}) do
     %{private: %{local_adapter_id: local_adapter_id}} = SentEmail.push(email)
-    open_url_in_browser("#{open_email_in_browser_url}/#{local_adapter_id}")
+
+    {:ok, open_url_in_browser("#{open_email_in_browser_url}/#{local_adapter_id}")}
   end
 
   def deliver(email, _config) do
