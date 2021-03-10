@@ -18,4 +18,11 @@ defmodule Bamboo.LocalAdapterTest do
 
     assert [%Bamboo.Email{subject: "This is my email"}] = SentEmail.all()
   end
+
+  test "using open_email_in_browser_url doesn't raise an error" do
+    email = new_email(subject: "This is my email")
+
+    assert {:ok, _response} =
+             email |> LocalAdapter.deliver(%{open_email_in_browser_url: "test://"})
+  end
 end
