@@ -19,6 +19,12 @@ defmodule Bamboo.MailerTest do
 
   defmodule(Mailer, do: use(Bamboo.Mailer, otp_app: :bamboo))
 
+  defmodule MailerWithInterceptors do
+    use Bamboo.Mailer,
+      otp_app: :bamboo,
+      interceptors: [Bamboo.BlackListInterceptor, Bamboo.EnvInterceptor]
+  end
+
   defmodule DefaultAdapter do
     def deliver(email, config) do
       send(:mailer_test, {:deliver, email, config})
@@ -444,6 +450,26 @@ defmodule Bamboo.MailerTest do
       {:ok, email} = Mailer.deliver_now(email, response: true)
 
       refute_received {:deliver, ^email, _}
+    end
+  end
+
+  describe "interceptors" do
+    setup do
+      Application.put_env(:bamboo, __MODULE__.MailerWithInterceptors, @mailer_config)
+    end
+
+    test "must apply interceptor and send email if not intercepted" do
+      email = new_email(to: "foo@bar.com")
+      MailerWithInterceptors.deliver_now(email)
+
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
+                      _config}
+    end
+
+    test "must apply interceptor and block email if intercepted" do
+      email = new_email(to: "bar@foo.com")
+      MailerWithInterceptors.deliver_now(email)
+      refute_receive {:deliver, %Bamboo.Email{to: [{nil, "bar@foo.com"}]}, _config}
     end
   end
 

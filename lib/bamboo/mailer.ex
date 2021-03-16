@@ -67,9 +67,13 @@ defmodule Bamboo.Mailer do
               {:ok, Bamboo.Email.t()}
               | {:ok, Bamboo.Email.t(), any}
               | {:error, Exception.t() | String.t()}
+
+      interceptors = Keyword.get(opts, :interceptors, [])
+
       def deliver_now(email, opts \\ []) do
         {config, opts} = Keyword.split(opts, [:config])
         config = build_config(config)
+        email = Bamboo.Mailer.intercept(email, unquote(interceptors))
         Bamboo.Mailer.deliver_now(config.adapter, email, config, opts)
       end
 
@@ -77,6 +81,7 @@ defmodule Bamboo.Mailer do
       def deliver_now!(email, opts \\ []) do
         {config, opts} = Keyword.split(opts, [:config])
         config = build_config(config)
+        email = Bamboo.Mailer.intercept(email, unquote(interceptors))
         Bamboo.Mailer.deliver_now!(config.adapter, email, config, opts)
       end
 
@@ -84,12 +89,14 @@ defmodule Bamboo.Mailer do
               {:ok, Bamboo.Email.t()} | {:error, Exception.t() | String.t()}
       def deliver_later(email, opts \\ []) do
         config = build_config(opts)
+        email = Bamboo.Mailer.intercept(email, unquote(interceptors))
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
 
       @spec deliver_later!(Bamboo.Email.t()) :: Bamboo.Email.t()
       def deliver_later!(email, opts \\ []) do
         config = build_config(opts)
+        email = Bamboo.Mailer.intercept(email, unquote(interceptors))
         Bamboo.Mailer.deliver_later!(config.adapter, email, config)
       end
 
@@ -194,6 +201,8 @@ defmodule Bamboo.Mailer do
   end
 
   @doc false
+  def deliver_now(_, :intercepted, _, _), do: nil
+
   def deliver_now(adapter, email, config, opts) do
     with {:ok, email} <- validate_and_normalize(email, adapter) do
       if empty_recipients?(email) do
@@ -209,6 +218,12 @@ defmodule Bamboo.Mailer do
         end
       end
     end
+  end
+
+  def intercept(email, interceptors) do
+    Enum.reduce(interceptors, email, fn interceptor, email ->
+      apply(interceptor, :call, [email])
+    end)
   end
 
   defp format_response(email, response, opts) do
