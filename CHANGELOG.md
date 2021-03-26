@@ -7,6 +7,18 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.0.2] - 2021-03-26
+
+#### Fixes/Enhancements
+
+* Fix LocalAdapter.deliver/2 return type ([#589])
+* Return email sent in LocalAdapter with an open_email_in_browser_url config ([#590])
+* Fix example for MandrillHelper.put_param/3 ([#593])
+
+[#589]: https://github.com/thoughtbot/bamboo/pull/589
+[#590]: https://github.com/thoughtbot/bamboo/pull/590
+[#593]: https://github.com/thoughtbot/bamboo/pull/593
+
 ## [2.0.1] - 2021-03-05
 
 #### Fixes/Enhancements
@@ -416,6 +428,7 @@ Please see the [upgrade guide].
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[2.0.2]: https://github.com/thoughtbot/bamboo/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/thoughtbot/bamboo/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/thoughtbot/bamboo/compare/v1.7.1...v2.0.0
 [1.7.1]: https://github.com/thoughtbot/bamboo/compare/v1.7.0...v1.7.1
