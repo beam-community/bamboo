@@ -68,12 +68,9 @@ defmodule Bamboo.Mailer do
               | {:ok, Bamboo.Email.t(), any}
               | {:error, Exception.t() | String.t()}
 
-      interceptors = Keyword.get(opts, :interceptors, [])
-
       def deliver_now(email, opts \\ []) do
         {config, opts} = Keyword.split(opts, [:config])
         config = build_config(config)
-        email = Bamboo.Mailer.intercept(email, unquote(interceptors))
         Bamboo.Mailer.deliver_now(config.adapter, email, config, opts)
       end
 
@@ -81,7 +78,6 @@ defmodule Bamboo.Mailer do
       def deliver_now!(email, opts \\ []) do
         {config, opts} = Keyword.split(opts, [:config])
         config = build_config(config)
-        email = Bamboo.Mailer.intercept(email, unquote(interceptors))
         Bamboo.Mailer.deliver_now!(config.adapter, email, config, opts)
       end
 
@@ -89,14 +85,12 @@ defmodule Bamboo.Mailer do
               {:ok, Bamboo.Email.t()} | {:error, Exception.t() | String.t()}
       def deliver_later(email, opts \\ []) do
         config = build_config(opts)
-        email = Bamboo.Mailer.intercept(email, unquote(interceptors))
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
       end
 
       @spec deliver_later!(Bamboo.Email.t()) :: Bamboo.Email.t()
       def deliver_later!(email, opts \\ []) do
         config = build_config(opts)
-        email = Bamboo.Mailer.intercept(email, unquote(interceptors))
         Bamboo.Mailer.deliver_later!(config.adapter, email, config)
       end
 
@@ -201,10 +195,9 @@ defmodule Bamboo.Mailer do
   end
 
   @doc false
-  def deliver_now(_, :intercepted, _, _), do: nil
-
   def deliver_now(adapter, email, config, opts) do
-    with {:ok, email} <- validate_and_normalize(email, adapter) do
+    with %Bamboo.Email{intercepted: false} = email <- apply_interceptors(email, config),
+         {:ok, email} <- validate_and_normalize(email, adapter) do
       if empty_recipients?(email) do
         debug_unsent(email)
 
@@ -218,12 +211,6 @@ defmodule Bamboo.Mailer do
         end
       end
     end
-  end
-
-  def intercept(email, interceptors) do
-    Enum.reduce(interceptors, email, fn interceptor, email ->
-      apply(interceptor, :call, [email])
-    end)
   end
 
   defp format_response(email, response, opts) do
@@ -242,12 +229,14 @@ defmodule Bamboo.Mailer do
       {:ok, email, response} -> {email, response}
       {:ok, email} -> email
       {:error, error} -> raise error
+      %Bamboo.Email{intercepted: true} = email -> email
     end
   end
 
   @doc false
   def deliver_later(adapter, email, config) do
-    with {:ok, email} <- validate_and_normalize(email, adapter) do
+    with %Bamboo.Email{intercepted: false} = email <- apply_interceptors(email, config),
+         {:ok, email} <- validate_and_normalize(email, adapter) do
       if empty_recipients?(email) do
         debug_unsent(email)
       else
@@ -264,6 +253,7 @@ defmodule Bamboo.Mailer do
     case deliver_later(adapter, email, config) do
       {:ok, email} -> email
       {:error, error} -> raise error
+      %Bamboo.Email{intercepted: true} = email -> email
     end
   end
 
@@ -347,6 +337,14 @@ defmodule Bamboo.Mailer do
   end
 
   defp is_nil_recipient?(_), do: false
+
+  defp apply_interceptors(email, config) do
+    interceptors = config[:interceptors] || []
+
+    Enum.reduce(interceptors, email, fn interceptor, email ->
+      apply(interceptor, :call, [email])
+    end)
+  end
 
   @doc """
   Wraps to, cc and bcc addresses in a list and normalizes email addresses.

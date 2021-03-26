@@ -116,4 +116,10 @@ defmodule Bamboo.EmailTest do
 
     assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
   end
+
+  test "intercept/1 mark email as intercepted" do
+    email = new_email()
+    refute email.intercepted
+    assert %Bamboo.Email{intercepted: true} = intercept(email)
+  end
 end

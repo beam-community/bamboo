@@ -2,14 +2,18 @@ defmodule Bamboo.MailerTest do
   use ExUnit.Case
   alias Bamboo.Email
 
-  @mailer_config adapter: __MODULE__.DefaultAdapter, foo: :bar
+  @mailer_config adapter: __MODULE__.DefaultAdapter, foo: :bar, interceptors: nil
 
   setup context do
     config =
-      Keyword.merge(@mailer_config, [adapter: context[:adapter]], fn
-        _key, default, nil -> default
-        _key, _default, override -> override
-      end)
+      Keyword.merge(
+        @mailer_config,
+        [adapter: context[:adapter], interceptors: context[:interceptors]],
+        fn
+          _key, default, nil -> default
+          _key, _default, override -> override
+        end
+      )
 
     Application.put_env(:bamboo, __MODULE__.Mailer, config)
     Process.register(self(), :mailer_test)
@@ -18,12 +22,6 @@ defmodule Bamboo.MailerTest do
   end
 
   defmodule(Mailer, do: use(Bamboo.Mailer, otp_app: :bamboo))
-
-  defmodule MailerWithInterceptors do
-    use Bamboo.Mailer,
-      otp_app: :bamboo,
-      interceptors: [Bamboo.BlackListInterceptor, Bamboo.EnvInterceptor]
-  end
 
   defmodule DefaultAdapter do
     def deliver(email, config) do
@@ -454,23 +452,24 @@ defmodule Bamboo.MailerTest do
   end
 
   describe "interceptors" do
-    setup do
-      Application.put_env(:bamboo, __MODULE__.MailerWithInterceptors, @mailer_config)
-    end
+    [:deliver_now, :deliver_now!, :deliver_later, :deliver_later!]
+    |> Enum.each(fn method ->
+      @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+      test "#{method}/1 &must apply interceptor and send email if not intercepted" do
+        email = new_email(to: "foo@bar.com")
+        apply(Mailer, unquote(method), [email])
 
-    test "must apply interceptor and send email if not intercepted" do
-      email = new_email(to: "foo@bar.com")
-      MailerWithInterceptors.deliver_now(email)
+        assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
+                        _config}
+      end
 
-      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                      _config}
-    end
-
-    test "must apply interceptor and block email if intercepted" do
-      email = new_email(to: "bar@foo.com")
-      MailerWithInterceptors.deliver_now(email)
-      refute_receive {:deliver, %Bamboo.Email{to: [{nil, "bar@foo.com"}]}, _config}
-    end
+      @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+      test "#{method}/1 &must apply interceptor and block email if intercepted" do
+        email = new_email(to: "blocked@blocked.com")
+        %Bamboo.Email{intercepted: true} = apply(Mailer, unquote(method), [email])
+        refute_receive {:deliver, %Bamboo.Email{to: [{nil, "blocked@blocked.com"}]}, _config}
+      end
+    end)
   end
 
   defp new_email(attrs \\ []) do

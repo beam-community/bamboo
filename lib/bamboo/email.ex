@@ -83,7 +83,8 @@ defmodule Bamboo.Email do
           text_body: nil | String.t(),
           headers: %{String.t() => String.t()},
           assigns: %{atom => any},
-          private: %{atom => any}
+          private: %{atom => any},
+          intercepted: boolean()
         }
 
   defstruct from: nil,
@@ -96,7 +97,8 @@ defmodule Bamboo.Email do
             headers: %{},
             attachments: [],
             assigns: %{},
-            private: %{}
+            private: %{},
+            intercepted: false
 
   alias Bamboo.{Email, Attachment}
 
@@ -262,5 +264,9 @@ defmodule Bamboo.Email do
   """
   def put_attachment(%__MODULE__{attachments: attachments} = email, path, opts \\ []) do
     %{email | attachments: [Bamboo.Attachment.new(path, opts) | attachments]}
+  end
+
+  def intercept(email) do
+    %{email | intercepted: true}
   end
 end

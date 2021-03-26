@@ -1,5 +1,5 @@
 defmodule Bamboo.EnvInterceptor do
-  use Bamboo.Interceptor
+  @behaviour Bamboo.Interceptor
 
   @env Mix.env()
 

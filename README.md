@@ -266,31 +266,30 @@ It's possible to configure per Mailer interceptors. Interceptors allow
 to modify / intercept (block) email on the fly.
 
 ```elixir
-# some/path/within/your/app/mailer.ex
-defmodule MyApp.Mailer do
-  use Bamboo.Mailer, otp_app: :my_app, interceptors: [MyApp.BlackListInterceptor]
+# config/config.exs
+config :my_app, MyApp.Mailer,
+  adapter: Bamboo.MandrillAdapter,
+  interceptors: [MyApp.DenyListInterceptor]
 end
 ```
 
-An interceptor must implement the `Bamboo.Interceptor` behaviour.
+An interceptor must implement the `Bamboo.Interceptor` behaviour. To prevent email being sent, you can intercept it with `Bamboo.Email.intercept/1`
 
 ```elixir
-# some/path/within/your/app/black_list_interceptor.ex
-defmodule MyApp.BlackListInterceptor do
-  use Bamboo.Interceptor
-
-  @black_list ["bar@foo.com"]
+# some/path/within/your/app/deny_list_interceptor.ex
+defmodule MyApp.DenyListInterceptor do
+  @behaviour Bamboo.Interceptor
+  @deny_list ["bar@foo.com"]
 
   def call(email) do
-    if email.to in @black_list do
-      :intercepted
+    if email.to in @deny_list do
+      Bamboo.Email.intercept(email)
     else
       email
     end
   end
 end
 ```
-
 
 ## Using Phoenix Views and Layouts
 
