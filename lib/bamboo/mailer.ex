@@ -196,8 +196,8 @@ defmodule Bamboo.Mailer do
 
   @doc false
   def deliver_now(adapter, email, config, opts) do
-    with %Bamboo.Email{intercepted: false} = email <- apply_interceptors(email, config),
-         {:ok, email} <- validate_and_normalize(email, adapter) do
+    with {:ok, email} <- validate_and_normalize(email, adapter),
+         %Bamboo.Email{intercepted: false} = email <- apply_interceptors(email, config) do
       if empty_recipients?(email) do
         debug_unsent(email)
 
@@ -235,8 +235,8 @@ defmodule Bamboo.Mailer do
 
   @doc false
   def deliver_later(adapter, email, config) do
-    with %Bamboo.Email{intercepted: false} = email <- apply_interceptors(email, config),
-         {:ok, email} <- validate_and_normalize(email, adapter) do
+    with {:ok, email} <- validate_and_normalize(email, adapter),
+         %Bamboo.Email{intercepted: false} = email <- apply_interceptors(email, config) do
       if empty_recipients?(email) do
         debug_unsent(email)
       else
