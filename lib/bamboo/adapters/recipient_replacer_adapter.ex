@@ -7,12 +7,15 @@ defmodule Bamboo.RecipientReplacerAdapter do
   with the provided list of addresses and set original values for `to`, `cc` and `bcc`
   in headers.
 
+  ### Doesn't support adapters without attachments_support
+
   ## Example config
 
       # Typically done in config/staging.exs
-      config :my_pp, MyAppMailer.
+      config :my_app, MyAppMailer.
         adapter: Bamboo.RecipientReplacerAdapter,
         inner_adapter: Bamboo.SendGridAdapter,
+        recipient_replacements: ["user-1@example.com", "user-2@example.com"],
         ...
 
       # Define a Mailer. Typically in lib/my_app/mailer.ex
