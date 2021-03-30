@@ -23,6 +23,8 @@ defmodule Bamboo.RecipientReplacerAdapter do
 
   import Bamboo.Email, only: [put_header: 3]
 
+  defmodule(AdapterNotSupportedError, do: defexception([:message]))
+
   @behaviour Bamboo.Adapter
 
   @doc false
@@ -32,6 +34,11 @@ defmodule Bamboo.RecipientReplacerAdapter do
     original_bcc = Map.get(email, :bcc, [])
 
     adapter = config.inner_adapter
+
+    if not adapter.supports_attachments?() do
+      raise AdapterNotSupportedError,
+            "RecipientReplacerAdapter supports only adapters that support attachments"
+    end
 
     recipients_list =
       config.recipient_replacements
