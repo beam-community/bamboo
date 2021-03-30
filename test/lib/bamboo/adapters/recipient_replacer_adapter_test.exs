@@ -20,7 +20,13 @@ defmodule Bamboo.RecipientReplacerAdapterTest do
     Application.put_env(:bamboo, __MODULE__.Mailer, config)
     Process.register(self(), :mailer_test)
     on_exit(fn -> Application.delete_env(:bamboo, __MODULE__.Mailer) end)
-    :ok
+
+    from = "sender@example.com"
+    receiver_to = ["receiver-to@example.com", "another-receiver-to@example.com"]
+    receiver_cc = "receiver-cc@example.com"
+    receiver_bcc = "receiver-bcc@example.com"
+    email = Email.new_email(to: receiver_to, from: from, cc: receiver_cc, bcc: receiver_bcc)
+    %{email: email}
   end
 
   defmodule GenericAdapter do
@@ -48,13 +54,7 @@ defmodule Bamboo.RecipientReplacerAdapterTest do
   defmodule(Mailer, do: use(Bamboo.Mailer, otp_app: :bamboo))
 
   @tag inner_adapter: GenericAdapter
-  test "replaces to addresses with configured recipients" do
-    from = "sender@example.com"
-    receiver_to = ["receiver-to@example.com", "another-receiver-to@example.com"]
-    receiver_cc = "receiver-cc@example.com"
-    receiver_bcc = "receiver-bcc@example.com"
-    email = Email.new_email(to: receiver_to, from: from, cc: receiver_cc, bcc: receiver_bcc)
-
+  test "replaces to addresses with configured recipients", %{email: email} do
     {:ok, _delivered_email} = Mailer.deliver_now(email)
 
     assert_received {:deliver, delivered_email, _}
@@ -71,13 +71,7 @@ defmodule Bamboo.RecipientReplacerAdapterTest do
   end
 
   @tag inner_adapter: NoAttachmentSupportAdapter
-  test "raises an exception if adapter doens't support attachments" do
-    from = "sender@example.com"
-    receiver_to = ["receiver-to@example.com", "another-receiver-to@example.com"]
-    receiver_cc = "receiver-cc@example.com"
-    receiver_bcc = "receiver-bcc@example.com"
-    email = Email.new_email(to: receiver_to, from: from, cc: receiver_cc, bcc: receiver_bcc)
-
+  test "raises an exception if adapter doens't support attachments", %{email: email} do
     assert_raise AdapterNotSupportedError,
                  "RecipientReplacerAdapter supports only adapters that support attachments",
                  fn ->
