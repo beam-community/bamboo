@@ -5,7 +5,7 @@ defmodule Bamboo.DenyListInterceptor do
 
   def call(email) do
     if Enum.any?(email.to, &(elem(&1, 1) in @deny_list)) do
-      Bamboo.Email.intercept(email)
+      Bamboo.Email.block(email)
     else
       email
     end

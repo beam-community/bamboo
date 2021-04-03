@@ -84,7 +84,7 @@ defmodule Bamboo.Email do
           headers: %{String.t() => String.t()},
           assigns: %{atom => any},
           private: %{atom => any},
-          intercepted: boolean()
+          blocked: boolean()
         }
 
   defstruct from: nil,
@@ -98,7 +98,7 @@ defmodule Bamboo.Email do
             attachments: [],
             assigns: %{},
             private: %{},
-            intercepted: false
+            blocked: false
 
   alias Bamboo.{Email, Attachment}
 
@@ -266,7 +266,7 @@ defmodule Bamboo.Email do
     %{email | attachments: [Bamboo.Attachment.new(path, opts) | attachments]}
   end
 
-  def intercept(email) do
-    %{email | intercepted: true}
+  def block(email) do
+    %{email | blocked: true}
   end
 end

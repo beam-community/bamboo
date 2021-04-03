@@ -452,24 +452,73 @@ defmodule Bamboo.MailerTest do
   end
 
   describe "interceptors" do
-    [:deliver_now, :deliver_now!, :deliver_later, :deliver_later!]
-    |> Enum.each(fn method ->
-      @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
-      test "#{method}/1 &must apply interceptor and send email if not intercepted" do
-        email = new_email(to: "foo@bar.com")
-        apply(Mailer, unquote(method), [email])
+    @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+    test "deliver_now/1 must apply interceptors and send email if not intercepted" do
+      email = new_email(to: "foo@bar.com")
+      assert {:ok, %Bamboo.Email{blocked: false}} = Mailer.deliver_now(email)
 
-        assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                        _config}
-      end
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
+                      _config}
+    end
 
-      @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
-      test "#{method}/1 &must apply interceptor and block email if intercepted" do
-        email = new_email(to: "blocked@blocked.com")
-        %Bamboo.Email{intercepted: true} = apply(Mailer, unquote(method), [email])
-        refute_receive {:deliver, %Bamboo.Email{to: [{nil, "blocked@blocked.com"}]}, _config}
-      end
-    end)
+    @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+    test "deliver_now/1 must apply interceptors and block email if intercepted" do
+      email = new_email(to: "blocked@blocked.com")
+      assert {:ok, %Bamboo.Email{blocked: true}} = Mailer.deliver_now(email)
+      refute_receive {:deliver, %Bamboo.Email{to: [{nil, "blocked@blocked.com"}]}, _config}
+    end
+
+    @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+    test "deliver_now!/1 must apply interceptors and send email if not intercepted" do
+      email = new_email(to: "foo@bar.com")
+      assert %Bamboo.Email{blocked: false} = Mailer.deliver_now!(email)
+
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
+                      _config}
+    end
+
+    @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+    test "deliver_now!/1 must apply interceptors and block email if intercepted" do
+      email = new_email(to: "blocked@blocked.com")
+
+      assert %Bamboo.Email{blocked: true} = Mailer.deliver_now!(email)
+
+      refute_receive {:deliver, %Bamboo.Email{to: [{nil, "blocked@blocked.com"}]}, _config}
+    end
+
+    @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+    test "deliver_later/1 must apply interceptors and send email if not intercepted" do
+      email = new_email(to: "foo@bar.com")
+      assert {:ok, %Bamboo.Email{blocked: false}} = Mailer.deliver_later(email)
+
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
+                      _config}
+    end
+
+    @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+    test "deliver_later/1 must apply interceptors and block email if intercepted" do
+      email = new_email(to: "blocked@blocked.com")
+
+      assert {:ok, %Bamboo.Email{blocked: true}} = Mailer.deliver_later(email)
+
+      refute_receive {:deliver, %Bamboo.Email{to: [{nil, "blocked@blocked.com"}]}, _config}
+    end
+
+    @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+    test "deliver_later!/1 must apply interceptors and send email if not intercepted" do
+      email = new_email(to: "foo@bar.com")
+      assert %Bamboo.Email{blocked: false} = Mailer.deliver_later!(email)
+
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
+                      _config}
+    end
+
+    @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
+    test "deliver_later!/1 must apply interceptors and block email if intercepted" do
+      email = new_email(to: "blocked@blocked.com")
+      assert %Bamboo.Email{blocked: true} = Mailer.deliver_later!(email)
+      refute_receive {:deliver, %Bamboo.Email{to: [{nil, "blocked@blocked.com"}]}, _config}
+    end
   end
 
   defp new_email(attrs \\ []) do

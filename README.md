@@ -273,7 +273,7 @@ config :my_app, MyApp.Mailer,
 end
 ```
 
-An interceptor must implement the `Bamboo.Interceptor` behaviour. To prevent email being sent, you can intercept it with `Bamboo.Email.intercept/1`
+An interceptor must implement the `Bamboo.Interceptor` behaviour. To prevent email being sent, you can block it with `Bamboo.Email.block/1`.
 
 ```elixir
 # some/path/within/your/app/deny_list_interceptor.ex
@@ -283,7 +283,7 @@ defmodule MyApp.DenyListInterceptor do
 
   def call(email) do
     if email.to in @deny_list do
-      Bamboo.Email.intercept(email)
+      Bamboo.Email.block(email)
     else
       email
     end
@@ -297,7 +297,7 @@ Phoenix is not required to use Bamboo. But if you want to use Phoenix's views
 and layouts to render emails, see [`bamboo_phoenix`] and [`Bambooo.Phoenix`].
 
 [`bamboo_phoenix`]: https://github.com/thoughtbot/bamboo_phoenix
-[`Bambooo.Phoenix`]: https://hexdocs.pm/bamboo_phoenix/Bamboo.Phoenix.html
+[`bambooo.phoenix`]: https://hexdocs.pm/bamboo_phoenix/Bamboo.Phoenix.html
 
 ## Viewing Sent Emails
 
