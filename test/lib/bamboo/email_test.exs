@@ -117,7 +117,7 @@ defmodule Bamboo.EmailTest do
     assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
   end
 
-  test "block/1 mark email as intercepted" do
+  test "block/1 mark email as blocked" do
     email = new_email()
     refute email.blocked
     assert %Bamboo.Email{blocked: true} = block(email)
