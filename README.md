@@ -260,6 +260,37 @@ struct directly to Bamboo anywhere it expects an address. See the
 [`Bamboo.Email`] and [`Bamboo.Formatter`] docs for more information and
 examples.
 
+## Interceptors
+
+It's possible to configure per Mailer interceptors. Interceptors allow
+to modify / intercept (block) email on the fly.
+
+```elixir
+# config/config.exs
+config :my_app, MyApp.Mailer,
+  adapter: Bamboo.MandrillAdapter,
+  interceptors: [MyApp.DenyListInterceptor]
+end
+```
+
+An interceptor must implement the `Bamboo.Interceptor` behaviour. To prevent email being sent, you can block it with `Bamboo.Email.block/1`.
+
+```elixir
+# some/path/within/your/app/deny_list_interceptor.ex
+defmodule MyApp.DenyListInterceptor do
+  @behaviour Bamboo.Interceptor
+  @deny_list ["bar@foo.com"]
+
+  def call(email) do
+    if email.to in @deny_list do
+      Bamboo.Email.block(email)
+    else
+      email
+    end
+  end
+end
+```
+
 ## Using Phoenix Views and Layouts
 
 Phoenix is not required to use Bamboo. But if you want to use Phoenix's views
