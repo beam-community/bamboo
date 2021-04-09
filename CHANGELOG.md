@@ -7,6 +7,19 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.1.0] - 2021-04-09
+
+### Additions
+
+* Adds ability to define interceptors ([#591])
+
+#### Fixes/Enhancements
+
+* Updates broken screencast link in README ([fbf148a])
+
+[#591]: https://github.com/thoughtbot/bamboo/pull/591
+[fbf148a]: https://github.com/thoughtbot/bamboo/commit/fbf148a
+
 ## [2.0.2] - 2021-03-26
 
 #### Fixes/Enhancements
@@ -428,6 +441,7 @@ Please see the [upgrade guide].
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[2.1.0]: https://github.com/thoughtbot/bamboo/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/thoughtbot/bamboo/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/thoughtbot/bamboo/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/thoughtbot/bamboo/compare/v1.7.1...v2.0.0
