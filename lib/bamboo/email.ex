@@ -266,6 +266,16 @@ defmodule Bamboo.Email do
     %{email | attachments: [Bamboo.Attachment.new(path, opts) | attachments]}
   end
 
+  @doc ~S"""
+  Marks an email as blocked to prevent it from being sent out. This is meant to
+  be used from an interceptor. To learn more about interceptors, see the
+  `Bamboo.Interceptor` behaviour.
+
+  ## Example
+
+      iex> Bamboo.Email.block(%Bamboo.Email{blocked: false})
+      %Bamboo.Email{blocked: true}
+  """
   def block(email) do
     %{email | blocked: true}
   end

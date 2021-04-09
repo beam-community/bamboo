@@ -1,5 +1,6 @@
 defmodule Bamboo.EmailTest do
   use ExUnit.Case
+  doctest Bamboo.Email
 
   import Bamboo.Email
 

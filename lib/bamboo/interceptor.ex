@@ -2,7 +2,8 @@ defmodule Bamboo.Interceptor do
   @moduledoc ~S"""
   Behaviour for creating an Interceptor.
 
-  An interceptor allow to modify / block an email before it is sent. To block an email, it must be marked as intercepted with `Bamboo.Email.intercept/1`.
+  An interceptor allows you to modify or block an email before it is sent. To
+  block an email, it must be marked as blocked with `Bamboo.Email.block/1`.
 
   ## Example
 
@@ -12,7 +13,7 @@ defmodule Bamboo.Interceptor do
 
         def call(email) do
           if email.to in @deny_list do
-            Bamboo.Email.intercept(email)
+            Bamboo.Email.block(email)
           else
             email
           end

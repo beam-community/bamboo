@@ -262,8 +262,8 @@ examples.
 
 ## Interceptors
 
-It's possible to configure per Mailer interceptors. Interceptors allow
-to modify / intercept (block) email on the fly.
+It's possible to configure per Mailer interceptors. Interceptors allow you to
+modify or block emails on the fly.
 
 ```elixir
 # config/config.exs
@@ -273,7 +273,8 @@ config :my_app, MyApp.Mailer,
 end
 ```
 
-An interceptor must implement the `Bamboo.Interceptor` behaviour. To prevent email being sent, you can block it with `Bamboo.Email.block/1`.
+An interceptor must implement the `Bamboo.Interceptor` behaviour. To prevent
+email being sent, you can block it with `Bamboo.Email.block/1`.
 
 ```elixir
 # some/path/within/your/app/deny_list_interceptor.ex
