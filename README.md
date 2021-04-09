@@ -470,6 +470,6 @@ Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
 [docs]: https://hexdocs.pm/bamboo/readme.html
 [exq]: https://github.com/akira/exq
-[free bamboo screencast from dailydrip]: https://www.dailydrip.com/topics/elixir/drips/bamboo-email
+[free bamboo screencasts from ElixirCasts]: https://elixircasts.io/sending-email-with-bamboo-part-1 and https://elixircasts.io/sending-email-with-bamboo-part-2
 [jason]: https://github.com/michalmuskala/jason
 [toniq]: https://github.com/joakimk/toniq
