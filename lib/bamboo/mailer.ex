@@ -183,7 +183,7 @@ defmodule Bamboo.Mailer do
   @doc """
   Deliver an email in the background.
 
-  Same as `deliver_later!/2` but does not return an ok tuple and raises on
+  Same as `deliver_later/2` but does not return an ok tuple and raises on
   errors.
 
   If successful, this function only returns the `Email` struct.
