@@ -114,6 +114,14 @@ defmodule Bamboo.TestAdapterTest do
 
       assert_delivered_email(%{email | assigns: :assigns_removed_for_testing})
     end
+
+    test "accepts timeout" do
+      email = new_email(from: "foo@bar.com", to: "bar@baz.com")
+
+      email |> TestMailer.deliver_now()
+
+      assert_delivered_email(email, timeout: 1)
+    end
   end
 
   describe "refute_delivered_email/1" do
@@ -141,6 +149,12 @@ defmodule Bamboo.TestAdapterTest do
       assert_raise ExUnit.AssertionError, ~r/#{sent_email.from}/, fn ->
         refute_delivered_email(sent_email)
       end
+    end
+
+    test "accepts a timeout configuration" do
+      unsent_email = new_email(from: "foo@bar.com")
+
+      refute_delivered_email(unsent_email, timeout: 1)
     end
   end
 
@@ -216,6 +230,14 @@ defmodule Bamboo.TestAdapterTest do
         assert_email_delivered_with(text_body: ~r/tea/)
       end
     end
+
+    test "accepts timeout" do
+      email = new_email(from: "foo@bar.com", to: "bar@baz.com")
+
+      email |> TestMailer.deliver_now()
+
+      assert_email_delivered_with([from: "foo@bar.com"], timeout: 1)
+    end
   end
 
   describe "refute_email_delivered_with/1" do
@@ -259,6 +281,14 @@ defmodule Bamboo.TestAdapterTest do
         refute_email_delivered_with(text_body: ~r/coffee/)
       end
     end
+
+    test "accepts a timeout configuration" do
+      mail = new_email(to: [nil: "foo@bar.com"], from: {nil, "baz@bar.com"})
+
+      TestMailer.deliver_now(mail)
+
+      refute_email_delivered_with([to: [nil: "something@else.com"]], timeout: 1)
+    end
   end
 
   describe "assert_no_emails_sent/0" do
@@ -296,6 +326,15 @@ defmodule Bamboo.TestAdapterTest do
         assert_no_emails_delivered()
       end
     end
+
+    test "accepts a timeout configuration" do
+      sent_email = new_email(from: "foo@bar.com", to: "whoever")
+      sent_email |> TestMailer.deliver_now()
+
+      assert_raise ExUnit.AssertionError, fn ->
+        assert_no_emails_delivered(timeout: 1)
+      end
+    end
   end
 
   describe "assert_delivered_email_matches/1" do
@@ -311,6 +350,14 @@ defmodule Bamboo.TestAdapterTest do
 
       assert_delivered_email_matches(%{to: [{nil, email}]})
       assert email == "foo@bar.com"
+    end
+
+    test "accepts timeout" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+
+      TestMailer.deliver_now(sent_email)
+
+      assert_delivered_email_matches(%{to: [{nil, "foo@bar.com"}]}, timeout: 1)
     end
   end
 end
