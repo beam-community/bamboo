@@ -63,6 +63,12 @@ defmodule Bamboo.TemplateTest do
       |> render(:email_with_assigns)
     end
 
+    def email_with_many_assigns(user) do
+      new_email()
+      |> assign(%{user: user})
+      |> render(:email_with_assigns)
+    end
+
     def html_email do
       new_email()
       |> render("html_email.html")
@@ -130,6 +136,11 @@ defmodule Bamboo.TemplateTest do
     email = Email.email_with_already_assigned_user(%{name: name})
     assert email.html_body =~ "<strong>#{name}</strong>"
     assert email.text_body =~ name
+
+    name = "Paul"
+    email = Email.email_with_many_assigns(%{name: name})
+    assert email.html_body =~ "<strong>#{name}</strong>"
+    assert email.text_body =~ name
   end
 
   test "render/2 renders html body if template extension is .html" do
@@ -181,6 +192,52 @@ defmodule Bamboo.TemplateTest do
   test "render/2 raises an error if no view is specified" do
     assert_raise ArgumentError, ~r/have a view set/, fn ->
       EmailNoView.no_view()
+    end
+  end
+
+  describe "assign/2" do
+    test "it accepts a map of assigns" do
+      email =
+        Bamboo.Email.new_email()
+        |> Bamboo.Template.assign(%{name: "Jules"})
+
+      assert %{name: "Jules"} = email.assigns
+    end
+
+    test "it accepts a list of assigns" do
+      email =
+        Bamboo.Email.new_email()
+        |> Bamboo.Template.assign(name: "Jules")
+
+      assert %{name: "Jules"} = email.assigns
+    end
+
+    test "it overrides any existing assigns with the same keys" do
+      email =
+        Bamboo.Email.new_email()
+        |> Bamboo.Template.assign(name: "James")
+        |> Bamboo.Template.assign(name: "Jules")
+
+      assert %{name: "Jules"} = email.assigns
+    end
+  end
+
+  describe "assign/3" do
+    test "sets given assign in list of assigns" do
+      email =
+        Bamboo.Email.new_email()
+        |> Bamboo.Template.assign(:name, "Jules")
+
+      assert %{name: "Jules"} = email.assigns
+    end
+
+    test "overrides any assigns already listed" do
+      email =
+        Bamboo.Email.new_email()
+        |> Bamboo.Template.assign(:name, "James")
+        |> Bamboo.Template.assign(:name, "Jules")
+
+      assert %{name: "Jules"} = email.assigns
     end
   end
 end

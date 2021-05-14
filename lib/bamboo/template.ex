@@ -204,7 +204,25 @@ defmodule Bamboo.Template do
   end
 
   @doc """
-  Sets an assign for the email. These will be available when rendering the email
+  Sets many assigns for an email. Accepts a map or a keyword list. See
+  `assign/3` for more.
+
+  ## Example
+
+      new_email()
+      |> assign(%{user: user})
+      |> render(:template_name)
+
+      new_email()
+      |> assign(user: user)
+      |> render(:template_name)
+  """
+  def assign(%{assigns: assigns} = email, attrs) when is_map(attrs) or is_list(attrs) do
+    %{email | assigns: Enum.into(attrs, assigns)}
+  end
+
+  @doc """
+  Sets an assign for the email. These will be available when rendering the email.
 
   ## Example
 
