@@ -4,8 +4,6 @@ defmodule Bamboo.TestAdapterTest do
   import Bamboo.Email, only: [new_email: 0, new_email: 1]
   alias Bamboo.TestAdapter
 
-  @config %{}
-
   Application.put_env(
     :bamboo,
     __MODULE__.TestMailer,
@@ -16,280 +14,303 @@ defmodule Bamboo.TestAdapterTest do
     use Bamboo.Mailer, otp_app: :bamboo
   end
 
-  test "handle_config makes sure that the ImmediateDeliveryStrategy is used" do
-    new_config = TestAdapter.handle_config(%{})
-    assert new_config.deliver_later_strategy == Bamboo.ImmediateDeliveryStrategy
-
-    new_config = TestAdapter.handle_config(%{deliver_later_strategy: nil})
-    assert new_config.deliver_later_strategy == Bamboo.ImmediateDeliveryStrategy
-
-    assert_raise ArgumentError, ~r/deliver_later_strategy/, fn ->
-      TestAdapter.handle_config(%{deliver_later_strategy: FooStrategy})
-    end
-  end
-
   test "deliver sends a message to the process" do
     email = new_email()
+    config = %{}
 
-    email |> TestAdapter.deliver(@config)
+    email |> TestAdapter.deliver(config)
 
     email = TestAdapter.clean_assigns(email)
 
     assert_received {:delivered_email, ^email}
   end
 
-  test "helpers for testing whole emails" do
-    sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
-    unsent_email = new_email(from: "foo@bar.com")
+  describe "handle_config/1" do
+    test "handle_config makes sure that the ImmediateDeliveryStrategy is used" do
+      new_config = TestAdapter.handle_config(%{})
+      assert new_config.deliver_later_strategy == Bamboo.ImmediateDeliveryStrategy
 
-    sent_email |> TestMailer.deliver_now()
+      new_config = TestAdapter.handle_config(%{deliver_later_strategy: nil})
+      assert new_config.deliver_later_strategy == Bamboo.ImmediateDeliveryStrategy
 
-    assert_delivered_email(sent_email)
-    refute_delivered_email(unsent_email)
-
-    sent_email |> TestMailer.deliver_now()
-
-    assert_raise ExUnit.AssertionError, fn ->
-      assert_delivered_email(%{sent_email | to: "oops"})
-    end
-
-    sent_email |> TestMailer.deliver_now()
-    assert_email_delivered_with(from: "foo@bar.com")
-    assert_email_delivered_with(from: {nil, "foo@bar.com"})
-
-    sent_email |> TestMailer.deliver_now()
-
-    assert_raise ExUnit.AssertionError, fn ->
-      assert_email_delivered_with(from: "oops")
+      assert_raise ArgumentError, ~r/deliver_later_strategy/, fn ->
+        TestAdapter.handle_config(%{deliver_later_strategy: FooStrategy})
+      end
     end
   end
 
-  test "assert_delivered_email with no delivered emails" do
-    sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+  describe "assert_delivered_email/1" do
+    test "succeeds when email is sent" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-    try do
-      assert_delivered_email(%{sent_email | to: "oops"})
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert error.message =~ "0 emails delivered"
-    else
-      _ -> flunk("assert_delivered_email should failed")
+      sent_email |> TestMailer.deliver_now()
+
+      assert_delivered_email(sent_email)
+    end
+
+    test "flunks test when email does not match" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+
+      sent_email |> TestMailer.deliver_now()
+
+      assert_raise ExUnit.AssertionError, ~r/no matching emails/, fn ->
+        assert_delivered_email(%{sent_email | to: "oops"})
+      end
+    end
+
+    test "flunks test when no emails are delivered" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+
+      assert_raise ExUnit.AssertionError, ~r/0 emails delivered/, fn ->
+        assert_delivered_email(%{sent_email | to: "oops"})
+      end
+    end
+
+    test "shows non-matching delivered emails" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+
+      sent_email |> TestMailer.deliver_now()
+
+      assert_raise ExUnit.AssertionError, ~r/#{sent_email.from}/, fn ->
+        assert_delivered_email(%{sent_email | to: "oops"})
+      end
+    end
+
+    test "filters message that are not emails" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+
+      TestMailer.deliver_now(sent_email)
+
+      send(self(), :not_an_email)
+
+      try do
+        assert_delivered_email(%{sent_email | to: "oops"})
+      rescue
+        error in [ExUnit.AssertionError] ->
+          assert error.message =~ "no matching emails"
+          refute error.message =~ ":not_an_email"
+      else
+        _ -> flunk("assert_delivered_email should failed")
+      end
+    end
+
+    test "formats email addresses" do
+      user_that_needs_to_be_formatted = %Bamboo.Test.User{
+        first_name: "Paul",
+        email: "foo@bar.com"
+      }
+
+      sent_email = new_email(from: user_that_needs_to_be_formatted, to: "foo@bar.com")
+
+      sent_email |> TestMailer.deliver_now()
+
+      assert_delivered_email(sent_email)
+    end
+
+    test "delivered emails have normalized assigns" do
+      email = new_email(from: "foo@bar.com", to: "bar@baz.com", assigns: :anything)
+
+      email |> TestMailer.deliver_now()
+
+      assert_delivered_email(%{email | assigns: :assigns_removed_for_testing})
     end
   end
 
-  test "assert_no_emails_delivered raises helpful error message" do
-    assert_raise RuntimeError, ~r/has been renamed/, fn ->
-      assert_no_emails_sent()
+  describe "refute_delivered_email/1" do
+    test "succeeds when email is not sent" do
+      unsent_email = new_email(from: "foo@bar.com")
+
+      refute_delivered_email(unsent_email)
+    end
+
+    test "flunks when a test is sent" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+
+      sent_email |> TestMailer.deliver_now()
+
+      assert_raise ExUnit.AssertionError, ~r/Unexpectedly delivered a matching email/, fn ->
+        refute_delivered_email(sent_email)
+      end
+    end
+
+    test "shows the delivered email when flunking" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+
+      TestMailer.deliver_now(sent_email)
+
+      assert_raise ExUnit.AssertionError, ~r/#{sent_email.from}/, fn ->
+        refute_delivered_email(sent_email)
+      end
     end
   end
 
-  test "assert_delivered_email shows non-matching delivered emails" do
-    sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+  describe "assert_email_delivered_with/1" do
+    test "succeeds when attributes match delivered email" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-    sent_email |> TestMailer.deliver_now()
+      sent_email |> TestMailer.deliver_now()
 
-    try do
-      assert_delivered_email(%{sent_email | to: "oops"})
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert error.message =~ "no matching emails"
-        assert error.message =~ sent_email.from
-    else
-      _ -> flunk("assert_delivered_email should failed")
+      assert_email_delivered_with(from: "foo@bar.com")
     end
-  end
 
-  test "assert_delivered_email filters message that are not emails" do
-    sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+    test "normalizes the email on assertion" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-    TestMailer.deliver_now(sent_email)
+      sent_email |> TestMailer.deliver_now()
 
-    send(self(), :not_an_email)
-
-    try do
-      assert_delivered_email(%{sent_email | to: "oops"})
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert error.message =~ "no matching emails"
-        refute error.message =~ ":not_an_email"
-    else
-      _ -> flunk("assert_delivered_email should failed")
-    end
-  end
-
-  test "assert_email_delivered_with with no delivered emails" do
-    try do
       assert_email_delivered_with(from: {nil, "foo@bar.com"})
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert error.message =~ "0 emails delivered"
-    else
-      _ -> flunk("assert_delivered_email should have failed")
     end
-  end
 
-  test "assert_email_delivered_with shows non-matching delivered email" do
-    sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+    test "flunks test if email attributes differ" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-    sent_email |> TestMailer.deliver_now()
+      sent_email |> TestMailer.deliver_now()
 
-    try do
-      assert_email_delivered_with(to: "oops")
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert error.message =~ "do not match"
-        assert error.message =~ sent_email.from
-    else
-      _ -> flunk("assert_delivered_email should have failed")
+      assert_raise ExUnit.AssertionError, ~r/parameters given do not match/, fn ->
+        assert_email_delivered_with(from: "oops")
+      end
     end
-  end
 
-  test "assert_email_delivered_with allows regex matching" do
-    new_email(
-      to: {nil, "foo@bar.com"},
-      from: {nil, "foo@bar.com"},
-      text_body: "I really like coffee"
-    )
-    |> TestMailer.deliver_now()
-
-    assert_email_delivered_with(text_body: ~r/like/)
-  end
-
-  test "ensure assert_email_delivered_with regex matching doesn't provide a false positive" do
-    new_email(
-      to: {nil, "foo@bar.com"},
-      from: {nil, "foo@bar.com"},
-      text_body: "I really like coffee"
-    )
-    |> TestMailer.deliver_now()
-
-    try do
-      assert_email_delivered_with(text_body: ~r/tea/)
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert error.message =~ "do not match"
-    else
-      _ -> flunk("assert_email_delivered_with should have failed")
+    test "flunks test when no emails are delivered" do
+      assert_raise ExUnit.AssertionError, ~r/0 emails delivered/, fn ->
+        assert_email_delivered_with(from: {nil, "foo@bar.com"})
+      end
     end
-  end
 
-  test "refute_email_delivered_with when email does not match" do
-    mail =
+    test "shows non-matching delivered email when failing test" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+
+      sent_email |> TestMailer.deliver_now()
+
+      try do
+        assert_email_delivered_with(to: "oops")
+      rescue
+        error in [ExUnit.AssertionError] ->
+          assert error.message =~ "do not match"
+          assert error.message =~ sent_email.from
+      else
+        _ -> flunk("assert_delivered_email should have failed")
+      end
+    end
+
+    test "allows regex matching" do
       new_email(
-        to: [nil: "foo@bar.com"],
-        from: {nil, "baz@bar.com"},
-        subject: "coffee"
-      )
-
-    TestMailer.deliver_now(mail)
-    refute_email_delivered_with(subject: ~r/tea/)
-    refute_email_delivered_with(to: [nil: "something@else.com"])
-  end
-
-  test "refute_email_delivered_with when email matches" do
-    mail =
-      new_email(
-        to: [nil: "foo@bar.com"],
+        to: {nil, "foo@bar.com"},
         from: {nil, "foo@bar.com"},
-        subject: "vodka",
         text_body: "I really like coffee"
       )
+      |> TestMailer.deliver_now()
 
-    TestMailer.deliver_now(mail)
-
-    assert_raise ExUnit.AssertionError, fn ->
-      refute_email_delivered_with(to: mail.to)
+      assert_email_delivered_with(text_body: ~r/like/)
     end
 
-    TestMailer.deliver_now(mail)
+    test "regex matching doesn't provide a false positive" do
+      new_email(
+        to: {nil, "foo@bar.com"},
+        from: {nil, "foo@bar.com"},
+        text_body: "I really like coffee"
+      )
+      |> TestMailer.deliver_now()
 
-    assert_raise ExUnit.AssertionError, fn ->
-      refute_email_delivered_with(subject: mail.subject)
-    end
-
-    TestMailer.deliver_now(mail)
-
-    assert_raise ExUnit.AssertionError, fn ->
-      refute_email_delivered_with(text_body: ~r/coffee/)
+      assert_raise ExUnit.AssertionError, ~r/do not match/, fn ->
+        assert_email_delivered_with(text_body: ~r/tea/)
+      end
     end
   end
 
-  test "assert_no_emails_delivered shows the delivered email" do
-    sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+  describe "refute_email_delivered_with/1" do
+    test "succeeds when email does not match" do
+      mail =
+        new_email(
+          to: [nil: "foo@bar.com"],
+          from: {nil, "baz@bar.com"},
+          subject: "coffee"
+        )
 
-    TestMailer.deliver_now(sent_email)
+      TestMailer.deliver_now(mail)
+      refute_email_delivered_with(subject: ~r/tea/)
+      refute_email_delivered_with(to: [nil: "something@else.com"])
+    end
 
-    try do
+    test "flunks test when email matches" do
+      mail =
+        new_email(
+          to: [nil: "foo@bar.com"],
+          from: {nil, "foo@bar.com"},
+          subject: "vodka",
+          text_body: "I really like coffee"
+        )
+
+      TestMailer.deliver_now(mail)
+
+      assert_raise ExUnit.AssertionError, fn ->
+        refute_email_delivered_with(to: mail.to)
+      end
+
+      TestMailer.deliver_now(mail)
+
+      assert_raise ExUnit.AssertionError, fn ->
+        refute_email_delivered_with(subject: mail.subject)
+      end
+
+      TestMailer.deliver_now(mail)
+
+      assert_raise ExUnit.AssertionError, fn ->
+        refute_email_delivered_with(text_body: ~r/coffee/)
+      end
+    end
+  end
+
+  describe "assert_no_emails_sent/0" do
+    test "raises error message about renaming" do
+      assert_raise RuntimeError, ~r/has been renamed/, fn ->
+        assert_no_emails_sent()
+      end
+    end
+  end
+
+  describe "assert_no_emails_delivered/0" do
+    test "shows the delivered email when flunking test" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+
+      TestMailer.deliver_now(sent_email)
+
+      try do
+        assert_no_emails_delivered()
+      rescue
+        error in [ExUnit.AssertionError] ->
+          assert error.message =~ "Unexpectedly delivered an email"
+          assert error.message =~ sent_email.from
+      else
+        _ -> flunk("assert_no_emails_delivered should failed")
+      end
+    end
+
+    test "flunks test if emails were delivered" do
       assert_no_emails_delivered()
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert error.message =~ "Unexpectedly delivered an email"
-        assert error.message =~ sent_email.from
-    else
-      _ -> flunk("assert_no_emails_delivered should failed")
+
+      sent_email = new_email(from: "foo@bar.com", to: "whoever")
+      sent_email |> TestMailer.deliver_now()
+
+      assert_raise ExUnit.AssertionError, fn ->
+        assert_no_emails_delivered()
+      end
     end
   end
 
-  test "refute_delivered_email shows the delivered email" do
-    sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
-
-    TestMailer.deliver_now(sent_email)
-
-    try do
-      refute_delivered_email(sent_email)
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert error.message =~ "Unexpectedly delivered a matching email"
-        assert error.message =~ sent_email.from
-    else
-      _ -> flunk("refute_delivered_email should failed")
+  describe "assert_delivered_email_matches/1" do
+    test "flunks test with no delivered emails" do
+      assert_raise ExUnit.AssertionError, fn ->
+        assert_delivered_email_matches(%{to: ["foo@bar.com"]})
+      end
     end
-  end
 
-  test "assert_no_emails_delivered" do
-    assert_no_emails_delivered()
+    test "allows binding of variables for further testing" do
+      sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
+      TestMailer.deliver_now(sent_email)
 
-    sent_email = new_email(from: "foo@bar.com", to: "whoever")
-    sent_email |> TestMailer.deliver_now()
-
-    assert_raise ExUnit.AssertionError, fn ->
-      assert_no_emails_delivered()
+      assert_delivered_email_matches(%{to: [{nil, email}]})
+      assert email == "foo@bar.com"
     end
-  end
-
-  test "assertion helpers format email addresses" do
-    user_that_needs_to_be_formatted = %Bamboo.Test.User{first_name: "Paul", email: "foo@bar.com"}
-    sent_email = new_email(from: user_that_needs_to_be_formatted, to: "foo@bar.com")
-
-    sent_email |> TestMailer.deliver_now()
-
-    assert_delivered_email(sent_email)
-  end
-
-  test "delivered emails have normalized assigns" do
-    email = new_email(from: "foo@bar.com", to: "bar@baz.com", assigns: :anything)
-
-    email |> TestMailer.deliver_now()
-
-    assert_delivered_email(%{email | assigns: :assigns_removed_for_testing})
-  end
-
-  test "assert_delivered_email_matches/1 with no delivered emails" do
-    try do
-      assert_delivered_email_matches(%{to: ["foo@bar.com"]})
-    rescue
-      error in [ExUnit.AssertionError] ->
-        assert %{} = error
-    else
-      _ -> flunk("assert_delivered_email should failed")
-    end
-  end
-
-  test "assert_delivered_email_matches/1 allows binding of variables for further testing" do
-    sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
-    TestMailer.deliver_now(sent_email)
-
-    assert_delivered_email_matches(%{to: [{nil, email}]})
-    assert email == "foo@bar.com"
   end
 end
