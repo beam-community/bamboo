@@ -4,15 +4,13 @@ defmodule Bamboo do
   use Application
 
   defmodule EmptyFromAddressError do
-    defexception [:message]
+    defexception message: ~S"""
+                 The from address was empty. Set an address as a string, a 2 item tuple
+                 {name, address}, or something that implements the Bamboo.Formatter protocol.
+                 """
 
     def exception(_) do
-      %EmptyFromAddressError{
-        message: """
-        The from address was empty. Set an address as a string, a 2 item tuple
-        {name, address}, or something that implements the Bamboo.Formatter protocol.
-        """
-      }
+      %EmptyFromAddressError{}
     end
   end
 
@@ -31,11 +29,9 @@ defmodule Bamboo do
   end
 
   def start(_type, _args) do
-    import Supervisor.Spec
-
     children = [
-      worker(Bamboo.SentEmail, []),
-      supervisor(Task.Supervisor, [[name: Bamboo.TaskSupervisorStrategy.supervisor_name()]])
+      Bamboo.SentEmail,
+      {Task.Supervisor, [name: Bamboo.TaskSupervisorStrategy.supervisor_name()]}
     ]
 
     opts = [strategy: :one_for_one, name: Bamboo.Supervisor]

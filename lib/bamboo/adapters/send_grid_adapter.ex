@@ -19,7 +19,7 @@ defmodule Bamboo.SendGridAdapter do
       # In config/config.exs, or config.prod.exs, etc.
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.SendGridAdapter,
-        api_key: "my_api_key"
+        api_key: "my_api_key",
           # or {:system, "SENDGRID_API_KEY"},
           # or {ModuleName, :method_name, []}
         hackney_opts: [
@@ -47,19 +47,26 @@ defmodule Bamboo.SendGridAdapter do
 
   def deliver(email, config) do
     api_key = get_key(config)
-    body = email |> to_sendgrid_body(config) |> Bamboo.json_library().encode!()
-    url = [base_uri(), @send_message_path]
 
-    case :hackney.post(url, headers(api_key), body, AdapterHelper.hackney_opts(config)) do
-      {:ok, status, _headers, response} when status > 299 ->
-        filtered_params = body |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
-        raise_api_error(@service_name, response, filtered_params)
+    try do
+      body = email |> to_sendgrid_body(config) |> Bamboo.json_library().encode!()
+      url = [base_uri(), @send_message_path]
 
-      {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
+      case :hackney.post(url, headers(api_key), body, AdapterHelper.hackney_opts(config)) do
+        {:ok, status, _headers, response} when status > 299 ->
+          filtered_params =
+            body |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
 
-      {:error, reason} ->
-        raise_api_error(inspect(reason))
+          {:error, build_api_error(@service_name, response, filtered_params)}
+
+        {:ok, status, headers, response} ->
+          {:ok, %{status_code: status, headers: headers, body: response}}
+
+        {:error, reason} ->
+          {:error, build_api_error(inspect(reason))}
+      end
+    catch
+      :throw, {:error, _} = error -> error
     end
   end
 
@@ -168,7 +175,7 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp build_personalization(_personalization) do
-    raise "Each personalization requires a 'to' field"
+    throw({:error, "Each personalization requires a 'to' field"})
   end
 
   defp map_put_if(map_out, map_in, key, mapper \\ & &1) do
@@ -381,7 +388,7 @@ defmodule Bamboo.SendGridAdapter do
   defp cast_time(unix_timestamp) when is_integer(unix_timestamp), do: unix_timestamp
 
   defp cast_time(_other) do
-    raise "expected 'send_at' time parameter to be a DateTime or unix timestamp"
+    throw({:error, "expected 'send_at' time parameter to be a DateTime or unix timestamp"})
   end
 
   defp cast_addresses(addresses, type) when is_list(addresses) do
@@ -410,7 +417,7 @@ defmodule Bamboo.SendGridAdapter do
     case {Map.get(address, :name, Map.get(address, "name")),
           Map.get(address, :email, Map.get(address, "email"))} do
       {_name, nil} ->
-        raise "Must specify at least an 'email' field in map #{inspect(address)}"
+        throw({:error, "Must specify at least an 'email' field in map #{inspect(address)}"})
 
       {nil, address} ->
         %{email: address}

@@ -71,7 +71,7 @@ defmodule Bamboo.Email do
       end
   """
 
-  @type address :: String.t() | {String.t(), String.t()}
+  @type address :: {String.t(), String.t()}
   @type address_list :: nil | address | [address] | any
 
   @type t :: %__MODULE__{
@@ -83,7 +83,8 @@ defmodule Bamboo.Email do
           text_body: nil | String.t(),
           headers: %{String.t() => String.t()},
           assigns: %{atom => any},
-          private: %{atom => any}
+          private: %{atom => any},
+          blocked: boolean()
         }
 
   defstruct from: nil,
@@ -96,7 +97,8 @@ defmodule Bamboo.Email do
             headers: %{},
             attachments: [],
             assigns: %{},
-            private: %{}
+            private: %{},
+            blocked: false
 
   alias Bamboo.{Email, Attachment}
 
@@ -262,5 +264,19 @@ defmodule Bamboo.Email do
   """
   def put_attachment(%__MODULE__{attachments: attachments} = email, path, opts \\ []) do
     %{email | attachments: [Bamboo.Attachment.new(path, opts) | attachments]}
+  end
+
+  @doc ~S"""
+  Marks an email as blocked to prevent it from being sent out. This is meant to
+  be used from an interceptor. To learn more about interceptors, see the
+  `Bamboo.Interceptor` behaviour.
+
+  ## Example
+
+      iex> Bamboo.Email.block(%Bamboo.Email{blocked: false})
+      %Bamboo.Email{blocked: true}
+  """
+  def block(email) do
+    %{email | blocked: true}
   end
 end

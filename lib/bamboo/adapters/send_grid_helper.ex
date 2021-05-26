@@ -88,7 +88,7 @@ defmodule Bamboo.SendGridHelper do
   Add a property to the list of dynamic template data in the SendGrid template.
   This will be added to the request as:
 
-  ...
+  ```
    "personalizations":[
       {
          "to":[
@@ -101,7 +101,7 @@ defmodule Bamboo.SendGridHelper do
          }
       }
    ],
-  ...
+  ```
 
 
   The tag can be of any type since SendGrid allows you to use Handlebars in its templates
@@ -109,7 +109,7 @@ defmodule Bamboo.SendGridHelper do
   ## Example
 
       email
-      |> add_data("name", "Jon Snow")
+      |> add_dynamic_field("name", "Jon Snow")
   """
   def add_dynamic_field(email, field, value) when is_atom(field),
     do: add_dynamic_field(email, Atom.to_string(field), value)

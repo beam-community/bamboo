@@ -30,20 +30,23 @@ defmodule Bamboo.LocalAdapter do
 
   @behaviour Bamboo.Adapter
 
-  @doc "Adds email to `Bamboo.SentEmail` and opens it in new browser tab"
+  @doc "Adds email to `Bamboo.SentEmail`, can automatically open it in new browser tab"
   def deliver(email, %{open_email_in_browser_url: open_email_in_browser_url}) do
-    %{private: %{local_adapter_id: local_adapter_id}} = SentEmail.push(email)
+    delivered_email = SentEmail.push(email)
+    %{private: %{local_adapter_id: local_adapter_id}} = delivered_email
     open_url_in_browser("#{open_email_in_browser_url}/#{local_adapter_id}")
+    {:ok, delivered_email}
   end
 
-  @doc "Adds email to `Bamboo.SentEmail`"
   def deliver(email, _config) do
-    SentEmail.push(email)
+    {:ok, SentEmail.push(email)}
   end
 
   def handle_config(config), do: config
 
   def supports_attachments?, do: true
+
+  defp open_url_in_browser("test://" <> _), do: :opened
 
   defp open_url_in_browser(url) when is_binary(url) do
     case :os.type() do

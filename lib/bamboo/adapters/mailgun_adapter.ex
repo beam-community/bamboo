@@ -103,13 +103,14 @@ defmodule Bamboo.MailgunAdapter do
            AdapterHelper.hackney_opts(config)
          ) do
       {:ok, status, _headers, response} when status > 299 ->
-        raise_api_error(@service_name, response, body)
+        body = decode_body(body)
+        {:error, build_api_error(@service_name, response, body)}
 
       {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
+        {:ok, %{status_code: status, headers: headers, body: response}}
 
       {:error, reason} ->
-        raise_api_error(inspect(reason))
+        {:error, build_api_error(inspect(reason))}
     end
   end
 
@@ -147,6 +148,7 @@ defmodule Bamboo.MailgunAdapter do
     |> put_template_version(email)
     |> put_template_text(email)
     |> put_custom_vars(email)
+    |> put_recipient_variables(email)
     |> filter_non_empty_mailgun_fields
     |> encode_body
   end
@@ -225,6 +227,16 @@ defmodule Bamboo.MailgunAdapter do
     end)
   end
 
+  defp put_recipient_variables(body, %Email{private: private}) do
+    recipient_variables = Map.get(private, :mailgun_recipient_variables)
+
+    if recipient_variables do
+      Map.put(body, :"recipient-variables", recipient_variables)
+    else
+      body
+    end
+  end
+
   defp put_attachments(body, %Email{attachments: []}), do: body
 
   defp put_attachments(body, %Email{attachments: attachments}) do
@@ -248,7 +260,7 @@ defmodule Bamboo.MailgunAdapter do
      {"form-data", [{"name", ~s/"inline"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
   end
 
-  @mailgun_message_fields ~w(from to cc bcc subject text html template)a
+  @mailgun_message_fields ~w(from to cc bcc subject text html template recipient-variables)a
   @internal_fields ~w(attachments)a
 
   def filter_non_empty_mailgun_fields(body) do
@@ -274,4 +286,9 @@ defmodule Bamboo.MailgunAdapter do
   end
 
   defp encode_body(body_without_attachments), do: Plug.Conn.Query.encode(body_without_attachments)
+
+  defp decode_body({:multipart, _} = multipart_body), do: multipart_body
+
+  defp decode_body(body_without_attachments) when is_binary(body_without_attachments),
+    do: Plug.Conn.Query.decode(body_without_attachments)
 end

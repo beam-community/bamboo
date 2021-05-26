@@ -1,5 +1,6 @@
 defmodule Bamboo.EmailTest do
   use ExUnit.Case
+  doctest Bamboo.Email
 
   import Bamboo.Email
 
@@ -115,5 +116,11 @@ defmodule Bamboo.EmailTest do
     email = new_email() |> put_attachment(path)
 
     assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
+  end
+
+  test "block/1 mark email as blocked" do
+    email = new_email()
+    refute email.blocked
+    assert %Bamboo.Email{blocked: true} = block(email)
   end
 end

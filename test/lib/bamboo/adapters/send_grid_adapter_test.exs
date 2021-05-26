@@ -122,6 +122,12 @@ defmodule Bamboo.SendGridAdapterTest do
     end
   end
 
+  test "deliver/2 returns an {:ok, response}" do
+    {:ok, response} = new_email() |> SendGridAdapter.deliver(@config)
+
+    assert %{status_code: 200, headers: _, body: _} = response
+  end
+
   test "deliver/2 sends the to the right url" do
     new_email() |> SendGridAdapter.deliver(@config)
 
@@ -565,10 +571,9 @@ defmodule Bamboo.SendGridAdapterTest do
       |> Email.put_header("Reply-To", "reply@foo.com")
       |> Bamboo.SendGridHelper.add_personalizations([%{subject: "This will fail"}])
 
-    assert_raise RuntimeError, ~r/'to' field/, fn ->
-      email
-      |> SendGridAdapter.deliver(@config)
-    end
+    {:error, msg} = email |> SendGridAdapter.deliver(@config)
+
+    assert msg =~ ~r/'to' field/
   end
 
   test "deliver/2 personalization send_at field must be either DateTime or epoch timestamp" do
@@ -577,10 +582,9 @@ defmodule Bamboo.SendGridAdapterTest do
       |> Email.put_header("Reply-To", "reply@foo.com")
       |> Bamboo.SendGridHelper.add_personalizations([%{to: "foo@bar.com", send_at: "now"}])
 
-    assert_raise RuntimeError, ~r/'send_at' time/, fn ->
-      email
-      |> SendGridAdapter.deliver(@config)
-    end
+    {:error, msg} = email |> SendGridAdapter.deliver(@config)
+
+    assert msg =~ ~r/'send_at' time/
   end
 
   test "deliver/2 correctly formats email addresses in personalizations" do
@@ -619,10 +623,9 @@ defmodule Bamboo.SendGridAdapterTest do
       |> Email.put_header("Reply-To", "reply@foo.com")
       |> Bamboo.SendGridHelper.add_personalizations([%{to: %{"name" => "Lou"}, send_at: "now"}])
 
-    assert_raise RuntimeError, ~r/'email' field/, fn ->
-      email
-      |> SendGridAdapter.deliver(@config)
-    end
+    {:error, msg} = email |> SendGridAdapter.deliver(@config)
+
+    assert msg =~ ~r/'email' field/
   end
 
   test "deliver/2 will set sandbox mode correctly" do
@@ -645,20 +648,20 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["mail_settings"]["bypass_list_management"]["enable"] == true
   end
 
-  test "raises if the response is not a success" do
+  test "returns an error if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.ApiError, fn ->
-      email |> SendGridAdapter.deliver(@config)
-    end
+    {:error, error} = email |> SendGridAdapter.deliver(@config)
+
+    assert %Bamboo.ApiError{} = error
   end
 
   test "removes api key from error output" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
-      email |> SendGridAdapter.deliver(@config)
-    end
+    {:error, error} = email |> SendGridAdapter.deliver(@config)
+
+    assert error.message =~ ~r/"key" => "\[FILTERED\]"/
   end
 
   defp new_email(attrs \\ []) do

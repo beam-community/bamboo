@@ -60,4 +60,17 @@ defmodule Bamboo.MailgunHelperTest do
              "var4" => "val4"
            })
   end
+
+  test "adds recipient variables to mailgun emails" do
+    email =
+      new_email()
+      |> MailgunHelper.recipient_variables(%{
+        "user1@example.com" => %{unique_id: "ABC123456789"}
+      })
+
+    assert email.private == %{
+             mailgun_recipient_variables:
+               "{\"user1@example.com\":{\"unique_id\":\"ABC123456789\"}}"
+           }
+  end
 end

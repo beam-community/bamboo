@@ -1,4 +1,4 @@
-<p align="left"><img src="https://user-images.githubusercontent.com/22394/39895001-b13a9c9a-5476-11e8-9c58-f5fc5f09b697.png" alt="bamboo" height="120px"></p>
+![bamboo](https://user-images.githubusercontent.com/22394/39895001-b13a9c9a-5476-11e8-9c58-f5fc5f09b697.png)
 
 # Bamboo [![Circle CI](https://circleci.com/gh/thoughtbot/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtbot/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/thoughtbot/bamboo/badge.png?branch=master)](https://coveralls.io/github/thoughtbot/bamboo?branch=master)
 
@@ -44,7 +44,7 @@ To install Bamboo, add it to your list of dependencies in `mix.exs`.
 
 ```elixir
 def deps do
-  [{:bamboo, "~> 1.5"}]
+  [{:bamboo, "~> 2.1.0"}]
 end
 ```
 
@@ -109,7 +109,7 @@ defmodule MyApp.Mailer do
 end
 ```
 
-Your configuration will need to know your otp application, your mailer module,
+Your configuration will need to know your OTP application, your mailer module,
 the adapter you are using, and any additional configuration required by the
 adapter itself.
 
@@ -145,7 +145,7 @@ email in fitting places within your application.
 defmodule MyApp.SomeControllerPerhaps do
   def send_welcome_email do
     Email.welcome_email()   # Create your email
-    |> Mailer.deliver_now() # Send your email
+    |> Mailer.deliver_now!() # Send your email
   end
 end
 ```
@@ -194,14 +194,14 @@ You can create new adapters for any environment by implementing the
 
 ## Delivering Emails in the Background
 
-Often times you don't want to send email right away because it can block
+Often times you don't want to send an email right away because it can block
 process completion (e.g. a web request in Phoenix). Bamboo provides a
 `deliver_later` function on your mailers to send emails in the background. It
 also provides a [`Bamboo.DeliverLaterStrategy`] behaviour that you can
 implement to tailor your background email sending.
 
-By default, `deliver_later`uses [`Bamboo.TaskSupervisorStrategy`]. This
-strategy sends the email right away, but does so in the background without
+By default, `deliver_later` uses [`Bamboo.TaskSupervisorStrategy`]. This
+strategy sends the email right away, but it does so in the background without
 linking to the calling process, so errors in the mailer won't bring down your
 app.
 
@@ -212,7 +212,7 @@ strategies for adding emails to a background processing queue such as [exq] or
 
 ## Composing with Pipes
 
-In addition to creating emails with keyword lists you can use pipe syntax to
+In addition to creating emails with keyword lists you, can use pipe syntax to
 compose emails. This is particularly useful for providing defaults (e.g. from
 address, default layout, etc.)
 
@@ -241,7 +241,7 @@ end
 
 ## Handling Recipients
 
-The from, to, cc and bcc addresses can be a string or a 2 element tuple. What
+The from, to, cc, and bcc addresses can be a string or a 2 element tuple. What
 happens if you try to send to a list of `MyApp.User`s? Transforming your data
 structure each time you send an email would be a pain.
 
@@ -260,10 +260,45 @@ struct directly to Bamboo anywhere it expects an address. See the
 [`Bamboo.Email`] and [`Bamboo.Formatter`] docs for more information and
 examples.
 
+## Interceptors
+
+It's possible to configure per Mailer interceptors. Interceptors allow you to
+modify or block emails on the fly.
+
+```elixir
+# config/config.exs
+config :my_app, MyApp.Mailer,
+  adapter: Bamboo.MandrillAdapter,
+  interceptors: [MyApp.DenyListInterceptor]
+end
+```
+
+An interceptor must implement the `Bamboo.Interceptor` behaviour. To prevent
+email being sent, you can block it with `Bamboo.Email.block/1`.
+
+```elixir
+# some/path/within/your/app/deny_list_interceptor.ex
+defmodule MyApp.DenyListInterceptor do
+  @behaviour Bamboo.Interceptor
+  @deny_list ["bar@foo.com"]
+
+  def call(email) do
+    if email.to in @deny_list do
+      Bamboo.Email.block(email)
+    else
+      email
+    end
+  end
+end
+```
+
 ## Using Phoenix Views and Layouts
 
-Phoenix is not required to use Bamboo. However, if you do use Phoenix, you can
-use Phoenix views and layouts with Bamboo. See [`Bamboo.Phoenix`].
+Phoenix is not required to use Bamboo. But if you want to use Phoenix's views
+and layouts to render emails, see [`bamboo_phoenix`] and [`Bamboo.Phoenix`].
+
+[`bamboo_phoenix`]: https://github.com/thoughtbot/bamboo_phoenix
+[`Bamboo.Phoenix`]: https://hexdocs.pm/bamboo_phoenix/Bamboo.Phoenix.html
 
 ## Viewing Sent Emails
 
@@ -405,7 +440,7 @@ formatting with what's being run on CI.
 Bamboo is maintained and funded by thoughtbot, inc.
 The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 
-We love open source software, Elixir, and Phoenix. See [our other Elixir
+We love open-source software, Elixir, and Phoenix. See [our other Elixir
 projects][elixir-phoenix], or [hire our Elixir Phoenix development team][hire]
 to design, develop, and grow your product.
 
@@ -436,6 +471,6 @@ Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
 [docs]: https://hexdocs.pm/bamboo/readme.html
 [exq]: https://github.com/akira/exq
-[free bamboo screencast from dailydrip]: https://www.dailydrip.com/topics/elixir/drips/bamboo-email
+[free bamboo screencasts from ElixirCasts]: https://elixircasts.io/sending-email-with-bamboo-part-1 and https://elixircasts.io/sending-email-with-bamboo-part-2
 [jason]: https://github.com/michalmuskala/jason
 [toniq]: https://github.com/joakimk/toniq

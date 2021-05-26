@@ -1,3 +1,152 @@
+# Changelog
+
+Most changes for each Bamboo version are included here. For a
+complete changelog, see the git history for each version via the version links.
+
+**To see the dates a version was published see the [hex package page].**
+
+[hex package page]: https://hex.pm/packages/bamboo
+
+## [2.1.0] - 2021-04-09
+
+### Additions
+
+* Adds ability to define interceptors ([#591])
+
+#### Fixes/Enhancements
+
+* Updates broken screencast link in README ([fbf148a])
+
+[#591]: https://github.com/thoughtbot/bamboo/pull/591
+[fbf148a]: https://github.com/thoughtbot/bamboo/commit/fbf148a
+
+## [2.0.2] - 2021-03-26
+
+#### Fixes/Enhancements
+
+* Fix LocalAdapter.deliver/2 return type ([#589])
+* Return email sent in LocalAdapter with an open_email_in_browser_url config ([#590])
+* Fix example for MandrillHelper.put_param/3 ([#593])
+
+[#589]: https://github.com/thoughtbot/bamboo/pull/589
+[#590]: https://github.com/thoughtbot/bamboo/pull/590
+[#593]: https://github.com/thoughtbot/bamboo/pull/593
+
+## [2.0.1] - 2021-03-05
+
+#### Fixes/Enhancements
+
+* Fix type spec of Mailer.deliver_later/1 ([#584])
+* Fix format_email_address/2 spec. Returns a single address or a list ([#585])
+
+[#584]: https://github.com/thoughtbot/bamboo/pull/584
+[#585]: https://github.com/thoughtbot/bamboo/pull/585
+
+## [2.0.0] - 2021-02-19
+
+#### Breaking Changes
+
+* Adds Mailer.deliver_now! and deliver_later! ([#571])
+* Extract Bamboo.Phoenix ([#581])
+* Remove deprecated code ([#580])
+
+Please see the [upgrade guide].
+
+#### Additions/Improvements
+
+* Update SendGrid Adapter to return ok/error tuple ([#572])
+* Update Mailgun.deliver to return ok/error tuples ([#573])
+* Update Mandrill to return ok/error tuples ([#574])
+* Adds upgrade guide to Bamboo 2.0 ([#582])
+
+[#571]: https://github.com/thoughtbot/bamboo/pull/571
+[#572]: https://github.com/thoughtbot/bamboo/pull/572
+[#573]: https://github.com/thoughtbot/bamboo/pull/573
+[#574]: https://github.com/thoughtbot/bamboo/pull/574
+[#580]: https://github.com/thoughtbot/bamboo/pull/580
+[#581]: https://github.com/thoughtbot/bamboo/pull/581
+[#582]: https://github.com/thoughtbot/bamboo/pull/582
+
+[upgrade guide]: https://github.com/thoughtbot/bamboo/blob/master/guides/upgrade_to_2_0.md
+
+## [1.7.1] - 2021-02-18
+
+#### Fixes/Enhancements
+
+* Show all senders in sent email viewer template ([#569])
+* Import ExUnit.Assertions in Bamboo.Test.assert_delivered_email_matches ([#578])
+* Fallback to screen.availHeight for iframe bug ([#579])
+* Small language updates to README ([5e35f5f])
+
+[#569]: https://github.com/thoughtbot/bamboo/pull/569
+[#578]: https://github.com/thoughtbot/bamboo/pull/578
+[#579]: https://github.com/thoughtbot/bamboo/pull/579
+[5e35f5f]: https://github.com/thoughtbot/bamboo/commit/5e35f5f
+
+## [1.7.0] - 2021-02-05
+
+### New Additions
+
+* Introduce Bamboo.Template and Bamboo.View ([#576])
+* Add support for Mailgun recipient variables ([#566])
+
+#### Fixes/Enhancements
+
+* Update min version of hackney to 1.15.2 ([#575])
+* Fix Email.address() typespec ([#570])
+* Fix mailgun adapter error reporting ([#521])
+* Improve attachment support detection ([#567])
+* Update phoenix.ex docs ([#564])
+* Elixir 1.11 warnings ([#556])
+* fix: typespec in generated code ([#561])
+* Remove unneeded `@email_view_module` in Bamboo.Phoenix ([#559])
+* Relax formatter opts ([#557])
+
+[#576]: https://github.com/thoughtbot/bamboo/pull/576
+[#575]: https://github.com/thoughtbot/bamboo/pull/575
+[#570]: https://github.com/thoughtbot/bamboo/pull/570
+[#521]: https://github.com/thoughtbot/bamboo/pull/521
+[#567]: https://github.com/thoughtbot/bamboo/pull/567
+[#566]: https://github.com/thoughtbot/bamboo/pull/566
+[#564]: https://github.com/thoughtbot/bamboo/pull/564
+[#561]: https://github.com/thoughtbot/bamboo/pull/561
+[#559]: https://github.com/thoughtbot/bamboo/pull/559
+[#557]: https://github.com/thoughtbot/bamboo/pull/557
+[#556]: https://github.com/thoughtbot/bamboo/pull/556
+
+## [1.6.0] - 2020-10-13
+
+### New Additions
+
+* Allow specifying an IP Pool name for SendGrid ([#539])
+* Add SendGrid personalizations ([#535])
+* Specify dynamic SendGrid key in config ([#523])
+* Show attachments in sent email viewer ([#553])
+* Show recipient names in sent email viewer ([#547])
+* Add `assert_email_delivered_matches/1` to test functions ([#534])
+
+### Fixes/Enhancements
+
+* Fix passing both response: true and config options ([#538])
+* Escape HTML in preview email subject and text body ([#548])
+* Add space between name and email in mailviewer ([#546])
+* Use api.sendgrid.com instead of non-api version ([#545])
+* Docs fixes ([#554]), ([d1c06d])
+
+
+[#538]: https://github.com/thoughtbot/bamboo/pull/538
+[#539]: https://github.com/thoughtbot/bamboo/pull/539
+[#535]: https://github.com/thoughtbot/bamboo/pull/535
+[#523]: https://github.com/thoughtbot/bamboo/pull/523
+[#553]: https://github.com/thoughtbot/bamboo/pull/553
+[#547]: https://github.com/thoughtbot/bamboo/pull/547
+[#534]: https://github.com/thoughtbot/bamboo/pull/534
+[#548]: https://github.com/thoughtbot/bamboo/pull/548
+[#546]: https://github.com/thoughtbot/bamboo/pull/546
+[#554]: https://github.com/thoughtbot/bamboo/pull/554
+[#545]: https://github.com/thoughtbot/bamboo/pull/545
+[d1c06d]: https://github.com/thoughtbot/bamboo/commit/d1c06d63878d7d344346f958d07b91433db53937
+
 ## [1.5.0] - 2020-05-05
 
 ### New Additions
@@ -41,8 +190,8 @@
 ## [1.3.0] - 2019-08-02
 
 ### New Additions
-* Add support for SendGrid's `asm_group_id` ([#457]) 
-* Add `SentEmailApiPlug` ([#456]) 
+* Add support for SendGrid's `asm_group_id` ([#457])
+* Add `SentEmailApiPlug` ([#456])
 * Add ability to bypass list management for SendGrid Adapter ([#458], [#463])
 * Add `supports_attachments?` to adapter behaviour ([#410])
 * Allow setting of Mailgun config from env ([#363])
@@ -62,7 +211,7 @@
 * Add Code of Conduct ([#471])
 * Replace Poison with Jason for json encoding/decoding ([#485])
 * Upgrade ex_doc ([#486])
-* Remove whitespaces inside `pre` tag in `SentEmailViewer` ([#493]) 
+* Remove whitespaces inside `pre` tag in `SentEmailViewer` ([#493])
 * Use a formatter for `assert_email_delivered_with/1` ([#482])
 
 [#457]: https://github.com/thoughtbot/bamboo/pull/457
@@ -292,6 +441,13 @@
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[2.1.0]: https://github.com/thoughtbot/bamboo/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/thoughtbot/bamboo/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/thoughtbot/bamboo/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/thoughtbot/bamboo/compare/v1.7.1...v2.0.0
+[1.7.1]: https://github.com/thoughtbot/bamboo/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/thoughtbot/bamboo/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/thoughtbot/bamboo/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/thoughtbot/bamboo/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/thoughtbot/bamboo/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/thoughtbot/bamboo/compare/v1.2.0...v1.3.0

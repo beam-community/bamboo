@@ -2,8 +2,8 @@ defmodule Bamboo.Mailer do
   @moduledoc """
   Functions for delivering emails using adapters and delivery strategies.
 
-  Adds `deliver_now/1` and `deliver_later/1` functions to the mailer module it
-  is used by.
+  Adds `deliver_now/1`, `deliver_now!/1`, `deliver_later/1` and
+  `deliver_later!/1` functions to the mailer module in which it is used.
 
   Bamboo [ships with several adapters][available-adapters]. It is also possible
   to create your own adapter.
@@ -49,7 +49,7 @@ defmodule Bamboo.Mailer do
         end
       end
 
-  You are now able to send emails with your mailer module where you sit fit
+  You are now able to send emails with your mailer module where you see fit
   within your application.
   """
 
@@ -63,17 +63,35 @@ defmodule Bamboo.Mailer do
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      @spec deliver_now(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {any, Bamboo.Email.t()}
+      @spec deliver_now(Bamboo.Email.t(), Enum.t()) ::
+              {:ok, Bamboo.Email.t()}
+              | {:ok, Bamboo.Email.t(), any}
+              | {:error, Exception.t() | String.t()}
+
       def deliver_now(email, opts \\ []) do
         {config, opts} = Keyword.split(opts, [:config])
         config = build_config(config)
         Bamboo.Mailer.deliver_now(config.adapter, email, config, opts)
       end
 
-      @spec deliver_later(Bamboo.Email.t()) :: Bamboo.Email.t()
+      @spec deliver_now!(Bamboo.Email.t(), Enum.t()) :: Bamboo.Email.t() | {Bamboo.Email.t(), any}
+      def deliver_now!(email, opts \\ []) do
+        {config, opts} = Keyword.split(opts, [:config])
+        config = build_config(config)
+        Bamboo.Mailer.deliver_now!(config.adapter, email, config, opts)
+      end
+
+      @spec deliver_later(Bamboo.Email.t()) ::
+              {:ok, Bamboo.Email.t()} | {:error, Exception.t() | String.t()}
       def deliver_later(email, opts \\ []) do
         config = build_config(opts)
         Bamboo.Mailer.deliver_later(config.adapter, email, config)
+      end
+
+      @spec deliver_later!(Bamboo.Email.t()) :: Bamboo.Email.t()
+      def deliver_later!(email, opts \\ []) do
+        config = build_config(opts)
+        Bamboo.Mailer.deliver_later!(config.adapter, email, config)
       end
 
       otp_app = Keyword.fetch!(opts, :otp_app)
@@ -108,11 +126,17 @@ defmodule Bamboo.Mailer do
   `deliver_later/1` if you want to send in the background.
 
   Pass in an argument of `response: true` if you need access to the response
-  from delivering the email. This returns a tuple of the `Email` struct and the
-  response from calling `deliver` with your adapter. This is useful if you need
-  access to any data sent back from your email provider in the response.
+  from delivering the email.
 
-      Email.welcome_email |> Mailer.deliver_now(response: true)
+  A successful email delivery returns an ok tuple with the `Email` struct and
+  the response (if `response: true`) from calling `deliver` with your adapter.
+
+  A failure returns `{:error, error}` tuple.
+
+  Having the response returned from your adapter is useful if you need access to
+  any data sent back from your email provider in the response.
+
+      {:ok, email, response} = Email.welcome_email |> Mailer.deliver_now(response: true)
 
   Pass in an argument of `config: %{}` if you would like to dynamically override
   any keys in your application's default Mailer configuration.
@@ -125,6 +149,20 @@ defmodule Bamboo.Mailer do
   end
 
   @doc """
+  Deliver an email right away.
+
+  Same as `deliver_now/2` but does not return an ok/error tuple.
+
+  If successful, this function returns the `Email` struct or an `Email`,
+  response tuple when setting `response: true`.
+
+  On failure, this function returns an error tuple: `{:error, error}`.
+  """
+  def deliver_now!(_email, _opts \\ []) do
+    raise @cannot_call_directly_error
+  end
+
+  @doc """
   Deliver an email in the background.
 
   Call your mailer with `deliver_later/1` to send an email using the configured
@@ -132,51 +170,99 @@ defmodule Bamboo.Mailer do
   `Bamboo.TaskSupervisorStrategy` will be used. See
   `Bamboo.DeliverLaterStrategy` to learn how to change how emails are delivered
   with `deliver_later/1`.
+
+  If the email is successfully scheduled for delivery, this function will return
+  an `{:ok, email}`.
+
+  If the email is invalid, this function will return an `{:error, error}` tuple.
   """
   def deliver_later(_email, _opts \\ []) do
     raise @cannot_call_directly_error
   end
 
-  @doc false
-  def deliver_now(adapter, email, config, response: true) do
-    email = email |> validate_and_normalize(adapter)
+  @doc """
+  Deliver an email in the background.
 
-    if email.to == [] && email.cc == [] && email.bcc == [] do
-      debug_unsent(email)
-      email
+  Same as `deliver_later/2` but does not return an ok tuple and raises on
+  errors.
+
+  If successful, this function only returns the `Email` struct.
+
+  If the email is invalid, this function raises an error.
+  """
+  def deliver_later!(_email, _opts \\ []) do
+    raise @cannot_call_directly_error
+  end
+
+  @doc false
+  def deliver_now(adapter, email, config, opts) do
+    with {:ok, email} <- validate_and_normalize(email, adapter),
+         %Bamboo.Email{blocked: false} = email <- apply_interceptors(email, config) do
+      if empty_recipients?(email) do
+        debug_unsent(email)
+
+        {:ok, email}
+      else
+        debug_sent(email, adapter)
+
+        case adapter.deliver(email, config) do
+          {:ok, response} -> format_response(email, response, opts)
+          {:error, _} = error -> error
+        end
+      end
     else
-      debug_sent(email, adapter)
-      response = adapter.deliver(email, config)
-      {email, response}
+      %Bamboo.Email{blocked: true} = email -> {:ok, email}
+      response -> response
+    end
+  end
+
+  defp format_response(email, response, opts) do
+    put_response = Keyword.get(opts, :response, false)
+
+    if put_response do
+      {:ok, email, response}
+    else
+      {:ok, email}
     end
   end
 
   @doc false
-  def deliver_now(adapter, email, config, _opts) do
-    email = email |> validate_and_normalize(adapter)
-
-    if email.to == [] && email.cc == [] && email.bcc == [] do
-      debug_unsent(email)
-    else
-      debug_sent(email, adapter)
-      adapter.deliver(email, config)
+  def deliver_now!(adapter, email, config, opts) do
+    case deliver_now(adapter, email, config, opts) do
+      {:ok, email, response} -> {email, response}
+      {:ok, email} -> email
+      {:error, error} -> raise error
     end
-
-    email
   end
 
   @doc false
   def deliver_later(adapter, email, config) do
-    email = email |> validate_and_normalize(adapter)
+    with {:ok, email} <- validate_and_normalize(email, adapter),
+         %Bamboo.Email{blocked: false} = email <- apply_interceptors(email, config) do
+      if empty_recipients?(email) do
+        debug_unsent(email)
+      else
+        debug_sent(email, adapter)
+        config.deliver_later_strategy.deliver_later(adapter, email, config)
+      end
 
-    if email.to == [] && email.cc == [] && email.bcc == [] do
-      debug_unsent(email)
+      {:ok, email}
     else
-      debug_sent(email, adapter)
-      config.deliver_later_strategy.deliver_later(adapter, email, config)
+      %Bamboo.Email{blocked: true} = email -> {:ok, email}
+      response -> response
     end
+  end
 
-    email
+  @doc false
+  def deliver_later!(adapter, email, config) do
+    case deliver_later(adapter, email, config) do
+      {:ok, email} -> email
+      {:error, error} -> raise error
+    end
+  end
+
+  defp empty_recipients?(email) do
+    email.to == [] && email.cc == [] && email.bcc == []
   end
 
   defp debug_sent(email, adapter) do
@@ -200,44 +286,49 @@ defmodule Bamboo.Mailer do
   end
 
   defp validate_and_normalize(email, adapter) do
-    email |> validate(adapter) |> normalize_addresses
+    case validate(email, adapter) do
+      :ok -> {:ok, normalize_addresses(email)}
+      error -> error
+    end
   end
 
   defp validate(email, adapter) do
-    email
-    |> validate_from_address
-    |> validate_recipients
-    |> validate_attachment_support(adapter)
+    with :ok <- validate_from_address(email),
+         :ok <- validate_recipients(email),
+         :ok <- validate_attachment_support(email, adapter) do
+      :ok
+    end
   end
 
-  defp validate_attachment_support(%{attachments: []} = email, _adapter), do: email
+  defp validate_attachment_support(%{attachments: []} = _email, _adapter), do: :ok
 
-  defp validate_attachment_support(email, adapter) do
-    if function_exported?(adapter, :supports_attachments?, 0) && adapter.supports_attachments? do
-      email
+  defp validate_attachment_support(_email, adapter) do
+    if Code.ensure_loaded?(adapter) && function_exported?(adapter, :supports_attachments?, 0) &&
+         adapter.supports_attachments? do
+      :ok
     else
-      raise "the #{adapter} does not support attachments yet."
+      {:error, "the #{adapter} does not support attachments yet."}
     end
   end
 
   defp validate_from_address(%{from: nil}) do
-    raise Bamboo.EmptyFromAddressError, nil
+    {:error, %Bamboo.EmptyFromAddressError{}}
   end
 
   defp validate_from_address(%{from: {_, nil}}) do
-    raise Bamboo.EmptyFromAddressError, nil
+    {:error, %Bamboo.EmptyFromAddressError{}}
   end
 
-  defp validate_from_address(email), do: email
+  defp validate_from_address(_email), do: :ok
 
   defp validate_recipients(%Bamboo.Email{} = email) do
     if Enum.all?(
          Enum.map([:to, :cc, :bcc], &Map.get(email, &1)),
          &is_nil_recipient?/1
        ) do
-      raise Bamboo.NilRecipientsError, email
+      {:error, Bamboo.NilRecipientsError.exception(email)}
     else
-      email
+      :ok
     end
   end
 
@@ -250,6 +341,14 @@ defmodule Bamboo.Mailer do
   end
 
   defp is_nil_recipient?(_), do: false
+
+  defp apply_interceptors(email, config) do
+    interceptors = config[:interceptors] || []
+
+    Enum.reduce(interceptors, email, fn interceptor, email ->
+      apply(interceptor, :call, [email])
+    end)
+  end
 
   @doc """
   Wraps to, cc and bcc addresses in a list and normalizes email addresses.
@@ -269,16 +368,6 @@ defmodule Bamboo.Mailer do
 
   defp format(record, type) do
     Formatter.format_email_address(record, %{type: type})
-  end
-
-  @doc false
-  def parse_opts(mailer, opts) do
-    Logger.warn(
-      "#{__MODULE__}.parse_opts/2 has been deprecated. Use #{__MODULE__}.build_config/2"
-    )
-
-    otp_app = Keyword.fetch!(opts, :otp_app)
-    build_config(mailer, otp_app)
   end
 
   def build_config(mailer, otp_app, optional_overrides \\ %{}) do

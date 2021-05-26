@@ -44,8 +44,15 @@ defmodule Bamboo.MailgunAdapterTest do
 
     post "/test.tt/messages" do
       case Map.get(conn.params, "from") do
-        "INVALID_EMAIL" -> send_resp(conn, 500, "Error!!")
-        _ -> send_resp(conn, 200, "SENT")
+        "INVALID_EMAIL" ->
+          send_resp(
+            conn,
+            500,
+            "{\n \"message\": \"'from' parameter is not a valid address. please check documentation\"\n}"
+          )
+
+        _ ->
+          send_resp(conn, 200, "SENT")
       end
       |> send_to_parent
     end
@@ -155,7 +162,13 @@ defmodule Bamboo.MailgunAdapterTest do
     assert request_path == "/test.tt/messages"
   end
 
-  test "deliver/2 sends from, subject, text body, html body, headers and custom vars" do
+  test "deliver/2 returns an {:ok, response} tuple" do
+    {:ok, response} = new_email() |> MailgunAdapter.deliver(@config)
+
+    assert %{status_code: 200, headers: _, body: _} = response
+  end
+
+  test "deliver/2 sends from, subject, text body, html body, headers, custom vars and recipient variables" do
     email =
       new_email(
         from: "from@foo.com",
@@ -166,6 +179,10 @@ defmodule Bamboo.MailgunAdapterTest do
       |> Email.put_header("X-My-Header", "my_header_value")
       |> Email.put_header("Reply-To", "random@foo.com")
       |> Email.put_private(:mailgun_custom_vars, %{my_custom_var: 42, other_custom_var: 43})
+      |> Email.put_private(
+        :mailgun_recipient_variables,
+        "{\"user1@example.com\":{\"unique_id\":\"ABC123456789\"}}"
+      )
 
     MailgunAdapter.deliver(email, @config)
 
@@ -179,6 +196,9 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["v:my_custom_var"] == "42"
     assert params["v:other_custom_var"] == "43"
     assert params["h:Reply-To"] == "random@foo.com"
+
+    assert params["recipient-variables"] ==
+             "{\"user1@example.com\":{\"unique_id\":\"ABC123456789\"}}"
 
     hashed_token = Base.encode64("api:" <> @config.api_key)
     assert {"authorization", "Basic #{hashed_token}"} in headers
@@ -279,12 +299,24 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["t:text"] == "yes"
   end
 
-  test "raises if the response is not a success" do
+  test "returns an error if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.ApiError, fn ->
-      email |> MailgunAdapter.deliver(@config)
-    end
+    {:error, %Bamboo.ApiError{} = error} = email |> MailgunAdapter.deliver(@config)
+
+    assert error.message =~ ~r/.*%{.*\"from\" => \"INVALID_EMAIL\".*}/
+  end
+
+  test "returns an error if the response is not a success with attachment" do
+    attachment_source_path = Path.join(__DIR__, "../../../support/attachment.txt")
+
+    email =
+      new_email(from: "INVALID_EMAIL")
+      |> Email.put_attachment(attachment_source_path)
+
+    {:error, %Bamboo.ApiError{} = error} = email |> MailgunAdapter.deliver(@config)
+
+    assert error.message =~ ~r/.*{.*\"from\", \"INVALID_EMAIL\".*}/
   end
 
   defp new_email(attrs \\ []) do

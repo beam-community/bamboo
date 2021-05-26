@@ -183,7 +183,7 @@ defmodule Bamboo.Test do
   """
   defmacro assert_delivered_email_matches(email_pattern) do
     quote do
-      require ExUnit.Assertions
+      import ExUnit.Assertions
       ExUnit.Assertions.assert_receive({:delivered_email, unquote(email_pattern)})
     end
   end
@@ -235,16 +235,28 @@ defmodule Bamboo.Test do
   @doc """
   Check that no email was sent with the given parameters
 
-  Similarly to `assert_email_delivered_with`, the assertion waits up to 100ms before
-  failing. Note that you need to send the email again if you want to make other
-  assertions after this, as this will receive the `{:delivered_email, email}` message.
+  Similar to `assert_email_delivered_with/1`, but it checks that an email with
+  those parameters wasn't sent.
+
+  If `Bamboo.Test` is used with shared mode, you must also configure a timeout
+  in your test config.
+
+      # Set this in your config, typically in config/test.exs
+      config :bamboo, :refute_timeout, 10
+
+  The value you set is up to you. Lower values may result in faster tests, but
+  your tests may incorrectly pass if an email is delivered *after* the timeout.
+
+  Note that this assertion helper will grab the email out of the process
+  mailbox. So if you want to make other assertions about the same email after
+  this assertion, you need to send the email again.
 
   ## Examples
 
       Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver
       refute_email_delivered_with(subject: "something else") # Will pass
 
-      email = Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver
+      Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver
       refute_email_delivered_with(subject: ~r/some/) # Will fail
   """
   defmacro refute_email_delivered_with(email_params) do
@@ -255,7 +267,7 @@ defmodule Bamboo.Test do
         receive do
           {:delivered_email, email} -> Map.from_struct(email)
         after
-          100 -> []
+          Bamboo.Test.refute_timeout() -> []
         end
 
       if is_nil(received_email_params) do
@@ -435,7 +447,8 @@ defmodule Bamboo.Test do
     """)
   end
 
-  defp refute_timeout do
+  @doc false
+  def refute_timeout do
     if using_shared_mode?() do
       Application.get_env(:bamboo, :refute_timeout) ||
         raise """
@@ -449,7 +462,7 @@ defmodule Bamboo.Test do
         but may incorrectly pass if an email is delivered *after* the timeout.
         """
     else
-      0
+      100
     end
   end
 

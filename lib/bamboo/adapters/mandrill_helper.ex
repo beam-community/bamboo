@@ -16,8 +16,8 @@ defmodule Bamboo.MandrillHelper do
   ## Example
 
       email
-      |> put_param(email, "track_opens", true)
-      |> put_param(email, "merge_vars", [
+      |> put_param("track_opens", true)
+      |> put_param("merge_vars", [
         %{
           rcpt: "recipient.email@example.com",
           vars: [
@@ -48,7 +48,7 @@ defmodule Bamboo.MandrillHelper do
   A convenience function for:
 
       email
-      |> put_param(email, "merge_vars", [
+      |> put_param("merge_vars", [
         %{
           rcpt: "user1@example.com",
           vars: [

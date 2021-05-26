@@ -88,6 +88,12 @@ defmodule Bamboo.MandrillAdapterTest do
     assert request_path == "/api/1.0/messages/send.json"
   end
 
+  test "deliver/2 returns an {:ok, response} tuple on success" do
+    {:ok, response} = new_email() |> MandrillAdapter.deliver(@config)
+
+    assert %{status_code: 200, headers: _, body: _} = response
+  end
+
   test "deliver/2 sends the to the right url for templates" do
     new_email() |> MandrillHelper.template("hello") |> MandrillAdapter.deliver(@config)
 
@@ -195,20 +201,20 @@ defmodule Bamboo.MandrillAdapterTest do
     assert template_content == [%{"content" => 'example content', "name" => 'example name'}]
   end
 
-  test "raises if the response is not a success" do
+  test "returns an error if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.ApiError, fn ->
-      email |> MandrillAdapter.deliver(@config)
-    end
+    {:error, error} = email |> MandrillAdapter.deliver(@config)
+
+    assert %Bamboo.ApiError{} = error
   end
 
   test "removes api key from error output" do
     email = new_email(from: "INVALID_EMAIL")
 
-    assert_raise Bamboo.ApiError, ~r/"key" => "\[FILTERED\]"/, fn ->
-      email |> MandrillAdapter.deliver(@config)
-    end
+    {:error, error} = email |> MandrillAdapter.deliver(@config)
+
+    assert error.message =~ ~r/"key" => "\[FILTERED\]"/
   end
 
   defp new_email(attrs \\ []) do

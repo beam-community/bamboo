@@ -21,20 +21,14 @@ defmodule Bamboo.TaskSupervisorStrategy do
   @doc false
   def deliver_later(adapter, email, config) do
     Task.Supervisor.start_child(supervisor_name(), fn ->
-      adapter.deliver(email, config)
+      case adapter.deliver(email, config) do
+        {:error, error} -> raise error
+        _ -> :ok
+      end
     end)
   end
 
   def supervisor_name do
     Bamboo.TaskSupervisor
-  end
-
-  @doc false
-  def child_spec do
-    raise """
-    Bamboo.TaskSupervisorStrategy is now automatically started by the :bamboo application.
-
-    Please remove the call to Bamboo.TaskSupervisorStrategy.child_spec
-    """
   end
 end

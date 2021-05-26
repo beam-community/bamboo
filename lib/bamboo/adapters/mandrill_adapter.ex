@@ -41,13 +41,13 @@ defmodule Bamboo.MandrillAdapter do
         filtered_params =
           params |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
 
-        raise_api_error(@service_name, response, filtered_params)
+        {:error, build_api_error(@service_name, response, filtered_params)}
 
       {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
+        {:ok, %{status_code: status, headers: headers, body: response}}
 
       {:error, reason} ->
-        raise_api_error(inspect(reason))
+        {:error, build_api_error(inspect(reason))}
     end
   end
 
