@@ -345,8 +345,9 @@ defmodule Bamboo.Mailer do
   defp apply_interceptors(email, config) do
     interceptors = config[:interceptors] || []
 
-    Enum.reduce(interceptors, email, fn interceptor, email ->
-      apply(interceptor, :call, [email])
+    Enum.reduce(interceptors, email, fn
+      {interceptor, opts}, email -> apply(interceptor, :call, [email, opts])
+      interceptor, email -> apply(interceptor, :call, [email])
     end)
   end
 

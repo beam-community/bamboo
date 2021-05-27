@@ -461,6 +461,16 @@ defmodule Bamboo.MailerTest do
                       _config}
     end
 
+    @tag interceptors: [{Bamboo.EnvInterceptorWithOpts, env: "staging"}]
+    test "deliver_now/1 must apply interceptors that define options" do
+      email = new_email(to: "foo@bar.com")
+
+      assert {:ok, %Bamboo.Email{blocked: false}} = Mailer.deliver_now(email)
+
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "staging - "},
+                      _config}
+    end
+
     @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
     test "deliver_now/1 must apply interceptors and block email if intercepted" do
       email = new_email(to: "blocked@blocked.com")

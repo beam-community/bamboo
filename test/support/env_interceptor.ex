@@ -3,6 +3,7 @@ defmodule Bamboo.EnvInterceptor do
 
   @env Mix.env()
 
+  @impl true
   def call(email) do
     %{email | subject: "#{@env} - #{email.subject}"}
   end

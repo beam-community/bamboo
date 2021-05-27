@@ -22,4 +22,6 @@ defmodule Bamboo.Interceptor do
   """
 
   @callback call(email :: Bamboo.Email.t()) :: Bamboo.Email.t()
+  @callback call(email :: Bamboo.Email.t(), opts :: list) :: Bamboo.Email.t()
+  @optional_callbacks call: 1, call: 2
 end
