@@ -477,7 +477,7 @@ defmodule Bamboo.Test do
         but may incorrectly pass if an email is delivered *after* the timeout.
         """
     else
-      Keyword.get(opts, :timeout, 100)
+      get_timeout(opts)
     end
   end
 
@@ -493,5 +493,5 @@ defmodule Bamboo.Test do
   end
 
   @doc false
-  def get_timeout(opts), do: Keyword.get(opts, :timeout, 1000)
+  def get_timeout(opts), do: Keyword.get(opts, :timeout, 100)
 end
