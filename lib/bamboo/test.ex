@@ -463,7 +463,6 @@ defmodule Bamboo.Test do
     !!Application.get_env(:bamboo, :shared_test_process)
   end
 
-  @doc false
   defp normalize_for_testing(email) do
     email
     |> Bamboo.Mailer.normalize_addresses()
