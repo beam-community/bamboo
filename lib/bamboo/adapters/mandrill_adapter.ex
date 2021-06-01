@@ -103,10 +103,21 @@ defmodule Bamboo.MandrillAdapter do
       subject: email.subject,
       text: email.text_body,
       html: email.html_body,
-      headers: email.headers,
-      attachments: attachments(email)
+      headers: email.headers
     }
+    |> add_attachments(email)
     |> add_message_params(email)
+  end
+
+  defp add_attachments(mandrill_message, %{attachments: attachments}) do
+    {files, images} =
+      attachments
+      |> Enum.reverse()
+      |> Enum.split_with(&is_nil(&1.content_id))
+
+    mandrill_message
+    |> Map.put(:attachments, format_attachments(files))
+    |> Map.put(:images, format_attachments(images))
   end
 
   defp add_message_params(mandrill_message, %{private: %{message_params: message_params}}) do
@@ -117,12 +128,10 @@ defmodule Bamboo.MandrillAdapter do
 
   defp add_message_params(mandrill_message, _), do: mandrill_message
 
-  defp attachments(%{attachments: attachments}) do
-    attachments
-    |> Enum.reverse()
-    |> Enum.map(fn attachment ->
+  defp format_attachments(attachments) do
+    Enum.map(attachments, fn attachment ->
       %{
-        name: attachment.filename,
+        name: attachment.content_id || attachment.filename,
         type: attachment.content_type,
         content: Base.encode64(attachment.data)
       }
