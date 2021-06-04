@@ -124,6 +124,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_template_id(email)
     |> put_attachments(email)
     |> put_categories(email)
+    |> put_unique_args(email)
     |> put_send_at(email)
     |> put_settings(config)
     |> put_asm_group_id(email)
@@ -440,4 +441,12 @@ defmodule Bamboo.SendGridAdapter do
     do: Map.put(body, :ip_pool_name, ip_pool_name)
 
   defp put_ip_pool_name(body, _), do: body
+
+  defp put_unique_args(body, %Email{private: %{unique_args: unique_args}})
+       when is_map(unique_args) do
+    body
+    |> Map.put(:unique_args, unique_args)
+  end
+
+  defp put_unique_args(body, _), do: body
 end
