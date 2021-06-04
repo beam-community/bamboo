@@ -124,13 +124,13 @@ defmodule Bamboo.SendGridAdapter do
     |> put_template_id(email)
     |> put_attachments(email)
     |> put_categories(email)
-    |> put_unique_args(email)
     |> put_send_at(email)
     |> put_settings(config)
     |> put_asm_group_id(email)
     |> put_bypass_list_management(email)
     |> put_google_analytics(email)
     |> put_ip_pool_name(email)
+    |> put_unique_args(email)
   end
 
   defp put_from(body, %Email{from: from}) do
