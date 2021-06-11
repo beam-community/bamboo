@@ -3,9 +3,36 @@
 Most changes for each Bamboo version are included here. For a
 complete changelog, see the git history for each version via the version links.
 
-**To see the dates a version was published see the [hex package page].**
+**To see the exact dates a version was published see the [hex package page].**
 
 [hex package page]: https://hex.pm/packages/bamboo
+
+## [2.2.0] - 2021-06-11
+
+### Additions
+
+* Add support for Sendgrid unique arguments ([#609])
+* Accept timeout option in test helpers ([#605])
+* Add assign/2 to Bamboo.Template to set many assigns ([#600])
+
+#### Fixes/Enhancements
+
+* Set default timeout in test helpers to 100 ([#607])
+* Turn some test helpers from macros -> functions ([#604])
+* Use refute_timeout configured for all refute_ assertions ([#603])
+* Organize Bamboo's TestAdapter test file ([#601])
+* fix deliver_later typo ([#598])
+* Fix typo: Bambooo -> Bamboo ([#597])
+
+[#609]: https://github.com/thoughtbot/bamboo/pull/609
+[#607]: https://github.com/thoughtbot/bamboo/pull/607
+[#605]: https://github.com/thoughtbot/bamboo/pull/605
+[#604]: https://github.com/thoughtbot/bamboo/pull/604
+[#603]: https://github.com/thoughtbot/bamboo/pull/603
+[#601]: https://github.com/thoughtbot/bamboo/pull/601
+[#600]: https://github.com/thoughtbot/bamboo/pull/600
+[#598]: https://github.com/thoughtbot/bamboo/pull/598
+[#597]: https://github.com/thoughtbot/bamboo/pull/597
 
 ## [2.1.0] - 2021-04-09
 
