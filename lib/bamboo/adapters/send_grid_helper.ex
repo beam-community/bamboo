@@ -22,6 +22,7 @@ defmodule Bamboo.SendGridHelper do
   @allowed_google_analytics_utm_params ~w(utm_source utm_medium utm_campaign utm_term utm_content)a
   @send_at_field :sendgrid_send_at
   @ip_pool_name_field :ip_pool_name
+  @unique_args :unique_args
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -293,5 +294,26 @@ defmodule Bamboo.SendGridHelper do
   def with_ip_pool_name(email, ip_pool_name) do
     email
     |> Email.put_private(@ip_pool_name_field, ip_pool_name)
+  end
+
+  @doc """
+  A map of unique arguments for this email. This will override any existing unique arguments.
+
+  ## Example
+
+      email
+      |> with_unique_args(%{new_arg_1: "new arg 1", new_arg_2: "new arg 2"})
+  """
+  def with_unique_args(email, unique_args) when is_map(unique_args) do
+    unique_args =
+      Map.get(email.private, @unique_args, %{})
+      |> Map.merge(unique_args)
+
+    email
+    |> Email.put_private(@unique_args, unique_args)
+  end
+
+  def with_unique_args(_email, _unique_args) do
+    raise "expected a map of unique arguments"
   end
 end
