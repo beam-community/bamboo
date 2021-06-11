@@ -468,6 +468,7 @@ Please see the [upgrade guide].
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[2.2.0]: https://github.com/thoughtbot/bamboo/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/thoughtbot/bamboo/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/thoughtbot/bamboo/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/thoughtbot/bamboo/compare/v2.0.0...v2.0.1
