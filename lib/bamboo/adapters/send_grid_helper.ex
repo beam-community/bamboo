@@ -87,6 +87,7 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   Add a property to the list of dynamic template data in the SendGrid template.
+  
   This will be added to the request as:
 
   ```
@@ -103,7 +104,6 @@ defmodule Bamboo.SendGridHelper do
       }
    ],
   ```
-
 
   The tag can be of any type since SendGrid allows you to use Handlebars in its templates
 
@@ -126,7 +126,8 @@ defmodule Bamboo.SendGridHelper do
     do: raise("expected the name parameter to be of type binary or atom, got #{field}")
 
   @doc """
-  An integer id for an ASM (Advanced Suppression Manager) group that this email should belong to.
+  Set the ASM (Advanced Suppression Manager) group that this email should belong to.
+  
   This can be used to let recipients unsubscribe from only a certain type of communication.
 
   ## Example
@@ -144,8 +145,9 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  A boolean setting to instruct SendGrid to bypass list management for this
-  email. If enabled, SendGrid will ignore any email supression (such as
+  Instruct SendGrid to bypass list management for this email.
+  
+  If enabled, SendGrid will ignore any email supression (such as
   unsubscriptions, bounces, spam filters) for this email. This is useful for
   emails that all users must receive, such as Terms of Service updates, or
   password resets.
@@ -166,8 +168,10 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   Instruct SendGrid to enable or disable Google Analytics tracking, and
-  optionally set the UTM parameters for it. This is useful if you need to
-  control UTM tracking parameters on an individual email basis.
+  optionally set the UTM parameters for it. 
+  
+  This is useful if you need to control UTM tracking parameters on an individual email 
+  basis.
 
   ## Example
 
@@ -225,7 +229,7 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  Add SendGrid personalizations
+  Add SendGrid personalizations.
 
   Each personalization can have the following fields: `to`, `cc`, `bcc`,
   `subject`, `headers`, `substitutions`, `custom_args`, or `send_at`.
@@ -238,24 +242,24 @@ defmodule Bamboo.SendGridHelper do
 
   ## Example:
 
-    base_personalization = %{
-      bcc: [%{"email" => "bcc@bar.com", "name" => "BCC"}],
-      subject: "Here is your email"
-    }
+      base_personalization = %{
+        bcc: [%{"email" => "bcc@bar.com", "name" => "BCC"}],
+        subject: "Here is your email"
+      }
 
-    personalizations =
-      Enum.map(
-        [
-          %{to: "one@test.com"},
-          %{to: "two@test.com", send_at: 1_580_485_560}
-        ],
-        &Map.merge(base_personalization, &1)
-      )
+      personalizations =
+        Enum.map(
+          [
+            %{to: "one@test.com"},
+            %{to: "two@test.com", send_at: 1_580_485_560}
+          ],
+          &Map.merge(base_personalization, &1)
+        )
 
-    email =
-      new_email()
-      |> Email.put_header("Reply-To", "reply@foo.com")
-      |> Bamboo.SendGridHelper.add_personalizations(personalizations)
+      email =
+        new_email()
+        |> Email.put_header("Reply-To", "reply@foo.com")
+        |> Bamboo.SendGridHelper.add_personalizations(personalizations)
 
   """
   @spec add_personalizations(Bamboo.Email.t(), [map]) :: Bamboo.Email.t()
@@ -297,7 +301,9 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  A map of unique arguments for this email. This will override any existing unique arguments.
+  Set a map of unique arguments for this email. 
+  
+  This will override any existing unique arguments.
 
   ## Example
 
