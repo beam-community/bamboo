@@ -63,8 +63,10 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  An array of category names for this email. A maximum of 10 categories can be assigned to an email.
-  Duplicate categories will be ignored and only unique entries will be sent.
+  Sets a list of categories for this email. 
+  
+  A maximum of 10 categories can be assigned to an email. Duplicate categories will 
+  be ignored and only unique entries will be sent.
 
   ## Example
 
