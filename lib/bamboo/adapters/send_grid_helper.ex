@@ -64,7 +64,7 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   Sets a list of categories for this email. 
-  
+
   A maximum of 10 categories can be assigned to an email. Duplicate categories will 
   be ignored and only unique entries will be sent.
 
@@ -89,7 +89,7 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   Add a property to the list of dynamic template data in the SendGrid template.
-  
+
   This will be added to the request as:
 
   ```
@@ -129,7 +129,7 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   Set the ASM (Advanced Suppression Manager) group that this email should belong to.
-  
+
   This can be used to let recipients unsubscribe from only a certain type of communication.
 
   ## Example
@@ -148,7 +148,7 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   Instruct SendGrid to bypass list management for this email.
-  
+
   If enabled, SendGrid will ignore any email supression (such as
   unsubscriptions, bounces, spam filters) for this email. This is useful for
   emails that all users must receive, such as Terms of Service updates, or
@@ -171,7 +171,7 @@ defmodule Bamboo.SendGridHelper do
   @doc """
   Instruct SendGrid to enable or disable Google Analytics tracking, and
   optionally set the UTM parameters for it. 
-  
+
   This is useful if you need to control UTM tracking parameters on an individual email 
   basis.
 
@@ -304,7 +304,7 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   Set a map of unique arguments for this email. 
-  
+
   This will override any existing unique arguments.
 
   ## Example
