@@ -115,7 +115,7 @@ defmodule Bamboo.MandrillAdapterTest do
       )
       |> Email.put_header("Reply-To", "reply@foo.com")
       |> Email.put_attachment(file_path)
-      |> Email.put_attachment(Attachment.new(file_path, content_id: "my_fake_image"))
+      |> Email.put_attachment(Attachment.new(file_path, content_id: "my_fake_image", filename: "fake_image.jpg"))
       |> Email.put_attachment(%Attachment{
         content_type: "image/png",
         content_id: "my_image",
@@ -148,7 +148,7 @@ defmodule Bamboo.MandrillAdapterTest do
              },
              %{
               "type" => "text/plain",
-              "name" => "my_fake_image",
+              "name" => "fake_image.jpg",
               "content" => "VGVzdCBBdHRhY2htZW50Cg=="
             }
            ]

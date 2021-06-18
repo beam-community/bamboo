@@ -130,8 +130,10 @@ defmodule Bamboo.MandrillAdapter do
 
   defp format_attachments(attachments) do
     Enum.map(attachments, fn attachment ->
+      name = if is_inline_image?(attachment), do: attachment.content_id, else: attachment.filename
+
       %{
-        name: attachment.content_id || attachment.filename,
+        name: name,
         type: attachment.content_type,
         content: Base.encode64(attachment.data)
       }
