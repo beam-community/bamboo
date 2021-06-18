@@ -110,10 +110,10 @@ defmodule Bamboo.MandrillAdapter do
   end
 
   defp add_attachments(mandrill_message, %{attachments: attachments}) do
-    {files, images} =
+    {images, files} =
       attachments
       |> Enum.reverse()
-      |> Enum.split_with(&is_nil(&1.content_id))
+      |> Enum.split_with(&is_image_inline?/1)
 
     mandrill_message
     |> Map.put(:attachments, format_attachments(files))
@@ -137,6 +137,11 @@ defmodule Bamboo.MandrillAdapter do
       }
     end)
   end
+
+  defp is_image_inline?(%_{content_type: "image" <> _, content_id: cid}) when not is_nil(cid),
+    do: true
+
+  defp is_image_inline?(_), do: false
 
   defp recipients(email) do
     []

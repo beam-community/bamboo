@@ -104,6 +104,8 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 sends from, html and text body, subject, headers and attachment" do
+    file_path = Path.join(__DIR__, "../../../support/attachment.txt")
+
     email =
       new_email(
         from: {"From", "from@foo.com"},
@@ -112,7 +114,8 @@ defmodule Bamboo.MandrillAdapterTest do
         html_body: "HTML BODY"
       )
       |> Email.put_header("Reply-To", "reply@foo.com")
-      |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"))
+      |> Email.put_attachment(file_path)
+      |> Email.put_attachment(Attachment.new(file_path, content_id: "my_fake_image"))
       |> Email.put_attachment(%Attachment{
         content_type: "image/png",
         content_id: "my_image",
@@ -142,7 +145,12 @@ defmodule Bamboo.MandrillAdapterTest do
                "type" => "text/plain",
                "name" => "attachment.txt",
                "content" => "VGVzdCBBdHRhY2htZW50Cg=="
-             }
+             },
+             %{
+              "type" => "text/plain",
+              "name" => "my_fake_image",
+              "content" => "VGVzdCBBdHRhY2htZW50Cg=="
+            }
            ]
 
     assert message["images"] == [
