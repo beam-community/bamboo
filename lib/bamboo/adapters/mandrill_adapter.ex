@@ -138,7 +138,7 @@ defmodule Bamboo.MandrillAdapter do
     end)
   end
 
-  defp is_image_inline?(%_{content_type: "image" <> _, content_id: cid}) when not is_nil(cid),
+  defp is_image_inline?(%_{content_type: "image/" <> _, content_id: cid}) when not is_nil(cid),
     do: true
 
   defp is_image_inline?(_), do: false
