@@ -130,6 +130,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_bypass_list_management(email)
     |> put_google_analytics(email)
     |> put_ip_pool_name(email)
+    |> put_unique_args(email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -440,4 +441,12 @@ defmodule Bamboo.SendGridAdapter do
     do: Map.put(body, :ip_pool_name, ip_pool_name)
 
   defp put_ip_pool_name(body, _), do: body
+
+  defp put_unique_args(body, %Email{private: %{unique_args: unique_args}})
+       when is_map(unique_args) do
+    body
+    |> Map.put(:unique_args, unique_args)
+  end
+
+  defp put_unique_args(body, _), do: body
 end

@@ -157,12 +157,10 @@ defmodule Bamboo.Test do
       unsent_email = Bamboo.Email.new_email(subject: "something else")
       assert_delivered_email(unsent_email) # Will fail
   """
-  defmacro assert_delivered_email(email) do
-    quote do
-      import ExUnit.Assertions
-      email = Bamboo.Test.normalize_for_testing(unquote(email))
-      assert_receive({:delivered_email, ^email}, 100, Bamboo.Test.flunk_with_email_list(email))
-    end
+  def assert_delivered_email(email, opts \\ []) do
+    email = normalize_for_testing(email)
+    timeout = get_timeout(opts)
+    assert_receive({:delivered_email, ^email}, timeout, flunk_with_email_list(email))
   end
 
   @doc """
@@ -181,10 +179,11 @@ defmodule Bamboo.Test do
       assert text_body =~ "Welcome to MyApp, #\{user_name}"
       assert text_body =~ "You can sign up at https://my_app.com/users/#\{user_name}"
   """
-  defmacro assert_delivered_email_matches(email_pattern) do
+  defmacro assert_delivered_email_matches(email_pattern, opts \\ []) do
     quote do
       import ExUnit.Assertions
-      ExUnit.Assertions.assert_receive({:delivered_email, unquote(email_pattern)})
+      timeout = Bamboo.Test.get_timeout(unquote(opts))
+      ExUnit.Assertions.assert_receive({:delivered_email, unquote(email_pattern)}, timeout)
     end
   end
 
@@ -220,23 +219,33 @@ defmodule Bamboo.Test do
       assert_email_delivered_with(text_body: ~r/love/) # Will pass
       assert_email_delivered_with(text_body: ~r/like/) # Will fail
   """
-  defmacro assert_email_delivered_with(email_params) do
-    quote bind_quoted: [email_params: email_params] do
-      import ExUnit.Assertions
-      assert_receive({:delivered_email, email}, 100, Bamboo.Test.flunk_no_emails_received())
+  def assert_email_delivered_with(email_params, opts \\ []) do
+    timeout = get_timeout(opts)
+    assert_receive({:delivered_email, email}, timeout, flunk_no_emails_received())
 
-      received_email_params = email |> Map.from_struct()
+    received_email_params = email |> Map.from_struct()
 
-      assert Enum.all?(email_params, fn {k, v} -> do_match(received_email_params[k], v, k) end),
-             Bamboo.Test.flunk_attributes_do_not_match(email_params, received_email_params)
-    end
+    assert Enum.all?(email_params, fn {k, v} -> do_match(received_email_params[k], v, k) end),
+           flunk_attributes_do_not_match(email_params, received_email_params)
   end
 
   @doc """
-  Check that no email was sent with the given parameters
+  Check that no email was sent with the given parameters.
 
   Similar to `assert_email_delivered_with/1`, but it checks that an email with
   those parameters wasn't sent.
+
+  Note that this assertion helper will grab the email out of the process
+  mailbox. So if you want to make other assertions about the same email after
+  this assertion, you need to send the email again.
+
+  ## Examples
+
+      Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver()
+      refute_email_delivered_with(subject: "something else") # Will pass
+
+      Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver()
+      refute_email_delivered_with(subject: ~r/some/) # Will fail
 
   If `Bamboo.Test` is used with shared mode, you must also configure a timeout
   in your test config.
@@ -247,55 +256,42 @@ defmodule Bamboo.Test do
   The value you set is up to you. Lower values may result in faster tests, but
   your tests may incorrectly pass if an email is delivered *after* the timeout.
 
-  Note that this assertion helper will grab the email out of the process
-  mailbox. So if you want to make other assertions about the same email after
-  this assertion, you need to send the email again.
+  You can also pass a timeout for a given refutation:
 
   ## Examples
 
-      Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver
-      refute_email_delivered_with(subject: "something else") # Will pass
-
-      Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver
-      refute_email_delivered_with(subject: ~r/some/) # Will fail
+      Bamboo.Email.new_email(subject: "something") |> MyApp.Mailer.deliver()
+      refute_email_delivered_with([subject: "something else"], timeout: 100)
   """
-  defmacro refute_email_delivered_with(email_params) do
-    quote bind_quoted: [email_params: email_params] do
-      import ExUnit.Assertions
-
-      received_email_params =
-        receive do
-          {:delivered_email, email} -> Map.from_struct(email)
-        after
-          Bamboo.Test.refute_timeout() -> []
-        end
-
-      if is_nil(received_email_params) do
-        refute false
-      else
-        refute Enum.any?(email_params, fn {k, v} -> do_match(received_email_params[k], v, k) end),
-               Bamboo.Test.flunk_attributes_match(email_params, received_email_params)
+  def refute_email_delivered_with(email_params, opts \\ []) do
+    received_email_params =
+      receive do
+        {:delivered_email, email} -> Map.from_struct(email)
+      after
+        refute_timeout(opts) -> []
       end
+
+    if is_nil(received_email_params) do
+      refute false
+    else
+      refute Enum.any?(email_params, fn {k, v} -> do_match(received_email_params[k], v, k) end),
+             flunk_attributes_match(email_params, received_email_params)
     end
   end
 
-  @doc false
-  def do_match(value1, value2 = %Regex{}, _type) do
+  defp do_match(value1, value2 = %Regex{}, _type) do
     Regex.match?(value2, value1)
   end
 
-  @doc false
-  def do_match(value1, value2, type) do
+  defp do_match(value1, value2, type) do
     value1 == value2 || value1 == format(value2, type)
   end
 
-  @doc false
   defp format(record, type) do
     Bamboo.Formatter.format_email_address(record, %{type: type})
   end
 
-  @doc false
-  def flunk_with_email_list(email) do
+  defp flunk_with_email_list(email) do
     if Enum.empty?(delivered_emails()) do
       flunk_no_emails_received()
     else
@@ -313,8 +309,7 @@ defmodule Bamboo.Test do
     end
   end
 
-  @doc false
-  def flunk_no_emails_received do
+  defp flunk_no_emails_received do
     flunk("""
     There were 0 emails delivered to this process.
 
@@ -329,8 +324,7 @@ defmodule Bamboo.Test do
     """)
   end
 
-  @doc false
-  def flunk_attributes_do_not_match(params_given, params_received) do
+  defp flunk_attributes_do_not_match(params_given, params_received) do
     """
     The parameters given do not match.
 
@@ -344,8 +338,7 @@ defmodule Bamboo.Test do
     """
   end
 
-  @doc false
-  def flunk_attributes_match(params_given, params_received) do
+  defp flunk_attributes_match(params_given, params_received) do
     """
     The parameters given match.
 
@@ -388,11 +381,11 @@ defmodule Bamboo.Test do
   but may incorrectly pass if an email is delivered *after* the timeout. Often
   times 1ms is enough.
   """
-  def assert_no_emails_delivered do
+  def assert_no_emails_delivered(opts \\ []) do
     receive do
       {:delivered_email, email} -> flunk_with_unexpected_email(email)
     after
-      refute_timeout() -> true
+      refute_timeout(opts) -> true
     end
   end
 
@@ -427,13 +420,13 @@ defmodule Bamboo.Test do
   but may incorrectly pass if an email is delivered *after* the timeout. Often
   times 1ms is enough.
   """
-  def refute_delivered_email(%Bamboo.Email{} = email) do
+  def refute_delivered_email(%Bamboo.Email{} = email, opts \\ []) do
     email = normalize_for_testing(email)
 
     receive do
       {:delivered_email, ^email} -> flunk_with_unexpected_matching_email(email)
     after
-      refute_timeout() -> true
+      refute_timeout(opts) -> true
     end
   end
 
@@ -448,7 +441,7 @@ defmodule Bamboo.Test do
   end
 
   @doc false
-  def refute_timeout do
+  def refute_timeout(opts \\ []) do
     if using_shared_mode?() do
       Application.get_env(:bamboo, :refute_timeout) ||
         raise """
@@ -462,7 +455,7 @@ defmodule Bamboo.Test do
         but may incorrectly pass if an email is delivered *after* the timeout.
         """
     else
-      100
+      get_timeout(opts)
     end
   end
 
@@ -470,10 +463,12 @@ defmodule Bamboo.Test do
     !!Application.get_env(:bamboo, :shared_test_process)
   end
 
-  @doc false
-  def normalize_for_testing(email) do
+  defp normalize_for_testing(email) do
     email
     |> Bamboo.Mailer.normalize_addresses()
     |> Bamboo.TestAdapter.clean_assigns()
   end
+
+  @doc false
+  def get_timeout(opts), do: Keyword.get(opts, :timeout, 100)
 end
