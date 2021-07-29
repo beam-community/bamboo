@@ -183,6 +183,24 @@ defmodule Bamboo.SendGridHelperTest do
     end
   end
 
+  test "with_click_tracking/2 with utm_params", %{email: email} do
+    email = with_click_tracking(email, true)
+
+    assert email.private[:click_tracking_enabled] == true
+  end
+
+  test "with_click_tracking/2 with enabled set false", %{email: email} do
+    email = with_click_tracking(email, false)
+
+    assert email.private[:click_tracking_enabled] == false
+  end
+
+  test "with_click_tracking/2 raises on non-boolean enabled parameter", %{email: email} do
+    assert_raise RuntimeError, fn ->
+      with_click_tracking(email, 1)
+    end
+  end
+
   describe "with_send_at/2" do
     test "adds the correct property for a DateTime input", %{email: email} do
       {:ok, datetime, _} = DateTime.from_iso8601("2020-01-31T15:46:00Z")
