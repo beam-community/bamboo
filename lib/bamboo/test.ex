@@ -8,14 +8,6 @@ defmodule Bamboo.Test do
   you'll want to **unit test emails first**. Then, in integration tests, use
   helpers from this module to test whether that email was delivered.
 
-  ## Note on sending from other processes
-
-  If you are sending emails from another process (for example, from inside a
-  Task or GenServer) you may need to use shared mode when using
-  `Bamboo.Test`. See the docs `__using__/1` for an example.
-
-  For most scenarios you will not need shared mode.
-
   ## In your config
 
       # Typically in config/test.exs
@@ -70,6 +62,29 @@ defmodule Bamboo.Test do
           assert_delivered_email email
         end
       end
+
+  ## Sending email from other processes
+
+  Most of the time, the process that is sending your email will be the one that
+  is running your test. So the email will arrive in your test process' mailbox
+  and assertions will work.
+
+  If you are sending emails from another process, you won't be able to receive
+  them in your test without some extra configuration. This will be relevant if
+  you send email from inside of a Task, GenServer, or are running acceptance
+  tests with a browser testing library like
+  [Wallaby](https://github.com/elixir-wallaby/wallaby).
+
+  There are two options to ensure that the email is delivered to your test
+  process:
+
+  1. Use shared mode. This prevents you from running the test asynchronously,
+     so that all tests run in the same process, which is where your emails are
+     delivered. See `__using__/1` for how to activate shared mode.
+
+  2. Use `Bamboo.TestAdapter.forward/2` to explicitly specify which process the
+     email should be sent to. This is a bit harder to set up but allows
+     asynchronous tests. See the docs for that function for details.
   """
 
   @doc """
@@ -79,22 +94,20 @@ defmodule Bamboo.Test do
   current process when an email is delivered. The process mailbox is then
   checked when using the assertion helpers like `assert_delivered_email/1`.
 
-  Sometimes emails don't show up when asserting because you may deliver an email
-  from a _different_ process than the test process. When that happens, turn on
-  shared mode. This will tell `Bamboo.TestAdapter` to always send to the test process.
-  This means that you cannot use shared mode with async tests.
+  Sometimes emails don't show up when asserting because you may deliver an
+  email from a _different_ process than the test process. See [Sending email
+  from other processes](#module-sending-email-from-other-processes) to
+  understand your options for this situation.
 
-  ## Try to use this version first
+  ## Normal usage
 
       use Bamboo.Test
 
-  ## And if you are delivering from another process, set `shared: true`
+  ## Shared mode usage (see above)
 
       use Bamboo.Test, shared: true
 
-  Common scenarios for delivering mail from a different process are when you
-  send from inside of a Task, GenServer, or are running acceptance tests with a
-  headless browser like phantomjs.
+  Shared mode cannot be used with asynchronous tests.
   """
   defmacro __using__(shared: true) do
     quote do
