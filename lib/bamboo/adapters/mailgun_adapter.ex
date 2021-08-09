@@ -64,7 +64,9 @@ defmodule Bamboo.MailgunAdapter do
     case config[:mailgun_base_uri] do
       value when value in [nil, ""] ->
         Application.get_env(:bamboo, :mailgun_base_uri, @default_base_uri)
-      value -> value
+
+      value ->
+        value
     end
   end
 
