@@ -57,11 +57,15 @@ defmodule Bamboo.MailgunAdapter do
     config
     |> Map.put(:api_key, get_setting(config, :api_key))
     |> Map.put(:domain, get_setting(config, :domain))
-    |> Map.put_new(:base_uri, base_uri())
+    |> Map.put(:base_uri, base_uri(config))
   end
 
-  defp base_uri() do
-    Application.get_env(:bamboo, :mailgun_base_uri, @default_base_uri)
+  defp base_uri(config) do
+    case config[:mailgun_base_uri] do
+      value when value in [nil, ""] ->
+        Application.get_env(:bamboo, :mailgun_base_uri, @default_base_uri)
+      value -> value
+    end
   end
 
   defp get_setting(config, key) do
