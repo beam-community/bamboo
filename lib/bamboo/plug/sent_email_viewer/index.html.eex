@@ -155,6 +155,7 @@
         margin: 0 0 12px 0;
         font-size: 15px;
         font-weight: 700;
+        color: #2D9EB9;
       }
 
       .email-detail-body-label + .email-detail-body-label {
