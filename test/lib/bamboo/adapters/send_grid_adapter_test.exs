@@ -335,6 +335,38 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["tracking_settings"]["ganalytics"]["utm_content"] == "content"
   end
 
+  test "deliver/2 correctly handles when with_click_tracking is enabled" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_click_tracking(true)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["tracking_settings"]["click_tracking"]["enabled"] == true
+    assert params["tracking_settings"]["click_tracking"]["enable_text"] == true
+  end
+
+  test "deliver/2 correctly handles when with_click_tracking is disabled" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_click_tracking(false)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["tracking_settings"]["click_tracking"]["enabled"] == false
+    assert params["tracking_settings"]["click_tracking"]["enable_text"] == false
+  end
+
   test "deliver/2 correctly handles a sendgrid_send_at timestamp" do
     email =
       new_email(
