@@ -5,8 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <title>Sent Email</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.0.0/normalize.css" charset="utf-8">
     <style>
+      html {
+        height: 100%;
+        -webkit-text-size-adjust: 100%;
+      }
+
       body {
         min-width: 800px;
         font-size: 15px;
