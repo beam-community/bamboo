@@ -347,7 +347,7 @@ defmodule Bamboo.SendGridAdapterTest do
     |> SendGridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
-    assert params["tracking_settings"]["click_tracking"]["enabled"] == true
+    assert params["tracking_settings"]["click_tracking"]["enable"] == true
     assert params["tracking_settings"]["click_tracking"]["enable_text"] == true
   end
 
@@ -363,7 +363,7 @@ defmodule Bamboo.SendGridAdapterTest do
     |> SendGridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
-    assert params["tracking_settings"]["click_tracking"]["enabled"] == false
+    assert params["tracking_settings"]["click_tracking"]["enable"] == false
     assert params["tracking_settings"]["click_tracking"]["enable_text"] == false
   end
 

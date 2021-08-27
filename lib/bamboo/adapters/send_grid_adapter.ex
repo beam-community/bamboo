@@ -360,7 +360,7 @@ defmodule Bamboo.SendGridAdapter do
     tracking_settings =
       body
       |> Map.get(:tracking_settings, %{})
-      |> Map.put(:click_tracking, %{enabled: enabled, enable_text: enabled})
+      |> Map.put(:click_tracking, %{enable: enabled, enable_text: enabled})
 
     body
     |> Map.put(:tracking_settings, tracking_settings)
