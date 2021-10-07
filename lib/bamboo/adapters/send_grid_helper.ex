@@ -150,7 +150,7 @@ defmodule Bamboo.SendGridHelper do
   @doc """
   Instruct SendGrid to bypass list management for this email.
 
-  If enabled, SendGrid will ignore any email supression (such as
+  If enabled, SendGrid will ignore any email suppression (such as
   unsubscriptions, bounces, spam filters) for this email. This is useful for
   emails that all users must receive, such as Terms of Service updates, or
   password resets.

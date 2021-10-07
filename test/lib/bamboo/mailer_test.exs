@@ -404,7 +404,7 @@ defmodule Bamboo.MailerTest do
     end
 
     @tag adapter: ResponseAdapter
-    test "deliver_now/2 returns {:ok, email, reponse} when passing response: true option" do
+    test "deliver_now/2 returns {:ok, email, response} when passing response: true option" do
       email = new_email(to: "foo@bar.com")
 
       {:ok, email, response} = Mailer.deliver_now(email, response: true)
