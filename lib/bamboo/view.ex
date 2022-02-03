@@ -109,9 +109,7 @@ defmodule Bamboo.View do
 
       true ->
         raise ArgumentError, """
-        Template name must end in either ".html" or ".text". Template name was #{
-          inspect(template)
-        }
+        Template name must end in either ".html" or ".text". Template name was #{inspect(template)}
 
         If you would like to render both and html and text template,
         use an atom without an extension instead.
