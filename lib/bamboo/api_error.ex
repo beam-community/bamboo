@@ -39,8 +39,10 @@ defmodule Bamboo.ApiError do
 
       <extra_message>
   """
+  @spec raise_api_error(any()) :: no_return()
   def raise_api_error(message), do: raise(__MODULE__, message: message)
 
+  @spec raise_api_error(String.t(), any(), Keyword.t()) :: no_return()
   def raise_api_error(service_name, response, params, extra_message \\ "") do
     message = """
     There was a problem sending the email through the #{service_name} API.

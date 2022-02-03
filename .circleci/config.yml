@@ -16,6 +16,10 @@ jobs:
           keys:
             - mix-cache-{{ checksum "mix.lock" }}
 
+      - restore_cache:
+          keys:
+            - dialyzer-cache-21.2-1.8.1
+
       - run: mix do deps.get
       - save_cache:
           key: mix-cache-{{ checksum "mix.lock" }}
@@ -23,4 +27,8 @@ jobs:
 
       - run: mix format --check-formatted
       - run: mix test
+      - run: mix dialyzer
+      - save_cache:
+          key: dialyzer-cache-21.2-1.8.1
+          paths: "priv/plts"
       - run: MIX_ENV=prod mix compile
