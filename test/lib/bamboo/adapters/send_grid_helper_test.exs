@@ -201,6 +201,29 @@ defmodule Bamboo.SendGridHelperTest do
     end
   end
 
+  test "with_subscription_tracking/2 with enabled set false", %{email: email} do
+    email = with_subscription_tracking(email, false)
+
+    assert email.private[:subscription_tracking][:enable] == false
+  end
+
+  test "with_subscription_tracking/2 ignores invalid options", %{email: email} do
+    email =
+      with_subscription_tracking(email, true, %{
+        html: "<p>Unsubscribe <% UNSUB_URL %></p>",
+        truck: "dodge"
+      })
+
+    options = email.private[:subscription_tracking]
+    assert Map.keys(options) == [:enable, :html]
+  end
+
+  test "with_subscription_tracking/2 raises on non-boolean enabled parameter", %{email: email} do
+    assert_raise RuntimeError, fn ->
+      with_subscription_tracking(email, 1)
+    end
+  end
+
   describe "with_send_at/2" do
     test "adds the correct property for a DateTime input", %{email: email} do
       {:ok, datetime, _} = DateTime.from_iso8601("2020-01-31T15:46:00Z")
