@@ -24,6 +24,7 @@ defmodule Bamboo.SendGridHelper do
   @ip_pool_name_field :ip_pool_name
   @unique_args :unique_args
   @click_tracking_enabled :click_tracking_enabled
+  @subscription_tracking :subscription_tracking
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -64,9 +65,9 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  Sets a list of categories for this email. 
+  Sets a list of categories for this email.
 
-  A maximum of 10 categories can be assigned to an email. Duplicate categories will 
+  A maximum of 10 categories can be assigned to an email. Duplicate categories will
   be ignored and only unique entries will be sent.
 
   ## Example
@@ -171,9 +172,9 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   Instruct SendGrid to enable or disable Google Analytics tracking, and
-  optionally set the UTM parameters for it. 
+  optionally set the UTM parameters for it.
 
-  This is useful if you need to control UTM tracking parameters on an individual email 
+  This is useful if you need to control UTM tracking parameters on an individual email
   basis.
 
   ## Example
@@ -220,6 +221,37 @@ defmodule Bamboo.SendGridHelper do
 
   def with_click_tracking(_email, _enabled) do
     raise "expected with_click_tracking enabled parameter to be a boolean"
+  end
+
+  @doc """
+  Instruct SendGrid to enable or disable Subscription Tracking for a particular email.
+
+  Read more about SendGrid click tracking [here](https://docs.sendgrid.com/ui/account-and-settings/tracking#subscription-tracking)
+
+  ## Example
+
+      email
+      |> with_subscription_tracking(true)
+
+      email
+      |> with_subscription_tracking(true, %{html: "<p>To Unsubscribe, <% clickhere %></p>"})
+
+      email
+      |> with_subscription_tracking(false)
+  """
+  def with_subscription_tracking(email, enabled, opts \\ %{})
+
+  def with_subscription_tracking(email, enabled, opts) when is_boolean(enabled) do
+    options =
+      opts
+      |> Map.take([:html, :substitution_tag, :text])
+      |> Map.put(:enable, enabled)
+
+    Email.put_private(email, @subscription_tracking, options)
+  end
+
+  def with_subscription_tracking(_email, _enabled, _opts) do
+    raise "expected with_subscription_tracking enabled parameter to be a boolean"
   end
 
   @doc """
@@ -325,7 +357,7 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  Set a map of unique arguments for this email. 
+  Set a map of unique arguments for this email.
 
   This will override any existing unique arguments.
 
