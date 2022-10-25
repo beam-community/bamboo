@@ -22,7 +22,7 @@ defmodule Bamboo.SendGridHelper do
   @allowed_google_analytics_utm_params ~w(utm_source utm_medium utm_campaign utm_term utm_content)a
   @send_at_field :sendgrid_send_at
   @ip_pool_name_field :ip_pool_name
-  @unique_args :unique_args
+  @custom_args :custom_args
   @click_tracking_enabled :click_tracking_enabled
 
   @doc """
@@ -64,9 +64,9 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  Sets a list of categories for this email. 
+  Sets a list of categories for this email.
 
-  A maximum of 10 categories can be assigned to an email. Duplicate categories will 
+  A maximum of 10 categories can be assigned to an email. Duplicate categories will
   be ignored and only unique entries will be sent.
 
   ## Example
@@ -171,9 +171,9 @@ defmodule Bamboo.SendGridHelper do
 
   @doc """
   Instruct SendGrid to enable or disable Google Analytics tracking, and
-  optionally set the UTM parameters for it. 
+  optionally set the UTM parameters for it.
 
-  This is useful if you need to control UTM tracking parameters on an individual email 
+  This is useful if you need to control UTM tracking parameters on an individual email
   basis.
 
   ## Example
@@ -325,25 +325,25 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  Set a map of unique arguments for this email. 
+  Set a map of custom arguments for this email.
 
-  This will override any existing unique arguments.
+  This will override any existing custom arguments.
 
   ## Example
 
       email
-      |> with_unique_args(%{new_arg_1: "new arg 1", new_arg_2: "new arg 2"})
+      |> with_custom_args(%{new_arg_1: "new arg 1", new_arg_2: "new arg 2"})
   """
-  def with_unique_args(email, unique_args) when is_map(unique_args) do
-    unique_args =
-      Map.get(email.private, @unique_args, %{})
-      |> Map.merge(unique_args)
+  def with_custom_args(email, custom_args) when is_map(custom_args) do
+    custom_args =
+      Map.get(email.private, @custom_args, %{})
+      |> Map.merge(custom_args)
 
     email
-    |> Email.put_private(@unique_args, unique_args)
+    |> Email.put_private(@custom_args, custom_args)
   end
 
-  def with_unique_args(_email, _unique_args) do
-    raise "expected a map of unique arguments"
+  def with_custom_args(_email, _custom_args) do
+    raise "expected a map of custom arguments"
   end
 end
