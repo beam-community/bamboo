@@ -660,23 +660,23 @@ defmodule Bamboo.SendGridAdapterTest do
     assert msg =~ ~r/'email' field/
   end
 
-  test "deliver/2 correctly handles with_unique_args" do
+  test "deliver/2 correctly handles with_custom_args" do
     email = new_email()
 
-    unique_args = %{
+    custom_args = %{
       new_arg1: "new arg 1",
       new_arg2: "new arg 2",
       new_arg3: "new arg 3"
     }
 
     email
-    |> Bamboo.SendGridHelper.with_unique_args(unique_args)
+    |> Bamboo.SendGridHelper.with_custom_args(custom_args)
     |> SendGridAdapter.deliver(@config)
 
     assert_receive {:fake_sendgrid, %{params: params}}
-    assert params["unique_args"]["new_arg1"] == "new arg 1"
-    assert params["unique_args"]["new_arg2"] == "new arg 2"
-    assert params["unique_args"]["new_arg3"] == "new arg 3"
+    assert params["custom_args"]["new_arg1"] == "new arg 1"
+    assert params["custom_args"]["new_arg2"] == "new arg 2"
+    assert params["custom_args"]["new_arg3"] == "new arg 3"
   end
 
   test "deliver/2 will set sandbox mode correctly" do
