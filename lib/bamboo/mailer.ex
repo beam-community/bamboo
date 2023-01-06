@@ -156,7 +156,7 @@ defmodule Bamboo.Mailer do
   If successful, this function returns the `Email` struct or an `Email`,
   response tuple when setting `response: true`.
 
-  On failure, this function returns an error tuple: `{:error, error}`.
+  On failure, this function raises an error.
   """
   def deliver_now!(_email, _opts \\ []) do
     raise @cannot_call_directly_error
