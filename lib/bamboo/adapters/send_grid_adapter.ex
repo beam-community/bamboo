@@ -368,6 +368,11 @@ defmodule Bamboo.SendGridAdapter do
 
   defp put_click_tracking(body, _), do: body
 
+  defp is_inline_image?(%_{content_type: "image/" <> _, content_id: cid}) when not is_nil(cid),
+    do: true
+
+  defp is_inline_image?(_), do: false
+
   defp put_attachments(body, %Email{attachments: []}), do: body
 
   defp put_attachments(body, %Email{attachments: attachments}) do
@@ -375,10 +380,14 @@ defmodule Bamboo.SendGridAdapter do
       attachments
       |> Enum.reverse()
       |> Enum.map(fn attachment ->
+        disposition = if is_inline_image?(attachment), do: "inline", else: "attachment"
+
         %{
           filename: attachment.filename,
           type: attachment.content_type,
-          content: Base.encode64(attachment.data)
+          disposition: disposition,
+          content: Base.encode64(attachment.data),
+          content_id: attachment.content_id
         }
       end)
 
