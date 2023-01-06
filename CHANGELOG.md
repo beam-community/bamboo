@@ -7,6 +7,27 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.3.0] - 2023-01-06
+
+### Additions
+
+* Add inline images in mandrill adapter ([#608])
+* add support for enabling sendgrid click tracking ([#618])
+* Better local preview for text-only emails ([#622])
+
+#### Fixes/Enhancements
+
+* Improve format of SendGridHelper docs ([#611])
+* Change "enabled" to "enable" to conform to SendGrid API ([#624])
+* Update mime package version ([#627])
+
+[#608]: https://github.com/thoughtbot/bamboo/pull/608
+[#611]: https://github.com/thoughtbot/bamboo/pull/611
+[#618]: https://github.com/thoughtbot/bamboo/pull/618
+[#622]: https://github.com/thoughtbot/bamboo/pull/622
+[#624]: https://github.com/thoughtbot/bamboo/pull/624
+[#627]: https://github.com/thoughtbot/bamboo/pull/627
+
 ## [2.2.0] - 2021-06-11
 
 ### Additions
@@ -468,6 +489,7 @@ Please see the [upgrade guide].
 * `MandrillEmail` has been renamed to `MandrillHelper`. The API is the same so all you will have to do is rename your imports and/or aliases.
 * `Mailer.deliver/1` has been renamed to `Mandrill.deliver_now/1` to add clarity. See discussion here: https://github.com/paulcsmith/bamboo/issues/89
 
+[2.3.0]: https://github.com/thoughtbot/bamboo/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/thoughtbot/bamboo/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/thoughtbot/bamboo/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/thoughtbot/bamboo/compare/v2.0.1...v2.0.2
