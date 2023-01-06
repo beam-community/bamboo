@@ -14,15 +14,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - elixir: 1.6.x
-            otp: 19
-            os: ubuntu-18.04
-          - elixir: 1.7.x
-            otp: 19
-            os: ubuntu-18.04
-          - elixir: 1.8.x
-            otp: 20
-            os: ubuntu-20.04
           - elixir: 1.9.x
             otp: 20
             os: ubuntu-20.04
