@@ -226,27 +226,27 @@ defmodule Bamboo.SendGridHelperTest do
     assert email.private[:ip_pool_name] == @ip_pool_name
   end
 
-  test "with_unique_args/2 merges multiple maps", %{email: email} do
+  test "with_custom_args/2 merges multiple maps", %{email: email} do
     email =
       email
-      |> with_unique_args(%{new_arg_1: "new arg 1", new_arg_2: "new arg 2"})
-      |> with_unique_args(%{new_arg_3: "new arg 3"})
+      |> with_custom_args(%{new_arg_1: "new arg 1", new_arg_2: "new arg 2"})
+      |> with_custom_args(%{new_arg_3: "new arg 3"})
 
-    assert map_size(email.private[:unique_args]) == 3
+    assert map_size(email.private[:custom_args]) == 3
   end
 
-  test "with_unique_args/2 overrides duplicate entries", %{email: email} do
+  test "with_custom_args/2 overrides duplicate entries", %{email: email} do
     email =
       email
-      |> with_unique_args(%{new_arg_1: "new arg 1"})
-      |> with_unique_args(%{new_arg_1: "latest new arg 1", new_arg_2: "new arg 2"})
+      |> with_custom_args(%{new_arg_1: "new arg 1"})
+      |> with_custom_args(%{new_arg_1: "latest new arg 1", new_arg_2: "new arg 2"})
 
-    assert map_size(email.private[:unique_args]) == 2
+    assert map_size(email.private[:custom_args]) == 2
   end
 
-  test "with_unique_args/2 raises on non-map parameter", %{email: email} do
+  test "with_custom_args/2 raises on non-map parameter", %{email: email} do
     assert_raise RuntimeError, fn ->
-      email |> with_unique_args(["new arg"])
+      email |> with_custom_args(["new arg"])
     end
   end
 end
