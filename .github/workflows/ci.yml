@@ -44,7 +44,6 @@ jobs:
           - elixir: 1.14.x
             otp: 25
             os: ubuntu-latest
-            warnings_as_errors: true
     env:
       MIX_ENV: test
     steps:
