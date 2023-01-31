@@ -414,6 +414,7 @@ add a new adapter to the list.
 - `Bamboo.SesAdapter` - See [kalys/bamboo_ses](https://github.com/kalys/bamboo_ses).
 - `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
 - `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
+- `Bamboo.MailtrapSendingAdapter`, `Bamboo.MailtrapSandboxAdapter` - See [kalys/elixir-mailtrap](https://github.com/kalys/elixir-mailtrap)
 
 ## Contributing
 
