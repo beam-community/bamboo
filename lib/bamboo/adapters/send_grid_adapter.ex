@@ -130,6 +130,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_bypass_list_management(email)
     |> put_google_analytics(email)
     |> put_click_tracking(email)
+    |> put_subscription_tracking(email)
     |> put_ip_pool_name(email)
     |> put_custom_args(email)
   end
@@ -367,6 +368,17 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_click_tracking(body, _), do: body
+
+  defp put_subscription_tracking(body, %Email{private: %{subscription_tracking_enabled: enabled}}) do
+    tracking_settings =
+      body
+      |> Map.get(:tracking_settings, %{})
+      |> Map.put(:subscription_tracking, %{enable: enabled, enable_text: enabled})
+
+    Map.put(body, :tracking_settings, tracking_settings)
+  end
+
+  defp put_subscription_tracking(body, _), do: body
 
   defp put_attachments(body, %Email{attachments: []}), do: body
 
