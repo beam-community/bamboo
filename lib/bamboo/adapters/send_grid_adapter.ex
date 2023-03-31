@@ -128,6 +128,7 @@ defmodule Bamboo.SendGridAdapter do
     |> put_settings(config)
     |> put_asm_group_id(email)
     |> put_bypass_list_management(email)
+    |> put_bypass_unsubscribe_management(email)
     |> put_google_analytics(email)
     |> put_click_tracking(email)
     |> put_subscription_tracking(email)
@@ -340,6 +341,18 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp put_bypass_list_management(body, _), do: body
+
+  defp put_bypass_unsubscribe_management(body, %Email{private: %{bypass_unsubscribe_management: enabled}})
+       when is_boolean(enabled) do
+    mail_settings =
+      body
+      |> Map.get(:mail_settings, %{})
+      |> Map.put(:bypass_unsubscribe_management, %{enable: enabled})
+
+    Map.put(body, :mail_settings, mail_settings)
+  end
+
+  defp put_bypass_unsubscribe_management(body, _), do: body
 
   defp put_google_analytics(body, %Email{
          private: %{google_analytics_enabled: enabled, google_analytics_utm_params: utm_params}

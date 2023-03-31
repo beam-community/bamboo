@@ -277,6 +277,22 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["mail_settings"]["bypass_list_management"]["enable"] == true
   end
 
+
+  test "deliver/2 correctly handles a bypass_unsubscribe_management" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_bypass_unsubscribe_management(true)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["mail_settings"]["bypass_unsubscribe_management"]["enable"] == true
+  end
+
   test "deliver/2 correctly handles with_google_analytics that's enabled with no utm_params" do
     email =
       new_email(

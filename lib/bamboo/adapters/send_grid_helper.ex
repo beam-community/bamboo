@@ -16,6 +16,7 @@ defmodule Bamboo.SendGridHelper do
   @categories :categories
   @asm_group_id :asm_group_id
   @bypass_list_management :bypass_list_management
+  @bypass_unsubscribe_management :bypass_unsubscribe_management
   @google_analytics_enabled :google_analytics_enabled
   @google_analytics_utm_params :google_analytics_utm_params
   @additional_personalizations :additional_personalizations
@@ -168,6 +169,28 @@ defmodule Bamboo.SendGridHelper do
 
   def with_bypass_list_management(_email, enabled) do
     raise "expected bypass_list_management parameter to be a boolean, got #{enabled}"
+  end
+
+  @doc """
+  Instruct SendGrid to bypass unsubscribe list management for this email.
+
+  If enabled, SendGrid will ignore any email suppression (such as
+  unsubscriptions, bounces, spam filters) for this email. This is useful for
+  emails that all users must receive, such as Terms of Service updates, or
+  password resets.
+
+  ## Example
+
+      email
+      |> with_bypass_unsubscribe_management(true)
+  """
+  def with_bypass_unsubscribe_management(email, enabled) when is_boolean(enabled) do
+    email
+    |> Email.put_private(@bypass_unsubscribe_management, enabled)
+  end
+
+  def with_bypass_unsubscribe_management(_email, enabled) do
+    raise "expected bypass_unsubscribe_management parameter to be a boolean, got #{enabled}"
   end
 
   @doc """

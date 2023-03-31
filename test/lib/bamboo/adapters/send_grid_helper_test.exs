@@ -151,6 +151,18 @@ defmodule Bamboo.SendGridHelperTest do
     end
   end
 
+
+  test "with_bypass_unsubscribe_management/2 adds the correct property", %{email: email} do
+    email = email |> with_bypass_unsubscribe_management(true)
+    assert email.private[:bypass_unsubscribe_management] == true
+  end
+
+  test "with_bypass_unsubscribe_management/2 raises on non-boolean parameter", %{email: email} do
+    assert_raise RuntimeError, fn ->
+      email |> with_bypass_unsubscribe_management(1)
+    end
+  end
+
   test "with_google_analytics/3 with utm_params", %{email: email} do
     utm_params = %{
       utm_source: "source",
