@@ -406,7 +406,7 @@ add a new adapter to the list.
 - `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
 - `Bamboo.CampaignMonitorAdapter` - See [jackmarchant/bamboo_campaign_monitor](https://github.com/jackmarchant/bamboo_campaign_monitor).
 - `Bamboo.ConfigAdapter` - See [BinaryNoggin/bamboo_config_adapter](https://github.com/BinaryNoggin/bamboo_config_adapter) declare config at runtime.
-- `Bamboo.FallbackAdapter` - See [fuelen/bamboo_fallback](https://github.com/fuelen/bamboo_fallback). Allows using multiple adapters.
+- `Bamboo.FallbackAdapter` - See [prosapient/bamboo_fallback](https://github.com/prosapient/bamboo_fallback). Allows using multiple adapters.
 - `Bamboo.GmailAdapter` - See [parkerduckworth/bamboo_gmail](https://github.com/parkerduckworth/bamboo_gmail).
 - `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
 - `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
