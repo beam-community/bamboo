@@ -1,45 +1,45 @@
 defmodule Bamboo.MailgunHelperTest do
   use ExUnit.Case
+
   import Bamboo.Email
+
   alias Bamboo.MailgunHelper
 
   test "tag/2 puts a tag in private" do
-    email = new_email() |> MailgunHelper.tag("new-tag")
+    email = MailgunHelper.tag(new_email(), "new-tag")
 
-    assert Map.get(Map.get(email, :private, %{}), :"o:tag", nil) == "new-tag"
+    assert email |> Map.get(:private, %{}) |> Map.get(:"o:tag", nil) == "new-tag"
   end
 
   test "deliverytime/2 puts a deliverytime in private" do
-    email = new_email() |> MailgunHelper.deliverytime(DateTime.from_unix!(1_422_057_007))
+    email = MailgunHelper.deliverytime(new_email(), DateTime.from_unix!(1_422_057_007))
 
-    assert Map.get(Map.get(email, :private, %{}), :"o:deliverytime", nil) == 1_422_057_007
+    assert email |> Map.get(:private, %{}) |> Map.get(:"o:deliverytime", nil) == 1_422_057_007
   end
 
   test "adds template information to mailgun emails" do
-    email =
-      new_email()
-      |> MailgunHelper.template("welcome")
+    email = MailgunHelper.template(new_email(), "welcome")
 
     assert email.private == %{template: "welcome"}
   end
 
   test "adds template version to mailgun emails" do
-    email = new_email() |> MailgunHelper.template_version("v2")
+    email = MailgunHelper.template_version(new_email(), "v2")
     assert email.private == %{:"t:version" => "v2"}
   end
 
   test "enables template text" do
-    email = new_email() |> MailgunHelper.template_text(true)
+    email = MailgunHelper.template_text(new_email(), true)
     assert email.private == %{:"t:text" => true}
   end
 
   test "disables template text" do
-    email = new_email() |> MailgunHelper.template_text(false)
+    email = MailgunHelper.template_text(new_email(), false)
     assert email.private == %{:"t:text" => false}
   end
 
   test "disables template text with wrong arg" do
-    email = new_email() |> MailgunHelper.template_text("string")
+    email = MailgunHelper.template_text(new_email(), "string")
     assert email.private == %{:"t:text" => false}
   end
 
@@ -63,8 +63,7 @@ defmodule Bamboo.MailgunHelperTest do
 
   test "adds recipient variables to mailgun emails" do
     email =
-      new_email()
-      |> MailgunHelper.recipient_variables(%{
+      MailgunHelper.recipient_variables(new_email(), %{
         "user1@example.com" => %{unique_id: "ABC123456789"}
       })
 

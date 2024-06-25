@@ -1,6 +1,4 @@
 defmodule Bamboo.TaskSupervisorStrategy do
-  @behaviour Bamboo.DeliverLaterStrategy
-
   @moduledoc """
   Default strategy. Sends an email in the background using `Task.Supervisor`.
 
@@ -17,6 +15,7 @@ defmodule Bamboo.TaskSupervisorStrategy do
   Instead you can use `deliver_later/1` and it will be delivered in the background
   so web requests remain snappy.
   """
+  @behaviour Bamboo.DeliverLaterStrategy
 
   @doc false
   def deliver_later(adapter, email, config) do

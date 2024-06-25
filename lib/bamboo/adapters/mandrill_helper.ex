@@ -78,11 +78,12 @@ defmodule Bamboo.MandrillHelper do
         }
       end)
 
-    email |> put_param("merge_vars", merge_vars)
+    put_param(email, "merge_vars", merge_vars)
   end
 
   defp merge_vars(e, fun) do
-    fun.(e)
+    e
+    |> fun.()
     |> Enum.map(fn {key, value} ->
       %{
         name: to_string(key),

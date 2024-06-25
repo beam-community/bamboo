@@ -52,14 +52,21 @@ defmodule Bamboo.Mailer do
   You are now able to send emails with your mailer module where you see fit
   within your application.
   """
+  require Logger
+
+  alias Bamboo.Formatter
 
   @cannot_call_directly_error """
   cannot call Bamboo.Mailer directly. Instead implement your own Mailer module
   with: use Bamboo.Mailer, otp_app: :my_app
   """
 
-  require Logger
-  alias Bamboo.Formatter
+  @dialyzer [
+    {:nowarn_function, deliver_now: 1},
+    {:nowarn_function, deliver_now!: 1},
+    {:nowarn_function, deliver_later: 1},
+    {:nowarn_function, deliver_later!: 1}
+  ]
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
@@ -294,9 +301,8 @@ defmodule Bamboo.Mailer do
 
   defp validate(email, adapter) do
     with :ok <- validate_from_address(email),
-         :ok <- validate_recipients(email),
-         :ok <- validate_attachment_support(email, adapter) do
-      :ok
+         :ok <- validate_recipients(email) do
+      validate_attachment_support(email, adapter)
     end
   end
 
@@ -322,31 +328,30 @@ defmodule Bamboo.Mailer do
   defp validate_from_address(_email), do: :ok
 
   defp validate_recipients(%Bamboo.Email{} = email) do
-    if Enum.all?(
-         Enum.map([:to, :cc, :bcc], &Map.get(email, &1)),
-         &is_nil_recipient?/1
-       ) do
+    recipients = Enum.map([:to, :cc, :bcc], &Map.get(email, &1))
+
+    if Enum.all?(recipients, &nil_recipient?/1) do
       {:error, Bamboo.NilRecipientsError.exception(email)}
     else
       :ok
     end
   end
 
-  defp is_nil_recipient?(nil), do: true
-  defp is_nil_recipient?({_, nil}), do: true
-  defp is_nil_recipient?([]), do: false
+  defp nil_recipient?(nil), do: true
+  defp nil_recipient?({_, nil}), do: true
+  defp nil_recipient?([]), do: false
 
-  defp is_nil_recipient?([_ | _] = recipients) do
-    Enum.all?(recipients, &is_nil_recipient?/1)
+  defp nil_recipient?([_ | _] = recipients) do
+    Enum.all?(recipients, &nil_recipient?/1)
   end
 
-  defp is_nil_recipient?(_), do: false
+  defp nil_recipient?(_), do: false
 
   defp apply_interceptors(email, config) do
     interceptors = config[:interceptors] || []
 
     Enum.reduce(interceptors, email, fn interceptor, email ->
-      apply(interceptor, :call, [email])
+      interceptor.call(email)
     end)
   end
 
@@ -378,8 +383,9 @@ defmodule Bamboo.Mailer do
     |> handle_adapter_config
   end
 
-  defp handle_adapter_config(base_config = %{adapter: adapter}) do
-    adapter.handle_config(base_config)
+  defp handle_adapter_config(%{adapter: adapter} = base_config) do
+    base_config
+    |> adapter.handle_config()
     |> Map.put_new(:deliver_later_strategy, Bamboo.TaskSupervisorStrategy)
   end
 end

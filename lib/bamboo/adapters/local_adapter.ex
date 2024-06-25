@@ -1,3 +1,4 @@
+# credo:disable-for-this-file Credo.Check.Warning.LeakyEnvironment
 defmodule Bamboo.LocalAdapter do
   @moduledoc """
   Stores emails locally. Can be queried to see sent emails.
@@ -25,10 +26,9 @@ defmodule Bamboo.LocalAdapter do
         use Bamboo.Mailer, otp_app: :my_app
       end
   """
+  @behaviour Bamboo.Adapter
 
   alias Bamboo.SentEmail
-
-  @behaviour Bamboo.Adapter
 
   @doc "Adds email to `Bamboo.SentEmail`, can automatically open it in new browser tab"
   def deliver(email, %{open_email_in_browser_url: open_email_in_browser_url}) do

@@ -1,7 +1,4 @@
 defmodule Bamboo.SentEmailApiPlug do
-  use Plug.Router
-  alias Bamboo.SentEmail
-
   @moduledoc """
   A plug that exposes delivered emails over a JSON API.
 
@@ -65,28 +62,27 @@ defmodule Bamboo.SentEmailApiPlug do
   if the address didn't specify a name. The `to`, `cc` and `bcc` fields are
   returned as arrays of these pairs.
   """
+  use Plug.Router
+
+  alias Bamboo.SentEmail
 
   plug(:match)
   plug(:dispatch)
 
   get "/emails.json" do
-    data =
-      SentEmail.all()
-      |> Enum.map(&format_json_email/1)
+    data = Enum.map(SentEmail.all(), &format_json_email/1)
 
-    conn
-    |> send_json(:ok, data)
+    send_json(conn, :ok, data)
   end
 
   post "/reset.json" do
     SentEmail.reset()
 
-    conn
-    |> send_json(:ok, %{ok: true})
+    send_json(conn, :ok, %{ok: true})
   end
 
   defp send_json(conn, status, data) do
-    body = data |> Bamboo.json_library().encode!()
+    body = Bamboo.json_library().encode!(data)
 
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
@@ -103,7 +99,7 @@ defmodule Bamboo.SentEmailApiPlug do
   end
 
   defp format_json_email_addresses(addresses) do
-    addresses |> Enum.map(&format_json_email_address/1)
+    Enum.map(addresses, &format_json_email_address/1)
   end
 
   defp format_json_email_address({name, address}) do

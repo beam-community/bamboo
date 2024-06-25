@@ -18,7 +18,7 @@ defmodule Bamboo.TestAdapterTest do
     email = new_email()
     config = %{}
 
-    email |> TestAdapter.deliver(config)
+    TestAdapter.deliver(email, config)
 
     email = TestAdapter.clean_assigns(email)
 
@@ -43,7 +43,7 @@ defmodule Bamboo.TestAdapterTest do
     test "succeeds when email is sent" do
       sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_delivered_email(sent_email)
     end
@@ -51,7 +51,7 @@ defmodule Bamboo.TestAdapterTest do
     test "flunks test when email does not match" do
       sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_raise ExUnit.AssertionError, ~r/no matching emails/, fn ->
         assert_delivered_email(%{sent_email | to: "oops"})
@@ -69,7 +69,7 @@ defmodule Bamboo.TestAdapterTest do
     test "shows non-matching delivered emails" do
       sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_raise ExUnit.AssertionError, ~r/#{sent_email.from}/, fn ->
         assert_delivered_email(%{sent_email | to: "oops"})
@@ -102,7 +102,7 @@ defmodule Bamboo.TestAdapterTest do
 
       sent_email = new_email(from: user_that_needs_to_be_formatted, to: "foo@bar.com")
 
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_delivered_email(sent_email)
     end
@@ -110,7 +110,7 @@ defmodule Bamboo.TestAdapterTest do
     test "delivered emails have normalized assigns" do
       email = new_email(from: "foo@bar.com", to: "bar@baz.com", assigns: :anything)
 
-      email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(email)
 
       assert_delivered_email(%{email | assigns: :assigns_removed_for_testing})
     end
@@ -118,7 +118,7 @@ defmodule Bamboo.TestAdapterTest do
     test "accepts timeout" do
       email = new_email(from: "foo@bar.com", to: "bar@baz.com")
 
-      email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(email)
 
       assert_delivered_email(email, timeout: 1)
     end
@@ -134,7 +134,7 @@ defmodule Bamboo.TestAdapterTest do
     test "flunks when a test is sent" do
       sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_raise ExUnit.AssertionError, ~r/Unexpectedly delivered a matching email/, fn ->
         refute_delivered_email(sent_email)
@@ -162,7 +162,7 @@ defmodule Bamboo.TestAdapterTest do
     test "succeeds when attributes match delivered email" do
       sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_email_delivered_with(from: "foo@bar.com")
     end
@@ -170,7 +170,7 @@ defmodule Bamboo.TestAdapterTest do
     test "normalizes the email on assertion" do
       sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_email_delivered_with(from: {nil, "foo@bar.com"})
     end
@@ -178,7 +178,7 @@ defmodule Bamboo.TestAdapterTest do
     test "flunks test if email attributes differ" do
       sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_raise ExUnit.AssertionError, ~r/parameters given do not match/, fn ->
         assert_email_delivered_with(from: "oops")
@@ -194,7 +194,7 @@ defmodule Bamboo.TestAdapterTest do
     test "shows non-matching delivered email when failing test" do
       sent_email = new_email(from: "foo@bar.com", to: ["foo@bar.com"])
 
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       try do
         assert_email_delivered_with(to: "oops")
@@ -208,22 +208,16 @@ defmodule Bamboo.TestAdapterTest do
     end
 
     test "allows regex matching" do
-      new_email(
-        to: {nil, "foo@bar.com"},
-        from: {nil, "foo@bar.com"},
-        text_body: "I really like coffee"
-      )
+      [to: {nil, "foo@bar.com"}, from: {nil, "foo@bar.com"}, text_body: "I really like coffee"]
+      |> new_email()
       |> TestMailer.deliver_now()
 
       assert_email_delivered_with(text_body: ~r/like/)
     end
 
     test "regex matching doesn't provide a false positive" do
-      new_email(
-        to: {nil, "foo@bar.com"},
-        from: {nil, "foo@bar.com"},
-        text_body: "I really like coffee"
-      )
+      [to: {nil, "foo@bar.com"}, from: {nil, "foo@bar.com"}, text_body: "I really like coffee"]
+      |> new_email()
       |> TestMailer.deliver_now()
 
       assert_raise ExUnit.AssertionError, ~r/do not match/, fn ->
@@ -234,7 +228,7 @@ defmodule Bamboo.TestAdapterTest do
     test "accepts timeout" do
       email = new_email(from: "foo@bar.com", to: "bar@baz.com")
 
-      email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(email)
 
       assert_email_delivered_with([from: "foo@bar.com"], timeout: 1)
     end
@@ -320,7 +314,7 @@ defmodule Bamboo.TestAdapterTest do
       assert_no_emails_delivered()
 
       sent_email = new_email(from: "foo@bar.com", to: "whoever")
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_raise ExUnit.AssertionError, fn ->
         assert_no_emails_delivered()
@@ -329,7 +323,7 @@ defmodule Bamboo.TestAdapterTest do
 
     test "accepts a timeout configuration" do
       sent_email = new_email(from: "foo@bar.com", to: "whoever")
-      sent_email |> TestMailer.deliver_now()
+      TestMailer.deliver_now(sent_email)
 
       assert_raise ExUnit.AssertionError, fn ->
         assert_no_emails_delivered(timeout: 1)

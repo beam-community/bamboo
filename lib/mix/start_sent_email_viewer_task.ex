@@ -1,7 +1,6 @@
 defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
-  use Mix.Task
-
   @moduledoc false
+  use Mix.Task
 
   # This could be used in the future by the public, but right now it's only
   # suitable for development.
@@ -9,32 +8,35 @@ defmodule Mix.Tasks.Bamboo.StartSentEmailViewer do
   def run(_) do
     Mix.Task.run("app.start")
     {:ok, _} = Application.ensure_all_started(:cowboy)
-    Plug.Adapters.Cowboy.http(Bamboo.SentEmailViewerPlug, [], port: 4003)
+    Plug.Cowboy.http(Bamboo.SentEmailViewerPlug, [], port: 4003)
 
     for index <- 0..5 do
-      Bamboo.Email.new_email(
-        from: "me@gmail.com",
-        to: "someone@foo.com",
-        subject: "#{index} - <em>This</em> is a long subject for testing truncation",
-        html_body: """
-        Check different tag <strong>styling</strong>
+      email =
+        Bamboo.Email.new_email(
+          from: "me@gmail.com",
+          to: "someone@foo.com",
+          subject: "#{index} - <em>This</em> is a long subject for testing truncation",
+          html_body: """
+          Check different tag <strong>styling</strong>
 
-        <ul>
-          <li>List item</li>
-        </ul>
+          <ul>
+            <li>List item</li>
+          </ul>
 
-        <ol>
-          <li>List item</li>
-        </ol>
-        """,
-        text_body: """
-        This is the text part of an email. It should be pretty
-        long to see how it expands on to the next line
+          <ol>
+            <li>List item</li>
+          </ol>
+          """,
+          text_body: """
+          This is the text part of an email. It should be pretty
+          long to see how it expands on to the next line
 
-        Sincerely,
-        Me and <em>html tag</em>
-        """
-      )
+          Sincerely,
+          Me and <em>html tag</em>
+          """
+        )
+
+      email
       |> add_attachments(index)
       |> Bamboo.Mailer.normalize_addresses()
       |> Bamboo.SentEmail.push()

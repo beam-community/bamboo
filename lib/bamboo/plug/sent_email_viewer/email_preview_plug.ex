@@ -1,17 +1,4 @@
 defmodule Bamboo.SentEmailViewerPlug do
-  use Plug.Router
-  require EEx
-  alias Bamboo.SentEmail
-
-  no_emails_template = Path.join(__DIR__, "no_emails.html.eex")
-  EEx.function_from_file(:defp, :no_emails, no_emails_template)
-
-  index_template = Path.join(__DIR__, "index.html.eex")
-  EEx.function_from_file(:defp, :index, index_template, [:assigns])
-
-  not_found_template = Path.join(__DIR__, "email_not_found.html.eex")
-  EEx.function_from_file(:defp, :not_found, not_found_template, [:assigns])
-
   @moduledoc """
   A plug that can be used in your router to see delivered emails.
 
@@ -40,23 +27,37 @@ defmodule Bamboo.SentEmailViewerPlug do
   Now if you visit your app at `/sent_emails` you will see a list of delivered
   emails.
   """
+  use Plug.Router
+
+  require EEx
+
+  alias Bamboo.SentEmail
+
+  no_emails_template = Path.join(__DIR__, "no_emails.html.eex")
+  EEx.function_from_file(:defp, :no_emails, no_emails_template)
+
+  index_template = Path.join(__DIR__, "index.html.eex")
+  EEx.function_from_file(:defp, :index, index_template, [:assigns])
+
+  not_found_template = Path.join(__DIR__, "email_not_found.html.eex")
+  EEx.function_from_file(:defp, :not_found, not_found_template, [:assigns])
 
   plug(:match)
   plug(:dispatch)
 
   get "/" do
     if Enum.empty?(all_emails()) do
-      conn |> render_no_emails
+      render_no_emails(conn)
     else
-      conn |> render_index(newest_email())
+      render_index(conn, newest_email())
     end
   end
 
   get "/:id" do
     if email = SentEmail.get(id) do
-      conn |> render_index(email)
+      render_index(conn, email)
     else
-      conn |> render_not_found
+      render_not_found(conn)
     end
   end
 
@@ -66,7 +67,7 @@ defmodule Bamboo.SentEmailViewerPlug do
       |> Plug.Conn.put_resp_content_type("text/html")
       |> send_resp(:ok, email.html_body || "")
     else
-      conn |> render_not_found
+      render_not_found(conn)
     end
   end
 
@@ -82,7 +83,7 @@ defmodule Bamboo.SentEmailViewerPlug do
       |> send_resp(:ok, attachment.data)
     else
       _ ->
-        conn |> render_not_found
+        render_not_found(conn)
     end
   end
 
@@ -91,7 +92,7 @@ defmodule Bamboo.SentEmailViewerPlug do
   end
 
   defp newest_email do
-    all_emails() |> List.first()
+    List.first(all_emails())
   end
 
   defp render_no_emails(conn) do
