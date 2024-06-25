@@ -457,8 +457,7 @@ defmodule Bamboo.MailerTest do
       email = new_email(to: "foo@bar.com")
       assert {:ok, %Bamboo.Email{blocked: false}} = Mailer.deliver_now(email)
 
-      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                      _config}
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "}, _config}
     end
 
     @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
@@ -473,8 +472,7 @@ defmodule Bamboo.MailerTest do
       email = new_email(to: "foo@bar.com")
       assert %Bamboo.Email{blocked: false} = Mailer.deliver_now!(email)
 
-      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                      _config}
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "}, _config}
     end
 
     @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
@@ -491,8 +489,7 @@ defmodule Bamboo.MailerTest do
       email = new_email(to: "foo@bar.com")
       assert {:ok, %Bamboo.Email{blocked: false}} = Mailer.deliver_later(email)
 
-      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                      _config}
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "}, _config}
     end
 
     @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
@@ -509,8 +506,7 @@ defmodule Bamboo.MailerTest do
       email = new_email(to: "foo@bar.com")
       assert %Bamboo.Email{blocked: false} = Mailer.deliver_later!(email)
 
-      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                      _config}
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "}, _config}
     end
 
     @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]

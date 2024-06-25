@@ -69,8 +69,7 @@ defmodule Bamboo.MailgunHelperTest do
       })
 
     assert email.private == %{
-             mailgun_recipient_variables:
-               "{\"user1@example.com\":{\"unique_id\":\"ABC123456789\"}}"
+             mailgun_recipient_variables: "{\"user1@example.com\":{\"unique_id\":\"ABC123456789\"}}"
            }
   end
 end
