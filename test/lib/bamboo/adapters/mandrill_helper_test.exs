@@ -4,7 +4,7 @@ defmodule Bamboo.MandrillHelperTest do
   alias Bamboo.MandrillHelper
 
   test "put_param/3 puts a map in private.message_params" do
-    email = new_email() |> MandrillHelper.put_param("track_links", true)
+    email = MandrillHelper.put_param(new_email(), "track_links", true)
 
     assert email.private.message_params == %{"track_links" => true}
   end
@@ -51,17 +51,16 @@ defmodule Bamboo.MandrillHelperTest do
   end
 
   test "adds tags to mandrill emails" do
-    email = new_email() |> MandrillHelper.tag("welcome-email")
+    email = MandrillHelper.tag(new_email(), "welcome-email")
     assert email.private.message_params == %{"tags" => ["welcome-email"]}
 
-    email = new_email() |> MandrillHelper.tag(["welcome-email", "awesome"])
+    email = MandrillHelper.tag(new_email(), ["welcome-email", "awesome"])
     assert email.private.message_params == %{"tags" => ["welcome-email", "awesome"]}
   end
 
   test "adds template information to mandrill emails" do
     email =
-      new_email()
-      |> MandrillHelper.template("welcome", [
+      MandrillHelper.template(new_email(), "welcome", [
         %{"name" => "example_name", "content" => "example_content"}
       ])
 
@@ -70,7 +69,7 @@ defmodule Bamboo.MandrillHelperTest do
              template_content: [%{"name" => "example_name", "content" => "example_content"}]
            }
 
-    email = new_email() |> MandrillHelper.template("welcome")
+    email = MandrillHelper.template(new_email(), "welcome")
     assert email.private == %{template_name: "welcome", template_content: []}
   end
 end

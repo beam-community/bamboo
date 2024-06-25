@@ -39,7 +39,8 @@ defmodule Bamboo.EmailTest do
 
   test "returns list of all recipients" do
     email =
-      new_email(from: "foo", to: "to@foo.com", cc: "cc@foo.com", bcc: "bcc@foo.com")
+      [from: "foo", to: "to@foo.com", cc: "cc@foo.com", bcc: "bcc@foo.com"]
+      |> new_email()
       |> Bamboo.Mailer.normalize_addresses()
 
     assert all_recipients(email) == [
@@ -75,7 +76,7 @@ defmodule Bamboo.EmailTest do
   end
 
   test "put_private/3 puts a key and value in the private attribute" do
-    email = new_email() |> put_private("foo", "bar")
+    email = put_private(new_email(), "foo", "bar")
 
     assert email.private["foo"] == "bar"
   end
@@ -83,7 +84,7 @@ defmodule Bamboo.EmailTest do
   describe "put_attachment/2" do
     test "adds an attachment to the attachments list" do
       attachment = %Bamboo.Attachment{filename: "attachment.docx", data: "content"}
-      email = new_email() |> put_attachment(attachment)
+      email = put_attachment(new_email(), attachment)
 
       assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
     end
@@ -92,10 +93,10 @@ defmodule Bamboo.EmailTest do
       attachment = %Bamboo.Attachment{filename: nil, data: "content"}
 
       msg =
-        "You must provide a filename for the attachment, instead got: %Bamboo.Attachment{content_id: nil, content_type: nil, data: \"content\", filename: nil, path: nil}"
+        "You must provide a filename for the attachment, instead got: %Bamboo.Attachment{filename: nil, content_type: nil, path: nil, data: \"content\", content_id: nil}"
 
       assert_raise RuntimeError, msg, fn ->
-        new_email() |> put_attachment(attachment)
+        put_attachment(new_email(), attachment)
       end
     end
 
@@ -103,17 +104,17 @@ defmodule Bamboo.EmailTest do
       attachment = %Bamboo.Attachment{filename: "attachment.docx", data: nil}
 
       msg =
-        "The attachment must contain data, instead got: %Bamboo.Attachment{content_id: nil, content_type: nil, data: nil, filename: \"attachment.docx\", path: nil}"
+        "The attachment must contain data, instead got: %Bamboo.Attachment{filename: \"attachment.docx\", content_type: nil, path: nil, data: nil, content_id: nil}"
 
       assert_raise RuntimeError, msg, fn ->
-        new_email() |> put_attachment(attachment)
+        put_attachment(new_email(), attachment)
       end
     end
   end
 
   test "put_attachment/3 adds an attachment to the attachments list" do
     path = Path.join(__DIR__, "../../support/attachment.docx")
-    email = new_email() |> put_attachment(path)
+    email = put_attachment(new_email(), path)
 
     assert [%Bamboo.Attachment{filename: "attachment.docx"}] = email.attachments
   end

@@ -33,9 +33,7 @@ defmodule Bamboo.SentEmail do
     end
 
     defp email_list(emails) do
-      emails
-      |> Enum.map(&inspect/1)
-      |> Enum.join("\n")
+      Enum.map_join(emails, "\n", &inspect/1)
     end
   end
 
@@ -92,7 +90,7 @@ defmodule Bamboo.SentEmail do
 
   defp do_get(id) do
     Enum.find(all(), nil, fn email ->
-      email |> get_id |> String.downcase() == String.downcase(id)
+      email |> get_id() |> String.downcase() == String.downcase(id)
     end)
   end
 
@@ -118,11 +116,12 @@ defmodule Bamboo.SentEmail do
   end
 
   defp put_rand_id(email) do
-    email |> Bamboo.Email.put_private(:local_adapter_id, rand_id())
+    Bamboo.Email.put_private(email, :local_adapter_id, rand_id())
   end
 
   defp rand_id do
-    :crypto.strong_rand_bytes(@id_length)
+    @id_length
+    |> :crypto.strong_rand_bytes()
     |> Base.url_encode64()
     |> binary_part(0, @id_length)
   end

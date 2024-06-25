@@ -1,8 +1,9 @@
 defmodule Bamboo.SentEmailViewerPlug.Helper do
-  import Bamboo.SentEmail
-  alias Plug.HTML
-
   @moduledoc false
+
+  import Bamboo.SentEmail
+
+  alias Plug.HTML
 
   def selected_email_class(email, selected_email) do
     if get_id(email) == get_id(selected_email) do
@@ -13,9 +14,9 @@ defmodule Bamboo.SentEmailViewerPlug.Helper do
   end
 
   def email_addresses(email) do
-    Bamboo.Email.all_recipients(email)
-    |> Enum.map(&format_email_address/1)
-    |> Enum.join(", ")
+    email
+    |> Bamboo.Email.all_recipients()
+    |> Enum.map_join(", ", &format_email_address/1)
   end
 
   def format_headers(values) when is_binary(values) do

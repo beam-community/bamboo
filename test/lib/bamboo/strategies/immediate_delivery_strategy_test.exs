@@ -1,11 +1,11 @@
 defmodule Bamboo.ImmediateDeliveryStrategyTest do
   use ExUnit.Case
 
+  @mailer_config %{}
+
   defmodule FakeAdapter do
     def deliver(_email, _config), do: send(self(), :delivered)
   end
-
-  @mailer_config %{}
 
   test "deliver_later delivers right away" do
     Bamboo.ImmediateDeliveryStrategy.deliver_later(

@@ -59,15 +59,20 @@ defmodule Bamboo.Mixfile do
 
   defp deps do
     [
-      {:plug, "~> 1.0"},
+      {:hackney, ">= 1.15.2"},
+      {:jason, "~> 1.0", optional: true},
       {:mime, "~> 1.4 or ~> 2.0"},
-      {:ex_machina, "~> 2.4", only: :test},
+      {:plug, "~> 1.0"},
+
+      # Dev & test dependencies
       {:cowboy, "~> 1.0", only: [:test, :dev]},
+      {:credo, ">= 0.0.0", only: [:dev, :test]},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.23", only: :dev},
+      {:ex_machina, "~> 2.4", only: :test},
       {:excoveralls, "~> 0.13", only: :test},
       {:floki, "~> 0.29", only: :test},
-      {:ex_doc, "~> 0.23", only: :dev},
-      {:hackney, ">= 1.15.2"},
-      {:jason, "~> 1.0", optional: true}
+      {:plug_cowboy, "~> 1.0", only: [:dev, :test]}
     ]
   end
 end

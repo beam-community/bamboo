@@ -21,15 +21,16 @@ defmodule Bamboo.MandrillAdapter do
         use Bamboo.Mailer, otp_app: :my_app
       end
   """
+  @behaviour Bamboo.Adapter
 
-  @service_name "Mandrill"
+  import Bamboo.ApiError
+
+  alias Bamboo.AdapterHelper
+
   @default_base_uri "https://mandrillapp.com"
   @send_message_path "api/1.0/messages/send.json"
   @send_message_template_path "api/1.0/messages/send-template.json"
-  @behaviour Bamboo.Adapter
-
-  alias Bamboo.AdapterHelper
-  import Bamboo.ApiError
+  @service_name "Mandrill"
 
   def deliver(email, config) do
     api_key = get_key(config)
@@ -81,8 +82,7 @@ defmodule Bamboo.MandrillAdapter do
   end
 
   defp convert_to_mandrill_params(email, api_key) do
-    %{key: api_key, message: message_params(email)}
-    |> maybe_put_template_params(email)
+    maybe_put_template_params(%{key: api_key, message: message_params(email)}, email)
   end
 
   defp maybe_put_template_params(params, %{
@@ -97,8 +97,8 @@ defmodule Bamboo.MandrillAdapter do
 
   defp message_params(email) do
     %{
-      from_name: email.from |> elem(0),
-      from_email: email.from |> elem(1),
+      from_name: elem(email.from, 0),
+      from_email: elem(email.from, 1),
       to: recipients(email),
       subject: email.subject,
       text: email.text_body,
@@ -113,7 +113,7 @@ defmodule Bamboo.MandrillAdapter do
     {images, files} =
       attachments
       |> Enum.reverse()
-      |> Enum.split_with(&is_inline_image?/1)
+      |> Enum.split_with(&inline_image?/1)
 
     mandrill_message
     |> Map.put(:attachments, format_attachments(files))
@@ -130,7 +130,7 @@ defmodule Bamboo.MandrillAdapter do
 
   defp format_attachments(attachments) do
     Enum.map(attachments, fn attachment ->
-      name = if is_inline_image?(attachment), do: attachment.content_id, else: attachment.filename
+      name = if inline_image?(attachment), do: attachment.content_id, else: attachment.filename
 
       %{
         name: name,
@@ -140,10 +140,10 @@ defmodule Bamboo.MandrillAdapter do
     end)
   end
 
-  defp is_inline_image?(%_{content_type: "image/" <> _, content_id: cid}) when not is_nil(cid),
+  defp inline_image?(%_{content_type: "image/" <> _, content_id: cid}) when is_binary(cid),
     do: true
 
-  defp is_inline_image?(_), do: false
+  defp inline_image?(_), do: false
 
   defp recipients(email) do
     []
@@ -154,14 +154,14 @@ defmodule Bamboo.MandrillAdapter do
 
   defp add_recipients(recipients, new_recipients, type: recipient_type) do
     Enum.reduce(new_recipients, recipients, fn recipient, recipients ->
-      recipients ++
-        [
-          %{
-            name: recipient |> elem(0),
-            email: recipient |> elem(1),
-            type: recipient_type
-          }
-        ]
+      [
+        %{
+          name: elem(recipient, 0),
+          email: elem(recipient, 1),
+          type: recipient_type
+        }
+        | recipients
+      ]
     end)
   end
 
