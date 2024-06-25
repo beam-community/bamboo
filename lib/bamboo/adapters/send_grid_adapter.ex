@@ -428,8 +428,7 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp cast_address_as_map(address) do
-    case {Map.get(address, :name, Map.get(address, "name")),
-          Map.get(address, :email, Map.get(address, "email"))} do
+    case {Map.get(address, :name, Map.get(address, "name")), Map.get(address, :email, Map.get(address, "email"))} do
       {_name, nil} ->
         throw({:error, "Must specify at least an 'email' field in map #{inspect(address)}"})
 
