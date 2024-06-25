@@ -282,6 +282,19 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     assert conn.resp_body =~ "Email not found"
   end
 
+  test "shows email metadata when there is no html or text body" do
+    email = normalize_and_push(:email, html_body: nil)
+    selected_email_id = SentEmail.all() |> Enum.at(0) |> SentEmail.get_id()
+    conn = conn(:get, "/sent_emails/foo/#{selected_email_id}")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
+    assert conn.resp_body =~ "Metadata"
+    assert conn.resp_body =~ "#{inspect(email, pretty: true)}"
+  end
+
   defp newest_email do
     SentEmail.all() |> List.first()
   end

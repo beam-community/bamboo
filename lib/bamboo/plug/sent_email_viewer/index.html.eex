@@ -257,6 +257,11 @@
           <% else %>
             <h3 class="email-detail-body-label">No text body</h3>
           <% end %>
+
+          <%= unless @selected_email.html_body || @selected_email.text_body do %>
+            <h3 class="email-detail-body-label">Metadata</h3>
+            <pre><code><%= inspect(@selected_email, pretty: true) %></pre></code>
+          <% end %>
         </section>
       </section>
     </main>
