@@ -249,8 +249,7 @@ defmodule Bamboo.MailgunAdapter do
   end
 
   defp prepare_file(%Attachment{} = attachment) do
-    {"", attachment.data,
-     {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
+    {"", attachment.data, {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
   end
 
   @mailgun_message_fields ~w(from to cc bcc subject text html template recipient-variables)a

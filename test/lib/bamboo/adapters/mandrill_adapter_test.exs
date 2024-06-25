@@ -115,18 +115,15 @@ defmodule Bamboo.MandrillAdapterTest do
       )
       |> Email.put_header("Reply-To", "reply@foo.com")
       |> Email.put_attachment(file_path)
-      |> Email.put_attachment(
-        Attachment.new(file_path, content_id: "my_fake_image", filename: "fake_image.jpg")
-      )
+      |> Email.put_attachment(Attachment.new(file_path, content_id: "my_fake_image", filename: "fake_image.jpg"))
       |> Email.put_attachment(%Attachment{
         content_type: "image/png",
         content_id: "my_image",
         filename: "my_image.png",
         data:
-          <<137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1,
-            8, 6, 0, 0, 0, 31, 21, 196, 137, 0, 0, 0, 13, 73, 68, 65, 84, 120, 218, 99, 252, 207,
-            192, 80, 15, 0, 4, 133, 1, 128, 132, 169, 140, 33, 0, 0, 0, 0, 73, 69, 78, 68, 174,
-            66, 96, 130>>
+          <<137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 21,
+            196, 137, 0, 0, 0, 13, 73, 68, 65, 84, 120, 218, 99, 252, 207, 192, 80, 15, 0, 4, 133, 1, 128, 132, 169,
+            140, 33, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130>>
       })
 
     email |> MandrillAdapter.deliver(@config)
@@ -214,7 +211,7 @@ defmodule Bamboo.MandrillAdapterTest do
     email =
       new_email()
       |> MandrillHelper.template("hello", [
-        %{name: 'example name', content: 'example content'}
+        %{name: ~c"example name", content: ~c"example content"}
       ])
 
     email |> MandrillAdapter.deliver(@config)
@@ -228,7 +225,7 @@ defmodule Bamboo.MandrillAdapterTest do
                     }}
 
     assert template_name == "hello"
-    assert template_content == [%{"content" => 'example content', "name" => 'example name'}]
+    assert template_content == [%{"content" => ~c"example content", "name" => ~c"example name"}]
   end
 
   test "returns an error if the response is not a success" do
