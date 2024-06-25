@@ -1,15 +1,18 @@
 defmodule Bamboo.MandrillAdapterTest do
   use ExUnit.Case
+
   alias Bamboo.Attachment
   alias Bamboo.Email
-  alias Bamboo.MandrillHelper
   alias Bamboo.MandrillAdapter
+  alias Bamboo.MandrillHelper
 
   @config %{adapter: MandrillAdapter, api_key: "123_abc"}
   @config_with_bad_key %{adapter: MandrillAdapter, api_key: nil}
 
   defmodule FakeMandrill do
     use Plug.Router
+
+    alias Plug.Cowboy
 
     plug(
       Plug.Parsers,
@@ -26,7 +29,7 @@ defmodule Bamboo.MandrillAdapterTest do
       Agent.update(__MODULE__, &Map.put(&1, :parent, parent))
       port = get_free_port()
       Application.put_env(:bamboo, :mandrill_base_uri, "http://localhost:#{port}")
-      Plug.Adapters.Cowboy.http(__MODULE__, [], port: port, ref: __MODULE__)
+      Cowboy.http(__MODULE__, [], port: port, ref: __MODULE__)
     end
 
     defp get_free_port do
@@ -37,7 +40,7 @@ defmodule Bamboo.MandrillAdapterTest do
     end
 
     def shutdown do
-      Plug.Adapters.Cowboy.shutdown(__MODULE__)
+      Cowboy.shutdown(__MODULE__)
     end
 
     post "/api/1.0/messages/send.json" do
@@ -73,7 +76,7 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "raises if the api key is nil" do
     assert_raise ArgumentError, ~r/no API key set/, fn ->
-      new_email(from: "foo@bar.com") |> MandrillAdapter.deliver(@config_with_bad_key)
+      [from: "foo@bar.com"] |> new_email() |> MandrillAdapter.deliver(@config_with_bad_key)
     end
 
     assert_raise ArgumentError, ~r/no API key set/, fn ->
@@ -82,7 +85,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 sends the to the right url" do
-    new_email() |> MandrillAdapter.deliver(@config)
+    MandrillAdapter.deliver(new_email(), @config)
 
     assert_receive {:fake_mandrill, %{request_path: request_path}}
 
@@ -90,7 +93,7 @@ defmodule Bamboo.MandrillAdapterTest do
   end
 
   test "deliver/2 returns an {:ok, response} tuple on success" do
-    {:ok, response} = new_email() |> MandrillAdapter.deliver(@config)
+    {:ok, response} = MandrillAdapter.deliver(new_email(), @config)
 
     assert %{status_code: 200, headers: _, body: _} = response
   end
@@ -107,12 +110,8 @@ defmodule Bamboo.MandrillAdapterTest do
     file_path = Path.join(__DIR__, "../../../support/attachment.txt")
 
     email =
-      new_email(
-        from: {"From", "from@foo.com"},
-        subject: "My Subject",
-        text_body: "TEXT BODY",
-        html_body: "HTML BODY"
-      )
+      [from: {"From", "from@foo.com"}, subject: "My Subject", text_body: "TEXT BODY", html_body: "HTML BODY"]
+      |> new_email()
       |> Email.put_header("Reply-To", "reply@foo.com")
       |> Email.put_attachment(file_path)
       |> Email.put_attachment(Attachment.new(file_path, content_id: "my_fake_image", filename: "fake_image.jpg"))
@@ -126,14 +125,14 @@ defmodule Bamboo.MandrillAdapterTest do
             140, 33, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130>>
       })
 
-    email |> MandrillAdapter.deliver(@config)
+    MandrillAdapter.deliver(email, @config)
 
     assert MandrillAdapter.supports_attachments?()
     assert_receive {:fake_mandrill, %{params: params}}
     assert params["key"] == @config[:api_key]
     message = params["message"]
-    assert message["from_name"] == email.from |> elem(0)
-    assert message["from_email"] == email.from |> elem(1)
+    assert message["from_name"] == elem(email.from, 0)
+    assert message["from_email"] == elem(email.from, 1)
     assert message["subject"] == email.subject
     assert message["text"] == email.text_body
     assert message["html"] == email.html_body
@@ -170,30 +169,30 @@ defmodule Bamboo.MandrillAdapterTest do
         bcc: [{"BCC", "bcc@bar.com"}]
       )
 
-    email |> MandrillAdapter.deliver(@config)
+    MandrillAdapter.deliver(email, @config)
 
     assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
 
     assert message["to"] == [
-             %{"name" => "To", "email" => "to@bar.com", "type" => "to"},
+             %{"name" => "BCC", "email" => "bcc@bar.com", "type" => "bcc"},
              %{"name" => "CC", "email" => "cc@bar.com", "type" => "cc"},
-             %{"name" => "BCC", "email" => "bcc@bar.com", "type" => "bcc"}
+             %{"name" => "To", "email" => "to@bar.com", "type" => "to"}
            ]
   end
 
   test "deliver/2 adds extra params to the message " do
-    email = new_email() |> MandrillHelper.put_param("important", true)
+    email = MandrillHelper.put_param(new_email(), "important", true)
 
-    email |> MandrillAdapter.deliver(@config)
+    MandrillAdapter.deliver(email, @config)
 
     assert_receive {:fake_mandrill, %{params: %{"message" => message}}}
     assert message["important"] == true
   end
 
   test "deliver/2 puts template name and empty content" do
-    email = new_email() |> MandrillHelper.template("hello")
+    email = MandrillHelper.template(new_email(), "hello")
 
-    email |> MandrillAdapter.deliver(@config)
+    MandrillAdapter.deliver(email, @config)
 
     assert_receive {:fake_mandrill,
                     %{
@@ -209,12 +208,11 @@ defmodule Bamboo.MandrillAdapterTest do
 
   test "deliver/2 puts template name and content" do
     email =
-      new_email()
-      |> MandrillHelper.template("hello", [
+      MandrillHelper.template(new_email(), "hello", [
         %{name: ~c"example name", content: ~c"example content"}
       ])
 
-    email |> MandrillAdapter.deliver(@config)
+    MandrillAdapter.deliver(email, @config)
 
     assert_receive {:fake_mandrill,
                     %{
@@ -231,7 +229,7 @@ defmodule Bamboo.MandrillAdapterTest do
   test "returns an error if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
-    {:error, error} = email |> MandrillAdapter.deliver(@config)
+    {:error, error} = MandrillAdapter.deliver(email, @config)
 
     assert %Bamboo.ApiError{} = error
   end
@@ -239,13 +237,13 @@ defmodule Bamboo.MandrillAdapterTest do
   test "removes api key from error output" do
     email = new_email(from: "INVALID_EMAIL")
 
-    {:error, error} = email |> MandrillAdapter.deliver(@config)
+    {:error, error} = MandrillAdapter.deliver(email, @config)
 
     assert error.message =~ ~r/"key" => "\[FILTERED\]"/
   end
 
   defp new_email(attrs \\ []) do
     attrs = Keyword.merge([from: "foo@bar.com", to: []], attrs)
-    Email.new_email(attrs) |> Bamboo.Mailer.normalize_addresses()
+    attrs |> Email.new_email() |> Bamboo.Mailer.normalize_addresses()
   end
 end

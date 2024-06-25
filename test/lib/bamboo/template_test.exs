@@ -24,8 +24,7 @@ defmodule Bamboo.TemplateTest do
       text_layout: {LayoutView, "app.text"}
 
     def text_and_html_email do
-      new_email()
-      |> render(:text_and_html_email)
+      render(new_email(), :text_and_html_email)
     end
   end
 
@@ -33,8 +32,7 @@ defmodule Bamboo.TemplateTest do
     use Bamboo.Template
 
     def no_view do
-      new_email()
-      |> render(:text_and_html_email)
+      render(new_email(), :text_and_html_email)
     end
   end
 
@@ -48,13 +46,11 @@ defmodule Bamboo.TemplateTest do
     end
 
     def text_and_html_email do
-      new_email()
-      |> render(:text_and_html_email)
+      render(new_email(), :text_and_html_email)
     end
 
     def email_with_assigns(user) do
-      new_email()
-      |> render(:email_with_assigns, user: user)
+      render(new_email(), :email_with_assigns, user: user)
     end
 
     def email_with_already_assigned_user(user) do
@@ -70,18 +66,15 @@ defmodule Bamboo.TemplateTest do
     end
 
     def html_email do
-      new_email()
-      |> render("html_email.html")
+      render(new_email(), "html_email.html")
     end
 
     def text_email do
-      new_email()
-      |> render("text_email.text")
+      render(new_email(), "text_email.text")
     end
 
     def text_and_html_calling_view_function_email do
-      new_email()
-      |> render(:text_and_html_calling_view_function_email)
+      render(new_email(), :text_and_html_calling_view_function_email)
     end
 
     def text_and_html_from_different_view do
@@ -91,13 +84,11 @@ defmodule Bamboo.TemplateTest do
     end
 
     def no_template do
-      new_email()
-      |> render(:non_existent)
+      render(new_email(), :non_existent)
     end
 
     def invalid_template do
-      new_email()
-      |> render("template.foobar")
+      render(new_email(), "template.foobar")
     end
   end
 
@@ -198,16 +189,14 @@ defmodule Bamboo.TemplateTest do
   describe "assign/2" do
     test "it accepts a map of assigns" do
       email =
-        Bamboo.Email.new_email()
-        |> Bamboo.Template.assign(%{name: "Jules"})
+        Bamboo.Template.assign(Bamboo.Email.new_email(), %{name: "Jules"})
 
       assert %{name: "Jules"} = email.assigns
     end
 
     test "it accepts a list of assigns" do
       email =
-        Bamboo.Email.new_email()
-        |> Bamboo.Template.assign(name: "Jules")
+        Bamboo.Template.assign(Bamboo.Email.new_email(), name: "Jules")
 
       assert %{name: "Jules"} = email.assigns
     end
@@ -224,9 +213,7 @@ defmodule Bamboo.TemplateTest do
 
   describe "assign/3" do
     test "sets given assign in list of assigns" do
-      email =
-        Bamboo.Email.new_email()
-        |> Bamboo.Template.assign(:name, "Jules")
+      email = Bamboo.Template.assign(Bamboo.Email.new_email(), :name, "Jules")
 
       assert %{name: "Jules"} = email.assigns
     end

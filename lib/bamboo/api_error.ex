@@ -3,6 +3,8 @@ defmodule Bamboo.ApiError do
   Error used to represent a problem when sending emails through an external email service API.
   """
 
+  @dialyzer {:nowarn_function, raise_api_error: 3}
+
   defexception [:message]
 
   @doc """

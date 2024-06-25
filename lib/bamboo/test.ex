@@ -1,6 +1,4 @@
 defmodule Bamboo.Test do
-  import ExUnit.Assertions
-
   @moduledoc """
   Helpers for testing email delivery.
 
@@ -96,6 +94,9 @@ defmodule Bamboo.Test do
   send from inside of a Task, GenServer, or are running acceptance tests with a
   headless browser like phantomjs.
   """
+
+  import ExUnit.Assertions
+
   defmacro __using__(shared: true) do
     quote do
       setup tags do
@@ -223,7 +224,7 @@ defmodule Bamboo.Test do
     timeout = get_timeout(opts)
     assert_receive({:delivered_email, email}, timeout, flunk_no_emails_received())
 
-    received_email_params = email |> Map.from_struct()
+    received_email_params = Map.from_struct(email)
 
     assert Enum.all?(email_params, fn {k, v} -> do_match(received_email_params[k], v, k) end),
            flunk_attributes_do_not_match(email_params, received_email_params)
@@ -271,7 +272,7 @@ defmodule Bamboo.Test do
         refute_timeout(opts) -> []
       end
 
-    if is_nil(received_email_params) do
+    if received_email_params == [] do
       refute false
     else
       refute Enum.any?(email_params, fn {k, v} -> do_match(received_email_params[k], v, k) end),
@@ -279,7 +280,7 @@ defmodule Bamboo.Test do
     end
   end
 
-  defp do_match(value1, value2 = %Regex{}, _type) do
+  defp do_match(value1, %Regex{} = value2, _type) do
     Regex.match?(value2, value1)
   end
 
@@ -460,7 +461,7 @@ defmodule Bamboo.Test do
   end
 
   defp using_shared_mode? do
-    !!Application.get_env(:bamboo, :shared_test_process)
+    Application.get_env(:bamboo, :shared_test_process, false)
   end
 
   defp normalize_for_testing(email) do
