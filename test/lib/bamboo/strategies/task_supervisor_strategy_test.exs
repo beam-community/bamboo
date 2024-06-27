@@ -1,6 +1,8 @@
 defmodule Bamboo.TaskSupervisorStrategyTest do
   use ExUnit.Case
 
+  @mailer_config %{}
+
   defmodule FakeAdapter do
     def deliver(_email, _config) do
       send(:task_supervisor_strategy_test, :delivered)
@@ -13,8 +15,6 @@ defmodule Bamboo.TaskSupervisorStrategyTest do
       {:error, "an error happened"}
     end
   end
-
-  @mailer_config %{}
 
   test "deliver_later delivers the email" do
     Process.register(self(), :task_supervisor_strategy_test)

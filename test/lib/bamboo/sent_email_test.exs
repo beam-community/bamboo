@@ -1,8 +1,9 @@
 defmodule Bamboo.SentEmailTest do
   use ExUnit.Case
-  alias Bamboo.SentEmail
 
   import Bamboo.Email
+
+  alias Bamboo.SentEmail
 
   setup do
     Bamboo.SentEmail.reset()
@@ -10,7 +11,7 @@ defmodule Bamboo.SentEmailTest do
   end
 
   test "get_id gets the emails id" do
-    email = new_email() |> put_private(:local_adapter_id, 1)
+    email = put_private(new_email(), :local_adapter_id, 1)
 
     assert SentEmail.get_id(email) == 1
   end
@@ -30,7 +31,7 @@ defmodule Bamboo.SentEmailTest do
   end
 
   test "gets an email by id" do
-    pushed_email = SentEmail.push(new_email(subject: "Something"))
+    pushed_email = [subject: "Something"] |> new_email() |> SentEmail.push()
 
     email = pushed_email |> SentEmail.get_id() |> SentEmail.get()
 
@@ -38,7 +39,7 @@ defmodule Bamboo.SentEmailTest do
   end
 
   test "get is case-insensitive" do
-    pushed_email = SentEmail.push(new_email(subject: "Something"))
+    pushed_email = [subject: "Something"] |> new_email() |> SentEmail.push()
 
     id = SentEmail.get_id(pushed_email)
 

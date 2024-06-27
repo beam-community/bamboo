@@ -184,25 +184,25 @@ defmodule Bamboo.Template do
   ## Example
 
       # renders both HTML and text emails
-      new_email()
-      |> render(:template_name)
+      render(new_email(), :template_name)
 
       # renders HTML template
-      new_email()
-      |> render("template_name.html")
+      render(new_email(), "template_name.html")
 
       # renders text template
-      new_email()
-      |> render("template_name.text")
+      render(new_email(), "template_name.text")
 
       # renders with assigns
-      new_email()
-      |> render(:template_name, user: user)
+      render(new_email(), :template_name, user: user)
   """
   def render(_email, _template_name, _assigns) do
     raise "function implemented for documentation only, please call: `use Bamboo.Template`"
   end
 
+  @spec assign(%{:assigns => any(), optional(any()) => any()}, maybe_improper_list() | map()) :: %{
+          :assigns => any(),
+          optional(any()) => any()
+        }
   @doc """
   Sets many assigns for an email. Accepts a map or a keyword list. See
   `assign/3` for more.
@@ -247,7 +247,7 @@ defmodule Bamboo.Template do
       end
   """
   def put_html_layout(email, layout) do
-    email |> put_private(:html_layout, layout)
+    put_private(email, :html_layout, layout)
   end
 
   @doc """
@@ -262,7 +262,7 @@ defmodule Bamboo.Template do
       end
   """
   def put_text_layout(email, layout) do
-    email |> put_private(:text_layout, layout)
+    put_private(email, :text_layout, layout)
   end
 
   @doc """
@@ -300,7 +300,7 @@ defmodule Bamboo.Template do
       end
   """
   def put_view(email, view) do
-    email |> put_private(:view_module, view)
+    put_private(email, :view_module, view)
   end
 
   @doc false

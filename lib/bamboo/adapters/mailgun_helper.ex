@@ -113,7 +113,7 @@ defmodule Bamboo.MailgunHelper do
       |> MailgunHelper.substitute_variables(%{ "greeting" => "Hello!", "password_reset_link" => "https://example.com/123" })
 
   """
-  def substitute_variables(%Email{headers: headers} = email, variables = %{}) do
+  def substitute_variables(%Email{headers: headers} = email, %{} = variables) do
     custom_vars =
       headers
       |> Map.get(@mailgun_header_for_custom_vars, "{}")

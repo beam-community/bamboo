@@ -31,14 +31,12 @@ defmodule Bamboo.SendGridHelper do
 
   ## Example
 
-      email
-      |> with_template("80509523-83de-42b6-a2bf-54b7513bd2aa")
+      with_template(email, "80509523-83de-42b6-a2bf-54b7513bd2aa")
   """
   def with_template(email, template_id) do
     template = Map.get(email.private, @field_name, %{})
 
-    email
-    |> Email.put_private(@field_name, set_template(template, template_id))
+    Email.put_private(email, @field_name, set_template(template, template_id))
   end
 
   @doc """
@@ -56,8 +54,7 @@ defmodule Bamboo.SendGridHelper do
     if is_binary(tag) do
       template = Map.get(email.private, @field_name, %{})
 
-      email
-      |> Email.put_private(@field_name, add_substitution(template, tag, value))
+      Email.put_private(email, @field_name, add_substitution(template, tag, value))
     else
       raise "expected the tag parameter to be of type binary, got #{tag}"
     end
@@ -80,8 +77,7 @@ defmodule Bamboo.SendGridHelper do
       |> MapSet.new()
       |> MapSet.to_list()
 
-    email
-    |> Email.put_private(@categories, Enum.slice(categories, 0, 10))
+    Email.put_private(email, @categories, Enum.slice(categories, 0, 10))
   end
 
   def with_categories(_email, _categories) do
@@ -121,8 +117,7 @@ defmodule Bamboo.SendGridHelper do
   def add_dynamic_field(email, field, value) when is_binary(field) do
     template = Map.get(email.private, @field_name, %{})
 
-    email
-    |> Email.put_private(@field_name, add_dynamic_field_to_template(template, field, value))
+    Email.put_private(email, @field_name, add_dynamic_field_to_template(template, field, value))
   end
 
   def add_dynamic_field(_email, field, _value),
@@ -139,8 +134,7 @@ defmodule Bamboo.SendGridHelper do
       |> with_asm_group_id(1234)
   """
   def with_asm_group_id(email, asm_group_id) when is_integer(asm_group_id) do
-    email
-    |> Email.put_private(@asm_group_id, asm_group_id)
+    Email.put_private(email, @asm_group_id, asm_group_id)
   end
 
   def with_asm_group_id(_email, asm_group_id) do
@@ -161,8 +155,7 @@ defmodule Bamboo.SendGridHelper do
       |> with_bypass_list_management(true)
   """
   def with_bypass_list_management(email, enabled) when is_boolean(enabled) do
-    email
-    |> Email.put_private(@bypass_list_management, enabled)
+    Email.put_private(email, @bypass_list_management, enabled)
   end
 
   def with_bypass_list_management(_email, enabled) do
@@ -188,9 +181,7 @@ defmodule Bamboo.SendGridHelper do
 
   def with_google_analytics(email, enabled, utm_params)
       when is_boolean(enabled) do
-    utm_params =
-      utm_params
-      |> Map.take(@allowed_google_analytics_utm_params)
+    utm_params = Map.take(utm_params, @allowed_google_analytics_utm_params)
 
     email
     |> Email.put_private(@google_analytics_enabled, enabled)
@@ -235,17 +226,15 @@ defmodule Bamboo.SendGridHelper do
       email
       |> with_send_at(delivery_time)
   """
-  @spec with_send_at(%Email{}, %DateTime{} | integer()) :: %Email{}
+  @spec with_send_at(Email.t(), DateTime.t() | integer()) :: Email.t()
   def with_send_at(email, %DateTime{} = time) do
     timestamp = DateTime.to_unix(time)
 
-    email
-    |> Email.put_private(@send_at_field, timestamp)
+    Email.put_private(email, @send_at_field, timestamp)
   end
 
   def with_send_at(email, unix_timestamp) when is_integer(unix_timestamp) do
-    email
-    |> Email.put_private(@send_at_field, unix_timestamp)
+    Email.put_private(email, @send_at_field, unix_timestamp)
   end
 
   def with_send_at(_email, _time) do
@@ -288,25 +277,21 @@ defmodule Bamboo.SendGridHelper do
   """
   @spec add_personalizations(Bamboo.Email.t(), [map]) :: Bamboo.Email.t()
   def add_personalizations(email, personalizations) when is_list(personalizations) do
-    email
-    |> Email.put_private(@additional_personalizations, personalizations)
+    Email.put_private(email, @additional_personalizations, personalizations)
   end
 
   defp set_template(template, template_id) do
-    template
-    |> Map.merge(%{template_id: template_id})
+    Map.merge(template, %{template_id: template_id})
   end
 
   defp add_substitution(template, tag, value) do
-    template
-    |> Map.update(:substitutions, %{tag => value}, fn substitutions ->
+    Map.update(template, :substitutions, %{tag => value}, fn substitutions ->
       Map.merge(substitutions, %{tag => value})
     end)
   end
 
   defp add_dynamic_field_to_template(template, field, value) do
-    template
-    |> Map.update(:dynamic_template_data, %{field => value}, fn dynamic_data ->
+    Map.update(template, :dynamic_template_data, %{field => value}, fn dynamic_data ->
       Map.merge(dynamic_data, %{field => value})
     end)
   end
@@ -320,8 +305,7 @@ defmodule Bamboo.SendGridHelper do
       |> with_ip_pool_name("my-ip-pool-name")
   """
   def with_ip_pool_name(email, ip_pool_name) do
-    email
-    |> Email.put_private(@ip_pool_name_field, ip_pool_name)
+    Email.put_private(email, @ip_pool_name_field, ip_pool_name)
   end
 
   @doc """
@@ -336,11 +320,11 @@ defmodule Bamboo.SendGridHelper do
   """
   def with_custom_args(email, custom_args) when is_map(custom_args) do
     custom_args =
-      Map.get(email.private, @custom_args, %{})
+      email.private
+      |> Map.get(@custom_args, %{})
       |> Map.merge(custom_args)
 
-    email
-    |> Email.put_private(@custom_args, custom_args)
+    Email.put_private(email, @custom_args, custom_args)
   end
 
   def with_custom_args(_email, _custom_args) do

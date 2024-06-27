@@ -109,9 +109,7 @@ defmodule Bamboo.View do
 
       true ->
         raise ArgumentError, """
-        Template name must end in either ".html" or ".text". Template name was #{
-          inspect(template)
-        }
+        Template name must end in either ".html" or ".text". Template name was #{inspect(template)}
 
         If you would like to render both and html and text template,
         use an atom without an extension instead.
@@ -129,7 +127,7 @@ defmodule Bamboo.View do
     render_within_layout(layout, email, template)
   end
 
-  defp render_within_layout(_layout = false, email, template) do
+  defp render_within_layout(false = _layout, email, template) do
     module = email.private.view_module
     module.render_template(template, email.assigns)
   end
@@ -158,6 +156,7 @@ defmodule Bamboo.View do
 
   defp compile(template, name) do
     quoted_contents = EEx.compile_file(template, line: 1, engine: EEx.SmartEngine)
+    # credo:disable-for-this-file Credo.Check.Warning.UnsafeToAtom
     function_name = String.to_atom(name)
 
     quote do

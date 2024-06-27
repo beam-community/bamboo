@@ -71,7 +71,7 @@ end
 
 defimpl Bamboo.Formatter, for: List do
   def format_email_address(email_addresses, opts) do
-    email_addresses |> Enum.map(&Bamboo.Formatter.format_email_address(&1, opts))
+    Enum.map(email_addresses, &Bamboo.Formatter.format_email_address(&1, opts))
   end
 end
 
