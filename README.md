@@ -1,15 +1,21 @@
 ![bamboo](https://user-images.githubusercontent.com/22394/39895001-b13a9c9a-5476-11e8-9c58-f5fc5f09b697.png)
 
-# Bamboo [![Circle CI](https://circleci.com/gh/thoughtbot/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtbot/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/thoughtbot/bamboo/badge.png?branch=master)](https://coveralls.io/github/thoughtbot/bamboo?branch=master)
+# Bamboo
+
+[![Build](https://github.com/beam-community/bamboo/actions/workflows/ci.yml/badge.svg)](https://github.com/beam-community/bamboo/actions/workflows/ci.yml)
 
 ---
 
-**This README follows master, which may not be the currently published version!** Use
+**This README follows the main branch, which may not be the currently published version!** Use
 [the docs for the published version of Bamboo](https://hexdocs.pm/bamboo/readme.html).
 
 ---
 
-**Bamboo is part of the [thoughtbot Elixir family][elixir-phoenix] of projects.**
+**Bamboo is part of the [BEAM Community](https://github.com/beam-community) family of projects.**
+
+![thoughtbot](http://presskit.thoughtbot.com/images/thoughtbot-logo-for-readmes.svg)
+
+Thank you to [thoughtbot](https://thoughtbot.com) for making Bamboo and supporting the BEAM community!
 
 Flexible and easy to use email for Elixir.
 
@@ -433,12 +439,9 @@ We run the test suite as well as formatter checks on CI. Make sure you are using
 the Elixir version defined in the `.tool-versions` file to have consistent
 formatting with what's being run on CI.
 
-## About thoughtbot
+## 
 
-![thoughtbot](http://presskit.thoughtbot.com/images/thoughtbot-logo-for-readmes.svg)
 
-Bamboo is maintained and funded by thoughtbot, inc.
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 
 We love open-source software, Elixir, and Phoenix. See [our other Elixir
 projects][elixir-phoenix], or [hire our Elixir Phoenix development team][hire]
@@ -465,7 +468,7 @@ Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
 [`bamboo.tasksupervisorstrategy`]: https://hexdocs.pm/bamboo/Bamboo.TaskSupervisorStrategy.html
 [`bamboo.test`]: https://hexdocs.pm/bamboo/Bamboo.Test.html
 [`bamboo.testadapter`]: https://hexdocs.pm/bamboo/Bamboo.TestAdapter.html
-[`bamboo`]: http://github.com/thoughtbot/bamboo
+[`bamboo`]: http://github.com/beam-community/bamboo
 [available-adapters]: #available-adapters
 [compose emails using pipes]: #composing-with-pipes
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html
