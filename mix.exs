@@ -62,7 +62,7 @@ defmodule Bamboo.Mixfile do
       {:plug, "~> 1.0"},
       {:mime, "~> 1.4 or ~> 2.0"},
       {:ex_machina, "~> 2.4", only: :test},
-      {:cowboy, "~> 1.0", only: [:test, :dev]},
+      {:cowboy, "~> 2.12", only: [:test, :dev]},
       {:excoveralls, "~> 0.13", only: :test},
       {:floki, "~> 0.29", only: :test},
       {:ex_doc, "~> 0.23", only: :dev},
