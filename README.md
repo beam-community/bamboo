@@ -2,7 +2,7 @@
 
 # Bamboo
 
-[![Build](https://github.com/beam-community/bamboo/actions/workflows/ci.yml/badge.svg)](https://github.com/beam-community/bamboo/actions/workflows/ci.yml)
+[![Build](https://github.com/beam-community/bamboo/actions/workflows/ci.yaml/badge.svg)](https://github.com/beam-community/bamboo/actions/workflows/ci.yaml)
 
 ---
 
@@ -11,11 +11,9 @@
 
 ---
 
-**Bamboo is part of the [BEAM Community](https://github.com/beam-community) family of projects.**
+**Bamboo is now maintained by the [BEAM Community](https://github.com/beam-community)!**
 
-![thoughtbot](http://presskit.thoughtbot.com/images/thoughtbot-logo-for-readmes.svg)
-
-Thank you to [thoughtbot](https://thoughtbot.com) for making Bamboo and supporting the BEAM community!
+Thank you to [thoughtbot](https://thoughtbot.com) for creating and maintaining Bamboo for so long!
 
 Flexible and easy to use email for Elixir.
 
@@ -59,7 +57,7 @@ published version in hex:
 
 ```elixir
 def deps do
-  [{:bamboo, github: "thoughtbot/bamboo"}]
+  [{:bamboo, github: "beam-community/bamboo"}]
 end
 ```
 
@@ -427,7 +425,7 @@ Before opening a pull request, please open an issue first.
 
 Once we've decided how to move forward with a pull request:
 
-    $ git clone https://github.com/thoughtbot/bamboo.git
+    $ git clone https://github.com/beam-community/bamboo.git
     $ cd bamboo
     $ mix deps.get
     $ mix test
@@ -438,21 +436,6 @@ Once you've made your additions and `mix test` passes, go ahead and open a PR!
 We run the test suite as well as formatter checks on CI. Make sure you are using
 the Elixir version defined in the `.tool-versions` file to have consistent
 formatting with what's being run on CI.
-
-## 
-
-
-
-We love open-source software, Elixir, and Phoenix. See [our other Elixir
-projects][elixir-phoenix], or [hire our Elixir Phoenix development team][hire]
-to design, develop, and grow your product.
-
-[elixir-phoenix]: https://thoughtbot.com/services/elixir-phoenix?utm_source=github
-[hire]: https://thoughtbot.com?utm_source=github
-
-## Thanks!
-
-Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
 
 <!-- Links -->
 
