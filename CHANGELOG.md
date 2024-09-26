@@ -7,6 +7,15 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.3.1](https://github.com/beam-community/bamboo/compare/v2.3.0...v2.3.1) (2024-09-26)
+
+
+### Bug Fixes
+
+* Fix Elixir 1.17 warning about function call without parens ([1c1d002](https://github.com/beam-community/bamboo/commit/1c1d002a5ef74e4494e777aa64ad4068a234ccd0))
+* fix invalid typespec ([7b5d99d](https://github.com/beam-community/bamboo/commit/7b5d99dd46b5466e5e4f857c2403a76114212e3e))
+* README badge and broken links ([c0ea19b](https://github.com/beam-community/bamboo/commit/c0ea19b54f1ca95c7718d3288b8f67a724c07ee2))
+
 ## [2.3.0] - 2023-01-06
 
 ### Additions
