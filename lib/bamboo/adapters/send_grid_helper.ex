@@ -16,6 +16,7 @@ defmodule Bamboo.SendGridHelper do
   @categories :categories
   @asm_group_id :asm_group_id
   @bypass_list_management :bypass_list_management
+  @bypass_unsubscribe_management :bypass_unsubscribe_management
   @google_analytics_enabled :google_analytics_enabled
   @google_analytics_utm_params :google_analytics_utm_params
   @additional_personalizations :additional_personalizations
@@ -24,6 +25,7 @@ defmodule Bamboo.SendGridHelper do
   @ip_pool_name_field :ip_pool_name
   @custom_args :custom_args
   @click_tracking_enabled :click_tracking_enabled
+  @subscription_tracking_enabled :subscription_tracking_enabled
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -163,6 +165,28 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
+  Instruct SendGrid to bypass unsubscribe list management for this email.
+
+  If enabled, SendGrid will ignore any email suppression (such as
+  unsubscriptions, bounces, spam filters) for this email. This is useful for
+  emails that all users must receive, such as Terms of Service updates, or
+  password resets.
+
+  ## Example
+
+      email
+      |> with_bypass_unsubscribe_management(true)
+  """
+  def with_bypass_unsubscribe_management(email, enabled) when is_boolean(enabled) do
+    email
+    |> Email.put_private(@bypass_unsubscribe_management, enabled)
+  end
+
+  def with_bypass_unsubscribe_management(_email, enabled) do
+    raise "expected bypass_unsubscribe_management parameter to be a boolean, got #{enabled}"
+  end
+
+  @doc """
   Instruct SendGrid to enable or disable Google Analytics tracking, and
   optionally set the UTM parameters for it.
 
@@ -211,6 +235,27 @@ defmodule Bamboo.SendGridHelper do
 
   def with_click_tracking(_email, _enabled) do
     raise "expected with_click_tracking enabled parameter to be a boolean"
+  end
+
+  @doc """
+  Instruct SendGrid to enable or disable Subscription Tracking for a particular email.
+
+  Read more about SendGrid click tracking [here](https://docs.sendgrid.com/ui/account-and-settings/tracking#subscription-tracking)
+
+  ## Example
+
+      email
+      |> with_subscription_tracking(true)
+
+      email
+      |> with_subscription_tracking(false)
+  """
+  def with_subscription_tracking(email, enabled)
+      when is_boolean(enabled),
+      do: Email.put_private(email, @subscription_tracking_enabled, enabled)
+
+  def with_subscription_tracking(_email, _enabled) do
+    raise "expected with_subscription_tracking enabled parameter to be a boolean"
   end
 
   @doc """

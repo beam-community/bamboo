@@ -274,6 +274,22 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["mail_settings"]["bypass_list_management"]["enable"] == true
   end
 
+
+  test "deliver/2 correctly handles a bypass_unsubscribe_management" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_bypass_unsubscribe_management(true)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["mail_settings"]["bypass_unsubscribe_management"]["enable"] == true
+  end
+
   test "deliver/2 correctly handles with_google_analytics that's enabled with no utm_params" do
     email =
       new_email(
@@ -362,6 +378,38 @@ defmodule Bamboo.SendGridAdapterTest do
     assert_receive {:fake_sendgrid, %{params: params}}
     assert params["tracking_settings"]["click_tracking"]["enable"] == false
     assert params["tracking_settings"]["click_tracking"]["enable_text"] == false
+  end
+
+  test "deliver/2 correctly handles when with_subscription_tracking is enabled" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_subscription_tracking(true)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["tracking_settings"]["subscription_tracking"]["enable"] == true
+    assert params["tracking_settings"]["subscription_tracking"]["enable_text"] == true
+  end
+
+  test "deliver/2 correctly handles when with_subscription_tracking is disabled" do
+    email =
+      new_email(
+        from: {"From", "from@foo.com"},
+        subject: "My Subject"
+      )
+
+    email
+    |> Bamboo.SendGridHelper.with_subscription_tracking(false)
+    |> SendGridAdapter.deliver(@config)
+
+    assert_receive {:fake_sendgrid, %{params: params}}
+    assert params["tracking_settings"]["subscription_tracking"]["enable"] == false
+    assert params["tracking_settings"]["subscription_tracking"]["enable_text"] == false
   end
 
   test "deliver/2 correctly handles a sendgrid_send_at timestamp" do
