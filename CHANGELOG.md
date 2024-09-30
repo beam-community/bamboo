@@ -7,6 +7,14 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.4.0](https://github.com/beam-community/bamboo/compare/v2.3.1...v2.4.0) (2024-09-30)
+
+
+### Features
+
+* Print email metadata on preview without body ([6ad48f7](https://github.com/beam-community/bamboo/commit/6ad48f7834d8b70ff892de0e3c983560dbb13433))
+* SendGrid `subscription_tracking` setting ([#655](https://github.com/beam-community/bamboo/issues/655)) ([381d257](https://github.com/beam-community/bamboo/commit/381d25740cdf5f52caf991e3da02ead85056f68d))
+
 ## [2.3.1](https://github.com/beam-community/bamboo/compare/v2.3.0...v2.3.1) (2024-09-26)
 
 
