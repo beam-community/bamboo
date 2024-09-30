@@ -274,7 +274,6 @@ defmodule Bamboo.SendGridAdapterTest do
     assert params["mail_settings"]["bypass_list_management"]["enable"] == true
   end
 
-
   test "deliver/2 correctly handles a bypass_unsubscribe_management" do
     email =
       new_email(

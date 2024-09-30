@@ -178,8 +178,7 @@ defmodule Bamboo.SendGridHelper do
       |> with_bypass_unsubscribe_management(true)
   """
   def with_bypass_unsubscribe_management(email, enabled) when is_boolean(enabled) do
-    email
-    |> Email.put_private(@bypass_unsubscribe_management, enabled)
+    Email.put_private(email, @bypass_unsubscribe_management, enabled)
   end
 
   def with_bypass_unsubscribe_management(_email, enabled) do
