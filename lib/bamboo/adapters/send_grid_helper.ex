@@ -23,6 +23,7 @@ defmodule Bamboo.SendGridHelper do
   @send_at_field :sendgrid_send_at
   @ip_pool_name_field :ip_pool_name
   @unique_args :unique_args
+  @click_tracking_enabled :click_tracking_enabled
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -198,6 +199,27 @@ defmodule Bamboo.SendGridHelper do
 
   def with_google_analytics(_email, _enabled, _utm_params) do
     raise "expected with_google_analytics enabled parameter to be a boolean"
+  end
+
+  @doc """
+  Instruct SendGrid to enable or disable Click Tracking for a particular email.
+
+  Read more about SendGrid click tracking [here](https://docs.sendgrid.com/ui/account-and-settings/tracking#click-tracking)
+
+  ## Example
+
+      email
+      |> with_click_tracking(true)
+
+      email
+      |> with_click_tracking(false)
+  """
+  def with_click_tracking(email, enabled)
+      when is_boolean(enabled),
+      do: Email.put_private(email, @click_tracking_enabled, enabled)
+
+  def with_click_tracking(_email, _enabled) do
+    raise "expected with_click_tracking enabled parameter to be a boolean"
   end
 
   @doc """
