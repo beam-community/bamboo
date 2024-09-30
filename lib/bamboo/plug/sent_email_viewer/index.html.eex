@@ -155,6 +155,11 @@
         margin: 0 0 12px 0;
         font-size: 15px;
         font-weight: 700;
+        color: #2D9EB9;
+      }
+
+      .email-detail-body-label + .email-detail-body-label {
+        margin-top: 30px;
       }
 
       .email-detail-recipients,
@@ -228,22 +233,30 @@
         </section>
 
         <section class="email-detail-bodies-container">
-          <h3 class="email-detail-body-label">HTML body</h3>
-          <p class="email-detail-body">
-            <script>
-            function adjustFrameHeight(iframe) {
-              var contentWindow = iframe.contentWindow;
-              var height = (contentWindow.outerHeight)
-                ? contentWindow.outerHeight
-                : contentWindow.screen.availHeight;
-              iframe.style.height = height + "px";
-            }
-            </script>
-            <iframe onload="adjustFrameHeight(this)" src="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/html" %>"></iframe>
-          </p>
+          <%= if @selected_email.html_body do %>
+            <h3 class="email-detail-body-label">HTML body</h3>
+            <p class="email-detail-body">
+              <script>
+              function adjustFrameHeight(iframe) {
+                var contentWindow = iframe.contentWindow;
+                var height = (contentWindow.outerHeight)
+                  ? contentWindow.outerHeight
+                  : contentWindow.screen.availHeight;
+                iframe.style.height = height + "px";
+              }
+              </script>
+              <iframe onload="adjustFrameHeight(this)" src="<%= "#{@base_path}/#{Bamboo.SentEmail.get_id(@selected_email)}/html" %>"></iframe>
+            </p>
+          <% else %>
+            <h3 class="email-detail-body-label">No HTML body</h3>
+          <% end %>
 
-          <h3 class="email-detail-body-label">Text Body</h3>
-          <pre class="email-detail-body"><%= Bamboo.SentEmailViewerPlug.Helper.format_text_body(@selected_email.text_body) %></pre>
+          <%= if @selected_email.text_body do %>
+            <h3 class="email-detail-body-label">Text body</h3>
+            <pre class="email-detail-body"><%= Bamboo.SentEmailViewerPlug.Helper.format_text_body(@selected_email.text_body) %></pre>
+          <% else %>
+            <h3 class="email-detail-body-label">No text body</h3>
+          <% end %>
         </section>
       </section>
     </main>
