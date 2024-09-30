@@ -25,6 +25,30 @@ defmodule Bamboo.TestAdapterTest do
     assert_received {:delivered_email, ^email}
   end
 
+  describe "forward/2" do
+    test "forward emails from another process" do
+      {:ok, test_adapter_pid} = Bamboo.TestAdapter.start_link([])
+
+      email = new_email()
+      config = %{}
+
+      other_process =
+        spawn(fn ->
+          receive do
+            :continue -> email |> TestAdapter.deliver(config)
+          end
+        end)
+
+      TestAdapter.forward(other_process, self())
+      send(other_process, :continue)
+
+      email = TestAdapter.clean_assigns(email)
+      assert_receive {:delivered_email, ^email}
+
+      Process.exit(test_adapter_pid, :kill)
+    end
+  end
+
   describe "handle_config/1" do
     test "handle_config makes sure that the ImmediateDeliveryStrategy is used" do
       new_config = TestAdapter.handle_config(%{})
