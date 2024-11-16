@@ -70,7 +70,6 @@ defmodule Bamboo.AttachmentTest do
         content_id: "<12387432>",
         headers: [content_disposition: "inline", x_attachment_id: "12387432"]
       )
-      |> IO.inspect()
 
     assert attachment.content_id == "<12387432>"
     assert [content_disposition: "inline", x_attachment_id: "12387432"] = attachment.headers
