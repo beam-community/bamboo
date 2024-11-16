@@ -6,7 +6,7 @@ defmodule Bamboo.Mixfile do
   def project do
     [
       app: :bamboo,
-      version: "2.2.0",
+      version: "2.3.1",
       elixir: "~> 1.6",
       source_url: @project_url,
       homepage_url: @project_url,
@@ -21,7 +21,8 @@ defmodule Bamboo.Mixfile do
       package: package(),
       docs: docs(),
       deps: deps(),
-      xref: [exclude: [IEx]]
+      xref: [exclude: [IEx]],
+      dialyzer: [plt_add_apps: [:mix, :iex]]
     ]
   end
 
@@ -59,15 +60,20 @@ defmodule Bamboo.Mixfile do
 
   defp deps do
     [
+      {:hackney, ">= 1.15.2"},
+      {:jason, "~> 1.0", optional: true},
+      {:mime, "~> 1.4 or ~> 2.0"},
       {:plug, "~> 1.0"},
-      {:mime, "~> 1.4"},
-      {:ex_machina, "~> 2.4", only: :test},
+
+      # Dev & test dependencies
       {:cowboy, "~> 1.0", only: [:test, :dev]},
+      {:credo, ">= 0.0.0", only: [:dev, :test]},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.23", only: :dev},
+      {:ex_machina, "~> 2.4", only: :test},
       {:excoveralls, "~> 0.13", only: :test},
       {:floki, "~> 0.29", only: :test},
-      {:ex_doc, "~> 0.23", only: :dev},
-      {:hackney, ">= 1.15.2"},
-      {:jason, "~> 1.0", optional: true}
+      {:plug_cowboy, "~> 1.0", only: [:dev, :test]}
     ]
   end
 end

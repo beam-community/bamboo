@@ -1,15 +1,19 @@
 ![bamboo](https://user-images.githubusercontent.com/22394/39895001-b13a9c9a-5476-11e8-9c58-f5fc5f09b697.png)
 
-# Bamboo [![Circle CI](https://circleci.com/gh/thoughtbot/bamboo/tree/master.svg?style=svg)](https://circleci.com/gh/thoughtbot/bamboo/tree/master) [![Coverage Status](https://coveralls.io/repos/github/thoughtbot/bamboo/badge.png?branch=master)](https://coveralls.io/github/thoughtbot/bamboo?branch=master)
+# Bamboo
+
+[![Build](https://github.com/beam-community/bamboo/actions/workflows/ci.yaml/badge.svg)](https://github.com/beam-community/bamboo/actions/workflows/ci.yaml)
 
 ---
 
-**This README follows master, which may not be the currently published version!** Use
+**This README follows the main branch, which may not be the currently published version!** Use
 [the docs for the published version of Bamboo](https://hexdocs.pm/bamboo/readme.html).
 
 ---
 
-**Bamboo is part of the [thoughtbot Elixir family][elixir-phoenix] of projects.**
+**Bamboo is now maintained by the [BEAM Community](https://github.com/beam-community)!**
+
+Thank you to [thoughtbot](https://thoughtbot.com) for creating and maintaining Bamboo for so long!
 
 Flexible and easy to use email for Elixir.
 
@@ -44,7 +48,7 @@ To install Bamboo, add it to your list of dependencies in `mix.exs`.
 
 ```elixir
 def deps do
-  [{:bamboo, "~> 2.2.0"}]
+  [{:bamboo, "~> 2.3.0"}]
 end
 ```
 
@@ -53,7 +57,7 @@ published version in hex:
 
 ```elixir
 def deps do
-  [{:bamboo, github: "thoughtbot/bamboo"}]
+  [{:bamboo, github: "beam-community/bamboo"}]
 end
 ```
 
@@ -406,7 +410,7 @@ add a new adapter to the list.
 - `Bamboo.TestAdapter` - Ships with Bamboo. Use in your test environment.
 - `Bamboo.CampaignMonitorAdapter` - See [jackmarchant/bamboo_campaign_monitor](https://github.com/jackmarchant/bamboo_campaign_monitor).
 - `Bamboo.ConfigAdapter` - See [BinaryNoggin/bamboo_config_adapter](https://github.com/BinaryNoggin/bamboo_config_adapter) declare config at runtime.
-- `Bamboo.FallbackAdapter` - See [fuelen/bamboo_fallback](https://github.com/fuelen/bamboo_fallback). Allows using multiple adapters.
+- `Bamboo.FallbackAdapter` - See [prosapient/bamboo_fallback](https://github.com/prosapient/bamboo_fallback). Allows using multiple adapters.
 - `Bamboo.GmailAdapter` - See [parkerduckworth/bamboo_gmail](https://github.com/parkerduckworth/bamboo_gmail).
 - `Bamboo.MailjetAdapter` - See [moxide/bamboo_mailjet](https://github.com/moxide/bamboo_mailjet).
 - `Bamboo.PostmarkAdapter` - See [pablo-co/bamboo_postmark](https://github.com/pablo-co/bamboo_postmark).
@@ -414,6 +418,7 @@ add a new adapter to the list.
 - `Bamboo.SesAdapter` - See [kalys/bamboo_ses](https://github.com/kalys/bamboo_ses).
 - `Bamboo.SMTPAdapter` - See [fewlinesco/bamboo_smtp](https://github.com/fewlinesco/bamboo_smtp).
 - `Bamboo.SparkPostAdapter` - See [andrewtimberlake/bamboo_sparkpost](https://github.com/andrewtimberlake/bamboo_sparkpost).
+- `Bamboo.MailtrapSendingAdapter`, `Bamboo.MailtrapSandboxAdapter` - See [railsware/mailtrap-elixir](https://github.com/railsware/mailtrap-elixir)
 
 ## Contributing
 
@@ -421,7 +426,7 @@ Before opening a pull request, please open an issue first.
 
 Once we've decided how to move forward with a pull request:
 
-    $ git clone https://github.com/thoughtbot/bamboo.git
+    $ git clone https://github.com/beam-community/bamboo.git
     $ cd bamboo
     $ mix deps.get
     $ mix test
@@ -432,24 +437,6 @@ Once you've made your additions and `mix test` passes, go ahead and open a PR!
 We run the test suite as well as formatter checks on CI. Make sure you are using
 the Elixir version defined in the `.tool-versions` file to have consistent
 formatting with what's being run on CI.
-
-## About thoughtbot
-
-![thoughtbot](http://presskit.thoughtbot.com/images/thoughtbot-logo-for-readmes.svg)
-
-Bamboo is maintained and funded by thoughtbot, inc.
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
-
-We love open-source software, Elixir, and Phoenix. See [our other Elixir
-projects][elixir-phoenix], or [hire our Elixir Phoenix development team][hire]
-to design, develop, and grow your product.
-
-[elixir-phoenix]: https://thoughtbot.com/services/elixir-phoenix?utm_source=github
-[hire]: https://thoughtbot.com?utm_source=github
-
-## Thanks!
-
-Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
 
 <!-- Links -->
 
@@ -465,7 +452,7 @@ Thanks to @mtwilliams for an early version of the `SendGridAdapter`.
 [`bamboo.tasksupervisorstrategy`]: https://hexdocs.pm/bamboo/Bamboo.TaskSupervisorStrategy.html
 [`bamboo.test`]: https://hexdocs.pm/bamboo/Bamboo.Test.html
 [`bamboo.testadapter`]: https://hexdocs.pm/bamboo/Bamboo.TestAdapter.html
-[`bamboo`]: http://github.com/thoughtbot/bamboo
+[`bamboo`]: http://github.com/beam-community/bamboo
 [available-adapters]: #available-adapters
 [compose emails using pipes]: #composing-with-pipes
 [create your own adapter]: https://hexdocs.pm/bamboo/Bamboo.Adapter.html

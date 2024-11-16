@@ -11,7 +11,7 @@ defmodule Bamboo.SendGridHelperTest do
   end
 
   test "with_template/2 adds the correct template", %{email: email} do
-    email = email |> with_template(@template_id)
+    email = with_template(email, @template_id)
     assert email.private[:send_grid_template] == %{template_id: @template_id}
   end
 
@@ -34,7 +34,7 @@ defmodule Bamboo.SendGridHelperTest do
 
   test "substitute/3 raises on non-binary tag", %{email: email} do
     assert_raise RuntimeError, fn ->
-      email |> substitute(:name, "Jon Snow")
+      substitute(email, :name, "Jon Snow")
     end
   end
 
@@ -78,8 +78,7 @@ defmodule Bamboo.SendGridHelperTest do
 
   test "dynamic_field/3 should work with atoms", %{email: email} do
     email =
-      email
-      |> add_dynamic_field(:name, "Jon Snow")
+      add_dynamic_field(email, :name, "Jon Snow")
 
     assert email.private[:send_grid_template] == %{
              dynamic_template_data: %{
@@ -89,7 +88,7 @@ defmodule Bamboo.SendGridHelperTest do
   end
 
   test "with_categories/2 adds the correct property", %{email: email} do
-    email = email |> with_categories(["category-1"])
+    email = with_categories(email, ["category-1"])
     assert email.private[:categories] != nil
     assert is_list(email.private[:categories])
     assert length(email.private[:categories]) == 1
@@ -111,8 +110,7 @@ defmodule Bamboo.SendGridHelperTest do
 
   test "with_categories/2 only sends the first 10 entries", %{email: email} do
     email =
-      email
-      |> with_categories([
+      with_categories(email, [
         "category-1",
         "category-2",
         "category-3",
@@ -130,24 +128,35 @@ defmodule Bamboo.SendGridHelperTest do
   end
 
   test "with_asm_group_id/2 adds the correct property", %{email: email} do
-    email = email |> with_asm_group_id(1234)
+    email = with_asm_group_id(email, 1234)
     assert email.private[:asm_group_id] == 1234
   end
 
   test "with_asm_group_id/2 raises on non-integer id", %{email: email} do
     assert_raise RuntimeError, fn ->
-      email |> with_asm_group_id("1234")
+      with_asm_group_id(email, "1234")
     end
   end
 
   test "with_bypass_list_management/2 adds the correct property", %{email: email} do
-    email = email |> with_bypass_list_management(true)
+    email = with_bypass_list_management(email, true)
     assert email.private[:bypass_list_management] == true
   end
 
   test "with_bypass_list_management/2 raises on non-boolean parameter", %{email: email} do
     assert_raise RuntimeError, fn ->
-      email |> with_bypass_list_management(1)
+      with_bypass_list_management(email, 1)
+    end
+  end
+
+  test "with_bypass_unsubscribe_management/2 adds the correct property", %{email: email} do
+    email = with_bypass_unsubscribe_management(email, true)
+    assert email.private[:bypass_unsubscribe_management] == true
+  end
+
+  test "with_bypass_unsubscribe_management/2 raises on non-boolean parameter", %{email: email} do
+    assert_raise RuntimeError, fn ->
+      with_bypass_unsubscribe_management(email, 1)
     end
   end
 
@@ -160,14 +169,14 @@ defmodule Bamboo.SendGridHelperTest do
       utm_content: "content"
     }
 
-    email = email |> with_google_analytics(true, utm_params)
+    email = with_google_analytics(email, true, utm_params)
 
     assert email.private[:google_analytics_enabled] == true
     assert email.private[:google_analytics_utm_params] == utm_params
   end
 
   test "with_google_analytics/3 with enabled set false", %{email: email} do
-    email = email |> with_google_analytics(false)
+    email = with_google_analytics(email, false)
 
     assert email.private[:google_analytics_enabled] == false
     assert email.private[:google_analytics_utm_params] == %{}
@@ -179,7 +188,7 @@ defmodule Bamboo.SendGridHelperTest do
     }
 
     assert_raise RuntimeError, fn ->
-      email |> with_google_analytics(1, utm_params)
+      with_google_analytics(email, 1, utm_params)
     end
   end
 
@@ -201,52 +210,70 @@ defmodule Bamboo.SendGridHelperTest do
     end
   end
 
+  test "with_subscription_tracking/2 with enabled set to true", %{email: email} do
+    email = with_subscription_tracking(email, true)
+
+    assert email.private[:subscription_tracking_enabled] == true
+  end
+
+  test "with_subscription_tracking/2 with enabled set false", %{email: email} do
+    email = with_subscription_tracking(email, false)
+
+    assert email.private[:subscription_tracking_enabled] == false
+  end
+
+  test "with_subscription_tracking/2 raises on non-boolean enabled parameter", %{email: email} do
+    assert_raise RuntimeError, fn ->
+      with_subscription_tracking(email, 1)
+    end
+  end
+
   describe "with_send_at/2" do
     test "adds the correct property for a DateTime input", %{email: email} do
       {:ok, datetime, _} = DateTime.from_iso8601("2020-01-31T15:46:00Z")
-      email = email |> with_send_at(datetime)
+      email = with_send_at(email, datetime)
       assert email.private[:sendgrid_send_at] == 1_580_485_560
     end
 
     test "adds the correct property for an integer input", %{email: email} do
       timestamp = 1_580_485_560
-      email = email |> with_send_at(timestamp)
+      email = with_send_at(email, timestamp)
       assert email.private[:sendgrid_send_at] == 1_580_485_560
     end
 
     test "raises on incorrect input", %{email: email} do
       assert_raise RuntimeError, fn ->
-        email |> with_send_at("truck")
+        with_send_at(email, "truck")
       end
     end
   end
 
   test "with_ip_pool_name/2 adds the ip_pool_name", %{email: email} do
-    email = email |> with_ip_pool_name(@ip_pool_name)
+    email = with_ip_pool_name(email, @ip_pool_name)
     assert email.private[:ip_pool_name] == @ip_pool_name
   end
 
-  test "with_unique_args/2 merges multiple maps", %{email: email} do
+  test "with_custom_args/2 merges multiple maps", %{email: email} do
     email =
       email
-      |> with_unique_args(%{new_arg_1: "new arg 1", new_arg_2: "new arg 2"})
-      |> with_unique_args(%{new_arg_3: "new arg 3"})
+      |> with_custom_args(%{new_arg_1: "new arg 1", new_arg_2: "new arg 2"})
+      |> with_custom_args(%{new_arg_3: "new arg 3"})
 
-    assert map_size(email.private[:unique_args]) == 3
+    assert map_size(email.private[:custom_args]) == 3
   end
 
-  test "with_unique_args/2 overrides duplicate entries", %{email: email} do
+  test "with_custom_args/2 overrides duplicate entries", %{email: email} do
     email =
       email
-      |> with_unique_args(%{new_arg_1: "new arg 1"})
-      |> with_unique_args(%{new_arg_1: "latest new arg 1", new_arg_2: "new arg 2"})
+      |> with_custom_args(%{new_arg_1: "new arg 1"})
+      |> with_custom_args(%{new_arg_1: "latest new arg 1", new_arg_2: "new arg 2"})
 
-    assert map_size(email.private[:unique_args]) == 2
+    assert map_size(email.private[:custom_args]) == 2
   end
 
-  test "with_unique_args/2 raises on non-map parameter", %{email: email} do
+  test "with_custom_args/2 raises on non-map parameter", %{email: email} do
     assert_raise RuntimeError, fn ->
-      email |> with_unique_args(["new arg"])
+      with_custom_args(email, ["new arg"])
     end
   end
 end
