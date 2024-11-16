@@ -58,4 +58,21 @@ defmodule Bamboo.AttachmentTest do
     assert attachment.filename == "my-attachment.doc"
     assert attachment.data
   end
+
+  test "create an attachment with headers and content ID (like an inline image)" do
+    path = Path.join(__DIR__, "../../support/attachment.docx")
+
+    attachment =
+      Attachment.new(
+        path,
+        filename: "image.png",
+        content_type: "image/png",
+        content_id: "<12387432>",
+        headers: [content_disposition: "inline", x_attachment_id: "12387432"]
+      )
+      |> IO.inspect()
+
+    assert attachment.content_id == "<12387432>"
+    assert [content_disposition: "inline", x_attachment_id: "12387432"] = attachment.headers
+  end
 end

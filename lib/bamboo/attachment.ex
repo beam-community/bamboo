@@ -37,7 +37,7 @@ defmodule Bamboo.Attachment do
         filename: "image.png",
         content_type: "image/png",
         content_id: "<12387432>",
-        headers: [content_disposition, "inline", x_attachment_id: "12387432"]
+        headers: [content_disposition: "inline", x_attachment_id: "12387432"]
       )
       Bamboo.Attachment.new(params["file"]) # Where params["file"] is a %Plug.Upload
 
@@ -57,7 +57,7 @@ defmodule Bamboo.Attachment do
           filename: "logo.png",
           data: "content",
           content_id: "<12387432>",
-          headers: [content_disposition, "inline", x_attachment_id: "12387432"]
+          headers: [content_disposition: "inline", x_attachment_id: "12387432"]
         }
       )
   """
