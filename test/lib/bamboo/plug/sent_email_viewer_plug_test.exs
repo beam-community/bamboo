@@ -295,6 +295,55 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     assert conn.resp_body =~ "#{inspect(email, pretty: true)}"
   end
 
+  test "rewrites CID attachments to local URLs in HTML emails" do
+    attachment = build(:attachment, content_id: "abc123")
+    email = normalize_and_push(:html_email,
+      html_body: ~s(<img src="cid:abc123">),
+      attachments: [attachment]
+    )
+    selected_email_id = SentEmail.get_id(email)
+    conn = conn(:get, "/sent_emails/foo/#{selected_email_id}/html")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert conn.resp_body =~ ~s(<img src="/sent_emails/#{selected_email_id}/attachments/0">)
+  end
+
+  test "leaves non-matching CID references unchanged in HTML emails" do
+    attachment = build(:attachment, content_id: "abc123")
+    email = normalize_and_push(:html_email,
+      html_body: ~s(<img src="cid:xyz789">),
+      attachments: [attachment]
+    )
+    selected_email_id = SentEmail.get_id(email)
+    conn = conn(:get, "/sent_emails/foo/#{selected_email_id}/html")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert conn.resp_body =~ ~s(<img src="cid:xyz789">)
+  end
+
+  test "handles multiple CID attachments in HTML emails" do
+    attachments = [
+      build(:attachment, content_id: "abc123"),
+      build(:attachment, content_id: "def456")
+    ]
+    email = normalize_and_push(:html_email,
+      html_body: ~s(<img src="cid:abc123"><img src="cid:def456">),
+      attachments: attachments
+    )
+    selected_email_id = SentEmail.get_id(email)
+    conn = conn(:get, "/sent_emails/foo/#{selected_email_id}/html")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert conn.resp_body =~ ~s(<img src="/sent_emails/#{selected_email_id}/attachments/0">)
+    assert conn.resp_body =~ ~s(<img src="/sent_emails/#{selected_email_id}/attachments/1">)
+  end
+
   defp newest_email do
     List.first(SentEmail.all())
   end

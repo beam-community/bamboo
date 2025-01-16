@@ -129,9 +129,11 @@ defmodule Bamboo.SentEmailViewerPlug do
     "/" <> Enum.join(script_name, "/")
   end
 
-  defp rewrite_html_body_cids(email) do
+  defp rewrite_html_body_cids(%{html_body: nil} = email), do: email
+
+  defp rewrite_html_body_cids(%{html_body: html_body} = email) do
     html =
-      String.replace(email.html_body, ~r/cid:[^'"]+/, fn "cid:" <> id = cid ->
+      String.replace(html_body, ~r/cid:[^'"]+/, fn "cid:" <> id = cid ->
         case Enum.find_index(email.attachments, &(&1.content_id == id)) do
           nil -> cid
           i -> "/sent_emails/#{email.private.local_adapter_id}/attachments/#{i}"
