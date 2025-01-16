@@ -130,13 +130,14 @@ defmodule Bamboo.SentEmailViewerPlug do
   end
 
   defp rewrite_html_body_cids(email) do
-    %{ email | html_body: email.html_body
-    |> String.replace(~r/cid:[^'"]+/, fn "cid:" <> id = cid ->
-      case Enum.find_index(email.attachments, &(&1.content_id == id)) do
-        nil -> cid
-        i -> "/sent_emails/#{email.private.local_adapter_id}/attachments/#{i}"
-      end
-    end)
-    }
+    html =
+      String.replace(email.html_body, ~r/cid:[^'"]+/, fn "cid:" <> id = cid ->
+        case Enum.find_index(email.attachments, &(&1.content_id == id)) do
+          nil -> cid
+          i -> "/sent_emails/#{email.private.local_adapter_id}/attachments/#{i}"
+        end
+      end)
+
+    %{email | html_body: html}
   end
 end
