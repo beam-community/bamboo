@@ -36,14 +36,17 @@ defmodule Bamboo.SendGridAdapter do
       end
 
   """
-
-  @service_name "SendGrid"
-  @default_base_uri "https://api.sendgrid.com/v3/"
-  @send_message_path "/mail/send"
   @behaviour Bamboo.Adapter
 
-  alias Bamboo.{Email, AdapterHelper, Formatter}
   import Bamboo.ApiError
+
+  alias Bamboo.AdapterHelper
+  alias Bamboo.Email
+  alias Bamboo.Formatter
+
+  @default_base_uri "https://api.sendgrid.com/v3/"
+  @send_message_path "/mail/send"
+  @service_name "SendGrid"
 
   def deliver(email, config) do
     api_key = get_key(config)
@@ -128,10 +131,12 @@ defmodule Bamboo.SendGridAdapter do
     |> put_settings(config)
     |> put_asm_group_id(email)
     |> put_bypass_list_management(email)
+    |> put_bypass_unsubscribe_management(email)
     |> put_google_analytics(email)
     |> put_click_tracking(email)
+    |> put_subscription_tracking(email)
     |> put_ip_pool_name(email)
-    |> put_unique_args(email)
+    |> put_custom_args(email)
   end
 
   defp put_from(body, %Email{from: from}) do
@@ -165,7 +170,7 @@ defmodule Bamboo.SendGridAdapter do
     end
   end
 
-  defp build_personalization(personalization = %{to: to}) do
+  defp build_personalization(%{to: to} = personalization) do
     %{to: cast_addresses(to, :to)}
     |> map_put_if(personalization, :cc, &cast_addresses(&1, :cc))
     |> map_put_if(personalization, :bcc, &cast_addresses(&1, :bcc))
@@ -232,7 +237,7 @@ defmodule Bamboo.SendGridAdapter do
 
   defp put_headers(body, _), do: body
 
-  defp put_subject(body, %Email{subject: subject}) when not is_nil(subject),
+  defp put_subject(body, %Email{subject: subject}) when is_binary(subject),
     do: Map.put(body, :subject, subject)
 
   defp put_subject(body, _), do: body
@@ -240,7 +245,7 @@ defmodule Bamboo.SendGridAdapter do
   defp put_content(body, email) do
     email_content = content(email)
 
-    if not Enum.empty?(email_content) do
+    if length(email_content) > 0 do
       Map.put(body, :content, content(email))
     else
       body
@@ -292,9 +297,9 @@ defmodule Bamboo.SendGridAdapter do
 
   defp put_dynamic_template_data(body, _), do: body
 
-  defp put_custom_args(body, %Email{private: %{custom_args: custom_args}})
-       when is_nil(custom_args) or length(custom_args) == 0,
-       do: body
+  defp put_custom_args(body, %Email{private: %{custom_args: []}}), do: body
+
+  defp put_custom_args(body, %Email{private: %{custom_args: nil}}), do: body
 
   defp put_custom_args(body, %Email{
          private: %{custom_args: custom_args}
@@ -306,23 +311,20 @@ defmodule Bamboo.SendGridAdapter do
 
   defp put_categories(body, %Email{private: %{categories: categories}})
        when is_list(categories) and length(categories) <= 10 do
-    body
-    |> Map.put(:categories, categories)
+    Map.put(body, :categories, categories)
   end
 
   defp put_categories(body, _), do: body
 
   defp put_send_at(body, %Email{private: %{sendgrid_send_at: send_at_timestamp}}) do
-    body
-    |> Map.put(:send_at, send_at_timestamp)
+    Map.put(body, :send_at, send_at_timestamp)
   end
 
   defp put_send_at(body, _), do: body
 
   defp put_asm_group_id(body, %Email{private: %{asm_group_id: asm_group_id}})
        when is_integer(asm_group_id) do
-    body
-    |> Map.put(:asm, %{group_id: asm_group_id})
+    Map.put(body, :asm, %{group_id: asm_group_id})
   end
 
   defp put_asm_group_id(body, _), do: body
@@ -334,24 +336,34 @@ defmodule Bamboo.SendGridAdapter do
       |> Map.get(:mail_settings, %{})
       |> Map.put(:bypass_list_management, %{enable: enabled})
 
-    body
-    |> Map.put(:mail_settings, mail_settings)
+    Map.put(body, :mail_settings, mail_settings)
   end
 
   defp put_bypass_list_management(body, _), do: body
 
+  defp put_bypass_unsubscribe_management(body, %Email{private: %{bypass_unsubscribe_management: enabled}})
+       when is_boolean(enabled) do
+    mail_settings =
+      body
+      |> Map.get(:mail_settings, %{})
+      |> Map.put(:bypass_unsubscribe_management, %{enable: enabled})
+
+    Map.put(body, :mail_settings, mail_settings)
+  end
+
+  defp put_bypass_unsubscribe_management(body, _), do: body
+
   defp put_google_analytics(body, %Email{
          private: %{google_analytics_enabled: enabled, google_analytics_utm_params: utm_params}
        }) do
-    ganalytics = %{enable: enabled} |> Map.merge(utm_params)
+    ganalytics = Map.merge(%{enable: enabled}, utm_params)
 
     tracking_settings =
       body
       |> Map.get(:tracking_settings, %{})
       |> Map.put(:ganalytics, ganalytics)
 
-    body
-    |> Map.put(:tracking_settings, tracking_settings)
+    Map.put(body, :tracking_settings, tracking_settings)
   end
 
   defp put_google_analytics(body, _), do: body
@@ -362,11 +374,21 @@ defmodule Bamboo.SendGridAdapter do
       |> Map.get(:tracking_settings, %{})
       |> Map.put(:click_tracking, %{enable: enabled, enable_text: enabled})
 
-    body
-    |> Map.put(:tracking_settings, tracking_settings)
+    Map.put(body, :tracking_settings, tracking_settings)
   end
 
   defp put_click_tracking(body, _), do: body
+
+  defp put_subscription_tracking(body, %Email{private: %{subscription_tracking_enabled: enabled}}) do
+    tracking_settings =
+      body
+      |> Map.get(:tracking_settings, %{})
+      |> Map.put(:subscription_tracking, %{enable: enabled, enable_text: enabled})
+
+    Map.put(body, :tracking_settings, tracking_settings)
+  end
+
+  defp put_subscription_tracking(body, _), do: body
 
   defp put_attachments(body, %Email{attachments: []}), do: body
 
@@ -375,15 +397,33 @@ defmodule Bamboo.SendGridAdapter do
       attachments
       |> Enum.reverse()
       |> Enum.map(fn attachment ->
-        %{
-          filename: attachment.filename,
-          type: attachment.content_type,
-          content: Base.encode64(attachment.data)
-        }
+        maybe_append_content_id(
+          %{
+            filename: attachment.filename,
+            type: attachment.content_type,
+            content: Base.encode64(attachment.data),
+            disposition: attachment_disposition(attachment)
+          },
+          attachment
+        )
       end)
 
     Map.put(body, :attachments, transformed)
   end
+
+  defp maybe_append_content_id(map, %{content_id: nil}) do
+    map
+  end
+
+  defp maybe_append_content_id(map, %{content_id: content_id}) do
+    Map.put(map, :content_id, content_id)
+  end
+
+  defp attachment_disposition(%Bamboo.Attachment{content_id: cid}) when is_binary(cid) do
+    "inline"
+  end
+
+  defp attachment_disposition(_), do: "attachment"
 
   defp put_addresses(body, _, []), do: body
 
@@ -428,8 +468,7 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp cast_address_as_map(address) do
-    case {Map.get(address, :name, Map.get(address, "name")),
-          Map.get(address, :email, Map.get(address, "email"))} do
+    case {Map.get(address, :name, Map.get(address, "name")), Map.get(address, :email, Map.get(address, "email"))} do
       {_name, nil} ->
         throw({:error, "Must specify at least an 'email' field in map #{inspect(address)}"})
 
@@ -442,7 +481,7 @@ defmodule Bamboo.SendGridAdapter do
   end
 
   defp cast_address_with_formatter(address, type) do
-    {name, address} = Formatter.format_email_address(address, type)
+    {name, address} = Formatter.format_email_address(address, %{type: type})
 
     case {name, address} do
       {nil, address} -> %{email: address}
@@ -454,12 +493,4 @@ defmodule Bamboo.SendGridAdapter do
     do: Map.put(body, :ip_pool_name, ip_pool_name)
 
   defp put_ip_pool_name(body, _), do: body
-
-  defp put_unique_args(body, %Email{private: %{unique_args: unique_args}})
-       when is_map(unique_args) do
-    body
-    |> Map.put(:unique_args, unique_args)
-  end
-
-  defp put_unique_args(body, _), do: body
 end

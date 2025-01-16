@@ -169,84 +169,92 @@ defmodule Bamboo.MailerTest do
   end
 
   test "deliver_now/1 with no from address returns an error" do
-    {:error, %Bamboo.EmptyFromAddressError{}} = Mailer.deliver_now(new_email(from: nil))
-    {:error, %Bamboo.EmptyFromAddressError{}} = Mailer.deliver_now(new_email(from: {"foo", nil}))
+    {:error, %Bamboo.EmptyFromAddressError{}} = [from: nil] |> new_email() |> Mailer.deliver_now()
+    {:error, %Bamboo.EmptyFromAddressError{}} = [from: {"foo", nil}] |> new_email() |> Mailer.deliver_now()
   end
 
   test "deliver_now!/1 with no from address raises an error" do
     assert_raise Bamboo.EmptyFromAddressError, fn ->
-      Mailer.deliver_now!(new_email(from: nil))
+      [from: nil] |> new_email() |> Mailer.deliver_now!()
     end
 
     assert_raise Bamboo.EmptyFromAddressError, fn ->
-      Mailer.deliver_now!(new_email(from: {"foo", nil}))
+      [from: {"foo", nil}] |> new_email() |> Mailer.deliver_now!()
     end
   end
 
   test "deliver_now/1 with empty recipient lists does not deliver email" do
-    {:ok, email} = new_email(to: [], cc: [], bcc: []) |> Mailer.deliver_now()
+    {:ok, email} = [to: [], cc: [], bcc: []] |> new_email() |> Mailer.deliver_now()
     refute_received {:deliver, ^email, _}
 
-    {:ok, email} = new_email(to: [], cc: nil, bcc: nil) |> Mailer.deliver_now()
+    {:ok, email} = [to: [], cc: nil, bcc: nil] |> new_email() |> Mailer.deliver_now()
     refute_received {:deliver, ^email, _}
 
-    {:ok, email} = new_email(to: nil, cc: [], bcc: nil) |> Mailer.deliver_now()
+    {:ok, email} = [to: nil, cc: [], bcc: nil] |> new_email() |> Mailer.deliver_now()
     refute_received {:deliver, ^email, _}
 
-    {:ok, email} = new_email(to: nil, cc: nil, bcc: []) |> Mailer.deliver_now()
+    {:ok, email} = [to: nil, cc: nil, bcc: []] |> new_email() |> Mailer.deliver_now()
     refute_received {:deliver, ^email, _}
   end
 
   test "deliver_later/1 with empty lists for recipients does not deliver email" do
-    new_email(to: [], cc: [], bcc: []) |> Mailer.deliver_later()
+    [to: [], cc: [], bcc: []] |> new_email() |> Mailer.deliver_later()
     refute_received {:deliver, _, _}
 
-    new_email(to: [], cc: nil, bcc: nil) |> Mailer.deliver_later()
+    [to: [], cc: nil, bcc: nil] |> new_email() |> Mailer.deliver_later()
     refute_received {:deliver, _, _}
 
-    new_email(to: nil, cc: [], bcc: nil) |> Mailer.deliver_later()
+    [to: nil, cc: [], bcc: nil] |> new_email() |> Mailer.deliver_later()
     refute_received {:deliver, _, _}
 
-    new_email(to: nil, cc: nil, bcc: []) |> Mailer.deliver_later()
+    [to: nil, cc: nil, bcc: []] |> new_email() |> Mailer.deliver_later()
     refute_received {:deliver, _, _}
   end
 
   test "returns an error if all recipients are nil" do
     {:error, %Bamboo.NilRecipientsError{}} =
-      new_email(to: nil, cc: nil, bcc: nil)
+      [to: nil, cc: nil, bcc: nil]
+      |> new_email()
       |> Mailer.deliver_now()
 
     {:error, %Bamboo.NilRecipientsError{}} =
-      new_email(to: {"foo", nil})
+      [to: {"foo", nil}]
+      |> new_email()
       |> Mailer.deliver_now()
 
     {:error, %Bamboo.NilRecipientsError{}} =
-      new_email(to: [{"foo", nil}])
+      [to: [{"foo", nil}]]
+      |> new_email()
       |> Mailer.deliver_now()
 
     {:error, %Bamboo.NilRecipientsError{}} =
-      new_email(to: [nil])
+      [to: [nil]]
+      |> new_email()
       |> Mailer.deliver_now()
   end
 
   test "raises on deliver_now! if all recipients are nil" do
     assert_raise Bamboo.NilRecipientsError, fn ->
-      new_email(to: nil, cc: nil, bcc: nil)
+      [to: nil, cc: nil, bcc: nil]
+      |> new_email()
       |> Mailer.deliver_now!()
     end
 
     assert_raise Bamboo.NilRecipientsError, fn ->
-      new_email(to: {"foo", nil})
+      [to: {"foo", nil}]
+      |> new_email()
       |> Mailer.deliver_now!()
     end
 
     assert_raise Bamboo.NilRecipientsError, fn ->
-      new_email(to: [{"foo", nil}])
+      [to: [{"foo", nil}]]
+      |> new_email()
       |> Mailer.deliver_now!()
     end
 
     assert_raise Bamboo.NilRecipientsError, fn ->
-      new_email(to: [nil])
+      [to: [nil]]
+      |> new_email()
       |> Mailer.deliver_now!()
     end
   end
@@ -299,7 +307,7 @@ defmodule Bamboo.MailerTest do
     @tag adapter: AdapterWithoutAttachmentSupport
     test "returns errors if adapter does not support attachments and attachments are sent" do
       path = Path.join(__DIR__, "../../support/attachment.docx")
-      email = new_email(to: "foo@bar.com") |> Email.put_attachment(path)
+      email = [to: "foo@bar.com"] |> new_email() |> Email.put_attachment(path)
 
       assert {:error, error} = Mailer.deliver_now(email)
       assert error =~ "does not support attachments"
@@ -311,7 +319,7 @@ defmodule Bamboo.MailerTest do
     @tag adapter: AdapterWithoutAttachmentSupport
     test "raise errors with deliver_x! if adapter does not support attachments and attachments are sent" do
       path = Path.join(__DIR__, "../../support/attachment.docx")
-      email = new_email(to: "foo@bar.com") |> Email.put_attachment(path)
+      email = [to: "foo@bar.com"] |> new_email() |> Email.put_attachment(path)
 
       assert_raise RuntimeError, ~r/does not support attachments/, fn ->
         Mailer.deliver_now!(email)
@@ -331,7 +339,7 @@ defmodule Bamboo.MailerTest do
     @tag adapter: DefaultAdapter
     test "does not raise if adapter supports attachments" do
       path = Path.join(__DIR__, "../../support/attachment.docx")
-      email = new_email(to: "foo@bar.com") |> Email.put_attachment(path)
+      email = [to: "foo@bar.com"] |> new_email() |> Email.put_attachment(path)
 
       Mailer.deliver_now(email)
 
@@ -347,7 +355,7 @@ defmodule Bamboo.MailerTest do
       end
 
       def handle_config(config) do
-        config |> Map.put(:custom_key, "Set by the adapter")
+        Map.put(config, :custom_key, "Set by the adapter")
       end
     end
 
@@ -404,7 +412,7 @@ defmodule Bamboo.MailerTest do
     end
 
     @tag adapter: ResponseAdapter
-    test "deliver_now/2 returns {:ok, email, reponse} when passing response: true option" do
+    test "deliver_now/2 returns {:ok, email, response} when passing response: true option" do
       email = new_email(to: "foo@bar.com")
 
       {:ok, email, response} = Mailer.deliver_now(email, response: true)
@@ -457,8 +465,7 @@ defmodule Bamboo.MailerTest do
       email = new_email(to: "foo@bar.com")
       assert {:ok, %Bamboo.Email{blocked: false}} = Mailer.deliver_now(email)
 
-      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                      _config}
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "}, _config}
     end
 
     @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
@@ -473,8 +480,7 @@ defmodule Bamboo.MailerTest do
       email = new_email(to: "foo@bar.com")
       assert %Bamboo.Email{blocked: false} = Mailer.deliver_now!(email)
 
-      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                      _config}
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "}, _config}
     end
 
     @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
@@ -491,8 +497,7 @@ defmodule Bamboo.MailerTest do
       email = new_email(to: "foo@bar.com")
       assert {:ok, %Bamboo.Email{blocked: false}} = Mailer.deliver_later(email)
 
-      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                      _config}
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "}, _config}
     end
 
     @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]
@@ -509,8 +514,7 @@ defmodule Bamboo.MailerTest do
       email = new_email(to: "foo@bar.com")
       assert %Bamboo.Email{blocked: false} = Mailer.deliver_later!(email)
 
-      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "},
-                      _config}
+      assert_receive {:deliver, %Bamboo.Email{to: [{nil, "foo@bar.com"}], subject: "test - "}, _config}
     end
 
     @tag interceptors: [Bamboo.DenyListInterceptor, Bamboo.EnvInterceptor]

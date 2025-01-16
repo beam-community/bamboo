@@ -29,7 +29,7 @@ defmodule Bamboo.SentEmailApiPlugTest do
       text_body: "hello world"
     )
 
-    conn = conn(:get, "/emails.json") |> AppRouter.call(nil)
+    conn = :get |> conn("/emails.json") |> AppRouter.call(nil)
 
     assert conn.status == 200
     assert {"content-type", "application/json; charset=utf-8"} in conn.resp_headers
@@ -38,7 +38,7 @@ defmodule Bamboo.SentEmailApiPlugTest do
 
     assert Enum.count(json) == 1
 
-    first_email = json |> Enum.at(0)
+    first_email = Enum.at(json, 0)
     assert first_email["from"] == [nil, "from@example.com"]
     assert first_email["to"] == [[nil, "to@example.com"], ["Alice", "alice@example.com"]]
     assert first_email["cc"] == [[nil, "cc@example.com"]]
@@ -51,15 +51,15 @@ defmodule Bamboo.SentEmailApiPlugTest do
 
   test "reset emails over API" do
     normalize_and_push(:html_email)
-    assert SentEmail.all() |> Enum.count() == 1
+    assert Enum.count(SentEmail.all()) == 1
 
-    conn = conn(:post, "/reset.json") |> AppRouter.call(nil)
+    conn = :post |> conn("/reset.json") |> AppRouter.call(nil)
 
     assert conn.status == 200
     assert {"content-type", "application/json; charset=utf-8"} in conn.resp_headers
 
     json = Bamboo.json_library().decode!(conn.resp_body)
     assert json == %{"ok" => true}
-    assert SentEmail.all() |> Enum.count() == 0
+    assert Enum.empty?(SentEmail.all())
   end
 end

@@ -71,6 +71,12 @@ defmodule Bamboo.Email do
       end
   """
 
+  alias Bamboo.Attachment
+  alias Bamboo.Email
+
+  @address_functions ~w(from to cc bcc)a
+  @attribute_pipe_functions ~w(subject text_body html_body)a
+
   @type address :: {String.t(), String.t()}
   @type address_list :: nil | address | [address] | any
 
@@ -100,11 +106,6 @@ defmodule Bamboo.Email do
             private: %{},
             blocked: false
 
-  alias Bamboo.{Email, Attachment}
-
-  @address_functions ~w(from to cc bcc)a
-  @attribute_pipe_functions ~w(subject text_body html_body)a
-
   @doc """
   Used to create a new email
 
@@ -122,6 +123,7 @@ defmodule Bamboo.Email do
     struct!(%__MODULE__{}, attrs)
   end
 
+  # credo:disable-for-this-file Credo.Check.Readability.StrictModuleLayout
   for function_name <- @address_functions do
     @doc """
     Sets the `#{function_name}` on the email.

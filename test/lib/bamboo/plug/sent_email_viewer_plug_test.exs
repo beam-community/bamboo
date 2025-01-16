@@ -32,11 +32,11 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     refute showing_in_detail_pane?(conn, oldest_email())
 
     for email <- emails do
-      assert Floki.raw_html(sidebar(conn)) =~
+      assert conn |> sidebar() |> Floki.raw_html() =~
                ~s(href="/sent_emails/foo/#{SentEmail.get_id(email)}")
 
-      assert Floki.text(sidebar(conn)) =~ email.subject
-      assert Floki.text(sidebar(conn)) =~ Bamboo.Email.get_address(email.from)
+      assert conn |> sidebar() |> Floki.text() =~ email.subject
+      assert conn |> sidebar() |> Floki.text() =~ Bamboo.Email.get_address(email.from)
     end
   end
 
@@ -139,7 +139,7 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   end
 
   defp selected_sidebar_email_text(conn) do
-    sidebar(conn) |> Floki.find("a.selected-email") |> Floki.text()
+    conn |> sidebar() |> Floki.find("a.selected-email") |> Floki.text()
   end
 
   test "shows attachment icon in sidebar for email with attachments" do
@@ -150,7 +150,7 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
-    assert sidebar(conn) |> Floki.find(".selected-email .email-attachment-icon") != []
+    assert conn |> sidebar() |> Floki.find(".selected-email .email-attachment-icon") != []
   end
 
   test "does not show attachment icon in sidebar for email without attachments" do
@@ -160,7 +160,7 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     conn = AppRouter.call(conn, nil)
 
     assert conn.status == 200
-    assert sidebar(conn) |> Floki.find(".selected-email .email-attachment-icon") == []
+    assert conn |> sidebar() |> Floki.find(".selected-email .email-attachment-icon") == []
   end
 
   test "does not show attachments if email has none" do
@@ -220,8 +220,8 @@ defmodule Bamboo.SentEmailViewerPlugTest do
 
     assert conn.status == 200
     assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
-    assert Floki.raw_html(sidebar(conn)) =~ ~s(href="/#{SentEmail.get_id(email)}")
-    assert Floki.text(sidebar(conn)) =~ email.subject
+    assert conn |> sidebar() |> Floki.raw_html() =~ ~s(href="/#{SentEmail.get_id(email)}")
+    assert conn |> sidebar() |> Floki.text() =~ email.subject
   end
 
   test "shows notice if no emails exist" do
@@ -282,16 +282,29 @@ defmodule Bamboo.SentEmailViewerPlugTest do
     assert conn.resp_body =~ "Email not found"
   end
 
+  test "shows email metadata when there is no html or text body" do
+    email = normalize_and_push(:email, html_body: nil)
+    selected_email_id = SentEmail.all() |> Enum.at(0) |> SentEmail.get_id()
+    conn = conn(:get, "/sent_emails/foo/#{selected_email_id}")
+
+    conn = AppRouter.call(conn, nil)
+
+    assert conn.status == 200
+    assert {"content-type", "text/html; charset=utf-8"} in conn.resp_headers
+    assert conn.resp_body =~ "Metadata"
+    assert conn.resp_body =~ "#{inspect(email, pretty: true)}"
+  end
+
   defp newest_email do
-    SentEmail.all() |> List.first()
+    List.first(SentEmail.all())
   end
 
   defp oldest_email do
-    SentEmail.all() |> List.last()
+    List.last(SentEmail.all())
   end
 
   defp showing_in_detail_pane?(conn, email) do
-    Floki.text(detail_pane(conn)) =~ email.subject
+    conn |> detail_pane() |> Floki.text() =~ email.subject
   end
 
   defp detail_pane(conn) do
@@ -313,6 +326,6 @@ defmodule Bamboo.SentEmailViewerPlugTest do
   end
 
   defp showing_in_attachments_container?(conn, attachment) do
-    Floki.text(detail_pane_attachments_container(conn)) =~ attachment.filename
+    conn |> detail_pane_attachments_container() |> Floki.text() =~ attachment.filename
   end
 end

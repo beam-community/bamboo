@@ -44,13 +44,18 @@ defmodule Bamboo.MailgunAdapter do
         base_uri: "https://api.eu.mailgun.net/v3"
 
   """
-
-  @service_name "Mailgun"
-  @default_base_uri "https://api.mailgun.net/v3"
   @behaviour Bamboo.Adapter
 
-  alias Bamboo.{Email, Attachment, AdapterHelper}
   import Bamboo.ApiError
+
+  alias Bamboo.AdapterHelper
+  alias Bamboo.Attachment
+  alias Bamboo.Email
+
+  @default_base_uri "https://api.mailgun.net/v3"
+  @internal_fields ~w(attachments)a
+  @mailgun_message_fields ~w(from to cc bcc subject text html template recipient-variables)a
+  @service_name "Mailgun"
 
   @doc false
   def handle_config(config) do
@@ -60,20 +65,21 @@ defmodule Bamboo.MailgunAdapter do
     |> Map.put_new(:base_uri, base_uri())
   end
 
-  defp base_uri() do
+  defp base_uri do
     Application.get_env(:bamboo, :mailgun_base_uri, @default_base_uri)
   end
 
   defp get_setting(config, key) do
-    config[key]
-    |> case do
-      {:system, var} ->
-        System.get_env(var)
+    config_value =
+      case config[key] do
+        {:system, var} ->
+          System.get_env(var)
 
-      value ->
-        value
-    end
-    |> case do
+        value ->
+          value
+      end
+
+    case config_value do
       value when value in [nil, ""] ->
         raise_missing_setting_error(config, key)
 
@@ -95,13 +101,10 @@ defmodule Bamboo.MailgunAdapter do
   def deliver(email, config) do
     body = to_mailgun_body(email)
     config = handle_config(config)
+    uri = full_uri(config)
+    headers = headers(email, config)
 
-    case :hackney.post(
-           full_uri(config),
-           headers(email, config),
-           body,
-           AdapterHelper.hackney_opts(config)
-         ) do
+    case :hackney.post(uri, headers, body, AdapterHelper.hackney_opts(config)) do
       {:ok, status, _headers, response} when status > 299 ->
         body = decode_body(body)
         {:error, build_api_error(@service_name, response, body)}
@@ -171,9 +174,7 @@ defmodule Bamboo.MailgunAdapter do
   defp put_bcc(body, %Email{bcc: bcc}), do: Map.put(body, :bcc, prepare_recipients(bcc))
 
   defp prepare_recipients(recipients) do
-    recipients
-    |> Enum.map(&prepare_recipient(&1))
-    |> Enum.join(",")
+    Enum.map_join(recipients, ",", &prepare_recipient(&1))
   end
 
   defp prepare_recipient({nil, address}), do: address
@@ -190,6 +191,7 @@ defmodule Bamboo.MailgunAdapter do
 
   defp put_headers(body, %Email{headers: headers}) do
     Enum.reduce(headers, body, fn {key, value}, acc ->
+      # credo:disable-for-this-file Credo.Check.Warning.UnsafeToAtom
       Map.put(acc, :"h:#{key}", value)
     end)
   end
@@ -223,6 +225,7 @@ defmodule Bamboo.MailgunAdapter do
     custom_vars = Map.get(private, :mailgun_custom_vars, %{})
 
     Enum.reduce(custom_vars, body, fn {key, value}, acc ->
+      # credo:disable-for-this-file Credo.Check.Warning.UnsafeToAtom
       Map.put(acc, :"v:#{key}", value)
     end)
   end
@@ -240,27 +243,21 @@ defmodule Bamboo.MailgunAdapter do
   defp put_attachments(body, %Email{attachments: []}), do: body
 
   defp put_attachments(body, %Email{attachments: attachments}) do
-    attachment_data =
-      attachments
-      |> Enum.reverse()
-      |> Enum.map(&prepare_file(&1))
+    attachment_data = Enum.map(attachments, &prepare_file(&1))
 
     Map.put(body, :attachments, attachment_data)
   end
 
   defp prepare_file(%Attachment{} = attachment) do
-    {"", attachment.data,
-     {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
+    {"", attachment.data, {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
   end
 
-  @mailgun_message_fields ~w(from to cc bcc subject text html template recipient-variables)a
-  @internal_fields ~w(attachments)a
-
   def filter_non_empty_mailgun_fields(body) do
-    Enum.filter(body, fn {key, value} ->
+    body
+    |> Enum.filter(fn {key, value} ->
       # Key is a well known mailgun field (including header and custom var field) and its value is not empty
       (key in @mailgun_message_fields || key in @internal_fields ||
-         String.starts_with?(Atom.to_string(key), ["h:", "v:", "o:", "t:"])) &&
+         key |> Atom.to_string() |> String.starts_with?(["h:", "v:", "o:", "t:"])) &&
         !(value in [nil, "", []])
     end)
     |> Enum.into(%{})

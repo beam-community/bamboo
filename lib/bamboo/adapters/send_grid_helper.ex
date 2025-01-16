@@ -16,14 +16,16 @@ defmodule Bamboo.SendGridHelper do
   @categories :categories
   @asm_group_id :asm_group_id
   @bypass_list_management :bypass_list_management
+  @bypass_unsubscribe_management :bypass_unsubscribe_management
   @google_analytics_enabled :google_analytics_enabled
   @google_analytics_utm_params :google_analytics_utm_params
   @additional_personalizations :additional_personalizations
   @allowed_google_analytics_utm_params ~w(utm_source utm_medium utm_campaign utm_term utm_content)a
   @send_at_field :sendgrid_send_at
   @ip_pool_name_field :ip_pool_name
-  @unique_args :unique_args
+  @custom_args :custom_args
   @click_tracking_enabled :click_tracking_enabled
+  @subscription_tracking_enabled :subscription_tracking_enabled
 
   @doc """
   Specify the template for SendGrid to use for the context of the substitution
@@ -31,14 +33,12 @@ defmodule Bamboo.SendGridHelper do
 
   ## Example
 
-      email
-      |> with_template("80509523-83de-42b6-a2bf-54b7513bd2aa")
+      with_template(email, "80509523-83de-42b6-a2bf-54b7513bd2aa")
   """
   def with_template(email, template_id) do
     template = Map.get(email.private, @field_name, %{})
 
-    email
-    |> Email.put_private(@field_name, set_template(template, template_id))
+    Email.put_private(email, @field_name, set_template(template, template_id))
   end
 
   @doc """
@@ -56,17 +56,16 @@ defmodule Bamboo.SendGridHelper do
     if is_binary(tag) do
       template = Map.get(email.private, @field_name, %{})
 
-      email
-      |> Email.put_private(@field_name, add_substitution(template, tag, value))
+      Email.put_private(email, @field_name, add_substitution(template, tag, value))
     else
       raise "expected the tag parameter to be of type binary, got #{tag}"
     end
   end
 
   @doc """
-  Sets a list of categories for this email. 
+  Sets a list of categories for this email.
 
-  A maximum of 10 categories can be assigned to an email. Duplicate categories will 
+  A maximum of 10 categories can be assigned to an email. Duplicate categories will
   be ignored and only unique entries will be sent.
 
   ## Example
@@ -80,8 +79,7 @@ defmodule Bamboo.SendGridHelper do
       |> MapSet.new()
       |> MapSet.to_list()
 
-    email
-    |> Email.put_private(@categories, Enum.slice(categories, 0, 10))
+    Email.put_private(email, @categories, Enum.slice(categories, 0, 10))
   end
 
   def with_categories(_email, _categories) do
@@ -121,8 +119,7 @@ defmodule Bamboo.SendGridHelper do
   def add_dynamic_field(email, field, value) when is_binary(field) do
     template = Map.get(email.private, @field_name, %{})
 
-    email
-    |> Email.put_private(@field_name, add_dynamic_field_to_template(template, field, value))
+    Email.put_private(email, @field_name, add_dynamic_field_to_template(template, field, value))
   end
 
   def add_dynamic_field(_email, field, _value),
@@ -139,8 +136,7 @@ defmodule Bamboo.SendGridHelper do
       |> with_asm_group_id(1234)
   """
   def with_asm_group_id(email, asm_group_id) when is_integer(asm_group_id) do
-    email
-    |> Email.put_private(@asm_group_id, asm_group_id)
+    Email.put_private(email, @asm_group_id, asm_group_id)
   end
 
   def with_asm_group_id(_email, asm_group_id) do
@@ -150,7 +146,7 @@ defmodule Bamboo.SendGridHelper do
   @doc """
   Instruct SendGrid to bypass list management for this email.
 
-  If enabled, SendGrid will ignore any email supression (such as
+  If enabled, SendGrid will ignore any email suppression (such as
   unsubscriptions, bounces, spam filters) for this email. This is useful for
   emails that all users must receive, such as Terms of Service updates, or
   password resets.
@@ -161,8 +157,7 @@ defmodule Bamboo.SendGridHelper do
       |> with_bypass_list_management(true)
   """
   def with_bypass_list_management(email, enabled) when is_boolean(enabled) do
-    email
-    |> Email.put_private(@bypass_list_management, enabled)
+    Email.put_private(email, @bypass_list_management, enabled)
   end
 
   def with_bypass_list_management(_email, enabled) do
@@ -170,10 +165,31 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
-  Instruct SendGrid to enable or disable Google Analytics tracking, and
-  optionally set the UTM parameters for it. 
+  Instruct SendGrid to bypass unsubscribe list management for this email.
 
-  This is useful if you need to control UTM tracking parameters on an individual email 
+  If enabled, SendGrid will ignore any email suppression (such as
+  unsubscriptions, bounces, spam filters) for this email. This is useful for
+  emails that all users must receive, such as Terms of Service updates, or
+  password resets.
+
+  ## Example
+
+      email
+      |> with_bypass_unsubscribe_management(true)
+  """
+  def with_bypass_unsubscribe_management(email, enabled) when is_boolean(enabled) do
+    Email.put_private(email, @bypass_unsubscribe_management, enabled)
+  end
+
+  def with_bypass_unsubscribe_management(_email, enabled) do
+    raise "expected bypass_unsubscribe_management parameter to be a boolean, got #{enabled}"
+  end
+
+  @doc """
+  Instruct SendGrid to enable or disable Google Analytics tracking, and
+  optionally set the UTM parameters for it.
+
+  This is useful if you need to control UTM tracking parameters on an individual email
   basis.
 
   ## Example
@@ -188,9 +204,7 @@ defmodule Bamboo.SendGridHelper do
 
   def with_google_analytics(email, enabled, utm_params)
       when is_boolean(enabled) do
-    utm_params =
-      utm_params
-      |> Map.take(@allowed_google_analytics_utm_params)
+    utm_params = Map.take(utm_params, @allowed_google_analytics_utm_params)
 
     email
     |> Email.put_private(@google_analytics_enabled, enabled)
@@ -223,6 +237,27 @@ defmodule Bamboo.SendGridHelper do
   end
 
   @doc """
+  Instruct SendGrid to enable or disable Subscription Tracking for a particular email.
+
+  Read more about SendGrid click tracking [here](https://docs.sendgrid.com/ui/account-and-settings/tracking#subscription-tracking)
+
+  ## Example
+
+      email
+      |> with_subscription_tracking(true)
+
+      email
+      |> with_subscription_tracking(false)
+  """
+  def with_subscription_tracking(email, enabled)
+      when is_boolean(enabled),
+      do: Email.put_private(email, @subscription_tracking_enabled, enabled)
+
+  def with_subscription_tracking(_email, _enabled) do
+    raise "expected with_subscription_tracking enabled parameter to be a boolean"
+  end
+
+  @doc """
   Schedule a time for SendGrid to deliver the email.
 
   Note that if the time is in the past, SendGrid will immediately deliver the
@@ -235,17 +270,15 @@ defmodule Bamboo.SendGridHelper do
       email
       |> with_send_at(delivery_time)
   """
-  @spec with_send_at(%Email{}, %DateTime{} | integer()) :: %Email{}
+  @spec with_send_at(Email.t(), DateTime.t() | integer()) :: Email.t()
   def with_send_at(email, %DateTime{} = time) do
     timestamp = DateTime.to_unix(time)
 
-    email
-    |> Email.put_private(@send_at_field, timestamp)
+    Email.put_private(email, @send_at_field, timestamp)
   end
 
   def with_send_at(email, unix_timestamp) when is_integer(unix_timestamp) do
-    email
-    |> Email.put_private(@send_at_field, unix_timestamp)
+    Email.put_private(email, @send_at_field, unix_timestamp)
   end
 
   def with_send_at(_email, _time) do
@@ -288,25 +321,21 @@ defmodule Bamboo.SendGridHelper do
   """
   @spec add_personalizations(Bamboo.Email.t(), [map]) :: Bamboo.Email.t()
   def add_personalizations(email, personalizations) when is_list(personalizations) do
-    email
-    |> Email.put_private(@additional_personalizations, personalizations)
+    Email.put_private(email, @additional_personalizations, personalizations)
   end
 
   defp set_template(template, template_id) do
-    template
-    |> Map.merge(%{template_id: template_id})
+    Map.merge(template, %{template_id: template_id})
   end
 
   defp add_substitution(template, tag, value) do
-    template
-    |> Map.update(:substitutions, %{tag => value}, fn substitutions ->
+    Map.update(template, :substitutions, %{tag => value}, fn substitutions ->
       Map.merge(substitutions, %{tag => value})
     end)
   end
 
   defp add_dynamic_field_to_template(template, field, value) do
-    template
-    |> Map.update(:dynamic_template_data, %{field => value}, fn dynamic_data ->
+    Map.update(template, :dynamic_template_data, %{field => value}, fn dynamic_data ->
       Map.merge(dynamic_data, %{field => value})
     end)
   end
@@ -320,30 +349,29 @@ defmodule Bamboo.SendGridHelper do
       |> with_ip_pool_name("my-ip-pool-name")
   """
   def with_ip_pool_name(email, ip_pool_name) do
-    email
-    |> Email.put_private(@ip_pool_name_field, ip_pool_name)
+    Email.put_private(email, @ip_pool_name_field, ip_pool_name)
   end
 
   @doc """
-  Set a map of unique arguments for this email. 
+  Set a map of custom arguments for this email.
 
-  This will override any existing unique arguments.
+  This will override any existing custom arguments.
 
   ## Example
 
       email
-      |> with_unique_args(%{new_arg_1: "new arg 1", new_arg_2: "new arg 2"})
+      |> with_custom_args(%{new_arg_1: "new arg 1", new_arg_2: "new arg 2"})
   """
-  def with_unique_args(email, unique_args) when is_map(unique_args) do
-    unique_args =
-      Map.get(email.private, @unique_args, %{})
-      |> Map.merge(unique_args)
+  def with_custom_args(email, custom_args) when is_map(custom_args) do
+    custom_args =
+      email.private
+      |> Map.get(@custom_args, %{})
+      |> Map.merge(custom_args)
 
-    email
-    |> Email.put_private(@unique_args, unique_args)
+    Email.put_private(email, @custom_args, custom_args)
   end
 
-  def with_unique_args(_email, _unique_args) do
-    raise "expected a map of unique arguments"
+  def with_custom_args(_email, _custom_args) do
+    raise "expected a map of custom arguments"
   end
 end
