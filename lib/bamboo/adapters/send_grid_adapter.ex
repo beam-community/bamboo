@@ -419,7 +419,7 @@ defmodule Bamboo.SendGridAdapter do
     Map.put(map, :content_id, content_id)
   end
 
-  defp attachment_disposition(%Bamboo.Attachment{content_id: cid}) when not is_nil(cid) do
+  defp attachment_disposition(%Bamboo.Attachment{content_id: cid}) when is_binary(cid) do
     "inline"
   end
 
