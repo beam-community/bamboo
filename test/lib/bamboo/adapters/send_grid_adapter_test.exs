@@ -161,7 +161,43 @@ defmodule Bamboo.SendGridAdapterTest do
              %{
                "type" => "text/plain",
                "filename" => "attachment.txt",
-               "content" => "VGVzdCBBdHRhY2htZW50Cg=="
+               "content" => "VGVzdCBBdHRhY2htZW50Cg==",
+               "disposition" => "attachment"
+             }
+           ]
+  end
+
+  test "deliver/2 sends from, html and text body, subject, headers and inline attachment" do
+    email =
+      [
+        from: {"From", "from@foo.com"},
+        subject: "My Subject",
+        text_body: "TEXT BODY",
+        html_body: "HTML BODY <img src='cid:myimg' />"
+      ]
+      |> new_email()
+      |> Email.put_header("Reply-To", "reply@foo.com")
+      |> Email.put_attachment(Path.join(__DIR__, "../../../support/attachment.txt"), content_id: "myimg")
+
+    SendGridAdapter.deliver(email, @config)
+
+    assert SendGridAdapter.supports_attachments?()
+    assert_receive {:fake_sendgrid, %{params: params, req_headers: headers}}
+
+    assert params["from"]["name"] == elem(email.from, 0)
+    assert params["from"]["email"] == elem(email.from, 1)
+    assert params["subject"] == email.subject
+    assert Enum.member?(params["content"], %{"type" => "text/plain", "value" => email.text_body})
+    assert Enum.member?(params["content"], %{"type" => "text/html", "value" => email.html_body})
+    assert Enum.member?(headers, {"authorization", "Bearer #{@config[:api_key]}"})
+
+    assert params["attachments"] == [
+             %{
+               "type" => "text/plain",
+               "filename" => "attachment.txt",
+               "content" => "VGVzdCBBdHRhY2htZW50Cg==",
+               "disposition" => "inline",
+               "content_id" => "myimg"
              }
            ]
   end

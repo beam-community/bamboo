@@ -397,15 +397,33 @@ defmodule Bamboo.SendGridAdapter do
       attachments
       |> Enum.reverse()
       |> Enum.map(fn attachment ->
-        %{
-          filename: attachment.filename,
-          type: attachment.content_type,
-          content: Base.encode64(attachment.data)
-        }
+        maybe_append_content_id(
+          %{
+            filename: attachment.filename,
+            type: attachment.content_type,
+            content: Base.encode64(attachment.data),
+            disposition: attachment_disposition(attachment)
+          },
+          attachment
+        )
       end)
 
     Map.put(body, :attachments, transformed)
   end
+
+  defp maybe_append_content_id(map, %{content_id: nil}) do
+    map
+  end
+
+  defp maybe_append_content_id(map, %{content_id: content_id}) do
+    Map.put(map, :content_id, content_id)
+  end
+
+  defp attachment_disposition(%Bamboo.Attachment{content_id: cid}) when is_binary(cid) do
+    "inline"
+  end
+
+  defp attachment_disposition(_), do: "attachment"
 
   defp put_addresses(body, _, []), do: body
 
