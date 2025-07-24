@@ -71,4 +71,35 @@ defmodule Bamboo.MailgunHelperTest do
              mailgun_recipient_variables: "{\"user1@example.com\":{\"unique_id\":\"ABC123456789\"}}"
            }
   end
+
+  test "option/3 adds allowed o: options to private" do
+    email = MailgunHelper.option(new_email(), :"o:tracking", "yes")
+    assert email |> Map.get(:private, %{}) |> Map.get(:"o:tracking") == "yes"
+
+    email = MailgunHelper.option(email, :"o:tracking-clicks", "htmlonly")
+    assert email |> Map.get(:private, %{}) |> Map.get(:"o:tracking-clicks") == "htmlonly"
+  end
+
+  test "option/3 raises error for unsupported o: options" do
+    assert_raise ArgumentError, ~r/not a supported Mailgun option/, fn ->
+      MailgunHelper.option(new_email(), :"o:unsupported", "value")
+    end
+
+    assert_raise ArgumentError, ~r/not a supported Mailgun option/, fn ->
+      MailgunHelper.option(new_email(), :"o:invalid-option", "value")
+    end
+  end
+
+  test "option/3 works with all allowed o: options" do
+    email = new_email()
+
+    # Test a few more allowed options
+    email = MailgunHelper.option(email, :"o:dkim", "yes")
+    email = MailgunHelper.option(email, :"o:testmode", "yes")
+    email = MailgunHelper.option(email, :"o:require-tls", "true")
+
+    assert email.private[:"o:dkim"] == "yes"
+    assert email.private[:"o:testmode"] == "yes"
+    assert email.private[:"o:require-tls"] == "true"
+  end
 end

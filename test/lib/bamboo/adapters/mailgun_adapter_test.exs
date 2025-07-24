@@ -287,6 +287,76 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["t:text"] == "yes"
   end
 
+  test "deliver/2 includes whitelisted o: options from private" do
+    email =
+      [from: "from@foo.com", subject: "My Subject", text_body: "TEXT BODY", html_body: "HTML BODY"]
+      |> new_email()
+      |> Email.put_private(:"o:tracking", "yes")
+      |> Email.put_private(:"o:tracking-clicks", "htmlonly")
+      |> Email.put_private(:"o:dkim", "yes")
+      |> Email.put_private(:"o:testmode", "true")
+
+    MailgunAdapter.deliver(email, @config)
+
+    assert_receive {:fake_mailgun, %{params: params}}
+
+    assert params["o:tracking"] == "yes"
+    assert params["o:tracking-clicks"] == "htmlonly"
+    assert params["o:dkim"] == "yes"
+    assert params["o:testmode"] == "true"
+  end
+
+  test "deliver/2 ignores unsupported o: options from private" do
+    email =
+      [from: "from@foo.com", subject: "My Subject", text_body: "TEXT BODY", html_body: "HTML BODY"]
+      |> new_email()
+      |> Email.put_private(:"o:tracking", "yes")
+      |> Email.put_private(:"o:unsupported-option", "value")
+      |> Email.put_private(:"o:invalid", "should-be-ignored")
+
+    MailgunAdapter.deliver(email, @config)
+
+    assert_receive {:fake_mailgun, %{params: params}}
+
+    # Supported option should be included
+    assert params["o:tracking"] == "yes"
+
+    # Unsupported options should be ignored
+    refute Map.has_key?(params, "o:unsupported-option")
+    refute Map.has_key?(params, "o:invalid")
+  end
+
+  test "deliver/2 works with all allowed o: options" do
+    email =
+      [from: "from@foo.com", subject: "My Subject", text_body: "TEXT BODY", html_body: "HTML BODY"]
+      |> new_email()
+      |> Email.put_private(:"o:tag", ["tag1", "tag2"])
+      |> Email.put_private(:"o:deliverytime", "Wed, 15 Nov 2023 09:30:00 +0000")
+      |> Email.put_private(:"o:tracking-opens", "yes")
+      |> Email.put_private(:"o:require-tls", "true")
+      |> Email.put_private(:"o:skip-verification", "false")
+      |> Email.put_private(:"o:sending-ip", "192.168.1.1")
+      |> Email.put_private(:"o:sending-ip-pool", "pool-123")
+      |> Email.put_private(:"o:tracking-pixel-location-top", "yes")
+      |> Email.put_private(:"o:secondary-dkim", "example.com/s1")
+      |> Email.put_private(:"o:secondary-dkim-public", "public.com/s1")
+
+    MailgunAdapter.deliver(email, @config)
+
+    assert_receive {:fake_mailgun, %{params: params}}
+
+    assert params["o:tag"] == ["tag1", "tag2"]
+    assert params["o:deliverytime"] == "Wed, 15 Nov 2023 09:30:00 +0000"
+    assert params["o:tracking-opens"] == "yes"
+    assert params["o:require-tls"] == "true"
+    assert params["o:skip-verification"] == "false"
+    assert params["o:sending-ip"] == "192.168.1.1"
+    assert params["o:sending-ip-pool"] == "pool-123"
+    assert params["o:tracking-pixel-location-top"] == "yes"
+    assert params["o:secondary-dkim"] == "example.com/s1"
+    assert params["o:secondary-dkim-public"] == "public.com/s1"
+  end
+
   test "returns an error if the response is not a success" do
     email = new_email(from: "INVALID_EMAIL")
 
