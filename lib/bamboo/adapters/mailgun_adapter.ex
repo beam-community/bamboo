@@ -56,6 +56,22 @@ defmodule Bamboo.MailgunAdapter do
   @internal_fields ~w(attachments)a
   @mailgun_message_fields ~w(from to cc bcc subject text html template recipient-variables)a
   @service_name "Mailgun"
+  @allowed_mailgun_o_options [
+    :"o:tag",
+    :"o:dkim",
+    :"o:deliverytime",
+    :"o:testmode",
+    :"o:tracking",
+    :"o:tracking-clicks",
+    :"o:tracking-opens",
+    :"o:require-tls",
+    :"o:skip-verification",
+    :"o:sending-ip",
+    :"o:sending-ip-pool",
+    :"o:tracking-pixel-location-top",
+    :"o:secondary-dkim",
+    :"o:secondary-dkim-public"
+  ]
 
   @doc false
   def handle_config(config) do
@@ -151,6 +167,7 @@ defmodule Bamboo.MailgunAdapter do
     |> put_template_version(email)
     |> put_template_text(email)
     |> put_custom_vars(email)
+    |> put_options(email)
     |> put_recipient_variables(email)
     |> filter_non_empty_mailgun_fields
     |> encode_body
@@ -196,6 +213,8 @@ defmodule Bamboo.MailgunAdapter do
     end)
   end
 
+  # Deprecated: use put_options instead. These are kept for backward compatibility.
+  # Will be removed in a future release.
   defp put_tag(body, %Email{private: %{:"o:tag" => tag}}), do: Map.put(body, :"o:tag", tag)
   defp put_tag(body, %Email{}), do: body
 
@@ -250,6 +269,15 @@ defmodule Bamboo.MailgunAdapter do
 
   defp prepare_file(%Attachment{} = attachment) do
     {"", attachment.data, {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
+  end
+
+  defp put_options(body, %Email{private: private}) do
+    Enum.reduce(@allowed_mailgun_o_options, body, fn key, acc ->
+      case Map.fetch(private, key) do
+        {:ok, value} -> Map.put(acc, key, value)
+        :error -> acc
+      end
+    end)
   end
 
   def filter_non_empty_mailgun_fields(body) do

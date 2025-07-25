@@ -8,6 +8,23 @@ defmodule Bamboo.MailgunHelper do
 
   @mailgun_header_for_custom_vars "X-Mailgun-Variables"
 
+  @allowed_mailgun_o_options [
+    :"o:tag",
+    :"o:dkim",
+    :"o:deliverytime",
+    :"o:testmode",
+    :"o:tracking",
+    :"o:tracking-clicks",
+    :"o:tracking-opens",
+    :"o:require-tls",
+    :"o:skip-verification",
+    :"o:sending-ip",
+    :"o:sending-ip-pool",
+    :"o:tracking-pixel-location-top",
+    :"o:secondary-dkim",
+    :"o:secondary-dkim-public"
+  ]
+
   @doc """
   Add a tag to outgoing email to help categorize traffic based on some
   criteria, perhaps separate signup emails from password recovery emails
@@ -146,5 +163,28 @@ defmodule Bamboo.MailgunHelper do
   def recipient_variables(email, value) when is_map(value) do
     encoded_value = Bamboo.json_library().encode!(value)
     Email.put_private(email, :mailgun_recipient_variables, encoded_value)
+  end
+
+  @doc """
+  Set a Mailgun option (`o:` parameter) on the email in a safe, validated way.
+
+  Only the options allowed by the Mailgun API are supported. See:
+  https://mailgun-docs.redoc.ly/docs/mailgun/api-reference/openapi-final/tag/Messages/#tag/Messages/operation/POST-v3--domain-name--messages
+
+  ## Example
+
+      email
+      |> MailgunHelper.option(:"o:tracking", "yes")
+      |> MailgunHelper.option(:"o:tracking-clicks", "htmlonly")
+
+  If you try to set an unsupported option, an ArgumentError will be raised.
+  """
+  def option(email, key, value) when key in @allowed_mailgun_o_options do
+    Email.put_private(email, key, value)
+  end
+
+  def option(_email, key, _value) do
+    raise ArgumentError,
+          "#{inspect(key)} is not a supported Mailgun option. See the Mailgun API docs for allowed options."
   end
 end
