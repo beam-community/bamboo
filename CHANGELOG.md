@@ -7,6 +7,13 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.5.0](https://github.com/beam-community/bamboo/compare/v2.4.0...v2.5.0) (2025-07-25)
+
+
+### Features
+
+* Add support for all Mailgun `o:` options ([#718](https://github.com/beam-community/bamboo/issues/718)) ([22e231d](https://github.com/beam-community/bamboo/commit/22e231dc7da03cd942f1249241031d5a5e7e887e))
+
 ## [2.4.0](https://github.com/beam-community/bamboo/compare/v2.3.1...v2.4.0) (2025-03-05)
 
 
