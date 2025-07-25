@@ -182,7 +182,9 @@ defmodule Bamboo.MailgunHelper do
   def option(email, key, value) when key in @allowed_mailgun_o_options do
     Email.put_private(email, key, value)
   end
+
   def option(_email, key, _value) do
-    raise ArgumentError, "#{inspect(key)} is not a supported Mailgun option. See the Mailgun API docs for allowed options."
+    raise ArgumentError,
+          "#{inspect(key)} is not a supported Mailgun option. See the Mailgun API docs for allowed options."
   end
 end
