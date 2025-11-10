@@ -7,6 +7,29 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.4.0](https://github.com/beam-community/bamboo/compare/v2.3.0...v2.4.0) (2025-11-10)
+
+
+### Features
+
+* Add support for all Mailgun `o:` options ([#718](https://github.com/beam-community/bamboo/issues/718)) ([22e231d](https://github.com/beam-community/bamboo/commit/22e231dc7da03cd942f1249241031d5a5e7e887e))
+* Print email metadata on preview without body ([6ad48f7](https://github.com/beam-community/bamboo/commit/6ad48f7834d8b70ff892de0e3c983560dbb13433))
+* SendGrid `subscription_tracking` setting ([#655](https://github.com/beam-community/bamboo/issues/655)) ([381d257](https://github.com/beam-community/bamboo/commit/381d25740cdf5f52caf991e3da02ead85056f68d))
+* Sendgrid support for content_id  ([#691](https://github.com/beam-community/bamboo/issues/691)) ([7a878f4](https://github.com/beam-community/bamboo/commit/7a878f4e4d3f988e6ee2e81623d796d3cc8700ac))
+
+
+### Bug Fixes
+
+* Fix Elixir 1.17 warning about function call without parens ([1c1d002](https://github.com/beam-community/bamboo/commit/1c1d002a5ef74e4494e777aa64ad4068a234ccd0))
+* Fix invalid typespec ([7b5d99d](https://github.com/beam-community/bamboo/commit/7b5d99dd46b5466e5e4f857c2403a76114212e3e))
+* README badge and broken links ([c0ea19b](https://github.com/beam-community/bamboo/commit/c0ea19b54f1ca95c7718d3288b8f67a724c07ee2))
+
+
+### Miscellaneous
+
+* Clean up Credo and formatter issues ([f6b89f0](https://github.com/beam-community/bamboo/commit/f6b89f0233afd81e2abb14a07f7e4522e82ab916))
+* Incorporate Credo changes ([f6d84bb](https://github.com/beam-community/bamboo/commit/f6d84bb5c781be14434471d4a1de7a73779bf79e))
+
 ## [2.5.0](https://github.com/beam-community/bamboo/compare/v2.4.0...v2.5.0) (2025-07-25)
 
 
