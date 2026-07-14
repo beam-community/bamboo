@@ -7,6 +7,13 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.5.1](https://github.com/beam-community/bamboo/compare/v2.5.0...v2.5.1) (2026-07-14)
+
+
+### Bug Fixes
+
+* Unblock common-config sync, pinned actions-sync release had no build output ([#765](https://github.com/beam-community/bamboo/issues/765)) ([24d325b](https://github.com/beam-community/bamboo/commit/24d325ba5a04bc63e07391366e1f3b1a0ab8e5fc))
+
 ## [2.5.0](https://github.com/beam-community/bamboo/compare/v2.4.0...v2.5.0) (2025-07-25)
 
 
