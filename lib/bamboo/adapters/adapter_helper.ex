@@ -1,7 +1,9 @@
 defmodule Bamboo.AdapterHelper do
-  def hackney_opts(config) do
+  @default_req_options [decode_body: false]
+
+  def req_options(config) do
     config
-    |> Map.get(:hackney_opts, [])
-    |> Enum.concat([:with_body])
+    |> Map.get(:req_opts, [])
+    |> Keyword.merge(@default_req_options)
   end
 end

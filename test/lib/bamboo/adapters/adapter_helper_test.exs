@@ -1,25 +1,25 @@
 defmodule Bamboo.AdapterHelperTest do
   use ExUnit.Case
 
-  describe "hackney_opts" do
-    test "when no hackney_opts key exists in config" do
-      assert Bamboo.AdapterHelper.hackney_opts(%{}) == [
-               :with_body
+  describe "req_options" do
+    test "when no req_opts key exists in config" do
+      assert Bamboo.AdapterHelper.req_options(%{}) == [
+               decode_body: false
              ]
     end
 
-    test "adds [:with_body] to hackney opts from config" do
+    test "adds [decode_body: false] to req opts from config" do
       config = %{
-        hackney_opts: [
-          recv_timeout: :timer.minutes(1),
-          connect_timeout: :timer.minutes(1)
+        req_opts: [
+          receive_timeout: 60_000,
+          connect_options: [timeout: 60_000]
         ]
       }
 
-      assert Bamboo.AdapterHelper.hackney_opts(config) == [
-               {:recv_timeout, 60_000},
-               {:connect_timeout, 60_000},
-               :with_body
+      assert Bamboo.AdapterHelper.req_options(config) == [
+               receive_timeout: 60_000,
+               connect_options: [timeout: 60_000],
+               decode_body: false
              ]
     end
   end

@@ -12,8 +12,8 @@ defmodule Bamboo.MandrillAdapter do
       config :my_app, MyApp.Mailer,
         adapter: Bamboo.MandrillAdapter,
         api_key: "my_api_key",
-        hackney_opts: [
-          recv_timeout: :timer.minutes(1)
+        req_opts: [
+          receive_timeout: :timer.minutes(1)
         ]
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
@@ -35,17 +35,29 @@ defmodule Bamboo.MandrillAdapter do
   def deliver(email, config) do
     api_key = get_key(config)
     params = email |> convert_to_mandrill_params(api_key) |> Bamboo.json_library().encode!()
-    uri = [base_uri(), "/", api_path(email)]
+    uri = base_uri() <> "/" <> api_path(email)
 
-    case :hackney.post(uri, headers(), params, AdapterHelper.hackney_opts(config)) do
-      {:ok, status, _headers, response} when status > 299 ->
+    options =
+      [
+        headers: headers(),
+        body: params
+      ]
+      |> Keyword.merge(AdapterHelper.req_options(config))
+
+    case Req.post(uri, options) do
+      {:ok, %Req.Response{status: status, body: response}} when status > 299 ->
         filtered_params =
           params |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
 
         {:error, build_api_error(@service_name, response, filtered_params)}
 
-      {:ok, status, headers, response} ->
-        {:ok, %{status_code: status, headers: headers, body: response}}
+      {:ok, %Req.Response{status: status} = response} ->
+        {:ok,
+         %{
+           status_code: status,
+           headers: Req.get_headers_list(response),
+           body: response.body
+         }}
 
       {:error, reason} ->
         {:error, build_api_error(inspect(reason))}

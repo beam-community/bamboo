@@ -14,8 +14,8 @@ defmodule Bamboo.MailgunAdapter do
         adapter: Bamboo.MailgunAdapter,
         api_key: "my_api_key" # or {:system, "MAILGUN_API_KEY"},
         domain: "your.domain" # or {:system, "MAILGUN_DOMAIN"},
-        hackney_opts: [
-          recv_timeout: :timer.minutes(1)
+        req_opts: [
+          receive_timeout: :timer.minutes(1)
         ]
 
       # Define a Mailer. Maybe in lib/my_app/mailer.ex
@@ -118,15 +118,19 @@ defmodule Bamboo.MailgunAdapter do
     body = to_mailgun_body(email)
     config = handle_config(config)
     uri = full_uri(config)
-    headers = headers(email, config)
+    {options, encoded_body} = build_request_options(body, headers(email, config), config)
 
-    case :hackney.post(uri, headers, body, AdapterHelper.hackney_opts(config)) do
-      {:ok, status, _headers, response} when status > 299 ->
-        body = decode_body(body)
-        {:error, build_api_error(@service_name, response, body)}
+    case Req.post(uri, options) do
+      {:ok, %Req.Response{status: status, body: response}} when status > 299 ->
+        {:error, build_api_error(@service_name, response, decode_body(encoded_body))}
 
-      {:ok, status, headers, response} ->
-        {:ok, %{status_code: status, headers: headers, body: response}}
+      {:ok, %Req.Response{status: status} = response} ->
+        {:ok,
+         %{
+           status_code: status,
+           headers: Req.get_headers_list(response),
+           body: response.body
+         }}
 
       {:error, reason} ->
         {:error, build_api_error(inspect(reason))}
@@ -170,7 +174,6 @@ defmodule Bamboo.MailgunAdapter do
     |> put_options(email)
     |> put_recipient_variables(email)
     |> filter_non_empty_mailgun_fields
-    |> encode_body
   end
 
   defp put_from(body, %Email{from: from}), do: Map.put(body, :from, prepare_recipient(from))
@@ -268,7 +271,7 @@ defmodule Bamboo.MailgunAdapter do
   end
 
   defp prepare_file(%Attachment{} = attachment) do
-    {"", attachment.data, {"form-data", [{"name", ~s/"attachment"/}, {"filename", ~s/"#{attachment.filename}"/}]}, []}
+    {"attachment", {attachment.data, filename: attachment.filename, content_type: "application/octet-stream"}}
   end
 
   defp put_options(body, %Email{private: private}) do
@@ -291,19 +294,36 @@ defmodule Bamboo.MailgunAdapter do
     |> Enum.into(%{})
   end
 
-  defp encode_body(%{attachments: attachments} = body) do
-    {
-      :multipart,
-      # Drop the remaining non-Mailgun fields
-      # Append the attachment parts
+  defp build_request_options(%{attachments: attachments} = body, headers, config)
+       when attachments != [] do
+    fields =
       body
       |> Map.drop(@internal_fields)
       |> Enum.map(fn {k, v} -> {to_string(k), to_string(v)} end)
       |> Kernel.++(attachments)
-    }
+
+    options =
+      [
+        headers: headers,
+        form_multipart: fields
+      ]
+      |> Keyword.merge(AdapterHelper.req_options(config))
+
+    {options, {:multipart, fields}}
   end
 
-  defp encode_body(body_without_attachments), do: Plug.Conn.Query.encode(body_without_attachments)
+  defp build_request_options(body, headers, config) do
+    encoded_body = Plug.Conn.Query.encode(body)
+
+    options =
+      [
+        headers: headers,
+        body: encoded_body
+      ]
+      |> Keyword.merge(AdapterHelper.req_options(config))
+
+    {options, encoded_body}
+  end
 
   defp decode_body({:multipart, _} = multipart_body), do: multipart_body
 

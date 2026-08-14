@@ -7,7 +7,7 @@ defmodule Bamboo.Mixfile do
     [
       app: :bamboo,
       version: "2.5.0",
-      elixir: "~> 1.6",
+      elixir: "~> 1.15",
       source_url: @project_url,
       homepage_url: @project_url,
       test_coverage: [tool: ExCoveralls],
@@ -60,7 +60,8 @@ defmodule Bamboo.Mixfile do
 
   defp deps do
     [
-      {:hackney, ">= 1.15.2"},
+      {:req, "~> 0.7"},
+      {:castore, "~> 1.0"},
       {:jason, "~> 1.0", optional: true},
       {:mime, "~> 1.4 or ~> 2.0"},
       {:plug, "~> 1.0"},

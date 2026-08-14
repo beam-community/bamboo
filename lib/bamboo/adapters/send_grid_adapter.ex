@@ -22,8 +22,8 @@ defmodule Bamboo.SendGridAdapter do
         api_key: "my_api_key",
           # or {:system, "SENDGRID_API_KEY"},
           # or {ModuleName, :method_name, []}
-        hackney_opts: [
-          recv_timeout: :timer.minutes(1)
+        req_opts: [
+          receive_timeout: :timer.minutes(1)
         ]
 
       # To enable sandbox mode (e.g. in development or staging environments),
@@ -53,17 +53,29 @@ defmodule Bamboo.SendGridAdapter do
 
     try do
       body = email |> to_sendgrid_body(config) |> Bamboo.json_library().encode!()
-      url = [base_uri(), @send_message_path]
+      url = base_uri() <> @send_message_path
 
-      case :hackney.post(url, headers(api_key), body, AdapterHelper.hackney_opts(config)) do
-        {:ok, status, _headers, response} when status > 299 ->
+      options =
+        [
+          headers: headers(api_key),
+          body: body
+        ]
+        |> Keyword.merge(AdapterHelper.req_options(config))
+
+      case Req.post(url, options) do
+        {:ok, %Req.Response{status: status, body: response}} when status > 299 ->
           filtered_params =
             body |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
 
           {:error, build_api_error(@service_name, response, filtered_params)}
 
-        {:ok, status, headers, response} ->
-          {:ok, %{status_code: status, headers: headers, body: response}}
+        {:ok, %Req.Response{status: status} = response} ->
+          {:ok,
+           %{
+             status_code: status,
+             headers: Req.get_headers_list(response),
+             body: response.body
+           }}
 
         {:error, reason} ->
           {:error, build_api_error(inspect(reason))}

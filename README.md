@@ -124,18 +124,18 @@ config :my_app, MyApp.Mailer,
   api_key: "my_api_key"
 ```
 
-Bamboo uses [Hackney](https://github.com/benoitc/hackney) for making requests.
-If you want to pass options to Hackney directly, such as controlling
-timeouts, you can use the `hackney_opts` key:
+Bamboo uses [Req](https://github.com/wojtekmach/req) for making requests.
+If you want to pass options to Req directly, such as controlling
+timeouts, you can use the `req_opts` key:
 
 ```elixir
 # config/config.exs
 config :my_app, MyApp.Mailer,
   adapter: Bamboo.MandrillAdapter,
   api_key: "my_api_key",
-  hackney_opts: [
-    recv_timeout: :timer.minutes(1),
-    connect_timeout: :timer.minutes(1)
+  req_opts: [
+    receive_timeout: :timer.minutes(1),
+    connect_options: [timeout: :timer.minutes(1)]
   ]
 ```
 
