@@ -38,11 +38,13 @@ defmodule Bamboo.MandrillAdapter do
     uri = base_uri() <> "/" <> api_path(email)
 
     options =
-      [
-        headers: headers(),
-        body: params
-      ]
-      |> Keyword.merge(AdapterHelper.req_options(config))
+      Keyword.merge(
+        [
+          headers: headers(),
+          body: params
+        ],
+        AdapterHelper.req_options(config)
+      )
 
     case Req.post(uri, options) do
       {:ok, %Req.Response{status: status, body: response}} when status > 299 ->

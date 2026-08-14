@@ -56,11 +56,13 @@ defmodule Bamboo.SendGridAdapter do
       url = base_uri() <> @send_message_path
 
       options =
-        [
-          headers: headers(api_key),
-          body: body
-        ]
-        |> Keyword.merge(AdapterHelper.req_options(config))
+        Keyword.merge(
+          [
+            headers: headers(api_key),
+            body: body
+          ],
+          AdapterHelper.req_options(config)
+        )
 
       case Req.post(url, options) do
         {:ok, %Req.Response{status: status, body: response}} when status > 299 ->

@@ -303,11 +303,13 @@ defmodule Bamboo.MailgunAdapter do
       |> Kernel.++(attachments)
 
     options =
-      [
-        headers: headers,
-        form_multipart: fields
-      ]
-      |> Keyword.merge(AdapterHelper.req_options(config))
+      Keyword.merge(
+        [
+          headers: headers,
+          form_multipart: fields
+        ],
+        AdapterHelper.req_options(config)
+      )
 
     {options, {:multipart, fields}}
   end
@@ -316,11 +318,13 @@ defmodule Bamboo.MailgunAdapter do
     encoded_body = Plug.Conn.Query.encode(body)
 
     options =
-      [
-        headers: headers,
-        body: encoded_body
-      ]
-      |> Keyword.merge(AdapterHelper.req_options(config))
+      Keyword.merge(
+        [
+          headers: headers,
+          body: encoded_body
+        ],
+        AdapterHelper.req_options(config)
+      )
 
     {options, encoded_body}
   end
