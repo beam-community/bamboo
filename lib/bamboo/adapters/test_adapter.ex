@@ -2,8 +2,8 @@ defmodule Bamboo.TestAdapter do
   @moduledoc """
   Used for testing email delivery.
 
-  No emails are sent, instead a message is sent to the current process and can
-  be asserted on with helpers from `Bamboo.Test`.
+  No emails are sent, instead a message is sent to the current process and to
+  its caller processes, and can be asserted on with helpers from `Bamboo.Test`.
 
   ## Example config
 
@@ -22,12 +22,20 @@ defmodule Bamboo.TestAdapter do
   @doc false
   def deliver(email, _config) do
     email = clean_assigns(email)
-    send(test_process(), {:delivered_email, email})
+
+    for pid <- test_processes() do
+      send(pid, {:delivered_email, email})
+    end
+
     {:ok, email}
   end
 
-  defp test_process do
-    Application.get_env(:bamboo, :shared_test_process) || self()
+  defp test_processes do
+    if pid = Application.get_env(:bamboo, :shared_test_process) do
+      [pid]
+    else
+      Enum.uniq([self() | List.wrap(Process.get(:"$callers"))])
+    end
   end
 
   def handle_config(config) do

@@ -25,6 +25,17 @@ defmodule Bamboo.TestAdapterTest do
     assert_received {:delivered_email, ^email}
   end
 
+  test "deliver sends a message to the caller processes" do
+    email = new_email()
+    config = %{}
+
+    Task.await(Task.async(fn -> TestAdapter.deliver(email, config) end))
+
+    email = TestAdapter.clean_assigns(email)
+
+    assert_received {:delivered_email, ^email}
+  end
+
   describe "handle_config/1" do
     test "handle_config makes sure that the ImmediateDeliveryStrategy is used" do
       new_config = TestAdapter.handle_config(%{})

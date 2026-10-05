@@ -8,9 +8,15 @@ defmodule Bamboo.Test do
 
   ## Note on sending from other processes
 
-  If you are sending emails from another process (for example, from inside a
-  Task or GenServer) you may need to use shared mode when using
-  `Bamboo.Test`. See the docs `__using__/1` for an example.
+  `Bamboo.TestAdapter` also sends delivered emails to the caller processes
+  listed in `$callers`. Processes started by the test with `Task`, and
+  LiveViews started with `Phoenix.LiveViewTest`, record the test process
+  there, so emails they deliver reach the test without shared mode.
+
+  If you are sending emails from a process that does not record the test
+  process in `$callers` (for example, a GenServer or a process started with
+  `spawn/1`) you may need to use shared mode when using `Bamboo.Test`. See
+  the docs `__using__/1` for an example.
 
   For most scenarios you will not need shared mode.
 
