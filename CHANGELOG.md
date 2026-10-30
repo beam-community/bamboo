@@ -7,6 +7,14 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/bamboo
 
+## [2.5.1](https://github.com/beam-community/bamboo/compare/v2.5.0...v2.5.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* Enforce LF line endings via .gitattributes ([#776](https://github.com/beam-community/bamboo/issues/776)) ([b77e8ad](https://github.com/beam-community/bamboo/commit/b77e8adfc846d1cd5248bfb33881c31f48ae1c6b)), closes [#771](https://github.com/beam-community/bamboo/issues/771)
+* Unblock common-config sync, pinned actions-sync release had no build output ([#765](https://github.com/beam-community/bamboo/issues/765)) ([24d325b](https://github.com/beam-community/bamboo/commit/24d325ba5a04bc63e07391366e1f3b1a0ab8e5fc))
+
 ## [2.5.0](https://github.com/beam-community/bamboo/compare/v2.4.0...v2.5.0) (2025-07-25)
 
 
