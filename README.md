@@ -48,7 +48,7 @@ To install Bamboo, add it to your list of dependencies in `mix.exs`.
 
 ```elixir
 def deps do
-  [{:bamboo, "~> 2.5.0"}] # x-release-please-version
+  [{:bamboo, "~> 2.5.1"}] # x-release-please-version
 end
 ```
 
