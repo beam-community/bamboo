@@ -66,14 +66,14 @@ defmodule Bamboo.Mixfile do
       {:plug, "~> 1.0"},
 
       # Dev & test dependencies
-      {:cowboy, "~> 1.0", only: [:test, :dev]},
+      {:cowboy, "~> 2.0", only: [:test, :dev]},
       {:credo, ">= 0.0.0", only: [:dev, :test]},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.23", only: :dev},
       {:ex_machina, "~> 2.4", only: :test},
       {:excoveralls, "~> 0.13", only: :test},
       {:floki, "~> 0.29", only: :test},
-      {:plug_cowboy, "~> 1.0", only: [:dev, :test]}
+      {:plug_cowboy, "~> 2.0", only: [:dev, :test]}
     ]
   end
 end

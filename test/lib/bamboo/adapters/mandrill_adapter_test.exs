@@ -33,9 +33,9 @@ defmodule Bamboo.MandrillAdapterTest do
     end
 
     defp get_free_port do
-      {:ok, socket} = :ranch_tcp.listen(port: 0)
+      {:ok, socket} = :gen_tcp.listen(0, [])
       {:ok, port} = :inet.port(socket)
-      :erlang.port_close(socket)
+      :gen_tcp.close(socket)
       port
     end
 
