@@ -211,15 +211,18 @@ defmodule Bamboo.Mailer do
         {:ok, email}
       else
         debug_sent(email, adapter)
-
-        case adapter.deliver(email, config) do
-          {:ok, response} -> format_response(email, response, opts)
-          {:error, _} = error -> error
-        end
+        deliver_with_adapter(adapter, email, config, opts)
       end
     else
       %Bamboo.Email{blocked: true} = email -> {:ok, email}
       response -> response
+    end
+  end
+
+  defp deliver_with_adapter(adapter, email, config, opts) do
+    case adapter.deliver(email, config) do
+      {:ok, response} -> format_response(email, response, opts)
+      {:error, _} = error -> error
     end
   end
 
