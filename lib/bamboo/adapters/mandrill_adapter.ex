@@ -35,7 +35,7 @@ defmodule Bamboo.MandrillAdapter do
   def deliver(email, config) do
     api_key = get_key(config)
     params = email |> convert_to_mandrill_params(api_key) |> Bamboo.json_library().encode!()
-    uri = [base_uri(), "/", api_path(email)]
+    uri = IO.iodata_to_binary([base_uri(), "/", api_path(email)])
 
     case :hackney.post(uri, headers(), params, AdapterHelper.hackney_opts(config)) do
       {:ok, status, _headers, response} when status > 299 ->

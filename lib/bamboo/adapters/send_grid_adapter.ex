@@ -53,7 +53,7 @@ defmodule Bamboo.SendGridAdapter do
 
     try do
       body = email |> to_sendgrid_body(config) |> Bamboo.json_library().encode!()
-      url = [base_uri(), @send_message_path]
+      url = IO.iodata_to_binary([base_uri(), @send_message_path])
 
       case :hackney.post(url, headers(api_key), body, AdapterHelper.hackney_opts(config)) do
         {:ok, status, _headers, response} when status > 299 ->
@@ -245,7 +245,7 @@ defmodule Bamboo.SendGridAdapter do
   defp put_content(body, email) do
     email_content = content(email)
 
-    if length(email_content) > 0 do
+    if email_content != [] do
       Map.put(body, :content, content(email))
     else
       body

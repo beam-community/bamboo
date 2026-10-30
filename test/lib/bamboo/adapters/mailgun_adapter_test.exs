@@ -34,9 +34,9 @@ defmodule Bamboo.MailgunAdapterTest do
     end
 
     defp get_free_port do
-      {:ok, socket} = :ranch_tcp.listen(port: 0)
+      {:ok, socket} = :gen_tcp.listen(0, [])
       {:ok, port} = :inet.port(socket)
-      :erlang.port_close(socket)
+      :gen_tcp.close(socket)
       port
     end
 
@@ -63,9 +63,17 @@ defmodule Bamboo.MailgunAdapterTest do
 
     defp send_to_parent(conn) do
       parent = Agent.get(__MODULE__, fn set -> Map.get(set, :parent) end)
-      send(parent, {:fake_mailgun, conn})
+      send(parent, {:fake_mailgun, read_upload(conn)})
       conn
     end
+
+    # Plug deletes uploaded files when the request process exits, so read
+    # the attachment before handing the conn to the test process.
+    defp read_upload(%{params: %{"attachment" => %Plug.Upload{path: path}}} = conn) do
+      assign(conn, :attachment_contents, File.read!(path))
+    end
+
+    defp read_upload(conn), do: conn
   end
 
   setup do
@@ -218,7 +226,7 @@ defmodule Bamboo.MailgunAdapterTest do
 
     MailgunAdapter.deliver(email, @config)
 
-    assert_receive {:fake_mailgun, %{params: params, req_headers: headers}}
+    assert_receive {:fake_mailgun, %{params: params, req_headers: headers, assigns: assigns}}
 
     assert MailgunAdapter.supports_attachments?()
     assert params["from"] == elem(email.from, 1)
@@ -230,12 +238,11 @@ defmodule Bamboo.MailgunAdapterTest do
     assert params["v:other_custom_var"] == "43"
     assert params["h:Reply-To"] == "random@foo.com"
 
-    assert %Plug.Upload{content_type: content_type, filename: filename, path: download_path} =
-             params["attachment"]
+    assert %Plug.Upload{content_type: content_type, filename: filename} = params["attachment"]
 
     assert content_type == "application/octet-stream"
     assert filename == "attachment.txt"
-    assert File.read!(download_path) == File.read!(attachment_source_path)
+    assert assigns.attachment_contents == File.read!(attachment_source_path)
 
     hashed_token = Base.encode64("api:" <> @config.api_key)
     assert {"authorization", "Basic #{hashed_token}"} in headers
